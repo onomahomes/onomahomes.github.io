@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ONOMA · Registro Colaborador</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.card{background:#fff;border-radius:20px;padding:32px 28px;width:100%;max-width:420px;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+.logo{text-align:center;margin-bottom:28px}
+.logo-txt{font-size:13px;letter-spacing:4px;font-weight:900;color:#e8c97e;background:#1a1a2e;display:inline-block;padding:8px 18px;border-radius:8px}
+.logo-sub{font-size:15px;color:#666;margin-top:10px;font-weight:600}
+.fld{margin-bottom:16px}
+.fld label{display:block;font-size:12px;font-weight:700;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.fld input,.fld select{width:100%;padding:13px 14px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:15px;outline:none;background:#fafafa;font-family:inherit}
+.fld input:focus{border-color:#1a1a2e;background:#fff}
+::placeholder{font-style:italic;color:#bbb}
+.btn{width:100%;padding:16px;background:#1a1a2e;color:#e8c97e;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;margin-top:6px}
+.btn:active{opacity:.85}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.link{text-align:center;margin-top:18px;font-size:14px;color:#888}
+.link a{color:#c9a84c;font-weight:700;text-decoration:none}
+.err{background:#fff0f0;border:1px solid #ffcccc;border-radius:8px;padding:12px;font-size:14px;color:#c0392b;margin-bottom:14px;display:none}
+.ok-box{text-align:center;padding:10px 0}
+.ok-ico{font-size:54px}
+.ok-box h3{margin-top:14px;font-size:18px;font-weight:800;color:#1a1a2e}
+.ok-box p{color:#888;margin-top:8px;font-size:14px;line-height:1.5}
+.spin{display:inline-block;width:28px;height:28px;border:3px solid #e8e8e8;border-top-color:#1a1a2e;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:14px}
+@keyframes spin{to{transform:rotate(360deg)}}</style></head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-txt">ONOMA</div>
+    <div class="logo-sub">Registro de Colaborador</div>
+  </div>
+  <div class="err" id="err"></div>
+  <div id="formReg">
+    <div class="fld"><label>Nombre completo *</label><input id="nombre" type="text" placeholder="Escribe aquí tu nombre completo..."></div>
+    <div class="fld"><label>Empresa (opcional)</label><input id="empresa" type="text" placeholder="Nombre de tu empresa o agencia..."></div>
+    <div class="fld"><label>Email *</label><input id="email" type="email" placeholder="Escribe aquí tu email..."></div>
+    <div class="fld"><label>Teléfono *</label><input id="tel" type="tel" placeholder="Escribe aquí tu teléfono..."></div>
+    <div class="fld"><label>NIF / CIF (opcional)</label><input id="nif" type="text" placeholder="Documento de identidad o empresa..."></div>
+    <button class="btn" id="btnReg" onclick="registrar()">Solicitar acceso →</button>
+  </div>
+  <div class="ok-box" id="okReg" style="display:none">
+    <div class="ok-ico">📧</div>
+    <h3>¡Solicitud enviada!</h3>
+    <p>Te hemos enviado un email de confirmación.<br>Revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.</p>
+  </div>
+  <div class="link">¿Ya tienes cuenta? <a href="portal.html">Inicia sesión</a></div>
+</div>
+<script>
+async function registrar(){
+  const nombre=document.getElementById('nombre').value.trim();
+  const email=document.getElementById('email').value.trim();
+  const tel=document.getElementById('tel').value.trim();
+  const err=document.getElementById('err');
+  err.style.display='none';
+  if(!nombre||!email||!tel){err.textContent='Nombre, email y teléfono son obligatorios';err.style.display='block';return;}
+  if(!email.includes('@')){err.textContent='El email no es válido';err.style.display='block';return;}
+  const btn=document.getElementById('btnReg');
+  btn.disabled=true;btn.textContent='Enviando...';
+  try{
+    const r=await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-registro',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      nombre,empresa:document.getElementById('empresa').value.trim(),email,telefono:tel,nif:document.getElementById('nif').value.trim()
+    })});
+    const d=await r.json();
+    if(d.ok){document.getElementById('formReg').style.display='none';document.getElementById('okReg').style.display='block';}
+    else{err.textContent=d.error||'Error al registrar. Inténtalo de nuevo.';err.style.display='block';btn.disabled=false;btn.textContent='Solicitar acceso →';}
+  }catch(e){err.textContent='Error de conexión.';err.style.display='block';btn.disabled=false;btn.textContent='Solicitar acceso →';}
+}
+</script>
+</body></html>
