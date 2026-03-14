@@ -300,7 +300,7 @@ async function firmar() {
   btn.textContent = 'Firmando...';
 
   try {
-    const r = await fetch(WH + '/colaborador-firmar', {
+    const r = await fetch(WH + '/colab-firmar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, firma_nombre, acepta: true })
