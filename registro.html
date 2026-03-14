@@ -1,71 +1,215 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ONOMA · Registro Colaborador</title>
 <style>*{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
-.card{background:#fff;border-radius:20px;padding:32px 28px;width:100%;max-width:420px;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+.card{background:#fff;border-radius:20px;padding:32px 28px;width:100%;max-width:460px;box-shadow:0 4px 24px rgba(0,0,0,.1)}
 .logo{text-align:center;margin-bottom:28px}
 .logo-txt{font-size:13px;letter-spacing:4px;font-weight:900;color:#e8c97e;background:#1a1a2e;display:inline-block;padding:8px 18px;border-radius:8px}
 .logo-sub{font-size:15px;color:#666;margin-top:10px;font-weight:600}
-.fld{margin-bottom:16px}
-.fld label{display:block;font-size:12px;font-weight:700;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
-.fld input,.fld select{width:100%;padding:13px 14px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:15px;outline:none;background:#fafafa;font-family:inherit}
+.sec-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#999;font-weight:700;margin:20px 0 14px;padding-bottom:8px;border-bottom:1px solid #f0f0f0}
+.sec-title:first-of-type{margin-top:0}
+.fld{margin-bottom:14px;position:relative}
+.fld label{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.req{color:#e8c97e;font-size:14px;margin-left:1px}
+.opt{font-size:10px;color:#bbb;font-weight:500;text-transform:none;letter-spacing:0;margin-left:4px;font-style:italic}
+.fld input{width:100%;padding:13px 14px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:15px;outline:none;background:#fafafa;font-family:inherit;transition:border-color .15s}
 .fld input:focus{border-color:#1a1a2e;background:#fff}
+.fld input.err-field{border-color:#e74c3c}
 ::placeholder{font-style:italic;color:#bbb}
-.btn{width:100%;padding:16px;background:#1a1a2e;color:#e8c97e;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;margin-top:6px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.indep-box{display:flex;align-items:center;gap:12px;background:#f8f6f0;border:1.5px solid #e8c97e;border-radius:10px;padding:12px 14px;margin-bottom:14px;cursor:pointer}
+.indep-box input[type=checkbox]{width:20px;height:20px;accent-color:#1a1a2e;cursor:pointer;flex-shrink:0}
+.indep-box label{font-size:14px;font-weight:700;color:#1a1a2e;cursor:pointer;margin:0}
+.indep-box span{font-size:12px;color:#888;display:block;margin-top:2px;font-weight:400}
+#sec2fields{transition:opacity .2s}
+#sec2fields.disabled{opacity:.4;pointer-events:none}
+.btn{width:100%;padding:16px;background:#1a1a2e;color:#e8c97e;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;margin-top:8px}
 .btn:active{opacity:.85}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .link{text-align:center;margin-top:18px;font-size:14px;color:#888}
 .link a{color:#c9a84c;font-weight:700;text-decoration:none}
-.err{background:#fff0f0;border:1px solid #ffcccc;border-radius:8px;padding:12px;font-size:14px;color:#c0392b;margin-bottom:14px;display:none}
-.ok-box{text-align:center;padding:10px 0}
+.err-msg{background:#fff0f0;border:1px solid #ffcccc;border-radius:8px;padding:12px;font-size:14px;color:#c0392b;margin-bottom:14px;display:none}
+.ok-box{text-align:center;padding:10px 0;display:none}
 .ok-ico{font-size:54px}
 .ok-box h3{margin-top:14px;font-size:18px;font-weight:800;color:#1a1a2e}
-.ok-box p{color:#888;margin-top:8px;font-size:14px;line-height:1.5}
-.spin{display:inline-block;width:28px;height:28px;border:3px solid #e8e8e8;border-top-color:#1a1a2e;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:14px}
-@keyframes spin{to{transform:rotate(360deg)}}</style></head>
+.ok-box p{color:#888;margin-top:8px;font-size:14px;line-height:1.6}
+.nota{font-size:11px;color:#bbb;text-align:center;margin-top:14px;font-style:italic}</style>
+</head>
 <body>
 <div class="card">
   <div class="logo">
     <div class="logo-txt">ONOMA</div>
     <div class="logo-sub">Registro de Colaborador</div>
   </div>
-  <div class="err" id="err"></div>
+
+  <div class="err-msg" id="errMsg"></div>
+
   <div id="formReg">
-    <div class="fld"><label>Nombre completo *</label><input id="nombre" type="text" placeholder="Escribe aquí tu nombre completo..."></div>
-    <div class="fld"><label>Empresa (opcional)</label><input id="empresa" type="text" placeholder="Nombre de tu empresa o agencia..."></div>
-    <div class="fld"><label>Email *</label><input id="email" type="email" placeholder="Escribe aquí tu email..."></div>
-    <div class="fld"><label>Teléfono *</label><input id="tel" type="tel" placeholder="Escribe aquí tu teléfono..."></div>
-    <div class="fld"><label>NIF / CIF (opcional)</label><input id="nif" type="text" placeholder="Documento de identidad o empresa..."></div>
+    <!-- SECCIÓN 1 -->
+    <div class="sec-title">Datos personales</div>
+
+    <div class="row2">
+      <div class="fld">
+        <label>Nombre <span class="req">*</span></label>
+        <input id="nombre" type="text" placeholder="Tu nombre...">
+      </div>
+      <div class="fld">
+        <label>Apellido <span class="req">*</span></label>
+        <input id="apellido" type="text" placeholder="Tu apellido...">
+      </div>
+    </div>
+
+    <div class="fld">
+      <label>NIF / CIF <span class="opt">(opcional)</span></label>
+      <input id="nif" type="text" placeholder="Tu documento de identidad...">
+    </div>
+
+    <div class="fld">
+      <label>Teléfono <span class="req">*</span></label>
+      <input id="tel" type="tel" placeholder="Tu número de teléfono...">
+    </div>
+
+    <div class="fld">
+      <label>Email <span class="req">*</span></label>
+      <input id="email" type="email" placeholder="Tu dirección de email...">
+    </div>
+
+    <!-- SECCIÓN 2 -->
+    <div class="sec-title" style="margin-top:24px">Datos profesionales</div>
+
+    <div class="indep-box" onclick="toggleIndep()">
+      <input type="checkbox" id="indep">
+      <div>
+        <label for="indep">Soy colaborador independiente</label>
+        <span>Marca esta opción si trabajas como autónomo sin empresa</span>
+      </div>
+    </div>
+
+    <div id="sec2fields">
+      <div class="fld">
+        <label>Empresa representada <span class="req">*</span></label>
+        <input id="empresa" type="text" placeholder="Nombre de tu empresa o agencia...">
+      </div>
+      <div class="row2">
+        <div class="fld">
+          <label>CIF de empresa <span class="req">*</span></label>
+          <input id="cif" type="text" placeholder="CIF...">
+        </div>
+        <div class="fld">
+          <label>Cargo <span class="req">*</span></label>
+          <input id="cargo" type="text" placeholder="Tu cargo...">
+        </div>
+      </div>
+    </div>
+
     <button class="btn" id="btnReg" onclick="registrar()">Solicitar acceso →</button>
+    <p class="nota">Todos los campos marcados con <strong style="color:#c9a84c">*</strong> son obligatorios</p>
   </div>
-  <div class="ok-box" id="okReg" style="display:none">
+
+  <div class="ok-box" id="okReg">
     <div class="ok-ico">📧</div>
     <h3>¡Solicitud enviada!</h3>
-    <p>Te hemos enviado un email de confirmación.<br>Revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.</p>
+    <p>Hemos enviado un email de confirmación a <strong id="emailConf"></strong>.<br><br>Haz clic en el enlace del email para activar tu cuenta y recibir tus credenciales de acceso.</p>
   </div>
+
   <div class="link">¿Ya tienes cuenta? <a href="portal.html">Inicia sesión</a></div>
 </div>
+
 <script>
-async function registrar(){
-  const nombre=document.getElementById('nombre').value.trim();
-  const email=document.getElementById('email').value.trim();
-  const tel=document.getElementById('tel').value.trim();
-  const err=document.getElementById('err');
-  err.style.display='none';
-  if(!nombre||!email||!tel){err.textContent='Nombre, email y teléfono son obligatorios';err.style.display='block';return;}
-  if(!email.includes('@')){err.textContent='El email no es válido';err.style.display='block';return;}
-  const btn=document.getElementById('btnReg');
-  btn.disabled=true;btn.textContent='Enviando...';
-  try{
-    const r=await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-registro',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      nombre,empresa:document.getElementById('empresa').value.trim(),email,telefono:tel,nif:document.getElementById('nif').value.trim()
-    })});
-    const d=await r.json();
-    if(d.ok){document.getElementById('formReg').style.display='none';document.getElementById('okReg').style.display='block';}
-    else{err.textContent=d.error||'Error al registrar. Inténtalo de nuevo.';err.style.display='block';btn.disabled=false;btn.textContent='Solicitar acceso →';}
-  }catch(e){err.textContent='Error de conexión.';err.style.display='block';btn.disabled=false;btn.textContent='Solicitar acceso →';}
+let esIndep = false;
+
+function toggleIndep() {
+  esIndep = !esIndep;
+  document.getElementById('indep').checked = esIndep;
+  const sec2 = document.getElementById('sec2fields');
+  if (esIndep) {
+    sec2.classList.add('disabled');
+    ['empresa','cif','cargo'].forEach(id => {
+      document.getElementById(id).value = '';
+      document.getElementById(id).removeAttribute('required');
+    });
+  } else {
+    sec2.classList.remove('disabled');
+  }
+}
+
+// Evitar doble click en el checkbox
+document.getElementById('indep').addEventListener('click', function(e) {
+  e.stopPropagation();
+  esIndep = this.checked;
+  const sec2 = document.getElementById('sec2fields');
+  if (esIndep) sec2.classList.add('disabled');
+  else sec2.classList.remove('disabled');
+});
+
+async function registrar() {
+  const err = document.getElementById('errMsg');
+  err.style.display = 'none';
+
+  const nombre   = document.getElementById('nombre').value.trim();
+  const apellido = document.getElementById('apellido').value.trim();
+  const tel      = document.getElementById('tel').value.trim();
+  const email    = document.getElementById('email').value.trim();
+  const empresa  = document.getElementById('empresa').value.trim();
+  const cif      = document.getElementById('cif').value.trim();
+  const cargo    = document.getElementById('cargo').value.trim();
+
+  // Validación
+  if (!nombre) { mostrarError('El nombre es obligatorio'); return; }
+  if (!apellido) { mostrarError('El apellido es obligatorio'); return; }
+  if (!tel) { mostrarError('El teléfono es obligatorio'); return; }
+  if (!email || !email.includes('@')) { mostrarError('Introduce un email válido'); return; }
+  if (!esIndep) {
+    if (!empresa) { mostrarError('El nombre de empresa es obligatorio'); return; }
+    if (!cif) { mostrarError('El CIF de empresa es obligatorio'); return; }
+    if (!cargo) { mostrarError('El cargo es obligatorio'); return; }
+  }
+
+  const btn = document.getElementById('btnReg');
+  btn.disabled = true;
+  btn.textContent = 'Enviando solicitud...';
+
+  try {
+    const r = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-registro', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre, apellido,
+        nif: document.getElementById('nif').value.trim(),
+        telefono: tel, email,
+        empresa: esIndep ? '' : empresa,
+        cif_empresa: esIndep ? '' : cif,
+        cargo: esIndep ? '' : cargo,
+        es_independiente: esIndep
+      })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      document.getElementById('formReg').style.display = 'none';
+      document.getElementById('emailConf').textContent = email;
+      document.getElementById('okReg').style.display = 'block';
+    } else {
+      mostrarError(d.error || 'Error al registrar. Inténtalo de nuevo.');
+      btn.disabled = false;
+      btn.textContent = 'Solicitar acceso →';
+    }
+  } catch(e) {
+    mostrarError('Error de conexión. Inténtalo de nuevo.');
+    btn.disabled = false;
+    btn.textContent = 'Solicitar acceso →';
+  }
+}
+
+function mostrarError(msg) {
+  const err = document.getElementById('errMsg');
+  err.textContent = msg;
+  err.style.display = 'block';
+  err.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 </script>
-</body></html>
+</body>
+</html>
