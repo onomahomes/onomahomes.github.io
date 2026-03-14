@@ -28,6 +28,7 @@ recHtml+entHtml+
 }
 function abrirModal(id){
 if(id==="modalDescartar"){document.getElementById("motivo").value="";}
+if(id==="modalVisitar"){document.getElementById("fecha").value="";document.getElementById("hora").value="10:00";}
 document.getElementById(id).classList.add("on");
 }
 function cerrar(id){document.getElementById(id).classList.remove("on");}
