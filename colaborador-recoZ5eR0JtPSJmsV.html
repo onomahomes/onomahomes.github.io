@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portal ONOMA · Colaborador</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;color:#222;min-height:100vh}
+.hdr{background:#1a1a2e;color:#fff;padding:28px 20px 22px;text-align:center}
+.logo{font-size:13px;letter-spacing:4px;font-weight:800;color:#e8c97e;text-transform:uppercase}
+.hdr-name{font-size:20px;font-weight:700;margin-top:8px}
+.hdr-date{font-size:12px;color:#aaa;margin-top:4px}
+.section{padding:16px 16px 0;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#999;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 16px}
+.card{background:#fff;border-radius:14px;padding:18px 14px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.card-num{font-size:34px;font-weight:900;color:#1a1a2e;line-height:1}
+.card-lbl{font-size:11px;color:#999;margin-top:5px;text-transform:uppercase;letter-spacing:.5px}
+.card.gold .card-num{color:#c9a84c}
+.card.wide{grid-column:span 2}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 16px 24px}
+.btn{padding:18px 10px;border-radius:14px;border:none;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.3px}
+.btn-p{background:#1a1a2e;color:#e8c97e}
+.btn-d{background:#e8c97e;color:#1a1a2e}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;align-items:flex-end;justify-content:center}
+.overlay.on{display:flex}
+.sheet{background:#fff;border-radius:22px 22px 0 0;padding:24px 18px 44px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto}
+.sheet h2{font-size:17px;font-weight:800;color:#1a1a2e;margin-bottom:18px}
+.x{float:right;background:none;border:none;font-size:26px;cursor:pointer;color:#bbb;margin:-4px -4px 0 0;line-height:1}
+.fld{margin-bottom:13px}
+.fld label{display:block;font-size:12px;font-weight:700;color:#666;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.fld input,.fld select,.fld textarea{width:100%;padding:12px 14px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:15px;outline:none;background:#fafafa}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:#1a1a2e;background:#fff}
+.sub{width:100%;padding:16px;background:#1a1a2e;color:#e8c97e;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;margin-top:6px}
+.sub:active{opacity:.85}
+.ok{display:none;text-align:center;padding:30px 10px}
+.ok.on{display:block}
+.ok-ico{font-size:54px}
+.ok h3{margin-top:14px;font-size:18px;font-weight:800;color:#1a1a2e}
+.ok p{color:#aaa;margin-top:8px;font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo">ONOMA</div>
+  <div class="hdr-name">Bienvenido, Colaborador</div>
+  <div class="hdr-date">Colaborador desde —</div>
+</div>
+
+<div class="section">Tus estadísticas</div>
+<div class="grid">
+  <div class="card"><div class="card-num">0</div><div class="card-lbl">Pisos activos</div></div>
+  <div class="card"><div class="card-num">0</div><div class="card-lbl">Demandas activas</div></div>
+  <div class="card"><div class="card-num">0</div><div class="card-lbl">Visitas totales</div></div>
+  <div class="card"><div class="card-num">0</div><div class="card-lbl">Ventas cerradas</div></div>
+  <div class="card wide gold"><div class="card-num">€0</div><div class="card-lbl">Total ganado en plataforma</div></div>
+</div>
+
+<div class="section">Acciones</div>
+<div class="btns">
+  <button class="btn btn-p" onclick="open('modalPiso')">🏠 Subir Piso</button>
+  <button class="btn btn-d" onclick="open('modalDemanda')">👤 Subir Demanda</button>
+</div>
+
+<!-- MODAL PISO -->
+<div class="overlay" id="modalPiso">
+<div class="sheet">
+  <button class="x" onclick="close('modalPiso')">×</button>
+  <h2>🏠 Subir Piso</h2>
+  <div id="fPiso">
+    <div class="fld"><label>Dirección completa *</label><input id="p_dir" type="text" placeholder="Calle Mayor 10, 2ºA, Madrid"></div>
+    <div class="fld"><label>Precio (€) *</label><input id="p_pre" type="number" placeholder="280000"></div>
+    <div class="fld"><label>Habitaciones *</label><input id="p_hab" type="number" placeholder="3" min="1"></div>
+    <div class="fld"><label>Metros m²</label><input id="p_met" type="number" placeholder="85"></div>
+    <div class="fld"><label>Estado del inmueble</label>
+      <select id="p_est">
+        <option value="Buen_Estado">Buen estado</option>
+        <option value="Reformado ">Reformado</option>
+        <option value="A_Reformar ">A reformar</option>
+        <option value="Obra_Nueva ">Obra nueva</option>
+      </select>
+    </div>
+    <div class="fld"><label>Descripción (opcional)</label><textarea id="p_des" rows="3" placeholder="Luminoso, exterior, zona tranquila..."></textarea></div>
+    <button class="sub" onclick="enviarPiso()">Enviar piso →</button>
+  </div>
+  <div class="ok" id="okPiso"><div class="ok-ico">✅</div><h3>¡Piso enviado!</h3><p>Nuestro equipo lo revisará pronto.</p></div>
+</div>
+</div>
+
+<!-- MODAL DEMANDA -->
+<div class="overlay" id="modalDemanda">
+<div class="sheet">
+  <button class="x" onclick="close('modalDemanda')">×</button>
+  <h2>👤 Subir Demanda</h2>
+  <div id="fDemanda">
+    <div class="fld"><label>Nombre del cliente *</label><input id="d_nom" type="text" placeholder="Ana Martínez"></div>
+    <div class="fld"><label>Zona preferida *</label><input id="d_zona" type="text" placeholder="Salamanca, Retiro, Chamberí..."></div>
+    <div class="fld"><label>Presupuesto máximo (€) *</label><input id="d_pre" type="number" placeholder="400000"></div>
+    <div class="fld"><label>Habitaciones mínimas *</label><input id="d_hab" type="number" placeholder="2" min="1"></div>
+    <div class="fld"><label>Metros mínimos</label><input id="d_met" type="number" placeholder="65"></div>
+    <div class="fld"><label>Perfil del cliente (opcional)</label><textarea id="d_per" rows="3" placeholder="Primera vivienda, familia con niños, necesita transporte cercano..."></textarea></div>
+    <button class="sub" onclick="enviarDemanda()">Enviar demanda →</button>
+  </div>
+  <div class="ok" id="okDemanda"><div class="ok-ico">✅</div><h3>¡Demanda enviada!</h3><p>Ya empezamos a buscar pisos para tu cliente.</p></div>
+</div>
+</div>
+
+<script>
+const CID = 'recoZ5eR0JtPSJmsV';
+const WH = 'https://onomahomes.app.n8n.cloud/webhook';
+
+function open(id){ document.getElementById(id).classList.add('on'); }
+function close(id){ document.getElementById(id).classList.remove('on'); }
+
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('on'); }));
+
+async function enviarPiso(){
+  const dir=document.getElementById('p_dir').value.trim();
+  const pre=document.getElementById('p_pre').value;
+  const hab=document.getElementById('p_hab').value;
+  if(!dir||!pre||!hab){ alert('Completa los campos obligatorios (*)'); return; }
+  document.querySelector('#fPiso .sub').disabled=true;
+  document.querySelector('#fPiso .sub').textContent='Enviando...';
+  try{
+    await fetch(WH+'/colaborador-piso',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      colaborador_id:CID, direccion:dir, precio:parseFloat(pre), habitaciones:parseInt(hab),
+      metros:parseInt(document.getElementById('p_met').value||0),
+      estado:document.getElementById('p_est').value,
+      descripcion:document.getElementById('p_des').value
+    })});
+    document.getElementById('fPiso').style.display='none';
+    document.getElementById('okPiso').classList.add('on');
+  }catch(e){ alert('Error al enviar. Inténtalo de nuevo.'); document.querySelector('#fPiso .sub').disabled=false; document.querySelector('#fPiso .sub').textContent='Enviar piso →'; }
+}
+
+async function enviarDemanda(){
+  const nom=document.getElementById('d_nom').value.trim();
+  const zona=document.getElementById('d_zona').value.trim();
+  const pre=document.getElementById('d_pre').value;
+  const hab=document.getElementById('d_hab').value;
+  if(!nom||!zona||!pre||!hab){ alert('Completa los campos obligatorios (*)'); return; }
+  document.querySelector('#fDemanda .sub').disabled=true;
+  document.querySelector('#fDemanda .sub').textContent='Enviando...';
+  try{
+    await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      colaborador_id:CID, nombre:nom, zona, presupuesto:parseFloat(pre),
+      habitaciones:parseInt(hab), metros:parseInt(document.getElementById('d_met').value||0),
+      perfil:document.getElementById('d_per').value
+    })});
+    document.getElementById('fDemanda').style.display='none';
+    document.getElementById('okDemanda').classList.add('on');
+  }catch(e){ alert('Error al enviar. Inténtalo de nuevo.'); document.querySelector('#fDemanda .sub').disabled=false; document.querySelector('#fDemanda .sub').textContent='Enviar demanda →'; }
+}
+</script>
+</body>
+</html>
