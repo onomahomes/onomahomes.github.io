@@ -1,45 +1,68 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ONOMA · Portal Colaboradores</title>
 <style>*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
 .card{background:#fff;border-radius:20px;padding:32px 28px;width:100%;max-width:420px;box-shadow:0 4px 24px rgba(0,0,0,.1)}
-.logo{text-align:center;margin-bottom:28px}
+.logo{text-align:center;margin-bottom:24px}
 .logo-txt{font-size:13px;letter-spacing:4px;font-weight:900;color:#e8c97e;background:#1a1a2e;display:inline-block;padding:8px 18px;border-radius:8px}
-.logo-sub{font-size:15px;color:#666;margin-top:10px;font-weight:600}
-.fld{margin-bottom:16px}
-.fld label{display:block;font-size:12px;font-weight:700;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
-.fld input,.fld select{width:100%;padding:13px 14px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:15px;outline:none;background:#fafafa;font-family:inherit}
+.subtitle{font-size:15px;color:#666;margin-top:10px;font-weight:600;text-align:center}
+.welcome{font-size:17px;font-weight:800;color:#1a1a2e;text-align:center;margin-bottom:6px}
+.welcsub{font-size:13px;color:#888;text-align:center;margin-bottom:22px}
+.fld{margin-bottom:14px;position:relative}
+.fld label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.fld input{width:100%;padding:13px 14px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:15px;outline:none;background:#fafafa;font-family:inherit}
 .fld input:focus{border-color:#1a1a2e;background:#fff}
+.eye{position:absolute;right:12px;top:36px;cursor:pointer;font-size:18px;color:#bbb;user-select:none}
 ::placeholder{font-style:italic;color:#bbb}
-.btn{width:100%;padding:16px;background:#1a1a2e;color:#e8c97e;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;margin-top:6px}
-.btn:active{opacity:.85}
+.req-hint{font-size:11px;color:#bbb;margin-bottom:14px;font-style:italic}
+.strength{height:4px;border-radius:2px;margin-top:6px;background:#e8e8e8;overflow:hidden}
+.strength-bar{height:100%;width:0;transition:width .3s,background .3s;border-radius:2px}
+.btn{width:100%;padding:16px;background:#1a1a2e;color:#e8c97e;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;margin-top:4px}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-.link{text-align:center;margin-top:18px;font-size:14px;color:#888}
+.link{text-align:center;margin-top:16px;font-size:14px;color:#888}
 .link a{color:#c9a84c;font-weight:700;text-decoration:none}
-.err{background:#fff0f0;border:1px solid #ffcccc;border-radius:8px;padding:12px;font-size:14px;color:#c0392b;margin-bottom:14px;display:none}
-.ok-box{text-align:center;padding:10px 0}
-.ok-ico{font-size:54px}
-.ok-box h3{margin-top:14px;font-size:18px;font-weight:800;color:#1a1a2e}
+.err{background:#fff0f0;border:1px solid #ffcccc;border-radius:8px;padding:11px;font-size:14px;color:#c0392b;margin-bottom:14px;display:none}
+.ok-box{text-align:center;padding:10px 0;display:none}
+.ok-ico{font-size:52px}
+.ok-box h3{margin-top:12px;font-size:18px;font-weight:800;color:#1a1a2e}
 .ok-box p{color:#888;margin-top:8px;font-size:14px;line-height:1.5}
-.spin{display:inline-block;width:28px;height:28px;border:3px solid #e8e8e8;border-top-color:#1a1a2e;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:14px}
-@keyframes spin{to{transform:rotate(360deg)}}</style></head>
+.spin{display:inline-block;width:32px;height:32px;border:3px solid #e8e8e8;border-top-color:#1a1a2e;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading{text-align:center;padding:20px 0}
+.forgot{text-align:center;margin-top:10px}
+.forgot a{font-size:13px;color:#bbb;text-decoration:none}
+.forgot a:hover{color:#c9a84c}
+</style>
+</head>
 <body>
 <div class="card">
   <div class="logo">
     <div class="logo-txt">ONOMA</div>
-    <div class="logo-sub">Portal de Colaboradores</div>
+    <div class="subtitle">Portal de Colaboradores</div>
   </div>
   <div class="err" id="err"></div>
   <div id="formLogin">
     <div class="fld"><label>Email</label><input id="email" type="email" placeholder="Escribe aquí tu email..."></div>
-    <div class="fld"><label>Contraseña</label><input id="pass" type="password" placeholder="Escribe aquí tu contraseña..."></div>
+    <div class="fld">
+      <label>Contraseña</label>
+      <input id="pass" type="password" placeholder="Escribe aquí tu contraseña...">
+      <span class="eye" onclick="toggleVer()">👁</span>
+    </div>
     <button class="btn" id="btnLogin" onclick="login()">Entrar →</button>
+    <div class="forgot"><a href="recuperar.html">Olvidé mi contraseña</a></div>
   </div>
   <div class="link">¿Primera vez? <a href="registro.html">Regístrate aquí</a></div>
 </div>
 <script>
+function toggleVer() {
+  const inp = document.getElementById('pass');
+  const eye = document.querySelector('.eye');
+  if (inp.type==='password'){ inp.type='text'; eye.textContent='🙈'; }
+  else { inp.type='password'; eye.textContent='👁'; }
+}
 async function login(){
   const email=document.getElementById('email').value.trim();
   const pass=document.getElementById('pass').value;
@@ -53,7 +76,7 @@ async function login(){
     const d=await r.json();
     if(d.ok&&d.portal_url){window.location.href=d.portal_url;}
     else{err.textContent=d.error||'Email o contraseña incorrectos';err.style.display='block';btn.disabled=false;btn.textContent='Entrar →';}
-  }catch(e){err.textContent='Error de conexión. Inténtalo de nuevo.';err.style.display='block';btn.disabled=false;btn.textContent='Entrar →';}
+  }catch(e){err.textContent='Error de conexión.';err.style.display='block';btn.disabled=false;btn.textContent='Entrar →';}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 </script>
