@@ -189,9 +189,8 @@ async function registrar() {
     });
     const d = await r.json();
     if (d.ok) {
-      document.getElementById('formReg').style.display = 'none';
-      document.getElementById('emailConf').textContent = email;
-      document.getElementById('okReg').style.display = 'block';
+      // Redirigir a contrato con token
+      window.location.href = 'contrato.html?token=' + d.token;
     } else {
       mostrarError(d.error || 'Error al registrar. Inténtalo de nuevo.');
       btn.disabled = false;
