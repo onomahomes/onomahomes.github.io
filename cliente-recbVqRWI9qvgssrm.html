@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>ONOMA · Tus pisos</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#fff;overflow-x:hidden}.slide{min-height:100vh;display:flex;flex-direction:column}.foto-wrap{height:42vh;background:#eee;position:relative;overflow:hidden}.foto-wrap img{width:100%;height:100%;object-fit:cover}.foto-wrap .no-foto{display:flex;align-items:center;justify-content:center;height:100%;font-size:4rem;background:linear-gradient(135deg,#1a1a2e,#16213e)}.piso-info{padding:16px;flex:1}.piso-precio{font-size:1.8rem;font-weight:800;color:#1a1a2e}.piso-dir{color:#888;font-size:.85rem;margin:4px 0 12px}.datos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.dato-box{background:#f5f5f5;padding:10px 6px;border-radius:10px;text-align:center}.dato-box strong{display:block;font-size:1rem;color:#1a1a2e}.dato-box small{font-size:.75rem;color:#888}.rec-box{background:linear-gradient(135deg,#667eea22,#764ba222);border-left:3px solid #667eea;padding:12px;border-radius:0 10px 10px 0;margin-bottom:10px}.rec-box p{font-size:.88rem;color:#333;margin-top:5px;line-height:1.55}.ent-box{background:#e8f5e9;border-left:3px solid #4CAF50;padding:12px;border-radius:0 10px 10px 0;margin-bottom:60px}.ent-box p{font-size:.88rem;color:#333;margin-top:5px;line-height:1.55}.nav{display:flex;justify-content:center;align-items:center;gap:8px;padding:10px;border-top:1px solid #f0f0f0}.dot{width:10px;height:10px;border-radius:50%;background:#ddd;cursor:pointer;transition:.2s}.dot.on{background:#667eea}.botones{position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px;background:#fff;box-shadow:0 -2px 12px rgba(0,0,0,.1)}.btn{padding:16px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.3px}.btn-no{background:#f44336;color:#fff}.btn-si{background:#4CAF50;color:#fff}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;align-items:flex-end;justify-content:center}.modal.on{display:flex}.modal-box{background:#fff;width:100%;max-width:500px;padding:24px;border-radius:20px 20px 0 0}.modal-box h2{font-size:1.1rem;margin-bottom:14px}input[type=date],input[type=time]{width:100%;padding:12px;border:1.5px solid #ddd;border-radius:8px;font-size:1rem;margin-bottom:10px}textarea{width:100%;padding:12px;border:1.5px solid #ddd;border-radius:8px;font-size:.95rem;height:90px;resize:none;margin-bottom:10px}.btn-conf{width:100%;padding:13px;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:6px}.btn-cancel{width:100%;padding:11px;background:#eee;border:none;border-radius:8px;font-size:.95rem;cursor:pointer;color:#555}</style></head><body><div id="app"></div><div class="botones"><button class="btn btn-no" onclick="abrirModal('modalDescartar')">❌ Descartar</button><button class="btn btn-si" onclick="abrirModal('modalVisitar')">&#127968; Visitar</button></div><div class="modal" id="modalVisitar"><div class="modal-box"><h2>&#128197; Agendar visita</h2><input type="date" id="fecha" min="2026-03-14"><input type="time" id="hora" value="10:00"><button class="btn-conf" style="background:#4CAF50;color:#fff" onclick="confirmarVisita()">Confirmar visita</button><button class="btn-cancel" onclick="cerrar('modalVisitar')">Cancelar</button></div></div><div class="modal" id="modalDescartar"><div class="modal-box"><h2>&#128172; ¿Por qué no te interesa?</h2><textarea id="motivo" placeholder="Escribe el motivo…"></textarea><button class="btn-conf" style="background:#f44336;color:#fff" onclick="confirmarDescarte()">Confirmar descarte</button><button class="btn-cancel" onclick="cerrar('modalDescartar')">Cancelar</button></div></div><script>var pisos=[{"id":"recwsrYCGq5oIahpQ","nombre":"Calle Velazquez 36","direccion":"Calle Velazquez 36","precio":1500000,"habitaciones":3,"metros":200,"estado":"Reformado","foto":"","recomendacion":"","entorno":""},{"id":"recvkXwbY52fCqYtu","nombre":"calle antimonio 56","direccion":"calle antimonio 56","precio":600000,"habitaciones":2,"metros":90,"estado":"Reformado","foto":"","recomendacion":"","entorno":""},{"id":"reczfqipwJdQEAgP7","nombre":"Calle Bohemios 15","direccion":"Calle Bohemios 15","precio":500000,"habitaciones":4,"metros":100,"estado":"Buen_Estado","foto":"","recomendacion":"","entorno":""}];
+var idx=0;
+var DEMANDA_ID="recbVqRWI9qvgssrm";
+var WEBHOOK="https://onomahomes.app.n8n.cloud/webhook/cliente-accion";
+function render(i){
+idx=i;var p=pisos[i];
+var precio=p.precio?p.precio.toLocaleString("es-ES")+"€":"Consultar";
+var fotoHtml=p.foto?"<img src='"+p.foto+"'>":"<div class='no-foto'>🏠</div>";
+var recHtml=p.recomendacion?"<div class='rec-box'><strong>💡 Por qué lo recomendamos</strong><p>"+p.recomendacion+"</p></div>":"";
+var entHtml=p.entorno?"<div class='ent-box'><strong>🗺 El entorno</strong><p>"+p.entorno+"</p></div>":"";
+var dots=pisos.map(function(_,j){return "<div class='dot"+(j===i?" on":"")+"' onclick='render("+j+")'>​</div>";}).join("");
+document.getElementById("app").innerHTML=
+"<div class='slide'>"+
+"<div class='foto-wrap'>"+fotoHtml+"</div>"+
+"<div class='piso-info'>"+
+"<div class='piso-precio'>"+precio+"</div>"+
+"<div class='piso-dir'>📍 "+p.direccion+"</div>"+
+"<div class='datos-grid'>"+
+"<div class='dato-box'><strong>"+p.habitaciones+"</strong><small>🛏 Hab</small></div>"+
+"<div class='dato-box'><strong>"+p.metros+"</strong><small>📏 m²</small></div>"+
+"<div class='dato-box'><strong>"+p.estado+"</strong><small>Estado</small></div>"+
+"</div>"+
+recHtml+entHtml+
+"</div>"+
+"<div class='nav'>"+dots+"</div>"+
+"</div>";
+}
+function abrirModal(id){document.getElementById(id).classList.add("on");}
+function cerrar(id){document.getElementById(id).classList.remove("on");}
+function send(data){
+fetch(WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})
+.then(function(r){return r.json();})
+.then(function(){
+if(idx<pisos.length-1){cerrar(data.accion==="VISITAR"?"modalVisitar":"modalDescartar");render(idx+1);}
+else{document.getElementById("app").innerHTML="<div style='padding:40px;text-align:center'><div style='font-size:3rem'>🎉</div><p style='font-size:1.2rem;margin-top:16px;color:#333'>Gracias por tu respuesta.<br>Te contactaremos pronto.</p></div>";}
+}).catch(function(){alert("Error al enviar");});
+}
+function confirmarVisita(){
+var f=document.getElementById("fecha").value;var h=document.getElementById("hora").value;
+if(!f||!h){alert("Selecciona fecha y hora");return;}
+send({piso_id:pisos[idx].id,demanda_id:DEMANDA_ID,accion:"VISITAR",fecha:f+" "+h});
+cerrar("modalVisitar");
+}
+function confirmarDescarte(){
+var m=document.getElementById("motivo").value;
+if(!m.trim()){alert("Escribe un motivo");return;}
+send({piso_id:pisos[idx].id,demanda_id:DEMANDA_ID,accion:"DESCARTAR",motivo:m});
+cerrar("modalDescartar");
+}
+render(0);</script></body></html>
