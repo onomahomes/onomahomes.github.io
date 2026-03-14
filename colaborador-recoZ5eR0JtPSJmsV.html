@@ -59,14 +59,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <div class="section">Acciones</div>
 <div class="btns">
-  <button class="btn btn-p" onclick="open('modalPiso')">🏠 Subir Piso</button>
-  <button class="btn btn-d" onclick="open('modalDemanda')">👤 Subir Demanda</button>
+  <button class="btn btn-p" onclick="abrirModal('modalPiso')">🏠 Subir Piso</button>
+  <button class="btn btn-d" onclick="abrirModal('modalDemanda')">👤 Subir Demanda</button>
 </div>
 
 <!-- MODAL PISO -->
 <div class="overlay" id="modalPiso">
 <div class="sheet">
-  <button class="x" onclick="close('modalPiso')">×</button>
+  <button class="x" onclick="cerrarModal('modalPiso')">×</button>
   <h2>🏠 Subir Piso</h2>
   <div id="fPiso">
     <div class="fld"><label>Dirección completa *</label><input id="p_dir" type="text" placeholder="Calle Mayor 10, 2ºA, Madrid"></div>
@@ -91,7 +91,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- MODAL DEMANDA -->
 <div class="overlay" id="modalDemanda">
 <div class="sheet">
-  <button class="x" onclick="close('modalDemanda')">×</button>
+  <button class="x" onclick="cerrarModal('modalDemanda')">×</button>
   <h2>👤 Subir Demanda</h2>
   <div id="fDemanda">
     <div class="fld"><label>Nombre del cliente *</label><input id="d_nom" type="text" placeholder="Ana Martínez"></div>
@@ -110,8 +110,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 const CID = 'recoZ5eR0JtPSJmsV';
 const WH = 'https://onomahomes.app.n8n.cloud/webhook';
 
-function open(id){ document.getElementById(id).classList.add('on'); }
-function close(id){ document.getElementById(id).classList.remove('on'); }
+function abrirModal(id){ document.getElementById(id).classList.add('on'); }
+function cerrarModal(id){ document.getElementById(id).classList.remove('on'); }
 
 document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('on'); }));
 
