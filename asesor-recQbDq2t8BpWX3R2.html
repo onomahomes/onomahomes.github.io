@@ -118,12 +118,12 @@ body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);mi
 <div id="tab-visitas" class="tab">
   <div class="tab-hdr">
     <div><span class="tab-ttl">Mis Visitas</span><span class="tab-badge" id="badge-vis">0</span></div>
-    <select id="filtro-vis" onchange="renderVisitas()" style="background:transparent;color:var(--muted);border:1px solid var(--subtle);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer">
-      <option value="all">Todas</option>
-      <option value="pendiente">Pendientes</option>
-      <option value="confirmada">Confirmadas</option>
-      <option value="feedback">Feedback due</option>
-      <option value="completada">Completadas</option>
+    <select id="filtro-vis" onchange="renderVisitas()" style="background:#1a1a1a;color:#fff;border:1px solid var(--subtle);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer">
+      <option value="all" style="background:#1a1a1a;color:#fff">Todas</option>
+      <option value="pendiente" style="background:#1a1a1a;color:#fff">Pendientes</option>
+      <option value="confirmada" style="background:#1a1a1a;color:#fff">Confirmadas</option>
+      <option value="feedback" style="background:#1a1a1a;color:#fff">Feedback due</option>
+      <option value="completada" style="background:#1a1a1a;color:#fff">Completadas</option>
     </select>
   </div>
   <div class="list-wrap" id="lista-vis"></div>
