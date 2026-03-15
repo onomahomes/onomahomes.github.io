@@ -3,197 +3,291 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ONOMA · Dirección</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>ONOMA · Dirección</title>
 <style>
 :root{
-  --gold:#C5A059;--gold-dim:rgba(197,160,89,.15);--gold-b:rgba(197,160,89,.3);
-  --black:#000;--g900:#0a0a0a;--g800:#111;--g700:#1a1a1a;
-  --text:#fff;--muted:rgba(255,255,255,.45);--subtle:rgba(255,255,255,.08);
-  --blue:rgba(59,130,246,.15);--blue-b:rgba(59,130,246,.3);--blue-t:#60a5fa;
-  --green:rgba(74,222,128,.12);--green-b:rgba(74,222,128,.25);--green-t:#4ade80;
-  --amber:rgba(251,191,36,.12);--amber-b:rgba(251,191,36,.25);--amber-t:#fbbf24;
-  --red:rgba(239,68,68,.12);--red-b:rgba(239,68,68,.25);--red-t:#f87171;
+  --gold:#C5A059;--gold-dim:rgba(197,160,89,.12);--gold-b:rgba(197,160,89,.25);--gold-glow:rgba(197,160,89,.15);
+  --bg:#060611;--surface:rgba(255,255,255,.035);--surface-h:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.07);--border-h:rgba(255,255,255,.14);
+  --text:#f0f0f5;--muted:rgba(255,255,255,.42);--subtle:rgba(255,255,255,.07);
+  --blue:rgba(59,130,246,.12);--blue-b:rgba(59,130,246,.25);--blue-t:#60a5fa;
+  --green:rgba(74,222,128,.10);--green-b:rgba(74,222,128,.22);--green-t:#4ade80;
+  --amber:rgba(251,191,36,.10);--amber-b:rgba(251,191,36,.22);--amber-t:#fbbf24;
+  --red:rgba(239,68,68,.10);--red-b:rgba(239,68,68,.22);--red-t:#f87171;
+  --glass:blur(20px);--r:16px;--r-sm:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);min-height:100vh;overscroll-behavior:none}
-.app{padding-bottom:72px}
+html,body{height:100%}
+body{
+  font-family:'Inter',sans-serif;color:var(--text);min-height:100vh;overscroll-behavior:none;
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse at 15% 80%,rgba(197,160,89,.05) 0%,transparent 50%),
+    radial-gradient(ellipse at 85% 15%,rgba(59,130,246,.04) 0%,transparent 50%),
+    radial-gradient(ellipse at 50% 50%,rgba(120,80,200,.03) 0%,transparent 60%);
+  background-attachment:fixed;
+}
 
-/* HEADER */
-.hdr{padding:28px 24px 24px;border-bottom:1px solid var(--subtle);display:flex;align-items:center;justify-content:space-between}
-.hdr-left{display:flex;align-items:baseline;gap:9px}
-.brand{font-weight:700;font-size:18px;letter-spacing:3px}
-.brand-sub{font-weight:300;font-size:11px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
-.hdr-badge{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-b);border-radius:20px;padding:3px 12px}
+/* ── Glass Card ── */
+.glass{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);transition:transform .25s,border-color .25s,box-shadow .25s}
+.glass:hover{border-color:var(--border-h);transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
 
-/* TABS */
+/* ── Animations ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.7}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(197,160,89,.15)}50%{box-shadow:0 0 20px rgba(197,160,89,.25)}}
+.anim-up{animation:fadeUp .5s ease both}
+.anim-in{animation:fadeIn .4s ease both}
+.delay-1{animation-delay:.05s}.delay-2{animation-delay:.1s}.delay-3{animation-delay:.15s}.delay-4{animation-delay:.2s}.delay-5{animation-delay:.25s}.delay-6{animation-delay:.3s}
+
+/* ── App Shell ── */
+.app{padding-bottom:80px}
+
+/* ── Header ── */
+.hdr{padding:28px 24px 22px;border-bottom:1px solid var(--border);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);position:sticky;top:0;z-index:30;background:rgba(6,6,17,.85)}
+.logo-row{display:flex;align-items:baseline;gap:9px}
+.logo-row.center{justify-content:center;margin-bottom:18px}
+.brand{font-weight:700;font-size:18px;letter-spacing:3.5px}
+.brand-sub{font-weight:300;font-size:10px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
+.hdr-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;text-align:center}
+.hdr-badge{display:inline-block;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-b);border-radius:20px;padding:4px 14px;animation:glow 3s ease-in-out infinite}
+
+/* ── Tab System ── */
 .tab{display:none;padding:0 0 24px}.tab.active{display:block}
-.tab-hdr{display:flex;align-items:center;justify-content:space-between;padding:24px 20px 12px}
+.tab-hdr{display:flex;align-items:center;justify-content:space-between;padding:24px 20px 14px}
 .tab-ttl{font-family:'Playfair Display',serif;font-size:20px;font-weight:700}
 .tab-badge{font-size:11px;font-weight:600;color:var(--gold);background:var(--gold-dim);border-radius:20px;padding:3px 10px;margin-left:8px}
-.sec-lbl{padding:20px 20px 10px;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:600}
+.sec-lbl{padding:22px 20px 10px;font-size:9px;text-transform:uppercase;letter-spacing:2.5px;color:var(--muted);font-weight:600}
 
-/* KPI GRID */
-.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
-.kpi-card{background:rgba(255,255,255,.03);border:1px solid var(--subtle);border-radius:16px;padding:18px 14px}
-.kpi-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;line-height:1}
-.kpi-lbl{font-size:10px;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:1px}
+/* ── Stats Grid ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.stat-card{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:20px 14px;text-align:center;transition:transform .25s,border-color .25s,box-shadow .25s}
+.stat-card:hover{border-color:var(--border-h);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.stat-num{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;line-height:1}
+.stat-lbl{font-size:9px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:1.2px;font-weight:500}
+.stat-card.gold .stat-num{color:var(--gold)}
+.stat-card.gold{border-color:var(--gold-b)}
+.stat-card.amber .stat-num{color:var(--amber-t)}
+.stat-card.green .stat-num{color:var(--green-t)}
+.stat-card.wide{grid-column:span 2;border-color:var(--gold-b);background:var(--gold-dim)}
+
+/* ── KPI specific ── */
 .kpi-delta{font-size:11px;margin-top:4px;font-weight:600}
-.kpi-card.gold .kpi-num{color:var(--gold)}
-.kpi-card.green .kpi-num{color:var(--green-t)}
-.kpi-card.amber .kpi-num{color:var(--amber-t)}
-.kpi-card.wide{grid-column:span 2;border-color:var(--gold-b)}
 
-/* LIST ITEMS */
+/* ── List / Cards ── */
 .list-wrap{padding:0 16px;display:flex;flex-direction:column;gap:10px}
-.li-card{background:rgba(255,255,255,.03);border:1px solid var(--subtle);border-radius:14px;padding:16px}
-.li-card:hover{border-color:rgba(255,255,255,.12)}
+.vcard,.li-card,.pipe-card{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:transform .2s,border-color .2s,box-shadow .2s}
+.vcard:hover,.li-card:hover,.pipe-card:hover{border-color:var(--border-h);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.vcard.pen{border-color:var(--amber-b)}.vcard.conf{border-color:var(--blue-b)}.vcard.feed{border-color:var(--red-b)}
+.vh{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.vdir{font-size:15px;font-weight:600;line-height:1.3;flex:1}
+.vm{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--muted)}
+.vm strong{color:var(--text);font-weight:600}
+.vact{display:flex;gap:8px}
 .li-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .li-name{font-size:15px;font-weight:600}
 .li-email{font-size:12px;color:var(--muted);margin-top:3px}
-.li-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
-.li-tag{font-size:11px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--subtle);border-radius:8px;padding:4px 10px}
+.li-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.li-tag{font-size:11px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:4px 10px}
 .li-tag strong{color:var(--text)}
 .li-actions{display:flex;gap:8px;margin-top:12px}
-.badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
-.badge-green{background:var(--green);color:var(--green-t);border:1px solid var(--green-b)}
-.badge-amber{background:var(--amber);color:var(--amber-t);border:1px solid var(--amber-b)}
-.badge-gray{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--subtle)}
-.badge-red{background:var(--red);color:var(--red-t);border:1px solid var(--red-b)}
 
-/* BUTTONS */
-.btn-sm{padding:8px 14px;border-radius:10px;border:none;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;text-decoration:none;display:inline-block}
-.btn-sm:active{opacity:.7}
-.btn-gold{background:var(--gold);color:var(--black)}
-.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-b)}
-.btn-new{background:var(--gold);color:var(--black);border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer}
+/* ── Badges ── */
+.vbadge,.badge,.li-badge{font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.ba,.badge-amber{background:var(--amber);color:var(--amber-t);border:1px solid var(--amber-b)}
+.bb,.badge-blue{background:var(--blue);color:var(--blue-t);border:1px solid var(--blue-b)}
+.bg,.badge-green{background:var(--green);color:var(--green-t);border:1px solid var(--green-b)}
+.br,.badge-red{background:var(--red);color:var(--red-t);border:1px solid var(--red-b)}
+.bgr,.badge-gray{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)}
+.badge-gold{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-b)}
 
-/* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--g900);border-top:1px solid var(--subtle);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px 12px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;font-size:10px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;transition:color .15s;position:relative}
-.bnav-btn.on{color:var(--gold)}.bnav-btn.on::before{content:'';position:absolute;top:0;left:25%;right:25%;height:1px;background:var(--gold)}
-.bnav-ico{font-size:18px;line-height:1}
+/* ── Buttons ── */
+.bsm,.btn-sm{padding:9px 16px;border-radius:var(--r-sm);border:none;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.bsm:hover,.btn-sm:hover{transform:translateY(-1px)}
+.bsm:active,.btn-sm:active{opacity:.7;transform:translateY(0)}
+.bg2,.btn-gold{background:var(--gold);color:var(--bg)}
+.bo,.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-b)}
+.bo:hover,.btn-outline:hover{background:var(--gold-dim);border-color:var(--gold)}
+.bb2{background:var(--blue);color:var(--blue-t);border:1px solid var(--blue-b)}
+.btn-new{background:var(--gold);color:var(--bg);border:none;border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;transition:all .2s}
+.btn-new:hover{transform:translateY(-1px);box-shadow:0 4px 16px var(--gold-glow)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px 8px}
+.btn-act{padding:16px 10px;border-radius:14px;border:none;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-act:hover{transform:translateY(-1px)}.btn-act:active{opacity:.7}
 
-/* OVERLAY */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:50;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)}
-.overlay.on{display:flex}
-.sheet{background:var(--g900);border:1px solid var(--subtle);border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;padding:28px 20px 52px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto}
-.sheet-ttl{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:20px}
-.x{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);margin:-4px -4px 0 0;line-height:1}
-.fld{margin-bottom:20px}
-.fld label{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px}
-.fld input{width:100%;padding:10px 0;border:none;border-bottom:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
-.fld input:focus{border-bottom-color:var(--gold)}
-::placeholder{color:rgba(255,255,255,.18)}
-.sub{width:100%;padding:16px;background:var(--gold);color:var(--black);border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;transition:opacity .15s}
-.sub:disabled{opacity:.35;cursor:not-allowed}
-.err-box{background:var(--red);border:1px solid var(--red-b);border-radius:10px;padding:12px;font-size:14px;color:var(--red-t);margin-bottom:14px;display:none}
-.ok-box{text-align:center;padding:32px 10px;display:none}
-.ok-box.on{display:block}
-
-/* EMPTY */
+/* ── Empty State ── */
 .empty{text-align:center;padding:56px 20px}
-.empty-line{width:40px;height:1px;background:var(--subtle);margin:0 auto 20px}
+.empty-line{width:40px;height:1px;background:var(--border);margin:0 auto 20px}
 .empty p{font-size:14px;color:var(--muted)}
 
-/* PIPELINE */
-.pipe-card{background:rgba(255,255,255,.03);border:1px solid var(--subtle);border-radius:14px;padding:14px 16px}
+/* ── Bottom Nav ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(6,6,17,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px 12px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;font-size:9px;font-weight:500;letter-spacing:.6px;text-transform:uppercase;transition:color .2s;position:relative}
+.bnav-btn.on{color:var(--gold)}
+.bnav-btn.on::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);border-radius:1px}
+.bnav-ico{font-size:18px;line-height:1;transition:transform .2s}
+.bnav-btn.on .bnav-ico{transform:scale(1.1)}
+
+/* ── Overlay / Sheet ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.overlay.on{display:flex}
+.sheet{background:rgba(12,12,24,.97);border:1px solid var(--border);border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;padding:28px 20px 52px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;animation:fadeUp .3s ease}
+.sheet-ttl{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:20px}
+.x{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);margin:-4px -4px 0 0;line-height:1;transition:color .2s}
+.x:hover{color:var(--text)}
+
+/* ── Form Fields ── */
+.fld{margin-bottom:20px}
+.fld label{display:block;font-size:9px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:2px}
+.fld input,.fld select,.fld textarea{width:100%;padding:11px 0;border:none;border-bottom:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s,box-shadow .3s;-webkit-appearance:none;appearance:none}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-bottom-color:var(--gold);box-shadow:0 2px 12px rgba(197,160,89,.15)}
+.fld select{cursor:pointer;background:transparent;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23C5A059' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center}
+.fld select option{background:#151525;color:#f0f0f5;padding:8px}
+.fld textarea{resize:none;line-height:1.6}
+.fld input[type=file]{cursor:pointer;color:var(--muted);font-size:13px}
+.fld input[readonly]{color:var(--muted);cursor:not-allowed}
+::placeholder{color:rgba(255,255,255,.16)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+/* ── Submit Button ── */
+.sub{width:100%;padding:16px;background:linear-gradient(135deg,var(--gold),#d4b06a);color:var(--bg);border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;transition:all .25s;letter-spacing:.3px}
+.sub:hover{transform:translateY(-1px);box-shadow:0 8px 24px var(--gold-glow)}
+.sub:active{transform:translateY(0)}.sub:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ── Sections / Dividers ── */
+.sdiv{font-size:9px;text-transform:uppercase;letter-spacing:2.5px;color:var(--gold);font-weight:600;margin:24px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--gold-b)}
+.stars{display:flex;gap:6px;margin-top:4px}
+.star{font-size:24px;cursor:pointer;color:rgba(255,255,255,.15);transition:color .15s,transform .15s}
+.star.on{color:var(--gold)}
+.star:hover{transform:scale(1.2)}
+
+/* ── Misc ── */
+.ok-box{display:none;text-align:center;padding:40px 10px}.ok-box.on{display:block}
+.err-box{background:var(--red);border:1px solid var(--red-b);border-radius:var(--r-sm);padding:12px;font-size:14px;color:var(--red-t);margin-bottom:14px;display:none}
+.skel{background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%);background-size:200% 100%;border-radius:var(--r);animation:shimmer 1.5s ease-in-out infinite}
+.chk-row{display:flex;align-items:center;gap:12px;padding:12px 0;margin-bottom:6px}
+.chk-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
+.chk-row label{font-size:14px;color:rgba(255,255,255,.7);cursor:pointer;margin:0}
+.confirm-box{background:var(--gold-dim);border:1px solid var(--gold-b);border-radius:12px;padding:16px;margin-bottom:20px}
+.confirm-box .cb-lbl{font-size:9px;color:var(--muted);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px}
+.confirm-box .addr{font-size:15px;font-weight:600;color:var(--text);line-height:1.4}
+.confirm-box .edit-lnk{font-size:12px;color:var(--gold);cursor:pointer;text-decoration:underline;margin-top:8px;display:inline-block}
+.step{display:none}.step.on{display:block}
+.step-info{font-size:11px;color:var(--muted);margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.ok{display:none;text-align:center;padding:40px 0}.ok.on{display:block}
+.ok .ok-line{width:60px;height:60px;margin:0 auto 20px;border-radius:50%;background:var(--green);border:2px solid var(--green-b);display:flex;align-items:center;justify-content:center}
+.ok .ok-line::after{content:'✓';font-size:28px;color:var(--green-t)}
+.ok h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:8px}
+.ok p{color:var(--muted);font-size:14px;line-height:1.5}
+.ok a{display:inline-block;margin-top:16px;color:var(--gold);font-weight:600;text-decoration:none;font-size:14px}
+
+/* ── Pipeline ── */
 .pipe-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
 .pipe-dir{font-size:14px;font-weight:600}
 .pipe-meta{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px}
 .pipe-stars{color:var(--gold);font-size:13px;letter-spacing:1px}
 
-/* SKEL */
-.skel{background:rgba(255,255,255,.05);border-radius:8px;animation:pulse 1.4s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.8}}
+/* ── Piso Cards (Colaborador) ── */
+.piso-card{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:transform .25s,border-color .25s}
+.piso-card:hover{border-color:var(--border-h);transform:translateY(-2px)}
+.piso-gallery{position:relative;width:100%;height:220px;background:rgba(255,255,255,.02);overflow:hidden}
+.gal-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}
+.gal-img.on{opacity:1}
+.gal-btn{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:50%;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;z-index:2}
+.gal-btn:hover{background:rgba(0,0,0,.75);border-color:var(--gold)}
+.gal-prev{left:10px}.gal-next{right:10px}
+.gal-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}
+.gal-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .2s}
+.gal-dot.on{background:var(--gold);box-shadow:0 0 6px var(--gold-glow)}
+.piso-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--muted)}
+.piso-ph span{font-size:10px;letter-spacing:2px;font-weight:600}
+.piso-body{padding:16px}
+.piso-dir{font-size:15px;font-weight:600;margin-bottom:3px}
+.piso-sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+.piso-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.piso-stats{display:flex;gap:12px;font-size:12px;color:var(--muted)}
+.piso-stats strong{color:var(--text)}
+.piso-meta{display:flex;gap:16px;padding-top:12px;border-top:1px solid var(--border)}
+.piso-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.piso-meta-item strong{color:var(--text)}
+
+/* ── Demanda Cards (Colaborador) ── */
+.dem-card{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:all .25s}
+.dem-card:hover{border-color:var(--border-h);transform:translateY(-1px)}
+.dem-card.has-match{border-color:var(--gold-b)}
+.dem-top{display:flex;gap:14px}
+.dem-avatar-wrap{position:relative;flex-shrink:0}
+.dem-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,rgba(197,160,89,.2),rgba(197,160,89,.05));border:1px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--gold);letter-spacing:1px}
+.notif-dot{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:var(--gold);color:var(--bg);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.dem-content{flex:1;min-width:0}
+.dem-nombre{font-size:15px;font-weight:600}
+.dem-zona{font-size:12px;color:var(--muted);margin-top:4px}
+.dem-stats-row{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.dem-stat{font-size:11px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:3px 8px}
+.dem-stat strong{color:var(--text)}
+.dem-matches-bar{margin-top:10px;background:var(--gold-dim);border:1px solid var(--gold-b);border-radius:8px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
+.dem-matches-txt{font-size:12px;font-weight:600;color:var(--gold)}
+.dem-matches-arrow{color:var(--gold);font-size:14px}
+
+/* ── Op Cards ── */
+.op-card{background:var(--gold-dim)!important;border-color:var(--gold-b)!important}
+.op-imp{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--gold)}
+.op-lbl{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
 </style>
 </head>
 <body>
 <div class="app">
-
-<div class="hdr">
-  <div class="hdr-left">
-    <span class="brand">ONOMA</span>
-    <span class="brand-sub">Homes</span>
-  </div>
+<div class="hdr" style="display:flex;align-items:center;justify-content:space-between">
+  <div class="logo-row"><span class="brand">ONOMA</span><span class="brand-sub">Homes</span></div>
   <span class="hdr-badge">Dirección</span>
 </div>
 
-<!-- DASHBOARD TAB -->
 <div id="tab-dash" class="tab active">
   <div class="sec-lbl">Hoy</div>
-  <div class="kpi-grid">
-    <div class="kpi-card amber"><div class="kpi-num" id="k-hoy">—</div><div class="kpi-lbl">Visitas hoy</div></div>
-    <div class="kpi-card"><div class="kpi-num" id="k-fb">—</div><div class="kpi-lbl">Feedback pendiente</div></div>
+  <div class="grid">
+    <div class="stat-card amber anim-up delay-1"><div class="stat-num" id="k-hoy">—</div><div class="stat-lbl">Visitas hoy</div></div>
+    <div class="stat-card anim-up delay-2"><div class="stat-num" id="k-fb">—</div><div class="stat-lbl">Feedback pendiente</div></div>
   </div>
-
   <div class="sec-lbl" style="margin-top:8px">Este mes</div>
-  <div class="kpi-grid">
-    <div class="kpi-card"><div class="kpi-num" id="k-vis-mes">—</div><div class="kpi-lbl">Visitas</div><div class="kpi-delta" id="k-vis-delta"></div></div>
-    <div class="kpi-card green"><div class="kpi-num" id="k-vis-real">—</div><div class="kpi-lbl">Realizadas</div></div>
-    <div class="kpi-card"><div class="kpi-num" id="k-pisos">—</div><div class="kpi-lbl">Pisos activos</div></div>
-    <div class="kpi-card"><div class="kpi-num" id="k-demandas">—</div><div class="kpi-lbl">Compradores activos</div></div>
-    <div class="kpi-card"><div class="kpi-num" id="k-matchings">—</div><div class="kpi-lbl">Matchings totales</div></div>
-    <div class="kpi-card"><div class="kpi-num" id="k-team">—</div><div class="kpi-lbl">Asesores / Colabs</div></div>
-    <div class="kpi-card wide gold"><div class="kpi-num" id="k-comision">—</div><div class="kpi-lbl">Comisión ONOMA estimada en cartera</div></div>
+  <div class="grid">
+    <div class="stat-card anim-up delay-1"><div class="stat-num" id="k-vis-mes">—</div><div class="stat-lbl">Visitas</div><div class="kpi-delta" id="k-vis-delta"></div></div>
+    <div class="stat-card green anim-up delay-2"><div class="stat-num" id="k-vis-real">—</div><div class="stat-lbl">Realizadas</div></div>
+    <div class="stat-card anim-up delay-3"><div class="stat-num" id="k-pisos">—</div><div class="stat-lbl">Pisos activos</div></div>
+    <div class="stat-card anim-up delay-4"><div class="stat-num" id="k-demandas">—</div><div class="stat-lbl">Compradores activos</div></div>
+    <div class="stat-card anim-up delay-5"><div class="stat-num" id="k-matchings">—</div><div class="stat-lbl">Matchings totales</div></div>
+    <div class="stat-card anim-up delay-6"><div class="stat-num" id="k-team">—</div><div class="stat-lbl">Asesores / Colabs</div></div>
+    <div class="stat-card wide gold anim-up"><div class="stat-num" id="k-comision">—</div><div class="stat-lbl">Comisión ONOMA estimada en cartera</div></div>
   </div>
 </div>
 
-<!-- EQUIPO TAB -->
 <div id="tab-equipo" class="tab">
-  <div class="tab-hdr">
-    <div><span class="tab-ttl">Equipo</span><span class="tab-badge" id="badge-equipo">0</span></div>
-    <button class="btn-new" onclick="abrir('modalAsesor')">+ Nuevo asesor</button>
-  </div>
-  <div class="list-wrap" id="lista-asesores">
-    <div class="skel" style="height:90px;border-radius:14px"></div>
-  </div>
+  <div class="tab-hdr"><div><span class="tab-ttl">Equipo</span><span class="tab-badge" id="badge-equipo">0</span></div><button class="btn-new" onclick="abrir('modalAsesor')">+ Nuevo asesor</button></div>
+  <div class="list-wrap" id="lista-asesores"><div class="skel" style="height:90px;border-radius:16px"></div></div>
 </div>
 
-<!-- COLABORADORES TAB -->
 <div id="tab-colabs" class="tab">
-  <div class="tab-hdr">
-    <div><span class="tab-ttl">Colaboradores</span><span class="tab-badge" id="badge-colabs">0</span></div>
-  </div>
-  <div style="padding:0 16px 12px">
-    <input type="text" id="buscar-colab" placeholder="Buscar por nombre..." oninput="filtrarColabs()" style="width:100%;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--subtle);border-radius:10px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none">
-  </div>
-  <div class="list-wrap" id="lista-colabs">
-    <div class="skel" style="height:90px;border-radius:14px"></div>
-    <div class="skel" style="height:90px;border-radius:14px"></div>
-  </div>
+  <div class="tab-hdr"><div><span class="tab-ttl">Colaboradores</span><span class="tab-badge" id="badge-colabs">0</span></div></div>
+  <div style="padding:0 16px 12px"><input type="text" id="buscar-colab" placeholder="Buscar por nombre..." oninput="filtrarColabs()" style="width:100%;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .3s;-webkit-appearance:none" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></div>
+  <div class="list-wrap" id="lista-colabs"><div class="skel" style="height:90px;border-radius:16px"></div></div>
 </div>
 
-<!-- PIPELINE TAB -->
 <div id="tab-pipeline" class="tab">
-  <div class="tab-hdr">
-    <div><span class="tab-ttl">Pipeline</span><span class="tab-badge" id="badge-pipe">0</span></div>
-  </div>
-  <div class="list-wrap" id="lista-pipeline">
-    <div class="skel" style="height:80px;border-radius:14px"></div>
-  </div>
+  <div class="tab-hdr"><div><span class="tab-ttl">Pipeline</span><span class="tab-badge" id="badge-pipe">0</span></div></div>
+  <div class="list-wrap" id="lista-pipeline"><div class="skel" style="height:80px;border-radius:16px"></div></div>
+</div>
 </div>
 
-</div><!-- /app -->
-
-<!-- BOTTOM NAV -->
 <nav class="bnav">
-  <button class="bnav-btn on" id="nav-dash" onclick="showTab('dash',this)">
-    <svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L10 3l7 6.5"/><path d="M5 8v8h4v-4h2v4h4V8"/></svg>Dashboard
-  </button>
-  <button class="bnav-btn" id="nav-equipo" onclick="showTab('equipo',this)">
-    <svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="7" r="3"/><path d="M2 17c0-3 2.7-5 6-5"/><circle cx="15" cy="8" r="2.5"/><path d="M11.5 17c0-2.2 1.6-3.5 3.5-3.5s3.5 1.3 3.5 3.5"/></svg>Equipo
-  </button>
-  <button class="bnav-btn" id="nav-colabs" onclick="showTab('colabs',this)">
-    <svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="7" r="3.5"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6"/></svg>Colabs
-  </button>
-  <button class="bnav-btn" id="nav-pipeline" onclick="showTab('pipeline',this)">
-    <svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 10h12M4 5h12M4 15h8"/></svg>Pipeline
-  </button>
+  <button class="bnav-btn on" id="nav-dash" onclick="showTab('dash',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg>Dashboard</button>
+  <button class="bnav-btn" id="nav-equipo" onclick="showTab('equipo',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="7" r="3"/><path d="M2 17c0-3 2.7-5 6-5"/><circle cx="15" cy="8" r="2.5"/><path d="M11.5 17c0-2.2 1.6-3.5 3.5-3.5s3.5 1.3 3.5 3.5"/></svg>Equipo</button>
+  <button class="bnav-btn" id="nav-colabs" onclick="showTab('colabs',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="7" r="3.5"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6"/></svg>Colabs</button>
+  <button class="bnav-btn" id="nav-pipeline" onclick="showTab('pipeline',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 10h12M4 5h12M4 15h8"/></svg>Pipeline</button>
 </nav>
 
-<!-- MODAL: Crear Asesor -->
 <div class="overlay" id="modalAsesor">
 <div class="sheet">
   <button class="x" onclick="cerrar('modalAsesor')">×</button>
@@ -209,190 +303,28 @@ body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);mi
   <div class="ok-box" id="asesorOk">
     <div style="font-size:48px">✅</div>
     <h3 style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-top:12px" id="asesorOkNombre"></h3>
-    <p style="color:var(--muted);margin-top:8px;font-size:14px;line-height:1.6">Se ha enviado un email con el enlace para crear su contraseña. En cuanto lo haga, su portal estará activo.</p>
-    <div style="margin-top:16px;background:rgba(255,255,255,.04);border:1px solid var(--subtle);border-radius:10px;padding:12px;font-size:12px;color:var(--muted)">
-      Portal: <span id="asesorOkPortal" style="color:var(--gold)"></span>
-    </div>
+    <p style="color:var(--muted);margin-top:8px;font-size:14px;line-height:1.6">Email de activación enviado.</p>
+    <div style="margin-top:16px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:12px;color:var(--muted)">Portal: <span id="asesorOkPortal" style="color:var(--gold)"></span></div>
     <button onclick="cerrar('modalAsesor');resetAsesorForm()" class="sub" style="margin-top:20px">Cerrar</button>
   </div>
 </div>
 </div>
 
 <script>
-const WH = 'https://onomahomes.app.n8n.cloud/webhook';
-let allData = {};
-let allColabs = [];
-
-function showTab(n, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('on'));
-  document.getElementById('tab-' + n).classList.add('active');
-  btn.classList.add('on');
-}
-function abrir(id) { document.getElementById(id).classList.add('on'); }
-function cerrar(id) { document.getElementById(id).classList.remove('on'); }
-document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('on'); }));
-
-async function loadData() {
-  try {
-    const r = await fetch(WH + '/direccion-data');
-    const d = await r.json();
-    allData = d;
-    allColabs = d.colaboradores || [];
-    renderKPIs(d.kpis || {});
-    renderEquipo(d.asesores || []);
-    renderColabs(allColabs);
-    renderPipeline(d.pipeline || []);
-  } catch(e) { console.error('Error loading:', e); }
-}
-
-function fmt(n) { return n != null ? n.toLocaleString('es-ES') : '—'; }
-
-function renderKPIs(k) {
-  document.getElementById('k-hoy').textContent       = fmt(k.visitas_hoy);
-  document.getElementById('k-fb').textContent        = fmt(k.feedback_pendiente);
-  document.getElementById('k-vis-mes').textContent   = fmt(k.visitas_mes);
-  document.getElementById('k-vis-real').textContent  = fmt(k.visitas_realizadas_mes);
-  document.getElementById('k-pisos').textContent     = fmt(k.pisos_activos);
-  document.getElementById('k-demandas').textContent  = fmt(k.demandas_activas);
-  document.getElementById('k-matchings').textContent = fmt(k.matchings_total);
-  document.getElementById('k-team').textContent      = (k.asesores_activos||0) + ' / ' + (k.colaboradores_activos||0);
-  document.getElementById('k-comision').textContent  = k.comision_estimada ? fmt(k.comision_estimada) + '€' : '—';
-  if (k.visitas_mes != null && k.visitas_mes_anterior != null && k.visitas_mes_anterior > 0) {
-    const pct = Math.round(((k.visitas_mes - k.visitas_mes_anterior) / k.visitas_mes_anterior) * 100);
-    const el = document.getElementById('k-vis-delta');
-    el.textContent = (pct >= 0 ? '▲ +' : '▼ ') + pct + '% vs mes anterior';
-    el.style.color = pct >= 0 ? 'var(--green-t)' : 'var(--red-t)';
-  }
-}
-
-function renderEquipo(asesores) {
-  document.getElementById('badge-equipo').textContent = asesores.length;
-  const el = document.getElementById('lista-asesores');
-  if (!asesores.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>No hay asesores. Crea el primero.</p></div>';
-    return;
-  }
-  el.innerHTML = asesores.map(a => `
-  <div class="li-card">
-    <div class="li-top">
-      <div><div class="li-name">${a.nombre}</div><div class="li-email">${a.email}</div></div>
-      <span class="badge ${a.activo ? 'badge-green' : 'badge-amber'}">${a.activo ? 'Activo' : 'Pendiente'}</span>
-    </div>
-    <div class="li-meta">
-      <div class="li-tag">Hoy: <strong>${a.visitas_hoy}</strong></div>
-      <div class="li-tag">Mes: <strong>${a.visitas_mes}</strong></div>
-      <div class="li-tag">Total: <strong>${a.visitas_total}</strong></div>
-      ${a.feedback_pendiente > 0 ? '<div class="li-tag" style="color:var(--amber-t);border-color:var(--amber-b)">⚠ Feedback: <strong>'+a.feedback_pendiente+'</strong></div>' : ''}
-    </div>
-    <div class="li-actions">
-      <a href="https://onomahomes.github.io/asesor-${a.id}.html" target="_blank" class="btn-sm btn-outline">Ver portal →</a>
-    </div>
-  </div>`).join('');
-}
-
-function renderColabs(list) {
-  document.getElementById('badge-colabs').textContent = list.length;
-  const el = document.getElementById('lista-colabs');
-  if (!list.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>No hay colaboradores</p></div>';
-    return;
-  }
-  el.innerHTML = list.map(c => `
-  <div class="li-card">
-    <div class="li-top">
-      <div><div class="li-name">${c.nombre||'Sin nombre'}</div><div class="li-email">${c.email||''}</div></div>
-      <span class="badge ${c.activo ? 'badge-green' : 'badge-gray'}">${c.activo ? 'Activo' : 'Inactivo'}</span>
-    </div>
-    <div class="li-meta">
-      <div class="li-tag">Pisos activos: <strong>${c.pisos_activos}</strong></div>
-      <div class="li-tag">Demandas: <strong>${c.demandas_activas}</strong></div>
-      <div class="li-tag">Matchings: <strong>${c.matchings}</strong></div>
-    </div>
-    ${c.id ? '<div class="li-actions"><a href="https://onomahomes.github.io/colaborador-'+c.id+'.html" target="_blank" class="btn-sm btn-outline" style="font-size:11px">Ver portal →</a></div>' : ''}
-  </div>`).join('');
-}
-
-function filtrarColabs() {
-  const q = document.getElementById('buscar-colab').value.toLowerCase();
-  const filtered = q ? allColabs.filter(c => (c.nombre||'').toLowerCase().includes(q) || (c.email||'').toLowerCase().includes(q)) : allColabs;
-  renderColabs(filtered);
-}
-
-function renderPipeline(pipe) {
-  document.getElementById('badge-pipe').textContent = pipe.length;
-  const el = document.getElementById('lista-pipeline');
-  if (!pipe.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>No hay operaciones activas</p></div>';
-    return;
-  }
-  el.innerHTML = pipe.map(v => {
-    const fecha = v.fecha ? new Date(v.fecha+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'}) : '—';
-    const stars = v.interes ? '★'.repeat(v.interes) + '☆'.repeat(5-v.interes) : '';
-    return `<div class="pipe-card">
-      <div class="pipe-top">
-        <div class="pipe-dir">${v.piso_dir}</div>
-        <span class="badge ${v.estado==='Confirmada'?'badge-green':'badge-amber'}">${v.estado}</span>
-      </div>
-      <div class="pipe-meta">
-        <span>👤 ${v.comprador}</span>
-        <span>📅 ${fecha}${v.hora?' · '+v.hora:''}</span>
-        ${v.piso_precio?'<span>💶 '+v.piso_precio.toLocaleString('es-ES')+'€</span>':''}
-        ${stars?'<span class="pipe-stars">'+stars+'</span>':''}
-        ${v.encaje?'<span style="color:var(--green-t)">'+v.encaje+'</span>':''}
-        ${v.feedback?'<span style="color:var(--muted)">✓ Feedback</span>':''}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-async function crearAsesor() {
-  const btn = document.getElementById('btnCrearAsesor');
-  const err = document.getElementById('asesorErr');
-  err.style.display = 'none';
-  const nombre   = document.getElementById('a-nombre').value.trim();
-  const apellido = document.getElementById('a-apellido').value.trim();
-  const email    = document.getElementById('a-email').value.trim();
-  const tel      = document.getElementById('a-tel').value.trim();
-  if (!nombre || !apellido || !email) {
-    err.textContent = 'Nombre, apellido y email son obligatorios';
-    err.style.display = 'block'; return;
-  }
-  btn.disabled = true; btn.textContent = 'Creando...';
-  try {
-    const r = await fetch(WH + '/crear-asesor', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ nombre, apellido, email, telefono: tel })
-    });
-    const d = await r.json();
-    if (d.ok) {
-      document.getElementById('asesorForm').style.display = 'none';
-      document.getElementById('asesorOk').classList.add('on');
-      document.getElementById('asesorOkNombre').textContent = d.nombre;
-      document.getElementById('asesorOkPortal').textContent = 'asesor-' + d.record_id + '.html';
-      // Reload data to show new asesor
-      setTimeout(loadData, 2000);
-    } else {
-      err.textContent = d.error || 'Error al crear asesor';
-      err.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Crear asesor y enviar email →';
-    }
-  } catch(e) {
-    err.textContent = 'Error de conexión';
-    err.style.display = 'block';
-    btn.disabled = false; btn.textContent = 'Crear asesor y enviar email →';
-  }
-}
-
-function resetAsesorForm() {
-  document.getElementById('asesorForm').style.display = 'block';
-  document.getElementById('asesorOk').classList.remove('on');
-  document.getElementById('btnCrearAsesor').disabled = false;
-  document.getElementById('btnCrearAsesor').textContent = 'Crear asesor y enviar email →';
-  ['a-nombre','a-apellido','a-email','a-tel'].forEach(id => document.getElementById(id).value = '');
-}
-
+const WH='https://onomahomes.app.n8n.cloud/webhook';let allData={};let allColabs=[];
+function showTab(n,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));document.getElementById('tab-'+n).classList.add('active');btn.classList.add('on')}
+function abrir(id){document.getElementById(id).classList.add('on')}
+function cerrar(id){document.getElementById(id).classList.remove('on')}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on')}));
+async function loadData(){try{const r=await fetch(WH+'/direccion-data');const d=await r.json();allData=d;allColabs=d.colaboradores||[];renderKPIs(d.kpis||{});renderEquipo(d.asesores||[]);renderColabs(allColabs);renderPipeline(d.pipeline||[])}catch(e){console.error('Error loading:',e)}}
+function fmt(n){return n!=null?n.toLocaleString('es-ES'):'—'}
+function renderKPIs(k){document.getElementById('k-hoy').textContent=fmt(k.visitas_hoy);document.getElementById('k-fb').textContent=fmt(k.feedback_pendiente);document.getElementById('k-vis-mes').textContent=fmt(k.visitas_mes);document.getElementById('k-vis-real').textContent=fmt(k.visitas_realizadas_mes);document.getElementById('k-pisos').textContent=fmt(k.pisos_activos);document.getElementById('k-demandas').textContent=fmt(k.demandas_activas);document.getElementById('k-matchings').textContent=fmt(k.matchings_total);document.getElementById('k-team').textContent=(k.asesores_activos||0)+' / '+(k.colaboradores_activos||0);document.getElementById('k-comision').textContent=k.comision_estimada?fmt(k.comision_estimada)+'€':'—';if(k.visitas_mes!=null&&k.visitas_mes_anterior!=null&&k.visitas_mes_anterior>0){const pct=Math.round(((k.visitas_mes-k.visitas_mes_anterior)/k.visitas_mes_anterior)*100);const el=document.getElementById('k-vis-delta');el.textContent=(pct>=0?'▲ +':'▼ ')+pct+'% vs mes anterior';el.style.color=pct>=0?'var(--green-t)':'var(--red-t)'}}
+function renderEquipo(asesores){document.getElementById('badge-equipo').textContent=asesores.length;const el=document.getElementById('lista-asesores');if(!asesores.length){el.innerHTML='<div class="empty"><div class="empty-line"></div><p>No hay asesores. Crea el primero.</p></div>';return}el.innerHTML=asesores.map(a=>'<div class="li-card"><div class="li-top"><div><div class="li-name">'+a.nombre+'</div><div class="li-email">'+a.email+'</div></div><span class="badge '+(a.activo?'badge-green':'badge-amber')+'">'+(a.activo?'Activo':'Pendiente')+'</span></div><div class="li-meta"><div class="li-tag">Hoy: <strong>'+a.visitas_hoy+'</strong></div><div class="li-tag">Mes: <strong>'+a.visitas_mes+'</strong></div><div class="li-tag">Total: <strong>'+a.visitas_total+'</strong></div>'+(a.feedback_pendiente>0?'<div class="li-tag" style="color:var(--amber-t);border-color:var(--amber-b)">⚠ Feedback: <strong>'+a.feedback_pendiente+'</strong></div>':'')+'</div><div class="li-actions"><a href="https://onomahomes.github.io/asesor-'+a.id+'.html" target="_blank" class="btn-sm btn-outline">Ver portal →</a></div></div>').join('')}
+function renderColabs(list){document.getElementById('badge-colabs').textContent=list.length;const el=document.getElementById('lista-colabs');if(!list.length){el.innerHTML='<div class="empty"><div class="empty-line"></div><p>No hay colaboradores</p></div>';return}el.innerHTML=list.map(c=>'<div class="li-card"><div class="li-top"><div><div class="li-name">'+(c.nombre||'Sin nombre')+'</div><div class="li-email">'+(c.email||'')+'</div></div><span class="badge '+(c.activo?'badge-green':'badge-gray')+'">'+(c.activo?'Activo':'Inactivo')+'</span></div><div class="li-meta"><div class="li-tag">Pisos activos: <strong>'+c.pisos_activos+'</strong></div><div class="li-tag">Demandas: <strong>'+c.demandas_activas+'</strong></div><div class="li-tag">Matchings: <strong>'+c.matchings+'</strong></div></div>'+(c.id?'<div class="li-actions"><a href="https://onomahomes.github.io/colaborador-'+c.id+'.html" target="_blank" class="btn-sm btn-outline" style="font-size:11px">Ver portal →</a></div>':'')+'</div>').join('')}
+function filtrarColabs(){const q=document.getElementById('buscar-colab').value.toLowerCase();const filtered=q?allColabs.filter(c=>(c.nombre||'').toLowerCase().includes(q)||(c.email||'').toLowerCase().includes(q)):allColabs;renderColabs(filtered)}
+function renderPipeline(pipe){document.getElementById('badge-pipe').textContent=pipe.length;const el=document.getElementById('lista-pipeline');if(!pipe.length){el.innerHTML='<div class="empty"><div class="empty-line"></div><p>No hay operaciones activas</p></div>';return}el.innerHTML=pipe.map(v=>{const fecha=v.fecha?new Date(v.fecha+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'}):'—';const stars=v.interes?'★'.repeat(v.interes)+'☆'.repeat(5-v.interes):'';return '<div class="pipe-card"><div class="pipe-top"><div class="pipe-dir">'+v.piso_dir+'</div><span class="badge '+(v.estado==='Confirmada'?'badge-green':'badge-amber')+'">'+v.estado+'</span></div><div class="pipe-meta"><span>👤 '+v.comprador+'</span><span>📅 '+fecha+(v.hora?' · '+v.hora:'')+'</span>'+(v.piso_precio?'<span>💶 '+v.piso_precio.toLocaleString('es-ES')+'€</span>':'')+(stars?'<span class="pipe-stars">'+stars+'</span>':'')+'</div></div>'}).join('')}
+async function crearAsesor(){const btn=document.getElementById('btnCrearAsesor');const err=document.getElementById('asesorErr');err.style.display='none';const nombre=document.getElementById('a-nombre').value.trim();const apellido=document.getElementById('a-apellido').value.trim();const email=document.getElementById('a-email').value.trim();const tel=document.getElementById('a-tel').value.trim();if(!nombre||!apellido||!email){err.textContent='Nombre, apellido y email son obligatorios';err.style.display='block';return}btn.disabled=true;btn.textContent='Creando...';try{const r=await fetch(WH+'/crear-asesor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre,apellido,email,telefono:tel})});const d=await r.json();if(d.ok){document.getElementById('asesorForm').style.display='none';document.getElementById('asesorOk').classList.add('on');document.getElementById('asesorOkNombre').textContent=d.nombre;document.getElementById('asesorOkPortal').textContent='asesor-'+d.record_id+'.html';setTimeout(loadData,2000)}else{err.textContent=d.error||'Error al crear asesor';err.style.display='block';btn.disabled=false;btn.textContent='Crear asesor y enviar email →'}}catch(e){err.textContent='Error de conexión';err.style.display='block';btn.disabled=false;btn.textContent='Crear asesor y enviar email →'}}
+function resetAsesorForm(){document.getElementById('asesorForm').style.display='block';document.getElementById('asesorOk').classList.remove('on');document.getElementById('btnCrearAsesor').disabled=false;document.getElementById('btnCrearAsesor').textContent='Crear asesor y enviar email →';['a-nombre','a-apellido','a-email','a-tel'].forEach(id=>document.getElementById(id).value='')}
 loadData();
 </script>
-</body>
-</html>
+</body></html>
