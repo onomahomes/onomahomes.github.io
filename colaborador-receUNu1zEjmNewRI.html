@@ -124,6 +124,50 @@ body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);mi
 .ok p{color:var(--muted);margin-top:10px;font-size:14px;line-height:1.6}
 .ok a{color:var(--gold);font-weight:600;text-decoration:none;display:inline-block;margin-top:14px;font-size:13px;border-bottom:1px solid var(--gold-border);padding-bottom:2px}
 .step{display:none}.step.on{display:block}
+
+/* ── PISO CARD ── */
+.piso-card{background:rgba(255,255,255,0.03);border:1px solid var(--subtle);border-radius:16px;overflow:hidden;margin-bottom:10px}
+.piso-gallery{position:relative;width:100%;height:170px;background:var(--g700);overflow:hidden}
+.gal-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
+.gal-img.on{opacity:1}
+.gal-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);color:#fff;border:none;width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;line-height:1}
+.gal-prev{left:8px}.gal-next{right:8px}
+.gal-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
+.gal-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.35)}
+.gal-dot.on{background:#fff}
+.piso-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--muted)}
+.piso-ph svg{opacity:.3}
+.piso-ph span{font-size:11px;letter-spacing:1px}
+.piso-body{padding:14px 16px}
+.piso-dir{font-size:15px;font-weight:600;color:var(--text);line-height:1.3}
+.piso-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.piso-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.piso-stats{font-size:12px;color:var(--muted);display:flex;gap:10px}
+.piso-stats strong{color:var(--text)}
+.piso-meta{display:flex;gap:14px;margin-top:10px;padding-top:10px;border-top:1px solid var(--subtle)}
+.piso-meta-item{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.piso-meta-item strong{color:var(--text);font-weight:600}
+
+/* ── DEMANDA CARD ── */
+.dem-card{background:rgba(255,255,255,0.03);border:1px solid var(--subtle);border-radius:16px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.dem-card.has-match{border-color:rgba(239,68,68,.3)}
+.dem-top{display:flex;align-items:flex-start;gap:12px}
+.dem-avatar-wrap{position:relative;flex-shrink:0}
+.dem-avatar{width:42px;height:42px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--gold)}
+.notif-dot{position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border-radius:50%;font-size:10px;font-weight:700;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--black)}
+.dem-content{flex:1;min-width:0}
+.dem-nombre{font-size:15px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dem-zona{font-size:12px;color:var(--muted);margin-top:2px}
+.dem-stats-row{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap}
+.dem-stat{font-size:12px;color:var(--muted)}
+.dem-stat strong{color:var(--text);font-weight:600}
+.dem-matches-bar{margin-top:12px;padding:10px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;display:flex;align-items:center;justify-content:space-between}
+.dem-matches-txt{font-size:12px;font-weight:600;color:#f87171}
+.dem-matches-arrow{font-size:14px;color:#f87171}
+
+/* ── LOADING ── */
+.skel{background:rgba(255,255,255,.05);border-radius:8px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.8}}
 </style>
 </head>
 <body>
@@ -143,11 +187,11 @@ body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);mi
 <div id="tab-home" class="tab active">
   <div class="sec-lbl">Resumen</div>
   <div class="grid">
-    <div class="stat-card"><div class="stat-num">0</div><div class="stat-lbl">Pisos activos</div></div>
-    <div class="stat-card"><div class="stat-num">0</div><div class="stat-lbl">Demandas activas</div></div>
-    <div class="stat-card"><div class="stat-num">0</div><div class="stat-lbl">Visitas totales</div></div>
-    <div class="stat-card"><div class="stat-num">0</div><div class="stat-lbl">Ventas cerradas</div></div>
-    <div class="stat-card wide gold"><div class="stat-num">€0</div><div class="stat-lbl">Total ganado en plataforma</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-pisos">—</div><div class="stat-lbl">Pisos activos</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-dem">—</div><div class="stat-lbl">Demandas activas</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-vis">—</div><div class="stat-lbl">Visitas totales</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-ventas">—</div><div class="stat-lbl">Ventas cerradas</div></div>
+    <div class="stat-card wide gold"><div class="stat-num" id="s-ganado">—</div><div class="stat-lbl">Total ganado en plataforma</div></div>
   </div>
   
   <div class="sec-lbl" style="margin-top:8px">Acciones rápidas</div>
@@ -283,17 +327,9 @@ body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);mi
 </div>
 </div>
 
-<!-- ══ DATA ══ -->
-<script type="application/json" id="d-pisos">[]</script>
-<script type="application/json" id="d-demandas">[]</script>
-<script type="application/json" id="d-ops">[]</script>
-
 <script>
 const CID = 'receUNu1zEjmNewRI';
 const WH = 'https://onomahomes.app.n8n.cloud/webhook';
-const PISOS = JSON.parse(document.getElementById('d-pisos').textContent);
-const DEMANDAS = JSON.parse(document.getElementById('d-demandas').textContent);
-const OPS = JSON.parse(document.getElementById('d-ops').textContent);
 
 /* ── TABS ── */
 function showTab(name, btn) {
@@ -304,8 +340,8 @@ function showTab(name, btn) {
 }
 
 /* ── MODALS ── */
-function abrirModal(id){ document.getElementById(id).classList.add('on'); }
-function cerrarModal(id){ document.getElementById(id).classList.remove('on'); }
+function abrirModal(mid){ document.getElementById(mid).classList.add('on'); }
+function cerrarModal(mid){ document.getElementById(mid).classList.remove('on'); }
 document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('on'); }));
 
 /* ── STATUS BADGE ── */
@@ -313,60 +349,97 @@ function badgeClass(st) {
   const s = (st||'').toLowerCase().trim();
   if (s.includes('activ')) return 'badge-green';
   if (s.includes('pend')) return 'badge-amber';
-  if (s.includes('inactiv')) return 'badge-gray';
+  if (s.includes('inactiv') || s.includes('cerr')) return 'badge-gray';
   return 'badge-gold';
 }
 
+/* ── GALLERY ── */
+function galMove(btn, dir) {
+  const gal = btn.closest('.piso-gallery');
+  const imgs = gal.querySelectorAll('img');
+  const dots = gal.querySelectorAll('.gal-dot');
+  let cur = [...imgs].findIndex(i => i.classList.contains('on'));
+  imgs[cur].classList.remove('on'); dots[cur]?.classList.remove('on');
+  cur = (cur + dir + imgs.length) % imgs.length;
+  imgs[cur].classList.add('on'); dots[cur]?.classList.add('on');
+}
+
 /* ── RENDER PISOS ── */
-function renderPisos() {
+function renderPisos(pisos) {
   const el = document.getElementById('lista-pisos');
-  document.getElementById('badge-pisos').textContent = PISOS.length;
-  if (!PISOS.length) { el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>Aún no has subido ningún piso</p></div>'; return; }
-  el.innerHTML = PISOS.map(p => {
-    const dir = [p.calle, p.num, p.piso_puerta].filter(Boolean).join(' ');
-    const sub = [p.barrio, 'Madrid'].filter(Boolean).join(', ');
+  document.getElementById('badge-pisos').textContent = pisos.length;
+  if (!pisos.length) { el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>Aún no has subido ningún piso</p></div>'; return; }
+  el.innerHTML = pisos.map(p => {
     const est = (p.estado||'').trim() || 'Pendiente';
-    return '<div class="li-card">'
-      + '<div class="li-top">'
-      + '<div><div class="li-main">' + (dir || 'Sin dirección') + '</div><div class="li-sub">' + sub + '</div></div>'
-      + '<span class="li-badge ' + badgeClass(est) + '">' + est.replace('_',' ') + '</span>'
+    const dir = p.direccion || 'Sin dirección';
+    const sub = [p.barrio, 'Madrid'].filter(Boolean).join(', ');
+    let gallery;
+    if (p.fotos && p.fotos.length) {
+      const imgs = p.fotos.map((u,i) => '<img src="'+u+'" class="gal-img'+(i===0?' on':'')+'" loading="lazy">').join('');
+      const nav = p.fotos.length > 1
+        ? '<button class="gal-btn gal-prev" onclick="galMove(this,-1)">‹</button><button class="gal-btn gal-next" onclick="galMove(this,1)">›</button><div class="gal-dots">'+p.fotos.map((_,i)=>'<div class="gal-dot'+(i===0?' on':'')+'"></div>').join('')+'</div>'
+        : '';
+      gallery = '<div class="piso-gallery">'+imgs+nav+'</div>';
+    } else {
+      gallery = '<div class="piso-gallery"><div class="piso-ph"><svg width="36" height="36" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="14" height="10" rx="1"/><path d="M1 9l9-7 9 7"/><rect x="8" y="13" width="4" height="5"/></svg><span>SIN FOTOS</span></div></div>';
+    }
+    return '<div class="piso-card">'
+      + gallery
+      + '<div class="piso-body">'
+      + '<div class="piso-dir">'+dir+'</div>'
+      + '<div class="piso-sub">'+sub+'</div>'
+      + '<div class="piso-row">'
+      + '<span class="li-badge '+badgeClass(est)+'">'+est.replace(/_/g,' ')+'</span>'
+      + '<div class="piso-stats">'
+      + (p.precio ? '<span>€<strong>'+Number(p.precio).toLocaleString('es-ES')+'</strong></span>' : '')
+      + (p.hab ? '<span><strong>'+p.hab+'</strong> hab</span>' : '')
+      + (p.metros ? '<span><strong>'+p.metros+'</strong> m²</span>' : '')
+      + '</div></div>'
+      + '<div class="piso-meta">'
+      + '<div class="piso-meta-item"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 10s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7z"/><circle cx="10" cy="10" r="3"/></svg><strong>'+p.visitas+'</strong> visitas</div>'
+      + '<div class="piso-meta-item"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 12a5 5 0 01-5 5H6l-4 2V7a5 5 0 015-5h5a5 5 0 015 5v2z"/></svg><strong>'+p.matchings+'</strong> interesados</div>'
       + '</div>'
-      + '<div class="li-meta">'
-      + (p.precio ? '<div class="li-meta-item"><strong>€' + Number(p.precio).toLocaleString('es-ES') + '</strong></div>' : '')
-      + (p.hab ? '<div class="li-meta-item"><strong>' + p.hab + '</strong> hab.</div>' : '')
-      + (p.metros ? '<div class="li-meta-item"><strong>' + p.metros + '</strong> m²</div>' : '')
-      + '</div>'
-      + '</div>';
+      + '</div></div>';
   }).join('');
 }
 
 /* ── RENDER DEMANDAS ── */
-function renderDemandas() {
+function renderDemandas(demandas) {
   const el = document.getElementById('lista-demandas');
-  document.getElementById('badge-dem').textContent = DEMANDAS.length;
-  if (!DEMANDAS.length) { el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>Aún no has registrado ninguna demanda</p></div>'; return; }
-  el.innerHTML = DEMANDAS.map(d => {
+  document.getElementById('badge-dem').textContent = demandas.length;
+  if (!demandas.length) { el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>Aún no has registrado ninguna demanda</p></div>'; return; }
+  el.innerHTML = demandas.map(d => {
     const est = (d.estado||'').trim() || 'Pendiente';
-    return '<div class="li-card">'
-      + '<div class="li-top">'
-      + '<div><div class="li-main">' + (d.nombre||'Cliente') + '</div><div class="li-sub">' + (d.zona||'') + '</div></div>'
-      + '<span class="li-badge ' + badgeClass(est) + '">' + est.replace('_',' ') + '</span>'
+    const initials = (d.nombre||'C').split(' ').map(w=>w[0]||'').slice(0,2).join('').toUpperCase() || 'C';
+    const hasMatch = d.matchings > 0;
+    return '<div class="dem-card'+(hasMatch?' has-match':'')+'">'
+      + '<div class="dem-top">'
+      + '<div class="dem-avatar-wrap">'
+      + '<div class="dem-avatar">'+initials+'</div>'
+      + (hasMatch ? '<span class="notif-dot">'+d.matchings+'</span>' : '')
       + '</div>'
-      + '<div class="li-meta">'
-      + (d.presupuesto ? '<div class="li-meta-item">Hasta <strong>€' + Number(d.presupuesto).toLocaleString('es-ES') + '</strong></div>' : '')
-      + (d.hab ? '<div class="li-meta-item"><strong>' + d.hab + '</strong> hab. mín.</div>' : '')
-      + (d.metros ? '<div class="li-meta-item"><strong>' + d.metros + '</strong> m² mín.</div>' : '')
+      + '<div class="dem-content">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
+      + '<div class="dem-nombre">'+(d.nombre||'Cliente')+'</div>'
+      + '<span class="li-badge '+badgeClass(est)+'">'+est.replace(/_/g,' ')+'</span>'
       + '</div>'
-      + '</div>';
+      + '<div class="dem-zona">📍 '+(d.zona||'Sin zona')+'</div>'
+      + '<div class="dem-stats-row">'
+      + (d.presupuesto ? '<div class="dem-stat">Hasta <strong>€'+Number(d.presupuesto).toLocaleString('es-ES')+'</strong></div>' : '')
+      + (d.hab ? '<div class="dem-stat"><strong>'+d.hab+'</strong> hab. mín</div>' : '')
+      + (d.metros ? '<div class="dem-stat"><strong>'+d.metros+'</strong> m² mín</div>' : '')
+      + '</div>'
+      + (hasMatch ? '<div class="dem-matches-bar"><span class="dem-matches-txt">'+d.matchings+' opciones encontradas</span><span class="dem-matches-arrow">→</span></div>' : '')
+      + '</div></div></div>';
   }).join('');
 }
 
 /* ── RENDER OPERACIONES ── */
-function renderOps() {
+function renderOps(ops) {
   const el = document.getElementById('lista-ops');
-  document.getElementById('badge-ops').textContent = OPS.length;
-  if (!OPS.length) { el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>Todavía no tienes operaciones cerradas</p></div>'; return; }
-  el.innerHTML = OPS.map(op => {
+  document.getElementById('badge-ops').textContent = ops.length;
+  if (!ops.length) { el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>Todavía no tienes operaciones cerradas</p></div>'; return; }
+  el.innerHTML = ops.map(op => {
     return '<div class="li-card op-card">'
       + '<div class="op-imp">€' + Number(op.importe||0).toLocaleString('es-ES') + '</div>'
       + '<div class="op-lbl">' + (op.rol||'Operación cerrada') + '</div>'
@@ -436,10 +509,33 @@ async function enviarDemanda(){
   }catch(e){ alert('Error al enviar. Inténtalo de nuevo.'); btn.disabled=false; btn.textContent='Enviar demanda →'; }
 }
 
+/* ── DASHBOARD FETCH ── */
+async function fetchDashboard() {
+  try {
+    const r = await fetch(WH + '/colaborador-data?id=' + CID);
+    const d = await r.json();
+    const pisos = d.pisos || [];
+    const demandas = d.demandas || [];
+    const ops = d.ops || [];
+    const st = d.stats || {};
+
+    // Update home stats
+    document.getElementById('s-pisos').textContent = st.pisosActivos ?? pisos.filter(p=>(p.estado||'').toLowerCase().includes('activ')).length;
+    document.getElementById('s-dem').textContent = st.demandasActivas ?? demandas.filter(d=>(d.estado||'').toLowerCase().includes('activ')).length;
+    document.getElementById('s-vis').textContent = st.visitasTotal ?? 0;
+    document.getElementById('s-ventas').textContent = ops.length;
+    document.getElementById('s-ganado').textContent = ops.length ? ('€' + ops.reduce((s,o)=>s+(o.importe||0),0).toLocaleString('es-ES')) : '—';
+
+    renderPisos(pisos);
+    renderDemandas(demandas);
+    renderOps(ops);
+  } catch(e) {
+    console.error('Dashboard fetch error:', e);
+  }
+}
+
 /* ── INIT ── */
-renderPisos();
-renderDemandas();
-renderOps();
+fetchDashboard();
 </script>
 </body>
 </html>
