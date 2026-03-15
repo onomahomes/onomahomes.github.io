@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ONOMA · Bienvenido</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C5A059;--gold-dim:rgba(197,160,89,0.1);--gold-border:rgba(197,160,89,0.3);--black:#000;--g900:#0a0a0a;--g800:#111;--text:#fff;--muted:rgba(255,255,255,0.45);--subtle:rgba(255,255,255,0.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);min-height:100vh}
+.logo-mark{display:flex;align-items:baseline;justify-content:center;gap:9px}
+.lm-name{font-family:'Inter',sans-serif;font-weight:700;font-size:18px;letter-spacing:3px;color:var(--text)}
+.lm-homes{font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
+::placeholder{color:rgba(255,255,255,.18);font-style:normal}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;min-height:100vh}
+.page{width:100%;max-width:480px}
+.hdr{text-align:center;margin-bottom:48px}
+.hdr-logo{margin-bottom:24px}
+.hdr h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;line-height:1.3;margin-bottom:10px}
+.hdr p{font-size:14px;color:var(--muted);line-height:1.6}
+.cards{display:flex;flex-direction:column;gap:14px}
+.type-card{display:block;text-decoration:none;color:var(--text);background:rgba(255,255,255,0.03);border:1px solid var(--subtle);border-radius:18px;padding:24px 22px;transition:border-color .2s,background .2s;cursor:pointer}
+.type-card:hover{border-color:var(--gold-border);background:var(--gold-dim)}
+.tc-top{display:flex;align-items:center;justify-content:space-between}
+.tc-icon{width:44px;height:44px;border-radius:12px;background:var(--gold-dim);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center}
+.tc-arrow{color:var(--muted);font-size:20px;transition:color .2s}
+.type-card:hover .tc-arrow{color:var(--gold)}
+.tc-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin:16px 0 6px}
+.tc-desc{font-size:13px;color:var(--muted);line-height:1.6}
+.tc-tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-border);border-radius:20px;padding:3px 10px;margin-top:14px}
+.footer-lnk{text-align:center;margin-top:32px;font-size:13px;color:var(--muted)}
+.footer-lnk a{color:var(--gold);font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hdr">
+    <div class="hdr-logo"><div class="logo-mark"><span class="lm-name">ONOMA</span><span class="lm-homes">Homes</span></div></div>
+    <h1>¿Cómo quieres<br>acceder?</h1>
+    <p>Selecciona el tipo de cuenta<br>que deseas crear</p>
+  </div>
+
+  <div class="cards">
+    <a href="registro.html?tipo=comprador" class="type-card">
+      <div class="tc-top">
+        <div class="tc-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C5A059" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5"/><path d="M5 8v12h5v-5h4v5h5V8"/></svg>
+        </div>
+        <span class="tc-arrow">→</span>
+      </div>
+      <div class="tc-title">Comprador Directo</div>
+      <div class="tc-desc">Estoy buscando adquirir una vivienda y quiero acceso a las mejores oportunidades del mercado.</div>
+      <span class="tc-tag">Para compradores</span>
+    </a>
+
+    <a href="registro.html?tipo=colaborador" class="type-card">
+      <div class="tc-top">
+        <div class="tc-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C5A059" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        </div>
+        <span class="tc-arrow">→</span>
+      </div>
+      <div class="tc-title">Colaborador</div>
+      <div class="tc-desc">Soy inmobiliaria o agente independiente y quiero unirme a la red de colaboradores ONOMA.</div>
+      <span class="tc-tag">Para inmobiliarias</span>
+    </a>
+  </div>
+
+  <div class="footer-lnk">¿Ya tienes cuenta? <a href="portal.html">Inicia sesión</a></div>
+</div>
+</body>
+</html>
