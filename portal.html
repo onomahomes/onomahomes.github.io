@@ -80,4 +80,14 @@ async function login(){
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 </script>
+
+<script>
+(function(){
+  const em = new URLSearchParams(window.location.search).get('email');
+  if (em) {
+    const inp = document.getElementById('email') || document.querySelector('input[type=email]');
+    if (inp) { inp.value = decodeURIComponent(em); inp.focus(); }
+  }
+})();
+</script>
 </body></html>
