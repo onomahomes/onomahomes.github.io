@@ -8,12 +8,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
 :root{--gold:#C5A059;--gold-dim:rgba(197,160,89,0.1);--gold-border:rgba(197,160,89,0.3);--black:#000;--g900:#0a0a0a;--g800:#111;--text:#fff;--muted:rgba(255,255,255,0.45);--subtle:rgba(255,255,255,0.08)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:var(--black);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px 60px;color:var(--text)}
-.logo-wrap{text-align:center;margin-bottom:36px}
-.logo-mark{display:flex;align-items:baseline;justify-content:center;gap:9px;margin-bottom:10px}
+body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);min-height:100vh}
+.logo-mark{display:flex;align-items:baseline;justify-content:center;gap:9px}
 .lm-name{font-family:'Inter',sans-serif;font-weight:700;font-size:18px;letter-spacing:3px;color:var(--text)}
 .lm-homes{font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
-.logo-sub{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--text);margin-bottom:4px}
+::placeholder{color:rgba(255,255,255,.18);font-style:normal}
+body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px 60px}
+.logo-wrap{text-align:center;margin-bottom:36px}
+.logo-sub{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--text);margin:12px 0 4px}
 .logo-sub2{font-size:12px;color:var(--muted);letter-spacing:.5px}
 .card{width:100%;max-width:440px}
 .sec-title{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:600;margin:28px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--subtle)}
@@ -25,7 +27,6 @@ body{font-family:'Inter',sans-serif;background:var(--black);min-height:100vh;dis
 .fld input{width:100%;padding:10px 0;border:none;border-bottom:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
 .fld input:focus{border-bottom-color:var(--gold)}
 .fld input.err-field{border-bottom-color:#f87171}
-::placeholder{color:rgba(255,255,255,.18);font-style:normal}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .indep-box{display:flex;align-items:center;gap:14px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:12px;padding:14px 16px;margin-bottom:22px;cursor:pointer}
 .indep-box input[type=checkbox]{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
@@ -52,86 +53,71 @@ body{font-family:'Inter',sans-serif;background:var(--black);min-height:100vh;dis
     <span class="lm-name">ONOMA</span>
     <span class="lm-homes">Homes</span>
   </div>
-  <div class="logo-sub">Registro de Colaborador</div>
-  <div class="logo-sub2">Red de inmobiliarias partner</div>
+  <div class="logo-sub" id="pageTitle">Registro</div>
+  <div class="logo-sub2" id="pageSubtitle">Crea tu cuenta</div>
 </div>
 <div class="card">
-
   <div class="err-msg" id="errMsg"></div>
 
   <div id="formReg">
-    <!-- SECCIÓN 1 -->
     <div class="sec-title">Datos personales</div>
 
     <div class="row2">
-      <div class="fld">
-        <label>Nombre <span class="req">*</span></label>
-        <input id="nombre" type="text" placeholder="Tu nombre...">
-      </div>
-      <div class="fld">
-        <label>Apellido <span class="req">*</span></label>
-        <input id="apellido" type="text" placeholder="Tu apellido...">
-      </div>
+      <div class="fld"><label>Nombre <span class="req">*</span></label><input id="nombre" type="text" placeholder="Tu nombre"></div>
+      <div class="fld"><label>Apellido <span class="req">*</span></label><input id="apellido" type="text" placeholder="Tu apellido"></div>
     </div>
 
-    <div class="fld">
-      <label>NIF / CIF <span class="opt">(opcional)</span></label>
-      <input id="nif" type="text" placeholder="Tu documento de identidad...">
-    </div>
+    <div class="fld"><label>NIF / CIF <span class="opt">(opcional)</span></label><input id="nif" type="text" placeholder="Documento de identidad"></div>
+    <div class="fld"><label>Teléfono <span class="req">*</span></label><input id="tel" type="tel" placeholder="Número de teléfono"></div>
+    <div class="fld"><label>Email <span class="req">*</span></label><input id="email" type="email" placeholder="Tu email"></div>
 
-    <div class="fld">
-      <label>Teléfono <span class="req">*</span></label>
-      <input id="tel" type="tel" placeholder="Tu número de teléfono...">
-    </div>
+    <div id="sec2wrap">
+      <div class="sec-title" style="margin-top:28px">Datos profesionales</div>
 
-    <div class="fld">
-      <label>Email <span class="req">*</span></label>
-      <input id="email" type="email" placeholder="Tu dirección de email...">
-    </div>
-
-    <!-- SECCIÓN 2 -->
-    <div class="sec-title" style="margin-top:24px">Datos profesionales</div>
-
-    <div class="indep-box" onclick="toggleIndep()">
-      <input type="checkbox" id="indep">
-      <div>
-        <label for="indep">Soy colaborador independiente</label>
-        <span>Marca esta opción si trabajas como autónomo sin empresa</span>
-      </div>
-    </div>
-
-    <div id="sec2fields">
-      <div class="fld">
-        <label>Empresa representada <span class="req">*</span></label>
-        <input id="empresa" type="text" placeholder="Nombre de tu empresa o agencia...">
-      </div>
-      <div class="row2">
-        <div class="fld">
-          <label>CIF de empresa <span class="req">*</span></label>
-          <input id="cif" type="text" placeholder="CIF...">
+      <div class="indep-box" onclick="toggleIndep()">
+        <input type="checkbox" id="indep">
+        <div>
+          <label for="indep">Soy colaborador independiente</label>
+          <span>Marca esta opción si trabajas como autónomo sin empresa</span>
         </div>
-        <div class="fld">
-          <label>Cargo <span class="req">*</span></label>
-          <input id="cargo" type="text" placeholder="Tu cargo...">
+      </div>
+
+      <div id="sec2fields">
+        <div class="fld"><label>Empresa representada <span class="req">*</span></label><input id="empresa" type="text" placeholder="Nombre de tu empresa o agencia"></div>
+        <div class="row2">
+          <div class="fld"><label>CIF de empresa <span class="req">*</span></label><input id="cif" type="text" placeholder="CIF"></div>
+          <div class="fld"><label>Cargo <span class="req">*</span></label><input id="cargo" type="text" placeholder="Tu cargo"></div>
         </div>
       </div>
     </div>
 
     <button class="btn" id="btnReg" onclick="registrar()">Solicitar acceso →</button>
-    <p class="nota">Todos los campos marcados con <strong style="color:#c9a84c">*</strong> son obligatorios</p>
+    <p class="nota">Los campos marcados con <strong style="color:var(--gold)">*</strong> son obligatorios</p>
   </div>
 
   <div class="ok-box" id="okReg">
     <div class="ok-line"></div>
     <h3>Solicitud enviada</h3>
-    <p>Hemos enviado un email de confirmación a<br><strong id="emailConf"></strong>.<br><br>Haz clic en el enlace del email para activar tu cuenta.</p>
+    <p>Hemos enviado un email de confirmación a<br><strong id="emailConf"></strong>.<br><br>Haz clic en el enlace para activar tu cuenta y crear tu contraseña.</p>
   </div>
 
   <div class="link">¿Ya tienes cuenta? <a href="portal.html">Inicia sesión</a></div>
 </div>
 
 <script>
+const params = new URLSearchParams(window.location.search);
+const tipo = params.get('tipo') || 'colaborador';
 let esIndep = false;
+
+// Adapt form to tipo
+if (tipo === 'comprador') {
+  document.getElementById('pageTitle').textContent = 'Registro de Comprador';
+  document.getElementById('pageSubtitle').textContent = 'Busca tu hogar con ONOMA';
+  document.getElementById('sec2wrap').style.display = 'none';
+} else {
+  document.getElementById('pageTitle').textContent = 'Registro de Colaborador';
+  document.getElementById('pageSubtitle').textContent = 'Red de inmobiliarias partner';
+}
 
 function toggleIndep() {
   esIndep = !esIndep;
@@ -139,16 +125,11 @@ function toggleIndep() {
   const sec2 = document.getElementById('sec2fields');
   if (esIndep) {
     sec2.classList.add('disabled');
-    ['empresa','cif','cargo'].forEach(id => {
-      document.getElementById(id).value = '';
-      document.getElementById(id).removeAttribute('required');
-    });
+    ['empresa','cif','cargo'].forEach(id => { document.getElementById(id).value = ''; });
   } else {
     sec2.classList.remove('disabled');
   }
 }
-
-// Evitar doble click en el checkbox
 document.getElementById('indep').addEventListener('click', function(e) {
   e.stopPropagation();
   esIndep = this.checked;
@@ -160,21 +141,19 @@ document.getElementById('indep').addEventListener('click', function(e) {
 async function registrar() {
   const err = document.getElementById('errMsg');
   err.style.display = 'none';
-
   const nombre   = document.getElementById('nombre').value.trim();
   const apellido = document.getElementById('apellido').value.trim();
   const tel      = document.getElementById('tel').value.trim();
   const email    = document.getElementById('email').value.trim();
-  const empresa  = document.getElementById('empresa').value.trim();
-  const cif      = document.getElementById('cif').value.trim();
-  const cargo    = document.getElementById('cargo').value.trim();
+  const empresa  = tipo !== 'comprador' ? document.getElementById('empresa').value.trim() : '';
+  const cif      = tipo !== 'comprador' ? document.getElementById('cif').value.trim() : '';
+  const cargo    = tipo !== 'comprador' ? document.getElementById('cargo').value.trim() : '';
 
-  // Validación
   if (!nombre) { mostrarError('El nombre es obligatorio'); return; }
   if (!apellido) { mostrarError('El apellido es obligatorio'); return; }
   if (!tel) { mostrarError('El teléfono es obligatorio'); return; }
   if (!email || !email.includes('@')) { mostrarError('Introduce un email válido'); return; }
-  if (!esIndep) {
+  if (tipo !== 'comprador' && !esIndep) {
     if (!empresa) { mostrarError('El nombre de empresa es obligatorio'); return; }
     if (!cif) { mostrarError('El CIF de empresa es obligatorio'); return; }
     if (!cargo) { mostrarError('El cargo es obligatorio'); return; }
@@ -182,7 +161,7 @@ async function registrar() {
 
   const btn = document.getElementById('btnReg');
   btn.disabled = true;
-  btn.textContent = 'Enviando solicitud...';
+  btn.textContent = 'Enviando...';
 
   try {
     const r = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-registro', {
@@ -191,11 +170,11 @@ async function registrar() {
       body: JSON.stringify({
         nombre, apellido,
         nif: document.getElementById('nif').value.trim(),
-        telefono: tel, email,
-        empresa: esIndep ? '' : empresa,
-        cif_empresa: esIndep ? '' : cif,
-        cargo: esIndep ? '' : cargo,
-        es_independiente: esIndep
+        telefono: tel, email, tipo,
+        empresa: (tipo !== 'comprador' && !esIndep) ? empresa : '',
+        cif_empresa: (tipo !== 'comprador' && !esIndep) ? cif : '',
+        cargo: (tipo !== 'comprador' && !esIndep) ? cargo : '',
+        es_independiente: tipo === 'comprador' ? true : esIndep
       })
     });
     const d = await r.json();
