@@ -290,6 +290,12 @@ body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);mi
       </div>
     </div>
     <div class="chk-row"><input type="checkbox" id="p_asc"><label for="p_asc">El inmueble tiene ascensor</label></div>
+    <div class="fld"><label>Tipo de colaboración *</label>
+      <select id="p_tipo_colab">
+        <option value="Directa">Directa — solo con clientes ONOMA (50% comisión)</option>
+        <option value="Compartida">Compartida — también con otros colaboradores (33% comisión)</option>
+      </select>
+    </div>
     <div class="fld"><label>Descripción (opcional)</label><textarea id="p_des" rows="3" placeholder="Características destacadas..."></textarea></div>
     <button class="sub" id="btnEnviarPiso" onclick="enviarPiso()">Enviar piso →</button>
   </div>
@@ -317,6 +323,12 @@ body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);mi
     </div>
     <div class="fld"><label>Metros mínimos</label><input id="d_met" type="number" placeholder="Superficie mínima"></div>
     <div class="fld"><label>Perfil del cliente (opcional)</label><textarea id="d_per" rows="3" placeholder="Necesidades o prioridades..."></textarea></div>
+    <div class="fld"><label>Tipo de colaboración *</label>
+      <select id="d_tipo_colab">
+        <option value="Directa">Directa — solo pisos ONOMA (50% comisión)</option>
+        <option value="Compartida">Compartida — también pisos de otros colaboradores (33% comisión)</option>
+      </select>
+    </div>
     <button class="sub" id="btnEnviarDemanda" onclick="enviarDemanda()">Enviar demanda →</button>
   </div>
   <div class="ok" id="okDemanda">
@@ -480,6 +492,7 @@ async function enviarPiso(){
       metros:parseInt(document.getElementById('p_met').value||0),
       estado:document.getElementById('p_est').value,
       ascensor:document.getElementById('p_asc').checked,
+      tipo_colaboracion:document.getElementById('p_tipo_colab').value,
       descripcion:document.getElementById('p_des').value
     })});
     const data=await resp.json();
@@ -502,7 +515,8 @@ async function enviarDemanda(){
     await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       colaborador_id:CID,nombre:nom,zona,presupuesto:parseFloat(pre),
       habitaciones:parseInt(hab),metros:parseInt(document.getElementById('d_met').value||0),
-      perfil:document.getElementById('d_per').value
+      perfil:document.getElementById('d_per').value,
+      tipo_colaboracion:document.getElementById('d_tipo_colab').value
     })});
     document.getElementById('fDemanda').style.display='none';
     document.getElementById('okDemanda').classList.add('on');
