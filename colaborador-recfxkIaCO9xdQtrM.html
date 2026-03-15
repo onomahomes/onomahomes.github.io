@@ -295,54 +295,224 @@ body{
 .op-card{background:var(--gold-dim)!important;border-color:var(--gold-b)!important}
 .op-imp{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--gold)}
 .op-lbl{font-size:14px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:1px}
+
+
+/* ── SIDEBAR LAYOUT ── */
+body{overflow-x:hidden}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:250px;background:#0c0c1e;border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;transition:transform .3s}
+.sb-logo{padding:28px 24px 24px;border-bottom:1px solid var(--border)}
+.sb-logo .brand{font-size:24px;letter-spacing:4px;display:block}
+.sb-logo .brand-sub{font-size:12px;display:block;margin-top:2px}
+.sb-user{padding:20px 24px;border-bottom:1px solid var(--border)}
+.sb-user-name{font-size:16px;font-weight:600}
+.sb-user-role{font-size:12px;color:var(--muted);margin-top:2px}
+.sb-nav{flex:1;padding:16px 0}
+.sb-item{display:flex;align-items:center;gap:14px;padding:14px 24px;color:var(--muted);text-decoration:none;font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;border-left:3px solid transparent}
+.sb-item:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.sb-item.active{color:var(--gold);background:rgba(197,160,89,.08);border-left-color:var(--gold);font-weight:600}
+.sb-item svg{width:20px;height:20px;flex-shrink:0}
+.sb-logout{padding:18px 24px;border-top:1px solid var(--border);display:flex;align-items:center;gap:14px;color:var(--red-t);font-size:14px;font-weight:500;cursor:pointer;transition:background .2s;text-decoration:none}
+.sb-logout:hover{background:rgba(239,68,68,.08)}
+.main{flex:1;margin-left:250px;min-height:100vh}
+.main-hdr{padding:24px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(6,6,17,.6);backdrop-filter:blur(20px);position:sticky;top:0;z-index:30}
+.main-ttl{font-family:'Playfair Display',serif;font-size:26px;font-weight:700}
+.main-actions{display:flex;gap:10px}
+.main-body{padding:28px 32px}
+.hamburger{display:none;background:none;border:none;color:var(--text);font-size:28px;cursor:pointer;padding:4px}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49}
+
+/* ── KPI row (CleanFix style) ── */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.kpi-box{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:16px;padding:22px 20px;transition:all .25s}
+.kpi-box:hover{border-color:var(--border-h);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.kpi-box .kpi-icon{font-size:28px;margin-bottom:10px}
+.kpi-box .kpi-val{font-family:'Playfair Display',serif;font-size:40px;font-weight:700;line-height:1}
+.kpi-box .kpi-label{font-size:14px;color:var(--muted);margin-top:6px}
+.kpi-box.amber{border-color:var(--amber-b)}.kpi-box.amber .kpi-val{color:var(--amber-t)}
+.kpi-box.green{border-color:var(--green-b)}.kpi-box.green .kpi-val{color:var(--green-t)}
+.kpi-box.blue{border-color:var(--blue-b)}.kpi-box.blue .kpi-val{color:var(--blue-t)}
+.kpi-box.gold{border-color:var(--gold-b)}.kpi-box.gold .kpi-val{color:var(--gold)}
+
+/* ── Alert banner ── */
+.alert-bar{background:rgba(251,191,36,.08);border:1px solid var(--amber-b);border-radius:12px;padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px;font-size:15px;color:var(--amber-t);font-weight:500;cursor:pointer;transition:background .2s}
+.alert-bar:hover{background:rgba(251,191,36,.12)}
+
+/* ── Panels (Cuenta tab) ── */
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.panel{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:16px;padding:24px}
+.panel-title{font-size:16px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.panel-count{font-family:'Playfair Display',serif;font-size:48px;font-weight:700;line-height:1;margin:16px 0 8px}
+.panel-sub{font-size:14px;color:var(--muted)}
+.panel-sub strong{color:var(--text)}
+
+/* ── Mobile ── */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sb-overlay.open{display:block}
+  .main{margin-left:0}
+  .hamburger{display:block}
+  .main-body{padding:20px 16px}
+  .main-hdr{padding:16px 20px}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .panels{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .kpi-row{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
-<div class="app">
-<div class="hdr" style="text-align:center">
-  <div class="logo-row center"><span class="brand">ONOMA</span><span class="brand-sub">Homes</span></div>
-  <div class="hdr-name">Ramses Michelena</div>
-  <div style="margin-top:8px"><span class="hdr-badge">Colaborador</span></div>
-</div>
 
-<div id="tab-home" class="tab active">
-  <div class="sec-lbl">Resumen</div>
-  <div class="grid">
-    <div class="stat-card anim-up delay-1"><div class="stat-num" id="s-pisos">—</div><div class="stat-lbl">Pisos activos</div></div>
-    <div class="stat-card anim-up delay-2"><div class="stat-num" id="s-dem">—</div><div class="stat-lbl">Demandas activas</div></div>
-    <div class="stat-card anim-up delay-3"><div class="stat-num" id="s-vis">—</div><div class="stat-lbl">Visitas totales</div></div>
-    <div class="stat-card anim-up delay-4"><div class="stat-num" id="s-ventas">—</div><div class="stat-lbl">Ventas cerradas</div></div>
-    <div class="stat-card wide gold anim-up delay-5"><div class="stat-num" id="s-ganado">—</div><div class="stat-lbl">Total ganado en plataforma</div></div>
+<div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <span class="brand">ONOMA</span>
+    <span class="brand-sub">Homes</span>
   </div>
-  <div class="sec-lbl" style="margin-top:8px">Acciones rápidas</div>
-  <div class="btns">
-    <button class="btn-act btn-gold" onclick="abrirModal('modalPiso')">+ Nuevo Piso</button>
-    <button class="btn-act btn-outline" onclick="abrirModal('modalDemanda')">+ Nueva Demanda</button>
+  <div class="sb-user">
+    <div class="sb-user-name">Ramses Michelena</div>
+    <div class="sb-user-role">Colaborador</div>
   </div>
-</div>
+  <nav class="sb-nav">
+    <a class="sb-item active" data-tab="matchings" onclick="goTab('matchings',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 12a5 5 0 01-5 5H6l-4 2V7a5 5 0 015-5h5a5 5 0 015 5v2z"/></svg>
+      Matchings
+    </a>
+    <a class="sb-item" data-tab="cuenta" onclick="goTab('cuenta',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg>
+      Cuenta
+    </a>
+    <a class="sb-item" data-tab="demandas" onclick="goTab('demandas',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="3.5"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6"/></svg>
+      Demandas
+    </a>
+    <a class="sb-item" data-tab="pisos" onclick="goTab('pisos',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3" y="8" width="14" height="10" rx="1"/><path d="M1 9l9-7 9 7"/><rect x="8" y="13" width="4" height="5"/></svg>
+      Mis Pisos
+    </a>
+    <a class="sb-item" data-tab="ops" onclick="goTab('ops',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.3L10 14.3l-4.8 2.5.9-5.3L2.2 7.7l5.4-.8z"/></svg>
+      Operaciones
+    </a>
+  </nav>
+  <a class="sb-logout" onclick="if(confirm('¿Cerrar sesión?'))window.location.href='portal.html'">
+    <svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 3h3a1 1 0 011 1v12a1 1 0 01-1 1h-3M8 15l-5-5 5-5M3 10h10"/></svg>
+    Cerrar sesión
+  </a>
+</aside>
 
-<div id="tab-demandas" class="tab">
-  <div class="tab-hdr"><div><span class="tab-ttl">Mis Demandas</span><span class="tab-badge" id="badge-dem">0</span></div><button class="btn-new" onclick="abrirModal('modalDemanda')">+ Nueva</button></div>
-  <div class="list-wrap" id="lista-demandas"></div>
-</div>
+<div class="main">
 
-<div id="tab-pisos" class="tab">
-  <div class="tab-hdr"><div><span class="tab-ttl">Mis Pisos</span><span class="tab-badge" id="badge-pisos">0</span></div><button class="btn-new" onclick="abrirModal('modalPiso')">+ Nuevo</button></div>
-  <div class="list-wrap" id="lista-pisos"></div>
-</div>
+  <!-- ══ MATCHINGS TAB ══ -->
+  <div id="tab-matchings" class="tab active">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Matchings</span>
+      </div>
+    </div>
+    <div class="main-body">
+      <div id="matchings-alert" style="display:none"></div>
+      <div class="kpi-row">
+        <div class="kpi-box amber"><div class="kpi-icon">⏳</div><div class="kpi-val" id="m-pending">0</div><div class="kpi-label">Demandas por revisión</div></div>
+        <div class="kpi-box green"><div class="kpi-icon">✅</div><div class="kpi-val" id="m-reviewed">0</div><div class="kpi-label">Revisadas</div></div>
+        <div class="kpi-box blue"><div class="kpi-icon">🔗</div><div class="kpi-val" id="m-total">0</div><div class="kpi-label">Matchings totales</div></div>
+      </div>
+      <div class="sec-lbl">Demandas con matchings</div>
+      <div class="list-wrap" id="lista-matchings">
+        <div class="empty"><div class="empty-line"></div><p>No hay matchings pendientes</p></div>
+      </div>
+    </div>
+  </div>
 
-<div id="tab-ops" class="tab">
-  <div class="tab-hdr"><div><span class="tab-ttl">Operaciones</span><span class="tab-badge" id="badge-ops">0</span></div></div>
-  <div class="list-wrap" id="lista-ops"></div>
-</div>
-</div>
+  <!-- ══ CUENTA TAB ══ -->
+  <div id="tab-cuenta" class="tab">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Cuenta</span>
+      </div>
+      <div class="main-actions">
+        <button class="btn-new" onclick="abrirModal('modalPiso')">+ Nuevo Piso</button>
+        <button class="btn-new" onclick="abrirModal('modalDemanda')">+ Nueva Demanda</button>
+      </div>
+    </div>
+    <div class="main-body">
+      <div class="panels">
+        <div class="panel">
+          <div class="panel-title">🏠 Pisos Activos</div>
+          <div class="panel-count" id="s-pisos" style="color:var(--gold)">—</div>
+          <div class="panel-sub">pisos publicados</div>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <div class="panel-sub"><strong id="s-vis-pisos">0</strong> visitas a tus pisos</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">👤 Demandas Activas</div>
+          <div class="panel-count" id="s-dem" style="color:var(--blue-t)">—</div>
+          <div class="panel-sub">compradores buscando</div>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <div class="panel-sub"><strong id="s-vis-dem">0</strong> visitas de tus demandas</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:24px">
+        <div class="kpi-row">
+          <div class="kpi-box"><div class="kpi-icon">📊</div><div class="kpi-val" id="s-vis">0</div><div class="kpi-label">Visitas totales</div></div>
+          <div class="kpi-box"><div class="kpi-icon">🤝</div><div class="kpi-val" id="s-ventas">0</div><div class="kpi-label">Ventas cerradas</div></div>
+          <div class="kpi-box gold"><div class="kpi-icon">💰</div><div class="kpi-val" id="s-ganado">—</div><div class="kpi-label">Total ganado</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<nav class="bnav">
-  <button class="bnav-btn on" id="nav-home" onclick="showTab('home',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L10 3l7 6.5"/><path d="M5 8v8h4v-4h2v4h4V8"/></svg>Home</button>
-  <button class="bnav-btn" id="nav-demandas" onclick="showTab('demandas',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="7" r="3.5"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6"/></svg>Demandas</button>
-  <button class="bnav-btn" id="nav-pisos" onclick="showTab('pisos',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="14" height="10" rx="1"/><path d="M1 9l9-7 9 7"/><rect x="8" y="13" width="4" height="5"/></svg>Mis Pisos</button>
-  <button class="bnav-btn" id="nav-ops" onclick="showTab('ops',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.3L10 14.3l-4.8 2.5.9-5.3L2.2 7.7l5.4-.8z"/></svg>Operaciones</button>
-</nav>
+  <!-- ══ DEMANDAS TAB ══ -->
+  <div id="tab-demandas" class="tab">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Mis Demandas</span>
+        <span class="tab-badge" id="badge-dem">0</span>
+      </div>
+      <button class="btn-new" onclick="abrirModal('modalDemanda')">+ Nueva Demanda</button>
+    </div>
+    <div class="main-body">
+      <div class="list-wrap" id="lista-demandas"></div>
+    </div>
+  </div>
+
+  <!-- ══ PISOS TAB ══ -->
+  <div id="tab-pisos" class="tab">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Mis Pisos</span>
+        <span class="tab-badge" id="badge-pisos">0</span>
+      </div>
+      <button class="btn-new" onclick="abrirModal('modalPiso')">+ Nuevo Piso</button>
+    </div>
+    <div class="main-body">
+      <div class="list-wrap" id="lista-pisos"></div>
+    </div>
+  </div>
+
+  <!-- ══ OPERACIONES TAB ══ -->
+  <div id="tab-ops" class="tab">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Operaciones</span>
+        <span class="tab-badge" id="badge-ops">0</span>
+      </div>
+    </div>
+    <div class="main-body">
+      <div class="list-wrap" id="lista-ops"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
 
 <!-- MODAL PISO -->
 <div class="overlay" id="modalPiso">
@@ -391,7 +561,9 @@ body{
 
 <script>
 const CID='recfxkIaCO9xdQtrM';const WH='https://onomahomes.app.n8n.cloud/webhook';
-function showTab(name,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));document.getElementById('tab-'+name).classList.add('active');btn.classList.add('on')}
+function goTab(name,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+name).classList.add('active');if(el)el.classList.add('active');closeSidebar()}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOverlay').classList.remove('open')}
 function abrirModal(mid){document.getElementById(mid).classList.add('on')}
 function cerrarModal(mid){document.getElementById(mid).classList.remove('on')}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on')}));
@@ -404,7 +576,7 @@ function pisoPaso2(){const calle=document.getElementById('p_calle').value.trim()
 function pisoVolver(){document.getElementById('pPiso2').classList.remove('on');document.getElementById('pPiso1').classList.add('on')}
 async function enviarPiso(){const pre=document.getElementById('p_pre').value;const hab=document.getElementById('p_hab').value;if(!pre||!hab){alert('Completa precio y habitaciones');return}const btn=document.getElementById('btnEnviarPiso');btn.disabled=true;btn.textContent='Enviando...';try{const resp=await fetch(WH+'/colaborador-piso',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,calle:document.getElementById('p_calle').value.trim(),numero:document.getElementById('p_num').value.trim(),piso_puerta:document.getElementById('p_piso').value.trim(),barrio:document.getElementById('p_barrio').value.trim(),precio:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('p_met').value||0),estado:document.getElementById('p_est').value,ascensor:document.getElementById('p_asc').checked,tipo_colaboracion:document.getElementById('p_tipo_colab').value,descripcion:document.getElementById('p_des').value})});const data=await resp.json();document.getElementById('pPiso2').style.display='none';document.getElementById('okPiso').classList.add('on');if(data.carpeta_url){const l=document.getElementById('linkDrive');l.href=data.carpeta_url;l.style.display='inline-block'}}catch(e){alert('Error al enviar. Inténtalo de nuevo.');btn.disabled=false;btn.textContent='Enviar piso →'}}
 async function enviarDemanda(){const nom=document.getElementById('d_nom').value.trim();const zona=document.getElementById('d_zona').value.trim();const pre=document.getElementById('d_pre').value;const hab=document.getElementById('d_hab').value;if(!nom||!zona||!pre||!hab){alert('Completa los campos obligatorios (*)');return}const btn=document.getElementById('btnEnviarDemanda');btn.disabled=true;btn.textContent='Enviando...';try{await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,nombre:nom,zona,presupuesto:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('d_met').value||0),perfil:document.getElementById('d_per').value,tipo_colaboracion:document.getElementById('d_tipo_colab').value})});document.getElementById('fDemanda').style.display='none';document.getElementById('okDemanda').classList.add('on')}catch(e){alert('Error al enviar. Inténtalo de nuevo.');btn.disabled=false;btn.textContent='Enviar demanda →'}}
-async function fetchDashboard(){try{const r=await fetch(WH+'/colaborador-data?id='+CID);const d=await r.json();const pisos=d.pisos||[];const demandas=d.demandas||[];const ops=d.ops||[];const st=d.stats||{};document.getElementById('s-pisos').textContent=st.pisosActivos??pisos.filter(p=>(p.estado||'').toLowerCase().includes('activ')).length;document.getElementById('s-dem').textContent=st.demandasActivas??demandas.filter(d=>(d.estado||'').toLowerCase().includes('activ')).length;document.getElementById('s-vis').textContent=st.visitasTotal??0;document.getElementById('s-ventas').textContent=ops.length;document.getElementById('s-ganado').textContent=ops.length?('€'+ops.reduce((s,o)=>s+(o.importe||0),0).toLocaleString('es-ES')):'—';renderPisos(pisos);renderDemandas(demandas);renderOps(ops)}catch(e){console.error('Dashboard fetch error:',e)}}
+async function fetchDashboard(){try{const r=await fetch(WH+'/colaborador-data?id='+CID);const d=await r.json();const pisos=d.pisos||[];const demandas=d.demandas||[];const ops=d.ops||[];const st=d.stats||{};const pisosActivos=st.pisosActivos??pisos.filter(p=>(p.estado||'').toLowerCase().includes('activ')).length;const demandasActivas=st.demandasActivas??demandas.filter(d=>(d.estado||'').toLowerCase().includes('activ')).length;document.getElementById('s-pisos').textContent=pisosActivos;document.getElementById('s-dem').textContent=demandasActivas;document.getElementById('s-vis').textContent=st.visitasTotal??0;document.getElementById('s-vis-pisos').textContent=pisos.reduce((s,p)=>s+(p.visitas||0),0);document.getElementById('s-vis-dem').textContent=demandas.reduce((s,d)=>s+(d.visitas||0),0);document.getElementById('s-ventas').textContent=ops.length;document.getElementById('s-ganado').textContent=ops.length?('€'+ops.reduce((s,o)=>s+(o.importe||0),0).toLocaleString('es-ES')):'—';const matchDem=demandas.filter(d=>d.matchings>0);document.getElementById('m-pending').textContent=matchDem.filter(d=>!d.revisado).length;document.getElementById('m-reviewed').textContent=matchDem.filter(d=>d.revisado).length;document.getElementById('m-total').textContent=demandas.reduce((s,d)=>s+(d.matchings||0),0);const alertEl=document.getElementById('matchings-alert');const pendingCount=matchDem.filter(d=>!d.revisado).length;if(pendingCount>0){alertEl.style.display='block';alertEl.innerHTML='<div class="alert-bar" onclick="goTab(\'demandas\',document.querySelector(\'[data-tab=demandas]\'))">⚠️ '+pendingCount+' demanda'+(pendingCount>1?'s':'')+' con matchings por revisar</div>'}renderPisos(pisos);renderDemandas(demandas);renderOps(ops)}catch(e){console.error('Dashboard fetch error:',e)}}
 fetchDashboard();
 </script>
 </body></html>
