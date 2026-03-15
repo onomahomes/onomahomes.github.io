@@ -3,135 +3,216 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Portal ONOMA · Drisana</title>
+<title>ONOMA · Drisana</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --gold:#C5A059;
-  --gold-dark:#8B7355;
-  --black:#000000;
-  --gray-900:#0a0a0a;
-  --gray-800:#1a1a1a;
-  --gray-700:#2a2a2a;
-  --text:#ffffff;
-  --text-muted:rgba(255,255,255,0.5);
-  --glass-bg:rgba(255,255,255,0.03);
-  --glass-border:rgba(255,255,255,0.08);
+  --gold:#C5A059;--gold-dim:rgba(197,160,89,0.15);--gold-border:rgba(197,160,89,0.3);
+  --black:#000;--g900:#0a0a0a;--g800:#111;--g700:#1a1a1a;--g600:#2a2a2a;
+  --text:#fff;--muted:rgba(255,255,255,0.45);--subtle:rgba(255,255,255,0.08);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);min-height:100vh}
+html,body{height:100%}
+body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);min-height:100vh;overscroll-behavior:none}
 
-/* HEADER */
-.hdr{padding:48px 24px 36px;text-align:center;border-bottom:1px solid var(--glass-border)}
-.logo{font-family:'Playfair Display',serif;font-size:11px;letter-spacing:6px;color:var(--gold);text-transform:uppercase;font-weight:400;margin-bottom:20px}
-.hdr-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--text);line-height:1.2}
-.hdr-date{font-size:12px;color:var(--text-muted);margin-top:6px;letter-spacing:.5px}
+/* ── APP SHELL ── */
+.app{padding-bottom:72px}
 
-/* STATS */
-.section{padding:28px 20px 12px;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);font-weight:600}
+/* ── HEADER ── */
+.hdr{padding:36px 24px 28px;text-align:center;border-bottom:1px solid var(--subtle)}
+.logo-mark{display:flex;align-items:baseline;justify-content:center;gap:9px;margin-bottom:22px}
+.lm-name{font-family:'Inter',sans-serif;font-weight:700;font-size:18px;letter-spacing:3px;color:var(--text)}
+.lm-homes{font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
+.hdr-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;line-height:1.2}
+.hdr-badge{display:inline-block;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-border);border-radius:20px;padding:3px 12px;margin-top:8px}
+
+/* ── TABS ── */
+.tab{display:none;padding:0 0 24px}
+.tab.active{display:block}
+
+/* ── SECTION LABEL ── */
+.sec-lbl{padding:24px 20px 10px;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:600}
+
+/* ── STATS GRID ── */
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
-.card{background:var(--glass-bg);border:1px solid var(--glass-border);backdrop-filter:blur(10px);border-radius:16px;padding:22px 16px;text-align:center}
-.card-num{font-family:'Playfair Display',serif;font-size:38px;font-weight:700;color:var(--text);line-height:1}
-.card-lbl{font-size:10px;color:var(--text-muted);margin-top:6px;text-transform:uppercase;letter-spacing:1px;font-weight:600}
-.card.gold .card-num{color:var(--gold)}
-.card.wide{grid-column:span 2;border-color:rgba(197,160,89,0.2)}
+.stat-card{background:rgba(255,255,255,0.03);border:1px solid var(--subtle);backdrop-filter:blur(12px);border-radius:16px;padding:20px 14px;text-align:center}
+.stat-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;line-height:1}
+.stat-lbl{font-size:10px;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:1px;font-weight:500}
+.stat-card.gold .stat-num{color:var(--gold)}
+.stat-card.wide{grid-column:span 2;border-color:var(--gold-border)}
 
-/* ACCIONES */
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px 32px}
-.btn{padding:18px 10px;border-radius:14px;border:none;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.3px;transition:opacity .15s}
-.btn:active{opacity:.75}
-.btn-p{background:var(--gold);color:var(--black)}
-.btn-d{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+/* ── ACTION BUTTONS ── */
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px 8px}
+.btn-act{padding:16px 10px;border-radius:14px;border:none;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.2px;transition:opacity .15s}
+.btn-act:active{opacity:.7}
+.btn-gold{background:var(--gold);color:var(--black)}
+.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-border)}
 
-/* OVERLAY / SHEET */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+/* ── TAB HEADER ── */
+.tab-hdr{display:flex;align-items:center;justify-content:space-between;padding:24px 20px 12px}
+.tab-ttl{font-family:'Playfair Display',serif;font-size:20px;font-weight:700}
+.tab-badge{font-size:11px;font-weight:600;color:var(--gold);background:var(--gold-dim);border-radius:20px;padding:3px 10px;margin-left:8px}
+.btn-new{background:var(--gold);color:var(--black);border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;letter-spacing:.2px}
+
+/* ── LIST ITEMS ── */
+.list-wrap{padding:0 16px;display:flex;flex-direction:column;gap:10px}
+.li-card{background:rgba(255,255,255,0.03);border:1px solid var(--subtle);border-radius:14px;padding:16px}
+.li-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.li-main{font-size:15px;font-weight:600;color:var(--text);line-height:1.3}
+.li-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.li-badge{font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.badge-green{background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.25)}
+.badge-amber{background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.25)}
+.badge-gray{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--subtle)}
+.badge-gold{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
+.li-meta{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
+.li-meta-item{font-size:11px;color:var(--muted)}
+.li-meta-item strong{color:var(--text);font-weight:600}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:56px 20px}
+.empty-line{width:40px;height:1px;background:var(--subtle);margin:0 auto 20px}
+.empty p{font-size:14px;color:var(--muted)}
+
+/* ── OPS CARD ── */
+.op-card{background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:14px;padding:18px 16px}
+.op-imp{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--gold)}
+.op-lbl{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--g900);border-top:1px solid var(--subtle);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px 12px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;font-size:10px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;transition:color .15s;position:relative}
+.bnav-btn.on{color:var(--gold)}
+.bnav-btn.on::before{content:'';position:absolute;top:0;left:25%;right:25%;height:1px;background:var(--gold)}
+.bnav-ico{font-size:18px;line-height:1}
+
+/* ── OVERLAY / SHEET ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:50;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)}
 .overlay.on{display:flex}
-.sheet{background:var(--gray-900);border:1px solid var(--glass-border);border-radius:24px 24px 0 0;padding:28px 20px 48px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto}
-.sheet h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:22px}
-.x{float:right;background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-muted);margin:-4px -4px 0 0;line-height:1;transition:color .15s}
-.x:hover{color:var(--text)}
+.sheet{background:var(--g900);border:1px solid var(--subtle);border-top:1px solid rgba(255,255,255,0.1);border-radius:24px 24px 0 0;padding:28px 20px 52px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto}
+.sheet-ttl{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:24px}
+.x{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);margin:-4px -4px 0 0;line-height:1}
 
-/* FIELDS */
-.fld{margin-bottom:20px}
-.fld label{display:block;font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px}
-.fld input,.fld select,.fld textarea{
-  width:100%;padding:10px 0;
-  border:none;border-bottom:1px solid rgba(255,255,255,0.15);
-  background:transparent;color:var(--text);
-  font-size:15px;font-family:'Inter',sans-serif;outline:none;
-  transition:border-color .2s;
-  -webkit-appearance:none;appearance:none
-}
+/* ── FORM FIELDS ── */
+.fld{margin-bottom:22px}
+.fld label{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px}
+.fld input,.fld select,.fld textarea{width:100%;padding:10px 0;border:none;border-bottom:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
 .fld input:focus,.fld select:focus,.fld textarea:focus{border-bottom-color:var(--gold)}
-.fld select option{background:var(--gray-800);color:var(--text)}
-.fld textarea{resize:none;line-height:1.5}
-.fld input[readonly]{color:var(--text-muted);cursor:not-allowed}
-::placeholder{color:rgba(255,255,255,0.2);font-style:normal}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-
-/* CHECKBOX */
+.fld select option{background:var(--g800);color:var(--text)}
+.fld textarea{resize:none;line-height:1.6}
+.fld input[readonly]{color:var(--muted);cursor:not-allowed}
+::placeholder{color:rgba(255,255,255,.18);font-style:normal}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .chk-row{display:flex;align-items:center;gap:12px;padding:12px 0;margin-bottom:6px}
-.chk-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;background:transparent}
-.chk-row label{font-size:14px;font-weight:400;color:rgba(255,255,255,0.7);cursor:pointer;margin:0}
-
-/* CONFIRM BOX */
-.confirm-box{background:rgba(197,160,89,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:12px;padding:16px;margin-bottom:20px}
-.confirm-box p{font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.chk-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
+.chk-row label{font-size:14px;color:rgba(255,255,255,.7);cursor:pointer;margin:0}
+.confirm-box{background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:12px;padding:16px;margin-bottom:20px}
+.confirm-box .cb-lbl{font-size:10px;color:var(--muted);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
 .confirm-box .addr{font-size:15px;font-weight:600;color:var(--text);line-height:1.4}
-.confirm-box .edit-link{font-size:12px;color:var(--gold);cursor:pointer;text-decoration:underline;margin-top:8px;display:inline-block}
-
-/* STEP INFO */
-.step-info{font-size:11px;color:var(--text-muted);margin-bottom:20px;letter-spacing:.5px;text-transform:uppercase}
-
-/* SUBMIT BUTTON */
-.sub{width:100%;padding:16px;background:var(--gold);color:var(--black);border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;letter-spacing:.3px;transition:opacity .15s}
+.confirm-box .edit-lnk{font-size:12px;color:var(--gold);cursor:pointer;text-decoration:underline;margin-top:8px;display:inline-block}
+.step-info{font-size:10px;color:var(--muted);margin-bottom:20px;letter-spacing:.5px;text-transform:uppercase}
+.sub{width:100%;padding:16px;background:var(--gold);color:var(--black);border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;letter-spacing:.2px;transition:opacity .15s}
 .sub:active{opacity:.8}
-.sub:disabled{opacity:.4;cursor:not-allowed}
+.sub:disabled{opacity:.35;cursor:not-allowed}
 
-/* OK */
-.ok{display:none;text-align:center;padding:32px 10px}
+/* ── OK STATE ── */
+.ok{display:none;text-align:center;padding:40px 10px}
 .ok.on{display:block}
-.ok-ico{font-size:48px;margin-bottom:16px}
-.ok h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text)}
-.ok p{color:var(--text-muted);margin-top:10px;font-size:14px;line-height:1.6}
-.ok a{color:var(--gold);font-weight:600;text-decoration:none;display:inline-block;margin-top:14px;font-size:14px;border-bottom:1px solid rgba(197,160,89,0.4);padding-bottom:2px}
-
+.ok-line{width:40px;height:1px;background:var(--gold);margin:0 auto 20px}
+.ok h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700}
+.ok p{color:var(--muted);margin-top:10px;font-size:14px;line-height:1.6}
+.ok a{color:var(--gold);font-weight:600;text-decoration:none;display:inline-block;margin-top:14px;font-size:13px;border-bottom:1px solid var(--gold-border);padding-bottom:2px}
 .step{display:none}.step.on{display:block}
-.divider{border:none;border-top:1px solid var(--glass-border);margin:16px 0}
 </style>
 </head>
 <body>
+<div class="app">
 
+<!-- HEADER -->
 <div class="hdr">
-  <div class="logo">ONOMA</div>
+  <div class="logo-mark">
+    <span class="lm-name">ONOMA</span>
+    <span class="lm-homes">Homes</span>
+  </div>
   <div class="hdr-name">Drisana</div>
-  <div class="hdr-date">Colaborador desde 2026-03-14</div>
+  <div class="hdr-badge">Colaborador</div>
 </div>
 
-<div class="section">Estadísticas</div>
-<div class="grid">
-  <div class="card"><div class="card-num">0</div><div class="card-lbl">Pisos activos</div></div>
-  <div class="card"><div class="card-num">0</div><div class="card-lbl">Demandas activas</div></div>
-  <div class="card"><div class="card-num">0</div><div class="card-lbl">Visitas totales</div></div>
-  <div class="card"><div class="card-num">0</div><div class="card-lbl">Ventas cerradas</div></div>
-  <div class="card wide gold"><div class="card-num">€0</div><div class="card-lbl">Total ganado en plataforma</div></div>
+<!-- ══ HOME TAB ══ -->
+<div id="tab-home" class="tab active">
+  <div class="sec-lbl">Resumen</div>
+  <div class="grid">
+    <div class="stat-card"><div class="stat-num">0</div><div class="stat-lbl">Pisos activos</div></div>
+    <div class="stat-card"><div class="stat-num">0</div><div class="stat-lbl">Demandas activas</div></div>
+    <div class="stat-card"><div class="stat-num">0</div><div class="stat-lbl">Visitas totales</div></div>
+    <div class="stat-card"><div class="stat-num">0</div><div class="stat-lbl">Ventas cerradas</div></div>
+    <div class="stat-card wide gold"><div class="stat-num">€0</div><div class="stat-lbl">Total ganado en plataforma</div></div>
+  </div>
+  
+  <div class="sec-lbl" style="margin-top:8px">Acciones rápidas</div>
+  <div class="btns">
+    <button class="btn-act btn-gold" onclick="abrirModal('modalPiso')">+ Nuevo Piso</button>
+    <button class="btn-act btn-outline" onclick="abrirModal('modalDemanda')">+ Nueva Demanda</button>
+  </div>
 </div>
 
-<div class="section">Acciones</div>
-<div class="btns">
-  <button class="btn btn-p" onclick="abrirModal('modalPiso')">+ Subir Piso</button>
-  <button class="btn btn-d" onclick="abrirModal('modalDemanda')">+ Subir Demanda</button>
+<!-- ══ DEMANDAS TAB ══ -->
+<div id="tab-demandas" class="tab">
+  <div class="tab-hdr">
+    <div><span class="tab-ttl">Mis Demandas</span><span class="tab-badge" id="badge-dem">0</span></div>
+    <button class="btn-new" onclick="abrirModal('modalDemanda')">+ Nueva</button>
+  </div>
+  <div class="list-wrap" id="lista-demandas"></div>
 </div>
 
-<!-- MODAL PISO -->
+<!-- ══ PISOS TAB ══ -->
+<div id="tab-pisos" class="tab">
+  <div class="tab-hdr">
+    <div><span class="tab-ttl">Mis Pisos</span><span class="tab-badge" id="badge-pisos">0</span></div>
+    <button class="btn-new" onclick="abrirModal('modalPiso')">+ Nuevo</button>
+  </div>
+  <div class="list-wrap" id="lista-pisos"></div>
+</div>
+
+<!-- ══ OPERACIONES TAB ══ -->
+<div id="tab-ops" class="tab">
+  <div class="tab-hdr">
+    <div><span class="tab-ttl">Operaciones</span><span class="tab-badge" id="badge-ops">0</span></div>
+  </div>
+  <div class="list-wrap" id="lista-ops"></div>
+</div>
+
+</div><!-- /app -->
+
+<!-- ══ BOTTOM NAV ══ -->
+<nav class="bnav">
+  <button class="bnav-btn on" id="nav-home" onclick="showTab('home',this)">
+    <svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L10 3l7 6.5"/><path d="M5 8v8h4v-4h2v4h4V8"/></svg>
+    Home
+  </button>
+  <button class="bnav-btn" id="nav-demandas" onclick="showTab('demandas',this)">
+    <svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="7" r="3.5"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6"/></svg>
+    Demandas
+  </button>
+  <button class="bnav-btn" id="nav-pisos" onclick="showTab('pisos',this)">
+    <svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="14" height="10" rx="1"/><path d="M1 9l9-7 9 7"/><rect x="8" y="13" width="4" height="5"/></svg>
+    Mis Pisos
+  </button>
+  <button class="bnav-btn" id="nav-ops" onclick="showTab('ops',this)">
+    <svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.3L10 14.3l-4.8 2.5.9-5.3L2.2 7.7l5.4-.8z"/></svg>
+    Operaciones
+  </button>
+</nav>
+
+<!-- ══ MODAL PISO ══ -->
 <div class="overlay" id="modalPiso">
 <div class="sheet">
   <button class="x" onclick="cerrarModal('modalPiso')">×</button>
-  <h2>Nuevo Piso</h2>
+  <div class="sheet-ttl">Nuevo Piso</div>
 
   <div class="step on" id="pPiso1">
-    <div class="step-info">Paso 1 de 2 — Dirección del inmueble</div>
+    <div class="step-info">Paso 1 de 2 · Dirección del inmueble</div>
     <div class="fld"><label>Calle *</label><input id="p_calle" type="text" placeholder="Nombre de la calle"></div>
     <div class="row2">
       <div class="fld"><label>Número *</label><input id="p_num" type="text" placeholder="Ej: 14"></div>
@@ -143,11 +224,11 @@ body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);mi
   </div>
 
   <div class="step" id="pPiso2">
-    <div class="step-info">Paso 2 de 2 — Detalles del inmueble</div>
+    <div class="step-info">Paso 2 de 2 · Detalles del inmueble</div>
     <div class="confirm-box">
-      <p>Confirma la dirección</p>
+      <div class="cb-lbl">Confirma la dirección</div>
       <div class="addr" id="p_addr_preview"></div>
-      <span class="edit-link" onclick="pisoVolver()">Corregir dirección</span>
+      <span class="edit-lnk" onclick="pisoVolver()">Corregir dirección</span>
     </div>
     <div class="row2">
       <div class="fld"><label>Precio (€) *</label><input id="p_pre" type="number" placeholder="Precio"></div>
@@ -164,121 +245,201 @@ body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);mi
         </select>
       </div>
     </div>
-    <div class="chk-row">
-      <input type="checkbox" id="p_asc">
-      <label for="p_asc">El inmueble tiene ascensor</label>
-    </div>
+    <div class="chk-row"><input type="checkbox" id="p_asc"><label for="p_asc">El inmueble tiene ascensor</label></div>
     <div class="fld"><label>Descripción (opcional)</label><textarea id="p_des" rows="3" placeholder="Características destacadas..."></textarea></div>
     <button class="sub" id="btnEnviarPiso" onclick="enviarPiso()">Enviar piso →</button>
   </div>
 
   <div class="ok" id="okPiso">
-    <div class="ok-ico">✓</div>
+    <div class="ok-line"></div>
     <h3>Piso registrado</h3>
-    <p>Nuestro equipo lo revisará pronto.<br>Se ha creado una carpeta en Drive para la documentación.</p>
-    <a id="linkDrive" href="#" target="_blank" style="display:none">Abrir carpeta en Drive →</a>
+    <p>Nuestro equipo lo revisará pronto.<br>Se ha creado una carpeta en Drive.</p>
+    <a id="linkDrive" href="#" target="_blank" style="display:none">Ver carpeta en Drive →</a>
   </div>
 </div>
 </div>
 
-<!-- MODAL DEMANDA -->
+<!-- ══ MODAL DEMANDA ══ -->
 <div class="overlay" id="modalDemanda">
 <div class="sheet">
   <button class="x" onclick="cerrarModal('modalDemanda')">×</button>
-  <h2>Nueva Demanda</h2>
+  <div class="sheet-ttl">Nueva Demanda</div>
   <div id="fDemanda">
-    <div class="fld"><label>Nombre del cliente *</label><input id="d_nom" type="text" placeholder="Nombre completo del cliente"></div>
+    <div class="fld"><label>Nombre del cliente *</label><input id="d_nom" type="text" placeholder="Nombre completo"></div>
     <div class="fld"><label>Zona preferida *</label><input id="d_zona" type="text" placeholder="Zona o barrio"></div>
     <div class="row2">
-      <div class="fld"><label>Presupuesto máx. (€) *</label><input id="d_pre" type="number" placeholder="Presupuesto"></div>
-      <div class="fld"><label>Habitaciones mín. *</label><input id="d_hab" type="number" placeholder="Nº mín." min="1"></div>
+      <div class="fld"><label>Presupuesto máx. (€) *</label><input id="d_pre" type="number" placeholder="Importe"></div>
+      <div class="fld"><label>Habitaciones mín. *</label><input id="d_hab" type="number" placeholder="Nº" min="1"></div>
     </div>
     <div class="fld"><label>Metros mínimos</label><input id="d_met" type="number" placeholder="Superficie mínima"></div>
-    <div class="fld"><label>Perfil del cliente (opcional)</label><textarea id="d_per" rows="3" placeholder="Necesidades o prioridades del cliente..."></textarea></div>
+    <div class="fld"><label>Perfil del cliente (opcional)</label><textarea id="d_per" rows="3" placeholder="Necesidades o prioridades..."></textarea></div>
     <button class="sub" id="btnEnviarDemanda" onclick="enviarDemanda()">Enviar demanda →</button>
   </div>
   <div class="ok" id="okDemanda">
-    <div class="ok-ico">✓</div>
+    <div class="ok-line"></div>
     <h3>Demanda enviada</h3>
     <p>Ya empezamos a buscar pisos para tu cliente.</p>
   </div>
 </div>
 </div>
 
+<!-- ══ DATA ══ -->
+<script type="application/json" id="d-pisos">[]</script>
+<script type="application/json" id="d-demandas">[]</script>
+<script type="application/json" id="d-ops">[]</script>
+
 <script>
 const CID = 'recoiY3mblLqnvEYk';
 const WH = 'https://onomahomes.app.n8n.cloud/webhook';
+const PISOS = JSON.parse(document.getElementById('d-pisos').textContent);
+const DEMANDAS = JSON.parse(document.getElementById('d-demandas').textContent);
+const OPS = JSON.parse(document.getElementById('d-ops').textContent);
 
+/* ── TABS ── */
+function showTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('on');
+}
+
+/* ── MODALS ── */
 function abrirModal(id){ document.getElementById(id).classList.add('on'); }
 function cerrarModal(id){ document.getElementById(id).classList.remove('on'); }
 document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('on'); }));
 
+/* ── STATUS BADGE ── */
+function badgeClass(st) {
+  const s = (st||'').toLowerCase().trim();
+  if (s.includes('activ')) return 'badge-green';
+  if (s.includes('pend')) return 'badge-amber';
+  if (s.includes('inactiv')) return 'badge-gray';
+  return 'badge-gold';
+}
+
+/* ── RENDER PISOS ── */
+function renderPisos() {
+  const el = document.getElementById('lista-pisos');
+  document.getElementById('badge-pisos').textContent = PISOS.length;
+  if (!PISOS.length) { el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>Aún no has subido ningún piso</p></div>'; return; }
+  el.innerHTML = PISOS.map(p => {
+    const dir = [p.calle, p.num, p.piso_puerta].filter(Boolean).join(' ');
+    const sub = [p.barrio, 'Madrid'].filter(Boolean).join(', ');
+    const est = (p.estado||'').trim() || 'Pendiente';
+    return '<div class="li-card">'
+      + '<div class="li-top">'
+      + '<div><div class="li-main">' + (dir || 'Sin dirección') + '</div><div class="li-sub">' + sub + '</div></div>'
+      + '<span class="li-badge ' + badgeClass(est) + '">' + est.replace('_',' ') + '</span>'
+      + '</div>'
+      + '<div class="li-meta">'
+      + (p.precio ? '<div class="li-meta-item"><strong>€' + Number(p.precio).toLocaleString('es-ES') + '</strong></div>' : '')
+      + (p.hab ? '<div class="li-meta-item"><strong>' + p.hab + '</strong> hab.</div>' : '')
+      + (p.metros ? '<div class="li-meta-item"><strong>' + p.metros + '</strong> m²</div>' : '')
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+/* ── RENDER DEMANDAS ── */
+function renderDemandas() {
+  const el = document.getElementById('lista-demandas');
+  document.getElementById('badge-dem').textContent = DEMANDAS.length;
+  if (!DEMANDAS.length) { el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>Aún no has registrado ninguna demanda</p></div>'; return; }
+  el.innerHTML = DEMANDAS.map(d => {
+    const est = (d.estado||'').trim() || 'Pendiente';
+    return '<div class="li-card">'
+      + '<div class="li-top">'
+      + '<div><div class="li-main">' + (d.nombre||'Cliente') + '</div><div class="li-sub">' + (d.zona||'') + '</div></div>'
+      + '<span class="li-badge ' + badgeClass(est) + '">' + est.replace('_',' ') + '</span>'
+      + '</div>'
+      + '<div class="li-meta">'
+      + (d.presupuesto ? '<div class="li-meta-item">Hasta <strong>€' + Number(d.presupuesto).toLocaleString('es-ES') + '</strong></div>' : '')
+      + (d.hab ? '<div class="li-meta-item"><strong>' + d.hab + '</strong> hab. mín.</div>' : '')
+      + (d.metros ? '<div class="li-meta-item"><strong>' + d.metros + '</strong> m² mín.</div>' : '')
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+/* ── RENDER OPERACIONES ── */
+function renderOps() {
+  const el = document.getElementById('lista-ops');
+  document.getElementById('badge-ops').textContent = OPS.length;
+  if (!OPS.length) { el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>Todavía no tienes operaciones cerradas</p></div>'; return; }
+  el.innerHTML = OPS.map(op => {
+    return '<div class="li-card op-card">'
+      + '<div class="op-imp">€' + Number(op.importe||0).toLocaleString('es-ES') + '</div>'
+      + '<div class="op-lbl">' + (op.rol||'Operación cerrada') + '</div>'
+      + (op.fecha ? '<div class="li-sub" style="margin-top:8px">' + op.fecha + '</div>' : '')
+      + '</div>';
+  }).join('');
+}
+
+/* ── PISO FORM ── */
 function pisoPaso2(){
-  const calle = document.getElementById('p_calle').value.trim();
-  const num = document.getElementById('p_num').value.trim();
-  const barrio = document.getElementById('p_barrio').value.trim();
-  if(!calle || !num || !barrio){ alert('Completa calle, número y barrio para continuar'); return; }
-  const addr = calle + ' ' + num + (document.getElementById('p_piso').value ? ', ' + document.getElementById('p_piso').value : '') + ' · ' + barrio + ', Madrid';
-  document.getElementById('p_addr_preview').textContent = addr;
+  const calle=document.getElementById('p_calle').value.trim();
+  const num=document.getElementById('p_num').value.trim();
+  const barrio=document.getElementById('p_barrio').value.trim();
+  if(!calle||!num||!barrio){ alert('Completa calle, número y barrio para continuar'); return; }
+  const addr=calle+' '+num+(document.getElementById('p_piso').value?', '+document.getElementById('p_piso').value:'')+' · '+barrio+', Madrid';
+  document.getElementById('p_addr_preview').textContent=addr;
   document.getElementById('pPiso1').classList.remove('on');
   document.getElementById('pPiso2').classList.add('on');
 }
-
 function pisoVolver(){
   document.getElementById('pPiso2').classList.remove('on');
   document.getElementById('pPiso1').classList.add('on');
 }
-
 async function enviarPiso(){
-  const pre = document.getElementById('p_pre').value;
-  const hab = document.getElementById('p_hab').value;
-  if(!pre || !hab){ alert('Completa precio y habitaciones'); return; }
-  const btn = document.getElementById('btnEnviarPiso');
-  btn.disabled = true; btn.textContent = 'Enviando...';
+  const pre=document.getElementById('p_pre').value;
+  const hab=document.getElementById('p_hab').value;
+  if(!pre||!hab){ alert('Completa precio y habitaciones'); return; }
+  const btn=document.getElementById('btnEnviarPiso');
+  btn.disabled=true; btn.textContent='Enviando...';
   try{
-    const resp = await fetch(WH+'/colaborador-piso',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      colaborador_id: CID,
-      calle: document.getElementById('p_calle').value.trim(),
-      numero: document.getElementById('p_num').value.trim(),
-      piso_puerta: document.getElementById('p_piso').value.trim(),
-      barrio: document.getElementById('p_barrio').value.trim(),
-      precio: parseFloat(pre),
-      habitaciones: parseInt(hab),
-      metros: parseInt(document.getElementById('p_met').value||0),
-      estado: document.getElementById('p_est').value,
-      ascensor: document.getElementById('p_asc').checked,
-      descripcion: document.getElementById('p_des').value
+    const resp=await fetch(WH+'/colaborador-piso',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      colaborador_id:CID,
+      calle:document.getElementById('p_calle').value.trim(),
+      numero:document.getElementById('p_num').value.trim(),
+      piso_puerta:document.getElementById('p_piso').value.trim(),
+      barrio:document.getElementById('p_barrio').value.trim(),
+      precio:parseFloat(pre),habitaciones:parseInt(hab),
+      metros:parseInt(document.getElementById('p_met').value||0),
+      estado:document.getElementById('p_est').value,
+      ascensor:document.getElementById('p_asc').checked,
+      descripcion:document.getElementById('p_des').value
     })});
-    const data = await resp.json();
+    const data=await resp.json();
     document.getElementById('pPiso2').style.display='none';
-    const ok = document.getElementById('okPiso');
-    ok.classList.add('on');
-    if(data.carpeta_url){
-      const lnk = document.getElementById('linkDrive');
-      lnk.href = data.carpeta_url;
-      lnk.style.display = 'inline-block';
-    }
+    document.getElementById('okPiso').classList.add('on');
+    if(data.carpeta_url){ const l=document.getElementById('linkDrive'); l.href=data.carpeta_url; l.style.display='inline-block'; }
   }catch(e){ alert('Error al enviar. Inténtalo de nuevo.'); btn.disabled=false; btn.textContent='Enviar piso →'; }
 }
 
+/* ── DEMANDA FORM ── */
 async function enviarDemanda(){
   const nom=document.getElementById('d_nom').value.trim();
   const zona=document.getElementById('d_zona').value.trim();
   const pre=document.getElementById('d_pre').value;
   const hab=document.getElementById('d_hab').value;
   if(!nom||!zona||!pre||!hab){ alert('Completa los campos obligatorios (*)'); return; }
-  const btn = document.getElementById('btnEnviarDemanda');
+  const btn=document.getElementById('btnEnviarDemanda');
   btn.disabled=true; btn.textContent='Enviando...';
   try{
     await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      colaborador_id:CID, nombre:nom, zona, presupuesto:parseFloat(pre),
-      habitaciones:parseInt(hab), metros:parseInt(document.getElementById('d_met').value||0),
+      colaborador_id:CID,nombre:nom,zona,presupuesto:parseFloat(pre),
+      habitaciones:parseInt(hab),metros:parseInt(document.getElementById('d_met').value||0),
       perfil:document.getElementById('d_per').value
     })});
     document.getElementById('fDemanda').style.display='none';
     document.getElementById('okDemanda').classList.add('on');
   }catch(e){ alert('Error al enviar. Inténtalo de nuevo.'); btn.disabled=false; btn.textContent='Enviar demanda →'; }
 }
+
+/* ── INIT ── */
+renderPisos();
+renderDemandas();
+renderOps();
 </script>
 </body>
 </html>
