@@ -4,65 +4,112 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Portal ONOMA · Andrea</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
+:root{
+  --gold:#C5A059;
+  --gold-dark:#8B7355;
+  --black:#000000;
+  --gray-900:#0a0a0a;
+  --gray-800:#1a1a1a;
+  --gray-700:#2a2a2a;
+  --text:#ffffff;
+  --text-muted:rgba(255,255,255,0.5);
+  --glass-bg:rgba(255,255,255,0.03);
+  --glass-border:rgba(255,255,255,0.08);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;color:#222;min-height:100vh}
-.hdr{background:#1a1a2e;color:#fff;padding:28px 20px 22px;text-align:center}
-.logo{font-size:13px;letter-spacing:4px;font-weight:800;color:#e8c97e;text-transform:uppercase}
-.hdr-name{font-size:20px;font-weight:700;margin-top:8px}
-.hdr-date{font-size:12px;color:#aaa;margin-top:4px}
-.section{padding:16px 16px 0;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#999;font-weight:700}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 16px}
-.card{background:#fff;border-radius:14px;padding:18px 14px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.07)}
-.card-num{font-size:34px;font-weight:900;color:#1a1a2e;line-height:1}
-.card-lbl{font-size:11px;color:#999;margin-top:5px;text-transform:uppercase;letter-spacing:.5px}
-.card.gold .card-num{color:#c9a84c}
-.card.wide{grid-column:span 2}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 16px 24px}
-.btn{padding:18px 10px;border-radius:14px;border:none;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.3px}
-.btn-p{background:#1a1a2e;color:#e8c97e}
-.btn-d{background:#e8c97e;color:#1a1a2e}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;align-items:flex-end;justify-content:center}
+body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);min-height:100vh}
+
+/* HEADER */
+.hdr{padding:48px 24px 36px;text-align:center;border-bottom:1px solid var(--glass-border)}
+.logo{font-family:'Playfair Display',serif;font-size:11px;letter-spacing:6px;color:var(--gold);text-transform:uppercase;font-weight:400;margin-bottom:20px}
+.hdr-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--text);line-height:1.2}
+.hdr-date{font-size:12px;color:var(--text-muted);margin-top:6px;letter-spacing:.5px}
+
+/* STATS */
+.section{padding:28px 20px 12px;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.card{background:var(--glass-bg);border:1px solid var(--glass-border);backdrop-filter:blur(10px);border-radius:16px;padding:22px 16px;text-align:center}
+.card-num{font-family:'Playfair Display',serif;font-size:38px;font-weight:700;color:var(--text);line-height:1}
+.card-lbl{font-size:10px;color:var(--text-muted);margin-top:6px;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.card.gold .card-num{color:var(--gold)}
+.card.wide{grid-column:span 2;border-color:rgba(197,160,89,0.2)}
+
+/* ACCIONES */
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px 32px}
+.btn{padding:18px 10px;border-radius:14px;border:none;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.3px;transition:opacity .15s}
+.btn:active{opacity:.75}
+.btn-p{background:var(--gold);color:var(--black)}
+.btn-d{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+
+/* OVERLAY / SHEET */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
 .overlay.on{display:flex}
-.sheet{background:#fff;border-radius:22px 22px 0 0;padding:24px 18px 44px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
-.sheet h2{font-size:17px;font-weight:800;color:#1a1a2e;margin-bottom:18px}
-.x{float:right;background:none;border:none;font-size:26px;cursor:pointer;color:#bbb;margin:-4px -4px 0 0;line-height:1}
-.fld{margin-bottom:13px}
-.fld label{display:block;font-size:12px;font-weight:700;color:#666;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
-.fld input,.fld select,.fld textarea{width:100%;padding:12px 14px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:15px;outline:none;background:#fafafa;font-family:inherit}
-.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:#1a1a2e;background:#fff}
-.fld input[readonly]{background:#f0f0f0;color:#888;cursor:not-allowed}
-::placeholder{font-style:italic;color:#bbb}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.chk-row{display:flex;align-items:center;gap:10px;padding:10px 0}
-.chk-row input[type=checkbox]{width:20px;height:20px;accent-color:#1a1a2e;cursor:pointer;flex-shrink:0}
-.chk-row label{font-size:14px;font-weight:600;color:#444;cursor:pointer;margin:0}
-.confirm-box{background:#f8f6f0;border:2px solid #e8c97e;border-radius:12px;padding:14px 16px;margin-bottom:14px}
-.confirm-box p{font-size:13px;color:#666;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
-.confirm-box .addr{font-size:15px;font-weight:700;color:#1a1a2e;line-height:1.4}
-.confirm-box .edit-link{font-size:12px;color:#c9a84c;cursor:pointer;text-decoration:underline;margin-top:6px;display:inline-block}
-.sub{width:100%;padding:16px;background:#1a1a2e;color:#e8c97e;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;margin-top:6px}
-.sub:active{opacity:.85}
-.sub:disabled{opacity:.5;cursor:not-allowed}
-.ok{display:none;text-align:center;padding:30px 10px}
+.sheet{background:var(--gray-900);border:1px solid var(--glass-border);border-radius:24px 24px 0 0;padding:28px 20px 48px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto}
+.sheet h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:22px}
+.x{float:right;background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-muted);margin:-4px -4px 0 0;line-height:1;transition:color .15s}
+.x:hover{color:var(--text)}
+
+/* FIELDS */
+.fld{margin-bottom:20px}
+.fld label{display:block;font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px}
+.fld input,.fld select,.fld textarea{
+  width:100%;padding:10px 0;
+  border:none;border-bottom:1px solid rgba(255,255,255,0.15);
+  background:transparent;color:var(--text);
+  font-size:15px;font-family:'Inter',sans-serif;outline:none;
+  transition:border-color .2s;
+  -webkit-appearance:none;appearance:none
+}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-bottom-color:var(--gold)}
+.fld select option{background:var(--gray-800);color:var(--text)}
+.fld textarea{resize:none;line-height:1.5}
+.fld input[readonly]{color:var(--text-muted);cursor:not-allowed}
+::placeholder{color:rgba(255,255,255,0.2);font-style:normal}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* CHECKBOX */
+.chk-row{display:flex;align-items:center;gap:12px;padding:12px 0;margin-bottom:6px}
+.chk-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;background:transparent}
+.chk-row label{font-size:14px;font-weight:400;color:rgba(255,255,255,0.7);cursor:pointer;margin:0}
+
+/* CONFIRM BOX */
+.confirm-box{background:rgba(197,160,89,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:12px;padding:16px;margin-bottom:20px}
+.confirm-box p{font-size:10px;color:var(--text-muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.confirm-box .addr{font-size:15px;font-weight:600;color:var(--text);line-height:1.4}
+.confirm-box .edit-link{font-size:12px;color:var(--gold);cursor:pointer;text-decoration:underline;margin-top:8px;display:inline-block}
+
+/* STEP INFO */
+.step-info{font-size:11px;color:var(--text-muted);margin-bottom:20px;letter-spacing:.5px;text-transform:uppercase}
+
+/* SUBMIT BUTTON */
+.sub{width:100%;padding:16px;background:var(--gold);color:var(--black);border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;letter-spacing:.3px;transition:opacity .15s}
+.sub:active{opacity:.8}
+.sub:disabled{opacity:.4;cursor:not-allowed}
+
+/* OK */
+.ok{display:none;text-align:center;padding:32px 10px}
 .ok.on{display:block}
-.ok-ico{font-size:54px}
-.ok h3{margin-top:14px;font-size:18px;font-weight:800;color:#1a1a2e}
-.ok p{color:#aaa;margin-top:8px;font-size:14px}
-.ok a{color:#c9a84c;font-weight:700;text-decoration:none;display:inline-block;margin-top:12px;font-size:14px}
+.ok-ico{font-size:48px;margin-bottom:16px}
+.ok h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text)}
+.ok p{color:var(--text-muted);margin-top:10px;font-size:14px;line-height:1.6}
+.ok a{color:var(--gold);font-weight:600;text-decoration:none;display:inline-block;margin-top:14px;font-size:14px;border-bottom:1px solid rgba(197,160,89,0.4);padding-bottom:2px}
+
 .step{display:none}.step.on{display:block}
-.divider{border:none;border-top:1px solid #f0f0f0;margin:14px 0}
+.divider{border:none;border-top:1px solid var(--glass-border);margin:16px 0}
 </style>
 </head>
 <body>
 
 <div class="hdr">
   <div class="logo">ONOMA</div>
-  <div class="hdr-name">Bienvenido, Andrea</div>
+  <div class="hdr-name">Andrea</div>
   <div class="hdr-date">Colaborador desde 2026-03-14</div>
 </div>
 
-<div class="section">Tus estadísticas</div>
+<div class="section">Estadísticas</div>
 <div class="grid">
   <div class="card"><div class="card-num">0</div><div class="card-lbl">Pisos activos</div></div>
   <div class="card"><div class="card-num">0</div><div class="card-lbl">Demandas activas</div></div>
@@ -73,43 +120,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <div class="section">Acciones</div>
 <div class="btns">
-  <button class="btn btn-p" onclick="abrirModal('modalPiso')">🏠 Subir Piso</button>
-  <button class="btn btn-d" onclick="abrirModal('modalDemanda')">👤 Subir Demanda</button>
+  <button class="btn btn-p" onclick="abrirModal('modalPiso')">+ Subir Piso</button>
+  <button class="btn btn-d" onclick="abrirModal('modalDemanda')">+ Subir Demanda</button>
 </div>
 
 <!-- MODAL PISO -->
 <div class="overlay" id="modalPiso">
 <div class="sheet">
   <button class="x" onclick="cerrarModal('modalPiso')">×</button>
-  <h2>🏠 Nuevo Piso</h2>
+  <h2>Nuevo Piso</h2>
 
-  <!-- PASO 1: Dirección -->
   <div class="step on" id="pPiso1">
-    <div style="font-size:12px;color:#999;margin-bottom:14px;font-weight:600">PASO 1 DE 2 — Dirección del inmueble</div>
-    <div class="fld"><label>Calle *</label><input id="p_calle" type="text" placeholder="Escribe aquí el nombre de la calle..."></div>
+    <div class="step-info">Paso 1 de 2 — Dirección del inmueble</div>
+    <div class="fld"><label>Calle *</label><input id="p_calle" type="text" placeholder="Nombre de la calle"></div>
     <div class="row2">
       <div class="fld"><label>Número *</label><input id="p_num" type="text" placeholder="Ej: 14"></div>
       <div class="fld"><label>Piso / Puerta</label><input id="p_piso" type="text" placeholder="Ej: 3ºB"></div>
     </div>
-    <div class="fld"><label>Distrito / Barrio *</label><input id="p_barrio" type="text" placeholder="Escribe aquí el barrio o distrito..."></div>
+    <div class="fld"><label>Distrito / Barrio *</label><input id="p_barrio" type="text" placeholder="Barrio o distrito"></div>
     <div class="fld"><label>Ciudad</label><input type="text" value="Madrid" readonly></div>
     <button class="sub" onclick="pisoPaso2()">Continuar →</button>
   </div>
 
-  <!-- PASO 2: Detalles + confirmación dirección -->
   <div class="step" id="pPiso2">
-    <div style="font-size:12px;color:#999;margin-bottom:14px;font-weight:600">PASO 2 DE 2 — Detalles del inmueble</div>
+    <div class="step-info">Paso 2 de 2 — Detalles del inmueble</div>
     <div class="confirm-box">
-      <p>📍 Confirma la dirección</p>
+      <p>Confirma la dirección</p>
       <div class="addr" id="p_addr_preview"></div>
-      <span class="edit-link" onclick="pisoVolver()">✏️ Corregir dirección</span>
+      <span class="edit-link" onclick="pisoVolver()">Corregir dirección</span>
     </div>
     <div class="row2">
-      <div class="fld"><label>Precio (€) *</label><input id="p_pre" type="number" placeholder="Escribe el precio..."></div>
-      <div class="fld"><label>Habitaciones *</label><input id="p_hab" type="number" placeholder="Nº hab." min="1"></div>
+      <div class="fld"><label>Precio (€) *</label><input id="p_pre" type="number" placeholder="Precio"></div>
+      <div class="fld"><label>Habitaciones *</label><input id="p_hab" type="number" placeholder="Nº" min="1"></div>
     </div>
     <div class="row2">
-      <div class="fld"><label>Metros m²</label><input id="p_met" type="number" placeholder="Superficie..."></div>
+      <div class="fld"><label>Metros m²</label><input id="p_met" type="number" placeholder="Superficie"></div>
       <div class="fld"><label>Estado</label>
         <select id="p_est">
           <option value="Buen_Estado">Buen estado</option>
@@ -121,17 +166,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div class="chk-row">
       <input type="checkbox" id="p_asc">
-      <label for="p_asc">🛗 El inmueble tiene ascensor</label>
+      <label for="p_asc">El inmueble tiene ascensor</label>
     </div>
-    <div class="fld"><label>Descripción (opcional)</label><textarea id="p_des" rows="3" placeholder="Escribe aquí características destacadas del inmueble..."></textarea></div>
+    <div class="fld"><label>Descripción (opcional)</label><textarea id="p_des" rows="3" placeholder="Características destacadas..."></textarea></div>
     <button class="sub" id="btnEnviarPiso" onclick="enviarPiso()">Enviar piso →</button>
   </div>
 
   <div class="ok" id="okPiso">
-    <div class="ok-ico">✅</div>
-    <h3>¡Piso registrado!</h3>
+    <div class="ok-ico">✓</div>
+    <h3>Piso registrado</h3>
     <p>Nuestro equipo lo revisará pronto.<br>Se ha creado una carpeta en Drive para la documentación.</p>
-    <a id="linkDrive" href="#" target="_blank" style="display:none">📁 Abrir carpeta en Drive →</a>
+    <a id="linkDrive" href="#" target="_blank" style="display:none">Abrir carpeta en Drive →</a>
   </div>
 </div>
 </div>
@@ -140,21 +185,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="overlay" id="modalDemanda">
 <div class="sheet">
   <button class="x" onclick="cerrarModal('modalDemanda')">×</button>
-  <h2>👤 Nueva Demanda</h2>
+  <h2>Nueva Demanda</h2>
   <div id="fDemanda">
-    <div class="fld"><label>Nombre del cliente *</label><input id="d_nom" type="text" placeholder="Escribe aquí el nombre completo del cliente..."></div>
-    <div class="fld"><label>Zona preferida *</label><input id="d_zona" type="text" placeholder="Escribe aquí la zona o barrio que prefiere..."></div>
+    <div class="fld"><label>Nombre del cliente *</label><input id="d_nom" type="text" placeholder="Nombre completo del cliente"></div>
+    <div class="fld"><label>Zona preferida *</label><input id="d_zona" type="text" placeholder="Zona o barrio"></div>
     <div class="row2">
-      <div class="fld"><label>Presupuesto máx. (€) *</label><input id="d_pre" type="number" placeholder="Presupuesto..."></div>
+      <div class="fld"><label>Presupuesto máx. (€) *</label><input id="d_pre" type="number" placeholder="Presupuesto"></div>
       <div class="fld"><label>Habitaciones mín. *</label><input id="d_hab" type="number" placeholder="Nº mín." min="1"></div>
     </div>
-    <div class="fld"><label>Metros mínimos</label><input id="d_met" type="number" placeholder="Superficie mínima..."></div>
-    <div class="fld"><label>Perfil del cliente (opcional)</label><textarea id="d_per" rows="3" placeholder="Escribe aquí el perfil, necesidades o prioridades del cliente..."></textarea></div>
+    <div class="fld"><label>Metros mínimos</label><input id="d_met" type="number" placeholder="Superficie mínima"></div>
+    <div class="fld"><label>Perfil del cliente (opcional)</label><textarea id="d_per" rows="3" placeholder="Necesidades o prioridades del cliente..."></textarea></div>
     <button class="sub" id="btnEnviarDemanda" onclick="enviarDemanda()">Enviar demanda →</button>
   </div>
   <div class="ok" id="okDemanda">
-    <div class="ok-ico">✅</div>
-    <h3>¡Demanda enviada!</h3>
+    <div class="ok-ico">✓</div>
+    <h3>Demanda enviada</h3>
     <p>Ya empezamos a buscar pisos para tu cliente.</p>
   </div>
 </div>
