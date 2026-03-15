@@ -346,6 +346,79 @@ body{overflow-x:hidden}
 .panel-sub{font-size:14px;color:var(--muted)}
 .panel-sub strong{color:var(--text)}
 
+/* ── Matchings Module ── */
+.mode-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s}
+.mode-btn.active{background:var(--gold-dim);color:var(--gold);border-color:var(--gold-b)}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.match-card{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all .25s;position:relative;cursor:pointer}
+.match-card:hover{border-color:var(--border-h);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.match-card.selected{border-color:var(--gold);box-shadow:0 0 20px rgba(197,160,89,.2)}
+.match-card .mc-img{width:100%;height:180px;object-fit:cover;display:block;background:rgba(255,255,255,.03)}
+.match-card .mc-noimg{width:100%;height:180px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.03);color:var(--muted);font-size:12px;letter-spacing:1px}
+.match-card .mc-body{padding:16px}
+.match-card .mc-score{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--gold)}
+.match-card .mc-dir{font-size:16px;font-weight:600;margin-bottom:4px}
+.match-card .mc-zona{font-size:13px;color:var(--muted);margin-bottom:10px}
+.match-card .mc-rec{font-size:13px;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.match-card .mc-price{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold)}
+.match-card .mc-comision{margin-top:8px;padding:10px 12px;background:rgba(74,222,128,.06);border:1px solid var(--green-b);border-radius:8px}
+.match-card .mc-comision-label{font-size:11px;color:var(--muted)}
+.match-card .mc-comision-val{font-size:20px;font-weight:700;color:var(--green-t);margin-top:2px}
+.match-card .mc-comision-type{font-size:11px;color:var(--muted);margin-top:2px}
+.match-card .mc-check{position:absolute;top:12px;left:12px;width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:16px;color:transparent}
+.match-card.selected .mc-check{border-color:var(--gold);background:var(--gold);color:var(--bg)}
+.match-card .mc-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.match-card .mc-pill{font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted)}
+.selection-bar{position:sticky;bottom:0;background:rgba(6,6,17,.95);backdrop-filter:blur(20px);border-top:1px solid var(--gold-b);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin:20px -32px -28px;border-radius:0}
+
+/* ── Piso Detail ── */
+.pd-carousel{position:relative;width:100%;height:360px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,.03);margin-bottom:24px}
+.pd-carousel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;cursor:pointer}
+.pd-carousel img.on{opacity:1}
+.pd-carousel .pd-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:50%;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;transition:all .2s}
+.pd-carousel .pd-nav:hover{background:rgba(0,0,0,.8);border-color:var(--gold)}
+.pd-carousel .pd-prev{left:12px}.pd-carousel .pd-next{right:12px}
+.pd-dots{display:flex;gap:6px;justify-content:center;margin-top:12px}
+.pd-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:all .2s}
+.pd-dot.on{background:var(--gold);box-shadow:0 0 8px var(--gold-glow)}
+.pd-chars{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:20px 0}
+.pd-char{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.pd-char-val{font-size:20px;font-weight:700}
+.pd-char-lbl{font-size:11px;color:var(--muted);margin-top:4px}
+.pd-section{margin-top:24px}
+.pd-section-ttl{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--gold-b)}
+.pd-rec{font-size:15px;line-height:1.7;color:rgba(255,255,255,.7)}
+.pd-docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+.pd-doc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text)}
+.pd-doc:hover{border-color:var(--gold-b);background:var(--gold-dim)}
+.pd-doc-icon{font-size:24px;margin-bottom:6px}
+.pd-doc-name{font-size:12px;color:var(--muted)}
+
+/* ── Fullscreen photo viewer ── */
+.photo-viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:100;align-items:center;justify-content:center;flex-direction:column}
+.photo-viewer.on{display:flex}
+.photo-viewer img{max-width:95vw;max-height:85vh;object-fit:contain;border-radius:8px}
+.photo-viewer .pv-close{position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:32px;cursor:pointer}
+.photo-viewer .pv-nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;background:rgba(255,255,255,.1);border:none;border-radius:50%;color:#fff;font-size:24px;cursor:pointer}
+.photo-viewer .pv-prev{left:16px}
+.photo-viewer .pv-next{right:16px}
+.photo-viewer .pv-counter{color:var(--muted);font-size:14px;margin-top:12px}
+
+/* ── Demanda match card in list ── */
+.dem-match-card{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;transition:all .25s}
+.dem-match-card:hover{border-color:var(--gold-b);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.dem-match-card.has-pending{border-left:3px solid var(--amber-t)}
+.dem-match-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.dem-match-name{font-size:18px;font-weight:700}
+.dem-match-badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:var(--amber);color:var(--amber-t);border:1px solid var(--amber-b)}
+.dem-match-badge.reviewed{background:var(--green);color:var(--green-t);border-color:var(--green-b)}
+.dem-match-info{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.dem-match-tag{font-size:13px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:4px 10px}
+.dem-match-tag strong{color:var(--text)}
+.dem-match-footer{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.dem-match-count{font-size:14px;color:var(--gold);font-weight:600}
+.dem-match-arrow{color:var(--gold);font-size:18px}
+
 /* ── Mobile ── */
 @media(max-width:900px){
   .sidebar{transform:translateX(-100%)}
@@ -450,15 +523,50 @@ body{overflow-x:hidden}
       </div>
     </div>
     <div class="main-body">
-      <div id="matchings-alert" style="display:none"></div>
-      <div class="kpi-row">
-        <div class="kpi-box amber"><div class="kpi-icon">⏳</div><div class="kpi-val" id="m-pending">0</div><div class="kpi-label">Demandas por revisión</div></div>
-        <div class="kpi-box green"><div class="kpi-icon">✅</div><div class="kpi-val" id="m-reviewed">0</div><div class="kpi-label">Revisadas</div></div>
-        <div class="kpi-box blue"><div class="kpi-icon">🔗</div><div class="kpi-val" id="m-total">0</div><div class="kpi-label">Matchings totales</div></div>
+      <!-- VISTA 1: Lista de demandas -->
+      <div id="match-list-view">
+        <div id="matchings-alert" style="display:none"></div>
+        <div class="kpi-row">
+          <div class="kpi-box amber"><div class="kpi-icon">⏳</div><div class="kpi-val" id="m-pending">0</div><div class="kpi-label">Demandas por revisión</div></div>
+          <div class="kpi-box green"><div class="kpi-icon">✅</div><div class="kpi-val" id="m-reviewed">0</div><div class="kpi-label">Revisadas</div></div>
+          <div class="kpi-box blue"><div class="kpi-icon">🔗</div><div class="kpi-val" id="m-total">0</div><div class="kpi-label">Matchings totales</div></div>
+        </div>
+        <div class="sec-lbl">Demandas con matchings</div>
+        <div class="list-wrap" id="lista-matchings">
+          <div class="skel" style="height:90px;border-radius:16px"></div>
+        </div>
       </div>
-      <div class="sec-lbl">Demandas con matchings</div>
-      <div class="list-wrap" id="lista-matchings">
-        <div class="empty"><div class="empty-line"></div><p>No hay matchings pendientes</p></div>
+
+      <!-- VISTA 2: Pisos de una demanda (5 cards) -->
+      <div id="match-pisos-view" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <button onclick="volverMatchList()" style="background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer">←</button>
+          <div>
+            <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Matchings para</div>
+            <div id="match-dem-name" style="font-size:20px;font-weight:700;font-family:'Playfair Display',serif"></div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <div id="match-dem-info" style="font-size:13px;color:var(--muted);flex:1"></div>
+          <div style="display:flex;gap:6px">
+            <button class="mode-btn active" id="modeBtn1" onclick="setMode(1)">Recomendación</button>
+            <button class="mode-btn" id="modeBtn2" onclick="setMode(2)">Comisión</button>
+          </div>
+        </div>
+        <div id="match-pisos-grid" class="match-grid"></div>
+        <div id="match-selection-bar" class="selection-bar" style="display:none">
+          <div><strong id="sel-count">0</strong>/3 pisos seleccionados</div>
+          <button class="btn-new" id="btnEnviarCliente" onclick="enviarACliente()">Enviar a cliente →</button>
+        </div>
+      </div>
+
+      <!-- VISTA 3: Ficha detalle de un piso -->
+      <div id="match-piso-detail" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <button onclick="volverPisosList()" style="background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer">←</button>
+          <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Volver a matchings</div>
+        </div>
+        <div id="piso-detail-content"></div>
       </div>
     </div>
   </div>
@@ -550,6 +658,15 @@ body{overflow-x:hidden}
 
 </div><!-- /main -->
 
+<!-- Fullscreen Photo Viewer -->
+<div class="photo-viewer" id="photoViewer">
+  <button class="pv-close" onclick="closePhotos()">×</button>
+  <button class="pv-nav pv-prev" onclick="photoNav(-1)">‹</button>
+  <button class="pv-nav pv-next" onclick="photoNav(1)">›</button>
+  <img id="pvImg" src="">
+  <div class="pv-counter" id="pvCounter"></div>
+</div>
+
 <!-- MODAL PISO -->
 <div class="overlay" id="modalPiso">
 <div class="sheet">
@@ -597,6 +714,8 @@ body{overflow-x:hidden}
 
 <script>
 const CID='recUbo5pMJU7q5VPP';const WH='https://onomahomes.app.n8n.cloud/webhook';
+let matchData=[];let currentDemanda=null;let viewMode=1;let selectedPisos=[];let currentPhotos=[];let currentPhotoIdx=0;
+
 function goTab(name,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+name).classList.add('active');if(el)el.classList.add('active');closeSidebar()}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOverlay').classList.remove('open')}
@@ -612,7 +731,186 @@ function pisoPaso2(){const calle=document.getElementById('p_calle').value.trim()
 function pisoVolver(){document.getElementById('pPiso2').classList.remove('on');document.getElementById('pPiso1').classList.add('on')}
 async function enviarPiso(){const pre=document.getElementById('p_pre').value;const hab=document.getElementById('p_hab').value;if(!pre||!hab){alert('Completa precio y habitaciones');return}const btn=document.getElementById('btnEnviarPiso');btn.disabled=true;btn.textContent='Enviando...';try{const resp=await fetch(WH+'/colaborador-piso',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,calle:document.getElementById('p_calle').value.trim(),numero:document.getElementById('p_num').value.trim(),piso_puerta:document.getElementById('p_piso').value.trim(),barrio:document.getElementById('p_barrio').value.trim(),precio:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('p_met').value||0),estado:document.getElementById('p_est').value,ascensor:document.getElementById('p_asc').checked,tipo_colaboracion:document.getElementById('p_tipo_colab').value,descripcion:document.getElementById('p_des').value})});const data=await resp.json();document.getElementById('pPiso2').style.display='none';document.getElementById('okPiso').classList.add('on');if(data.carpeta_url){const l=document.getElementById('linkDrive');l.href=data.carpeta_url;l.style.display='inline-block'}}catch(e){alert('Error al enviar. Inténtalo de nuevo.');btn.disabled=false;btn.textContent='Enviar piso →'}}
 async function enviarDemanda(){const nom=document.getElementById('d_nom').value.trim();const zona=document.getElementById('d_zona').value.trim();const pre=document.getElementById('d_pre').value;const hab=document.getElementById('d_hab').value;if(!nom||!zona||!pre||!hab){alert('Completa los campos obligatorios (*)');return}const btn=document.getElementById('btnEnviarDemanda');btn.disabled=true;btn.textContent='Enviando...';try{await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,nombre:nom,zona,presupuesto:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('d_met').value||0),perfil:document.getElementById('d_per').value,tipo_colaboracion:document.getElementById('d_tipo_colab').value})});document.getElementById('fDemanda').style.display='none';document.getElementById('okDemanda').classList.add('on')}catch(e){alert('Error al enviar. Inténtalo de nuevo.');btn.disabled=false;btn.textContent='Enviar demanda →'}}
+// ═══ MATCHINGS MODULE ═══
+async function loadMatchings(){
+  try{
+    const r=await fetch(WH+'/colaborador-matchings?id='+CID);
+    const d=await r.json();
+    if(!d.ok) return;
+    matchData=d.demandas||[];
+    document.getElementById('m-pending').textContent=d.pending_review||0;
+    document.getElementById('m-reviewed').textContent=(d.demandas||[]).filter(x=>!x.pending_review).length;
+    document.getElementById('m-total').textContent=d.matchings_total||0;
+    const alertEl=document.getElementById('matchings-alert');
+    if(d.pending_review>0){alertEl.style.display='block';alertEl.innerHTML='<div class="alert-bar">⚠️ '+d.pending_review+' demanda'+(d.pending_review>1?'s':'')+' con matchings nuevos por revisar</div>'}
+    renderMatchList();
+  }catch(e){console.error('Matchings error:',e)}
+}
+function renderMatchList(){
+  const el=document.getElementById('lista-matchings');
+  const demsWithMatch=matchData.filter(d=>d.matchings.length>0);
+  const demsWithout=matchData.filter(d=>d.matchings.length===0);
+  if(!demsWithMatch.length&&!demsWithout.length){el.innerHTML='<div class="empty"><div class="empty-line"></div><p>No tienes demandas con matchings</p></div>';return}
+  let html='';
+  demsWithMatch.forEach(d=>{
+    html+='<div class="dem-match-card'+(d.pending_review?' has-pending':'')+'" onclick="openDemandaMatchings(\''+d.id+'\')">';
+    html+='<div class="dem-match-top"><div class="dem-match-name">'+d.nombre+'</div>';
+    html+='<span class="dem-match-badge'+(d.pending_review?'':' reviewed')+'">'+(d.pending_review?'Por revisar':'Revisada')+'</span></div>';
+    html+='<div class="dem-match-info">';
+    if(d.zona) html+='<div class="dem-match-tag">📍 <strong>'+d.zona+'</strong></div>';
+    if(d.presupuesto) html+='<div class="dem-match-tag">💰 Hasta <strong>€'+Number(d.presupuesto).toLocaleString('es-ES')+'</strong></div>';
+    if(d.hab) html+='<div class="dem-match-tag">🛏 <strong>'+d.hab+'</strong> hab mín</div>';
+    if(d.metros) html+='<div class="dem-match-tag">📐 <strong>'+d.metros+'</strong> m² mín</div>';
+    html+='</div>';
+    html+='<div class="dem-match-footer"><div class="dem-match-count">'+d.matchings.length+' piso'+(d.matchings.length>1?'s':'')+' encontrado'+(d.matchings.length>1?'s':'')+'</div><div class="dem-match-arrow">→</div></div>';
+    html+='</div>';
+  });
+  demsWithout.forEach(d=>{
+    html+='<div class="dem-match-card" style="opacity:.5;cursor:default">';
+    html+='<div class="dem-match-top"><div class="dem-match-name">'+d.nombre+'</div>';
+    html+='<span class="dem-match-badge reviewed" style="background:rgba(255,255,255,.05);color:var(--muted);border-color:var(--border)">Sin matchings</span></div>';
+    html+='<div class="dem-match-info">';
+    if(d.zona) html+='<div class="dem-match-tag">📍 '+d.zona+'</div>';
+    html+='</div></div>';
+  });
+  el.innerHTML=html;
+}
+function openDemandaMatchings(demId){
+  currentDemanda=matchData.find(d=>d.id===demId);
+  if(!currentDemanda||!currentDemanda.matchings.length) return;
+  selectedPisos=[];
+  document.getElementById('match-list-view').style.display='none';
+  document.getElementById('match-pisos-view').style.display='block';
+  document.getElementById('match-dem-name').textContent=currentDemanda.nombre;
+  let info='';
+  if(currentDemanda.zona) info+='📍 '+currentDemanda.zona+' · ';
+  if(currentDemanda.presupuesto) info+='💰 Hasta €'+Number(currentDemanda.presupuesto).toLocaleString('es-ES')+' · ';
+  if(currentDemanda.hab) info+=currentDemanda.hab+' hab · ';
+  if(currentDemanda.metros) info+=currentDemanda.metros+' m²';
+  document.getElementById('match-dem-info').textContent=info.replace(/ · $/,'');
+  renderMatchPisos();
+}
+function volverMatchList(){
+  document.getElementById('match-pisos-view').style.display='none';
+  document.getElementById('match-list-view').style.display='block';
+  currentDemanda=null;selectedPisos=[];
+}
+function setMode(m){viewMode=m;document.getElementById('modeBtn1').classList.toggle('active',m===1);document.getElementById('modeBtn2').classList.toggle('active',m===2);renderMatchPisos()}
+function renderMatchPisos(){
+  if(!currentDemanda) return;
+  const el=document.getElementById('match-pisos-grid');
+  el.innerHTML=currentDemanda.matchings.map((m,i)=>{
+    const p=m.piso;const sel=selectedPisos.includes(m.matching_id);
+    const img=p.fotos&&p.fotos.length?'<img class="mc-img" src="'+p.fotos[0]+'" loading="lazy">':'<div class="mc-noimg">SIN FOTOS</div>';
+    let body='<div class="mc-dir">'+p.direccion+'</div><div class="mc-zona">'+p.barrio+'</div>';
+    body+='<div class="mc-pills">';
+    if(p.hab) body+='<span class="mc-pill">'+p.hab+' hab</span>';
+    if(p.metros) body+='<span class="mc-pill">'+p.metros+' m²</span>';
+    if(p.ascensor) body+='<span class="mc-pill">Ascensor</span>';
+    if(p.conservacion) body+='<span class="mc-pill">'+p.conservacion+'</span>';
+    body+='</div>';
+    if(viewMode===1){
+      body+='<div class="mc-rec">'+(m.recomendacion||'Matching por proximidad y características compatibles')+'</div>';
+      body+='<div class="mc-price">€'+Number(p.precio).toLocaleString('es-ES')+'</div>';
+    }else{
+      body+='<div class="mc-comision"><div class="mc-comision-label">Tu comisión estimada</div><div class="mc-comision-val">€'+Number(m.tu_comision).toLocaleString('es-ES')+'</div><div class="mc-comision-type">'+m.comision_label+'</div></div>';
+      body+='<div class="mc-price" style="margin-top:8px">€'+Number(p.precio).toLocaleString('es-ES')+'</div>';
+    }
+    return '<div class="match-card'+(sel?' selected':'')+'" data-mid="'+m.matching_id+'">'
+      +'<div class="mc-check" onclick="event.stopPropagation();toggleSelect(\''+m.matching_id+'\')">✓</div>'
+      +'<div class="mc-score">Score '+m.score+'%</div>'
+      +img+'<div class="mc-body" onclick="openPisoDetail(\''+m.matching_id+'\')">'+body+'</div></div>';
+  }).join('');
+  updateSelectionBar();
+}
+function toggleSelect(mid){
+  const idx=selectedPisos.indexOf(mid);
+  if(idx>=0){selectedPisos.splice(idx,1)}
+  else{if(selectedPisos.length>=3){alert('Máximo 3 pisos. Deselecciona uno primero.');return}selectedPisos.push(mid)}
+  renderMatchPisos();
+}
+function updateSelectionBar(){
+  const bar=document.getElementById('match-selection-bar');
+  document.getElementById('sel-count').textContent=selectedPisos.length;
+  bar.style.display=selectedPisos.length>0?'flex':'none';
+  document.getElementById('btnEnviarCliente').disabled=selectedPisos.length===0;
+}
+function openPisoDetail(mid){
+  const m=currentDemanda.matchings.find(x=>x.matching_id===mid);
+  if(!m) return;
+  const p=m.piso;
+  document.getElementById('match-pisos-view').style.display='none';
+  document.getElementById('match-piso-detail').style.display='block';
+  let html='';
+  // Carousel
+  if(p.fotos&&p.fotos.length){
+    html+='<div class="pd-carousel" onclick="openPhotos('+JSON.stringify(p.fotos).replace(/"/g,'&quot;')+',0)">';
+    html+=p.fotos.map((f,i)=>'<img src="'+f+'" class="pd-img'+(i===0?' on':'')+'" loading="lazy">').join('');
+    if(p.fotos.length>1){
+      html+='<div class="pd-nav pd-prev" onclick="event.stopPropagation();pdNav(-1)">‹</div>';
+      html+='<div class="pd-nav pd-next" onclick="event.stopPropagation();pdNav(1)">›</div>';
+    }
+    html+='</div>';
+    if(p.fotos.length>1) html+='<div class="pd-dots">'+p.fotos.map((_,i)=>'<div class="pd-dot'+(i===0?' on':'')+'" onclick="pdGo('+i+')"></div>').join('')+'</div>';
+  }else{
+    html+='<div style="height:200px;display:flex;align-items:center;justify-content:center;background:var(--surface);border-radius:16px;color:var(--muted);margin-bottom:24px">Sin fotos disponibles</div>';
+  }
+  // Characteristics
+  html+='<div style="font-size:22px;font-weight:700;font-family:\'Playfair Display\',serif;margin-bottom:4px">'+p.direccion+'</div>';
+  html+='<div style="color:var(--muted);font-size:14px;margin-bottom:20px">'+p.barrio+'</div>';
+  html+='<div style="font-family:\'Playfair Display\',serif;font-size:28px;font-weight:700;color:var(--gold);margin-bottom:20px">€'+Number(p.precio).toLocaleString('es-ES')+'</div>';
+  html+='<div class="pd-chars">';
+  if(p.hab) html+='<div class="pd-char"><div class="pd-char-val">'+p.hab+'</div><div class="pd-char-lbl">Habitaciones</div></div>';
+  if(p.metros) html+='<div class="pd-char"><div class="pd-char-val">'+p.metros+'</div><div class="pd-char-lbl">m²</div></div>';
+  html+='<div class="pd-char"><div class="pd-char-val">'+(p.ascensor?'Sí':'No')+'</div><div class="pd-char-lbl">Ascensor</div></div>';
+  if(p.conservacion) html+='<div class="pd-char"><div class="pd-char-val">'+p.conservacion.replace(/_/g,' ')+'</div><div class="pd-char-lbl">Estado</div></div>';
+  html+='</div>';
+  // Recommendation
+  if(m.recomendacion){html+='<div class="pd-section"><div class="pd-section-ttl">Por qué se recomienda</div><div class="pd-rec">'+m.recomendacion+'</div></div>'}
+  // Description
+  if(p.descripcion){html+='<div class="pd-section"><div class="pd-section-ttl">Descripción</div><div class="pd-rec">'+p.descripcion+'</div></div>'}
+  // Commission
+  html+='<div class="pd-section"><div class="pd-section-ttl">Información comercial</div>';
+  html+='<div style="display:flex;gap:16px;flex-wrap:wrap">';
+  html+='<div class="pd-char" style="flex:1;min-width:140px"><div class="pd-char-val" style="color:var(--green-t)">€'+Number(m.tu_comision).toLocaleString('es-ES')+'</div><div class="pd-char-lbl">Tu comisión estimada</div></div>';
+  html+='<div class="pd-char" style="flex:1;min-width:140px"><div class="pd-char-val" style="color:var(--gold)">'+m.comision_label+'</div><div class="pd-char-lbl">Tipo negociación</div></div>';
+  html+='<div class="pd-char" style="flex:1;min-width:140px"><div class="pd-char-val" style="color:var(--blue-t)">'+m.score+'%</div><div class="pd-char-lbl">Score matching</div></div>';
+  html+='</div></div>';
+  // Documents
+  html+='<div class="pd-section"><div class="pd-section-ttl">Documentación</div>';
+  html+='<div class="pd-docs">';
+  html+='<a class="pd-doc" href="#" onclick="event.preventDefault();alert(\'Documento no disponible aún\')"><div class="pd-doc-icon">📋</div><div class="pd-doc-name">Catastro</div></a>';
+  html+='<a class="pd-doc" href="#" onclick="event.preventDefault();alert(\'Documento no disponible aún\')"><div class="pd-doc-icon">🏗</div><div class="pd-doc-name">ITE</div></a>';
+  html+='<a class="pd-doc" href="#" onclick="event.preventDefault();alert(\'Documento no disponible aún\')"><div class="pd-doc-icon">📐</div><div class="pd-doc-name">Planos</div></a>';
+  html+='<a class="pd-doc" href="#" onclick="event.preventDefault();alert(\'Documento no disponible aún\')"><div class="pd-doc-icon">📑</div><div class="pd-doc-name">Memoria calidades</div></a>';
+  html+='<a class="pd-doc" href="#" onclick="event.preventDefault();alert(\'Documento no disponible aún\')"><div class="pd-doc-icon">📄</div><div class="pd-doc-name">Nota simple</div></a>';
+  html+='</div></div>';
+  document.getElementById('piso-detail-content').innerHTML=html;
+}
+function volverPisosList(){document.getElementById('match-piso-detail').style.display='none';document.getElementById('match-pisos-view').style.display='block'}
+// Carousel helpers for piso detail
+function pdNav(dir){const imgs=document.querySelectorAll('.pd-img');const dots=document.querySelectorAll('.pd-dot');if(!imgs.length) return;let cur=[...imgs].findIndex(i=>i.classList.contains('on'));imgs[cur].classList.remove('on');dots[cur]?.classList.remove('on');cur=(cur+dir+imgs.length)%imgs.length;imgs[cur].classList.add('on');dots[cur]?.classList.add('on')}
+function pdGo(i){const imgs=document.querySelectorAll('.pd-img');const dots=document.querySelectorAll('.pd-dot');imgs.forEach((img,j)=>{img.classList.toggle('on',j===i);dots[j]?.classList.toggle('on',j===i)})}
+// Fullscreen photo viewer
+function openPhotos(fotos,idx){currentPhotos=fotos;currentPhotoIdx=idx;document.getElementById('pvImg').src=fotos[idx];document.getElementById('pvCounter').textContent=(idx+1)+' / '+fotos.length;document.getElementById('photoViewer').classList.add('on')}
+function closePhotos(){document.getElementById('photoViewer').classList.remove('on')}
+function photoNav(dir){if(!currentPhotos.length)return;currentPhotoIdx=(currentPhotoIdx+dir+currentPhotos.length)%currentPhotos.length;document.getElementById('pvImg').src=currentPhotos[currentPhotoIdx];document.getElementById('pvCounter').textContent=(currentPhotoIdx+1)+' / '+currentPhotos.length}
+// Send to client
+async function enviarACliente(){
+  if(!selectedPisos.length||!currentDemanda) return;
+  const btn=document.getElementById('btnEnviarCliente');
+  btn.disabled=true;btn.textContent='Enviando...';
+  const pisos=selectedPisos.map(mid=>currentDemanda.matchings.find(m=>m.matching_id===mid)).filter(Boolean);
+  try{
+    const r=await fetch(WH+'/enviar-matchings-cliente',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,demanda_id:currentDemanda.id,matchings:selectedPisos,pisos_data:pisos.map(m=>({matching_id:m.matching_id,piso_id:m.piso.id,direccion:m.piso.direccion,precio:m.piso.precio,recomendacion:m.recomendacion,fotos:m.piso.fotos}))})});
+    const d=await r.json();
+    if(d.ok){alert('✅ Enviado al cliente. Recibirá un email y un mensaje de WhatsApp con los '+pisos.length+' pisos seleccionados.');volverMatchList()}
+    else{alert('Error: '+(d.error||'No se pudo enviar'));btn.disabled=false;btn.textContent='Enviar a cliente →'}
+  }catch(e){alert('Error de conexión');btn.disabled=false;btn.textContent='Enviar a cliente →'}
+}
+
 async function fetchDashboard(){try{const r=await fetch(WH+'/colaborador-data?id='+CID);const d=await r.json();const pisos=d.pisos||[];const demandas=d.demandas||[];const ops=d.ops||[];const st=d.stats||{};const pisosActivos=st.pisosActivos??pisos.filter(p=>(p.estado||'').toLowerCase().includes('activ')).length;const demandasActivas=st.demandasActivas??demandas.filter(d=>(d.estado||'').toLowerCase().includes('activ')).length;document.getElementById('s-pisos').textContent=pisosActivos;document.getElementById('s-dem').textContent=demandasActivas;document.getElementById('s-vis').textContent=st.visitasTotal??0;document.getElementById('s-vis-pisos').textContent=pisos.reduce((s,p)=>s+(p.visitas||0),0);document.getElementById('s-vis-dem').textContent=demandas.reduce((s,d)=>s+(d.visitas||0),0);document.getElementById('s-ventas').textContent=ops.length;document.getElementById('s-ganado').textContent=ops.length?('€'+ops.reduce((s,o)=>s+(o.importe||0),0).toLocaleString('es-ES')):'—';const matchDem=demandas.filter(d=>d.matchings>0);document.getElementById('m-pending').textContent=matchDem.filter(d=>!d.revisado).length;document.getElementById('m-reviewed').textContent=matchDem.filter(d=>d.revisado).length;document.getElementById('m-total').textContent=demandas.reduce((s,d)=>s+(d.matchings||0),0);const alertEl=document.getElementById('matchings-alert');const pendingCount=matchDem.filter(d=>!d.revisado).length;if(pendingCount>0){alertEl.style.display='block';alertEl.innerHTML='<div class="alert-bar" onclick="goTab(\'demandas\',document.querySelector(\'[data-tab=demandas]\'))">⚠️ '+pendingCount+' demanda'+(pendingCount>1?'s':'')+' con matchings por revisar</div>'}renderPisos(pisos);renderDemandas(demandas);renderOps(ops)}catch(e){console.error('Dashboard fetch error:',e)}}
 fetchDashboard();
+loadMatchings();
 </script>
 </body></html>
