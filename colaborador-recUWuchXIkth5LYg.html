@@ -3,197 +3,259 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ONOMA · Ramses</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>ONOMA · Ramses Michelena</title>
 <style>
 :root{
-  --gold:#C5A059;--gold-dim:rgba(197,160,89,0.15);--gold-border:rgba(197,160,89,0.3);
-  --black:#000;--g900:#0a0a0a;--g800:#111;--g700:#1a1a1a;--g600:#2a2a2a;
-  --text:#fff;--muted:rgba(255,255,255,0.45);--subtle:rgba(255,255,255,0.08);
+  --gold:#C5A059;--gold-dim:rgba(197,160,89,.12);--gold-b:rgba(197,160,89,.25);--gold-glow:rgba(197,160,89,.15);
+  --bg:#060611;--surface:rgba(255,255,255,.035);--surface-h:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.07);--border-h:rgba(255,255,255,.14);
+  --text:#f0f0f5;--muted:rgba(255,255,255,.42);--subtle:rgba(255,255,255,.07);
+  --blue:rgba(59,130,246,.12);--blue-b:rgba(59,130,246,.25);--blue-t:#60a5fa;
+  --green:rgba(74,222,128,.10);--green-b:rgba(74,222,128,.22);--green-t:#4ade80;
+  --amber:rgba(251,191,36,.10);--amber-b:rgba(251,191,36,.22);--amber-t:#fbbf24;
+  --red:rgba(239,68,68,.10);--red-b:rgba(239,68,68,.22);--red-t:#f87171;
+  --glass:blur(20px);--r:16px;--r-sm:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);min-height:100vh;overscroll-behavior:none}
+body{
+  font-family:'Inter',sans-serif;color:var(--text);min-height:100vh;overscroll-behavior:none;
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse at 15% 80%,rgba(197,160,89,.05) 0%,transparent 50%),
+    radial-gradient(ellipse at 85% 15%,rgba(59,130,246,.04) 0%,transparent 50%),
+    radial-gradient(ellipse at 50% 50%,rgba(120,80,200,.03) 0%,transparent 60%);
+  background-attachment:fixed;
+}
 
-/* ── APP SHELL ── */
-.app{padding-bottom:72px}
+/* ── Glass Card ── */
+.glass{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);transition:transform .25s,border-color .25s,box-shadow .25s}
+.glass:hover{border-color:var(--border-h);transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
 
-/* ── HEADER ── */
-.hdr{padding:36px 24px 28px;text-align:center;border-bottom:1px solid var(--subtle)}
-.logo-mark{display:flex;align-items:baseline;justify-content:center;gap:9px;margin-bottom:22px}
-.lm-name{font-family:'Inter',sans-serif;font-weight:700;font-size:18px;letter-spacing:3px;color:var(--text)}
-.lm-homes{font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
-.hdr-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;line-height:1.2}
-.hdr-badge{display:inline-block;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-border);border-radius:20px;padding:3px 12px;margin-top:8px}
+/* ── Animations ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.7}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(197,160,89,.15)}50%{box-shadow:0 0 20px rgba(197,160,89,.25)}}
+.anim-up{animation:fadeUp .5s ease both}
+.anim-in{animation:fadeIn .4s ease both}
+.delay-1{animation-delay:.05s}.delay-2{animation-delay:.1s}.delay-3{animation-delay:.15s}.delay-4{animation-delay:.2s}.delay-5{animation-delay:.25s}.delay-6{animation-delay:.3s}
 
-/* ── TABS ── */
-.tab{display:none;padding:0 0 24px}
-.tab.active{display:block}
+/* ── App Shell ── */
+.app{padding-bottom:80px}
 
-/* ── SECTION LABEL ── */
-.sec-lbl{padding:24px 20px 10px;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:600}
+/* ── Header ── */
+.hdr{padding:28px 24px 22px;border-bottom:1px solid var(--border);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);position:sticky;top:0;z-index:30;background:rgba(6,6,17,.85)}
+.logo-row{display:flex;align-items:baseline;gap:9px}
+.logo-row.center{justify-content:center;margin-bottom:18px}
+.brand{font-weight:700;font-size:18px;letter-spacing:3.5px}
+.brand-sub{font-weight:300;font-size:10px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
+.hdr-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;text-align:center}
+.hdr-badge{display:inline-block;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-b);border-radius:20px;padding:4px 14px;animation:glow 3s ease-in-out infinite}
 
-/* ── STATS GRID ── */
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
-.stat-card{background:rgba(255,255,255,0.03);border:1px solid var(--subtle);backdrop-filter:blur(12px);border-radius:16px;padding:20px 14px;text-align:center}
-.stat-num{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;line-height:1}
-.stat-lbl{font-size:10px;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:1px;font-weight:500}
-.stat-card.gold .stat-num{color:var(--gold)}
-.stat-card.wide{grid-column:span 2;border-color:var(--gold-border)}
-
-/* ── ACTION BUTTONS ── */
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px 8px}
-.btn-act{padding:16px 10px;border-radius:14px;border:none;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.2px;transition:opacity .15s}
-.btn-act:active{opacity:.7}
-.btn-gold{background:var(--gold);color:var(--black)}
-.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-border)}
-
-/* ── TAB HEADER ── */
-.tab-hdr{display:flex;align-items:center;justify-content:space-between;padding:24px 20px 12px}
+/* ── Tab System ── */
+.tab{display:none;padding:0 0 24px}.tab.active{display:block}
+.tab-hdr{display:flex;align-items:center;justify-content:space-between;padding:24px 20px 14px}
 .tab-ttl{font-family:'Playfair Display',serif;font-size:20px;font-weight:700}
 .tab-badge{font-size:11px;font-weight:600;color:var(--gold);background:var(--gold-dim);border-radius:20px;padding:3px 10px;margin-left:8px}
-.btn-new{background:var(--gold);color:var(--black);border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;letter-spacing:.2px}
+.sec-lbl{padding:22px 20px 10px;font-size:9px;text-transform:uppercase;letter-spacing:2.5px;color:var(--muted);font-weight:600}
 
-/* ── LIST ITEMS ── */
+/* ── Stats Grid ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.stat-card{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:20px 14px;text-align:center;transition:transform .25s,border-color .25s,box-shadow .25s}
+.stat-card:hover{border-color:var(--border-h);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.stat-num{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;line-height:1}
+.stat-lbl{font-size:9px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:1.2px;font-weight:500}
+.stat-card.gold .stat-num{color:var(--gold)}
+.stat-card.gold{border-color:var(--gold-b)}
+.stat-card.amber .stat-num{color:var(--amber-t)}
+.stat-card.green .stat-num{color:var(--green-t)}
+.stat-card.wide{grid-column:span 2;border-color:var(--gold-b);background:var(--gold-dim)}
+
+/* ── KPI specific ── */
+.kpi-delta{font-size:11px;margin-top:4px;font-weight:600}
+
+/* ── List / Cards ── */
 .list-wrap{padding:0 16px;display:flex;flex-direction:column;gap:10px}
-.li-card{background:rgba(255,255,255,0.03);border:1px solid var(--subtle);border-radius:14px;padding:16px}
+.vcard,.li-card,.pipe-card{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:transform .2s,border-color .2s,box-shadow .2s}
+.vcard:hover,.li-card:hover,.pipe-card:hover{border-color:var(--border-h);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.vcard.pen{border-color:var(--amber-b)}.vcard.conf{border-color:var(--blue-b)}.vcard.feed{border-color:var(--red-b)}
+.vh{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.vdir{font-size:15px;font-weight:600;line-height:1.3;flex:1}
+.vm{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--muted)}
+.vm strong{color:var(--text);font-weight:600}
+.vact{display:flex;gap:8px}
 .li-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.li-main{font-size:15px;font-weight:600;color:var(--text);line-height:1.3}
-.li-sub{font-size:12px;color:var(--muted);margin-top:4px}
-.li-badge{font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-.badge-green{background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.25)}
-.badge-amber{background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.25)}
-.badge-gray{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--subtle)}
-.badge-gold{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
-.li-meta{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
-.li-meta-item{font-size:11px;color:var(--muted)}
-.li-meta-item strong{color:var(--text);font-weight:600}
+.li-name{font-size:15px;font-weight:600}
+.li-email{font-size:12px;color:var(--muted);margin-top:3px}
+.li-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.li-tag{font-size:11px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:4px 10px}
+.li-tag strong{color:var(--text)}
+.li-actions{display:flex;gap:8px;margin-top:12px}
 
-/* ── EMPTY STATE ── */
+/* ── Badges ── */
+.vbadge,.badge,.li-badge{font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.ba,.badge-amber{background:var(--amber);color:var(--amber-t);border:1px solid var(--amber-b)}
+.bb,.badge-blue{background:var(--blue);color:var(--blue-t);border:1px solid var(--blue-b)}
+.bg,.badge-green{background:var(--green);color:var(--green-t);border:1px solid var(--green-b)}
+.br,.badge-red{background:var(--red);color:var(--red-t);border:1px solid var(--red-b)}
+.bgr,.badge-gray{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)}
+.badge-gold{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-b)}
+
+/* ── Buttons ── */
+.bsm,.btn-sm{padding:9px 16px;border-radius:var(--r-sm);border:none;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.bsm:hover,.btn-sm:hover{transform:translateY(-1px)}
+.bsm:active,.btn-sm:active{opacity:.7;transform:translateY(0)}
+.bg2,.btn-gold{background:var(--gold);color:var(--bg)}
+.bo,.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-b)}
+.bo:hover,.btn-outline:hover{background:var(--gold-dim);border-color:var(--gold)}
+.bb2{background:var(--blue);color:var(--blue-t);border:1px solid var(--blue-b)}
+.btn-new{background:var(--gold);color:var(--bg);border:none;border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;transition:all .2s}
+.btn-new:hover{transform:translateY(-1px);box-shadow:0 4px 16px var(--gold-glow)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px 8px}
+.btn-act{padding:16px 10px;border-radius:14px;border:none;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-act:hover{transform:translateY(-1px)}.btn-act:active{opacity:.7}
+
+/* ── Empty State ── */
 .empty{text-align:center;padding:56px 20px}
-.empty-line{width:40px;height:1px;background:var(--subtle);margin:0 auto 20px}
+.empty-line{width:40px;height:1px;background:var(--border);margin:0 auto 20px}
 .empty p{font-size:14px;color:var(--muted)}
 
-/* ── OPS CARD ── */
-.op-card{background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:14px;padding:18px 16px}
-.op-imp{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--gold)}
-.op-lbl{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
-
-/* ── BOTTOM NAV ── */
-.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--g900);border-top:1px solid var(--subtle);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px 12px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;font-size:10px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;transition:color .15s;position:relative}
+/* ── Bottom Nav ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(6,6,17,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px 12px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;font-size:9px;font-weight:500;letter-spacing:.6px;text-transform:uppercase;transition:color .2s;position:relative}
 .bnav-btn.on{color:var(--gold)}
-.bnav-btn.on::before{content:'';position:absolute;top:0;left:25%;right:25%;height:1px;background:var(--gold)}
-.bnav-ico{font-size:18px;line-height:1}
+.bnav-btn.on::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);border-radius:1px}
+.bnav-ico{font-size:18px;line-height:1;transition:transform .2s}
+.bnav-btn.on .bnav-ico{transform:scale(1.1)}
 
-/* ── OVERLAY / SHEET ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:50;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)}
+/* ── Overlay / Sheet ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .overlay.on{display:flex}
-.sheet{background:var(--g900);border:1px solid var(--subtle);border-top:1px solid rgba(255,255,255,0.1);border-radius:24px 24px 0 0;padding:28px 20px 52px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto}
-.sheet-ttl{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:24px}
-.x{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);margin:-4px -4px 0 0;line-height:1}
+.sheet{background:rgba(12,12,24,.97);border:1px solid var(--border);border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;padding:28px 20px 52px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;animation:fadeUp .3s ease}
+.sheet-ttl{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:20px}
+.x{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);margin:-4px -4px 0 0;line-height:1;transition:color .2s}
+.x:hover{color:var(--text)}
 
-/* ── FORM FIELDS ── */
-.fld{margin-bottom:22px}
-.fld label{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px}
-.fld input,.fld select,.fld textarea{width:100%;padding:10px 0;border:none;border-bottom:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
-.fld input:focus,.fld select:focus,.fld textarea:focus{border-bottom-color:var(--gold)}
-.fld select option{background:var(--g800);color:var(--text)}
+/* ── Form Fields ── */
+.fld{margin-bottom:20px}
+.fld label{display:block;font-size:9px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:2px}
+.fld input,.fld select,.fld textarea{width:100%;padding:11px 0;border:none;border-bottom:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s,box-shadow .3s;-webkit-appearance:none;appearance:none}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-bottom-color:var(--gold);box-shadow:0 2px 12px rgba(197,160,89,.15)}
+.fld select{cursor:pointer;background:transparent;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23C5A059' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center}
+.fld select option{background:#151525;color:#f0f0f5;padding:8px}
 .fld textarea{resize:none;line-height:1.6}
+.fld input[type=file]{cursor:pointer;color:var(--muted);font-size:13px}
 .fld input[readonly]{color:var(--muted);cursor:not-allowed}
-::placeholder{color:rgba(255,255,255,.18);font-style:normal}
+::placeholder{color:rgba(255,255,255,.16)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+/* ── Submit Button ── */
+.sub{width:100%;padding:16px;background:linear-gradient(135deg,var(--gold),#d4b06a);color:var(--bg);border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;transition:all .25s;letter-spacing:.3px}
+.sub:hover{transform:translateY(-1px);box-shadow:0 8px 24px var(--gold-glow)}
+.sub:active{transform:translateY(0)}.sub:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ── Sections / Dividers ── */
+.sdiv{font-size:9px;text-transform:uppercase;letter-spacing:2.5px;color:var(--gold);font-weight:600;margin:24px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--gold-b)}
+.stars{display:flex;gap:6px;margin-top:4px}
+.star{font-size:24px;cursor:pointer;color:rgba(255,255,255,.15);transition:color .15s,transform .15s}
+.star.on{color:var(--gold)}
+.star:hover{transform:scale(1.2)}
+
+/* ── Misc ── */
+.ok-box{display:none;text-align:center;padding:40px 10px}.ok-box.on{display:block}
+.err-box{background:var(--red);border:1px solid var(--red-b);border-radius:var(--r-sm);padding:12px;font-size:14px;color:var(--red-t);margin-bottom:14px;display:none}
+.skel{background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%);background-size:200% 100%;border-radius:var(--r);animation:shimmer 1.5s ease-in-out infinite}
 .chk-row{display:flex;align-items:center;gap:12px;padding:12px 0;margin-bottom:6px}
 .chk-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
 .chk-row label{font-size:14px;color:rgba(255,255,255,.7);cursor:pointer;margin:0}
-.confirm-box{background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:12px;padding:16px;margin-bottom:20px}
-.confirm-box .cb-lbl{font-size:10px;color:var(--muted);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.confirm-box{background:var(--gold-dim);border:1px solid var(--gold-b);border-radius:12px;padding:16px;margin-bottom:20px}
+.confirm-box .cb-lbl{font-size:9px;color:var(--muted);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px}
 .confirm-box .addr{font-size:15px;font-weight:600;color:var(--text);line-height:1.4}
 .confirm-box .edit-lnk{font-size:12px;color:var(--gold);cursor:pointer;text-decoration:underline;margin-top:8px;display:inline-block}
-.step-info{font-size:10px;color:var(--muted);margin-bottom:20px;letter-spacing:.5px;text-transform:uppercase}
-.sub{width:100%;padding:16px;background:var(--gold);color:var(--black);border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;letter-spacing:.2px;transition:opacity .15s}
-.sub:active{opacity:.8}
-.sub:disabled{opacity:.35;cursor:not-allowed}
-
-/* ── OK STATE ── */
-.ok{display:none;text-align:center;padding:40px 10px}
-.ok.on{display:block}
-.ok-line{width:40px;height:1px;background:var(--gold);margin:0 auto 20px}
-.ok h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:700}
-.ok p{color:var(--muted);margin-top:10px;font-size:14px;line-height:1.6}
-.ok a{color:var(--gold);font-weight:600;text-decoration:none;display:inline-block;margin-top:14px;font-size:13px;border-bottom:1px solid var(--gold-border);padding-bottom:2px}
 .step{display:none}.step.on{display:block}
+.step-info{font-size:11px;color:var(--muted);margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.ok{display:none;text-align:center;padding:40px 0}.ok.on{display:block}
+.ok .ok-line{width:60px;height:60px;margin:0 auto 20px;border-radius:50%;background:var(--green);border:2px solid var(--green-b);display:flex;align-items:center;justify-content:center}
+.ok .ok-line::after{content:'✓';font-size:28px;color:var(--green-t)}
+.ok h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:8px}
+.ok p{color:var(--muted);font-size:14px;line-height:1.5}
+.ok a{display:inline-block;margin-top:16px;color:var(--gold);font-weight:600;text-decoration:none;font-size:14px}
 
-/* ── PISO CARD ── */
-.piso-card{background:rgba(255,255,255,0.03);border:1px solid var(--subtle);border-radius:16px;overflow:hidden;margin-bottom:10px}
-.piso-gallery{position:relative;width:100%;height:170px;background:var(--g700);overflow:hidden}
-.gal-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
+/* ── Pipeline ── */
+.pipe-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.pipe-dir{font-size:14px;font-weight:600}
+.pipe-meta{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px}
+.pipe-stars{color:var(--gold);font-size:13px;letter-spacing:1px}
+
+/* ── Piso Cards (Colaborador) ── */
+.piso-card{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:transform .25s,border-color .25s}
+.piso-card:hover{border-color:var(--border-h);transform:translateY(-2px)}
+.piso-gallery{position:relative;width:100%;height:220px;background:rgba(255,255,255,.02);overflow:hidden}
+.gal-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}
 .gal-img.on{opacity:1}
-.gal-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.55);color:#fff;border:none;width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;line-height:1}
-.gal-prev{left:8px}.gal-next{right:8px}
-.gal-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
-.gal-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.35)}
-.gal-dot.on{background:#fff}
-.piso-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--muted)}
-.piso-ph svg{opacity:.3}
-.piso-ph span{font-size:11px;letter-spacing:1px}
-.piso-body{padding:14px 16px}
-.piso-dir{font-size:15px;font-weight:600;color:var(--text);line-height:1.3}
-.piso-sub{font-size:12px;color:var(--muted);margin-top:3px}
-.piso-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
-.piso-stats{font-size:12px;color:var(--muted);display:flex;gap:10px}
+.gal-btn{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:50%;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;z-index:2}
+.gal-btn:hover{background:rgba(0,0,0,.75);border-color:var(--gold)}
+.gal-prev{left:10px}.gal-next{right:10px}
+.gal-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}
+.gal-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .2s}
+.gal-dot.on{background:var(--gold);box-shadow:0 0 6px var(--gold-glow)}
+.piso-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--muted)}
+.piso-ph span{font-size:10px;letter-spacing:2px;font-weight:600}
+.piso-body{padding:16px}
+.piso-dir{font-size:15px;font-weight:600;margin-bottom:3px}
+.piso-sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+.piso-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.piso-stats{display:flex;gap:12px;font-size:12px;color:var(--muted)}
 .piso-stats strong{color:var(--text)}
-.piso-meta{display:flex;gap:14px;margin-top:10px;padding-top:10px;border-top:1px solid var(--subtle)}
-.piso-meta-item{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
-.piso-meta-item strong{color:var(--text);font-weight:600}
+.piso-meta{display:flex;gap:16px;padding-top:12px;border-top:1px solid var(--border)}
+.piso-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.piso-meta-item strong{color:var(--text)}
 
-/* ── DEMANDA CARD ── */
-.dem-card{background:rgba(255,255,255,0.03);border:1px solid var(--subtle);border-radius:16px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
-.dem-card.has-match{border-color:rgba(239,68,68,.3)}
-.dem-top{display:flex;align-items:flex-start;gap:12px}
+/* ── Demanda Cards (Colaborador) ── */
+.dem-card{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:all .25s}
+.dem-card:hover{border-color:var(--border-h);transform:translateY(-1px)}
+.dem-card.has-match{border-color:var(--gold-b)}
+.dem-top{display:flex;gap:14px}
 .dem-avatar-wrap{position:relative;flex-shrink:0}
-.dem-avatar{width:42px;height:42px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--gold)}
-.notif-dot{position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border-radius:50%;font-size:10px;font-weight:700;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--black)}
+.dem-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,rgba(197,160,89,.2),rgba(197,160,89,.05));border:1px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--gold);letter-spacing:1px}
+.notif-dot{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:var(--gold);color:var(--bg);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px}
 .dem-content{flex:1;min-width:0}
-.dem-nombre{font-size:15px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dem-zona{font-size:12px;color:var(--muted);margin-top:2px}
-.dem-stats-row{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap}
-.dem-stat{font-size:12px;color:var(--muted)}
-.dem-stat strong{color:var(--text);font-weight:600}
-.dem-matches-bar{margin-top:12px;padding:10px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;display:flex;align-items:center;justify-content:space-between}
-.dem-matches-txt{font-size:12px;font-weight:600;color:#f87171}
-.dem-matches-arrow{font-size:14px;color:#f87171}
+.dem-nombre{font-size:15px;font-weight:600}
+.dem-zona{font-size:12px;color:var(--muted);margin-top:4px}
+.dem-stats-row{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.dem-stat{font-size:11px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:3px 8px}
+.dem-stat strong{color:var(--text)}
+.dem-matches-bar{margin-top:10px;background:var(--gold-dim);border:1px solid var(--gold-b);border-radius:8px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
+.dem-matches-txt{font-size:12px;font-weight:600;color:var(--gold)}
+.dem-matches-arrow{color:var(--gold);font-size:14px}
 
-/* ── LOADING ── */
-.skel{background:rgba(255,255,255,.05);border-radius:8px;animation:pulse 1.4s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.8}}
+/* ── Op Cards ── */
+.op-card{background:var(--gold-dim)!important;border-color:var(--gold-b)!important}
+.op-imp{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--gold)}
+.op-lbl{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
 </style>
 </head>
 <body>
 <div class="app">
-
-<!-- HEADER -->
-<div class="hdr">
-  <div class="logo-mark">
-    <span class="lm-name">ONOMA</span>
-    <span class="lm-homes">Homes</span>
-  </div>
-  <div class="hdr-name">Ramses</div>
-  <div class="hdr-badge">Colaborador</div>
+<div class="hdr" style="text-align:center">
+  <div class="logo-row center"><span class="brand">ONOMA</span><span class="brand-sub">Homes</span></div>
+  <div class="hdr-name">Ramses Michelena</div>
+  <div style="margin-top:8px"><span class="hdr-badge">Colaborador</span></div>
 </div>
 
-<!-- ══ HOME TAB ══ -->
 <div id="tab-home" class="tab active">
   <div class="sec-lbl">Resumen</div>
   <div class="grid">
-    <div class="stat-card"><div class="stat-num" id="s-pisos">—</div><div class="stat-lbl">Pisos activos</div></div>
-    <div class="stat-card"><div class="stat-num" id="s-dem">—</div><div class="stat-lbl">Demandas activas</div></div>
-    <div class="stat-card"><div class="stat-num" id="s-vis">—</div><div class="stat-lbl">Visitas totales</div></div>
-    <div class="stat-card"><div class="stat-num" id="s-ventas">—</div><div class="stat-lbl">Ventas cerradas</div></div>
-    <div class="stat-card wide gold"><div class="stat-num" id="s-ganado">—</div><div class="stat-lbl">Total ganado en plataforma</div></div>
+    <div class="stat-card anim-up delay-1"><div class="stat-num" id="s-pisos">—</div><div class="stat-lbl">Pisos activos</div></div>
+    <div class="stat-card anim-up delay-2"><div class="stat-num" id="s-dem">—</div><div class="stat-lbl">Demandas activas</div></div>
+    <div class="stat-card anim-up delay-3"><div class="stat-num" id="s-vis">—</div><div class="stat-lbl">Visitas totales</div></div>
+    <div class="stat-card anim-up delay-4"><div class="stat-num" id="s-ventas">—</div><div class="stat-lbl">Ventas cerradas</div></div>
+    <div class="stat-card wide gold anim-up delay-5"><div class="stat-num" id="s-ganado">—</div><div class="stat-lbl">Total ganado en plataforma</div></div>
   </div>
-  
   <div class="sec-lbl" style="margin-top:8px">Acciones rápidas</div>
   <div class="btns">
     <button class="btn-act btn-gold" onclick="abrirModal('modalPiso')">+ Nuevo Piso</button>
@@ -201,115 +263,57 @@ body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);mi
   </div>
 </div>
 
-<!-- ══ DEMANDAS TAB ══ -->
 <div id="tab-demandas" class="tab">
-  <div class="tab-hdr">
-    <div><span class="tab-ttl">Mis Demandas</span><span class="tab-badge" id="badge-dem">0</span></div>
-    <button class="btn-new" onclick="abrirModal('modalDemanda')">+ Nueva</button>
-  </div>
+  <div class="tab-hdr"><div><span class="tab-ttl">Mis Demandas</span><span class="tab-badge" id="badge-dem">0</span></div><button class="btn-new" onclick="abrirModal('modalDemanda')">+ Nueva</button></div>
   <div class="list-wrap" id="lista-demandas"></div>
 </div>
 
-<!-- ══ PISOS TAB ══ -->
 <div id="tab-pisos" class="tab">
-  <div class="tab-hdr">
-    <div><span class="tab-ttl">Mis Pisos</span><span class="tab-badge" id="badge-pisos">0</span></div>
-    <button class="btn-new" onclick="abrirModal('modalPiso')">+ Nuevo</button>
-  </div>
+  <div class="tab-hdr"><div><span class="tab-ttl">Mis Pisos</span><span class="tab-badge" id="badge-pisos">0</span></div><button class="btn-new" onclick="abrirModal('modalPiso')">+ Nuevo</button></div>
   <div class="list-wrap" id="lista-pisos"></div>
 </div>
 
-<!-- ══ OPERACIONES TAB ══ -->
 <div id="tab-ops" class="tab">
-  <div class="tab-hdr">
-    <div><span class="tab-ttl">Operaciones</span><span class="tab-badge" id="badge-ops">0</span></div>
-  </div>
+  <div class="tab-hdr"><div><span class="tab-ttl">Operaciones</span><span class="tab-badge" id="badge-ops">0</span></div></div>
   <div class="list-wrap" id="lista-ops"></div>
 </div>
+</div>
 
-</div><!-- /app -->
-
-<!-- ══ BOTTOM NAV ══ -->
 <nav class="bnav">
-  <button class="bnav-btn on" id="nav-home" onclick="showTab('home',this)">
-    <svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L10 3l7 6.5"/><path d="M5 8v8h4v-4h2v4h4V8"/></svg>
-    Home
-  </button>
-  <button class="bnav-btn" id="nav-demandas" onclick="showTab('demandas',this)">
-    <svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="7" r="3.5"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6"/></svg>
-    Demandas
-  </button>
-  <button class="bnav-btn" id="nav-pisos" onclick="showTab('pisos',this)">
-    <svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="14" height="10" rx="1"/><path d="M1 9l9-7 9 7"/><rect x="8" y="13" width="4" height="5"/></svg>
-    Mis Pisos
-  </button>
-  <button class="bnav-btn" id="nav-ops" onclick="showTab('ops',this)">
-    <svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.3L10 14.3l-4.8 2.5.9-5.3L2.2 7.7l5.4-.8z"/></svg>
-    Operaciones
-  </button>
+  <button class="bnav-btn on" id="nav-home" onclick="showTab('home',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L10 3l7 6.5"/><path d="M5 8v8h4v-4h2v4h4V8"/></svg>Home</button>
+  <button class="bnav-btn" id="nav-demandas" onclick="showTab('demandas',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="7" r="3.5"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6"/></svg>Demandas</button>
+  <button class="bnav-btn" id="nav-pisos" onclick="showTab('pisos',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="14" height="10" rx="1"/><path d="M1 9l9-7 9 7"/><rect x="8" y="13" width="4" height="5"/></svg>Mis Pisos</button>
+  <button class="bnav-btn" id="nav-ops" onclick="showTab('ops',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.3L10 14.3l-4.8 2.5.9-5.3L2.2 7.7l5.4-.8z"/></svg>Operaciones</button>
 </nav>
 
-<!-- ══ MODAL PISO ══ -->
+<!-- MODAL PISO -->
 <div class="overlay" id="modalPiso">
 <div class="sheet">
   <button class="x" onclick="cerrarModal('modalPiso')">×</button>
   <div class="sheet-ttl">Nuevo Piso</div>
-
   <div class="step on" id="pPiso1">
     <div class="step-info">Paso 1 de 2 · Dirección del inmueble</div>
     <div class="fld"><label>Calle *</label><input id="p_calle" type="text" placeholder="Nombre de la calle"></div>
-    <div class="row2">
-      <div class="fld"><label>Número *</label><input id="p_num" type="text" placeholder="Ej: 14"></div>
-      <div class="fld"><label>Piso / Puerta</label><input id="p_piso" type="text" placeholder="Ej: 3ºB"></div>
-    </div>
+    <div class="row2"><div class="fld"><label>Número *</label><input id="p_num" type="text" placeholder="Ej: 14"></div><div class="fld"><label>Piso / Puerta</label><input id="p_piso" type="text" placeholder="Ej: 3ºB"></div></div>
     <div class="fld"><label>Distrito / Barrio *</label><input id="p_barrio" type="text" placeholder="Barrio o distrito"></div>
     <div class="fld"><label>Ciudad</label><input type="text" value="Madrid" readonly></div>
     <button class="sub" onclick="pisoPaso2()">Continuar →</button>
   </div>
-
   <div class="step" id="pPiso2">
     <div class="step-info">Paso 2 de 2 · Detalles del inmueble</div>
-    <div class="confirm-box">
-      <div class="cb-lbl">Confirma la dirección</div>
-      <div class="addr" id="p_addr_preview"></div>
-      <span class="edit-lnk" onclick="pisoVolver()">Corregir dirección</span>
-    </div>
-    <div class="row2">
-      <div class="fld"><label>Precio (€) *</label><input id="p_pre" type="number" placeholder="Precio"></div>
-      <div class="fld"><label>Habitaciones *</label><input id="p_hab" type="number" placeholder="Nº" min="1"></div>
-    </div>
-    <div class="row2">
-      <div class="fld"><label>Metros m²</label><input id="p_met" type="number" placeholder="Superficie"></div>
-      <div class="fld"><label>Estado</label>
-        <select id="p_est">
-          <option value="Buen_Estado">Buen estado</option>
-          <option value="Reformado ">Reformado</option>
-          <option value="A_Reformar ">A reformar</option>
-          <option value="Obra_Nueva ">Obra nueva</option>
-        </select>
-      </div>
-    </div>
+    <div class="confirm-box"><div class="cb-lbl">Confirma la dirección</div><div class="addr" id="p_addr_preview"></div><span class="edit-lnk" onclick="pisoVolver()">Corregir dirección</span></div>
+    <div class="row2"><div class="fld"><label>Precio (€) *</label><input id="p_pre" type="number" placeholder="Precio"></div><div class="fld"><label>Habitaciones *</label><input id="p_hab" type="number" placeholder="Nº" min="1"></div></div>
+    <div class="row2"><div class="fld"><label>Metros m²</label><input id="p_met" type="number" placeholder="Superficie"></div><div class="fld"><label>Estado</label><select id="p_est"><option value="Buen_Estado">Buen estado</option><option value="Reformado">Reformado</option><option value="A_Reformar">A reformar</option><option value="Obra_Nueva">Obra nueva</option></select></div></div>
     <div class="chk-row"><input type="checkbox" id="p_asc"><label for="p_asc">El inmueble tiene ascensor</label></div>
-    <div class="fld"><label>Tipo de colaboración *</label>
-      <select id="p_tipo_colab">
-        <option value="Directa">Directa — solo con clientes ONOMA (50% comisión)</option>
-        <option value="Compartida">Compartida — también con otros colaboradores (33% comisión)</option>
-      </select>
-    </div>
+    <div class="fld"><label>Tipo de colaboración *</label><select id="p_tipo_colab"><option value="Directa">Directa — solo con clientes ONOMA (50% comisión)</option><option value="Compartida">Compartida — también con otros colaboradores (33% comisión)</option></select></div>
     <div class="fld"><label>Descripción (opcional)</label><textarea id="p_des" rows="3" placeholder="Características destacadas..."></textarea></div>
     <button class="sub" id="btnEnviarPiso" onclick="enviarPiso()">Enviar piso →</button>
   </div>
-
-  <div class="ok" id="okPiso">
-    <div class="ok-line"></div>
-    <h3>Piso registrado</h3>
-    <p>Nuestro equipo lo revisará pronto.<br>Se ha creado una carpeta en Drive.</p>
-    <a id="linkDrive" href="#" target="_blank" style="display:none">Ver carpeta en Drive →</a>
-  </div>
+  <div class="ok" id="okPiso"><div class="ok-line"></div><h3>Piso registrado</h3><p>Nuestro equipo lo revisará pronto.<br>Se ha creado una carpeta en Drive.</p><a id="linkDrive" href="#" target="_blank" style="display:none">Ver carpeta en Drive →</a></div>
 </div>
 </div>
 
-<!-- ══ MODAL DEMANDA ══ -->
+<!-- MODAL DEMANDA -->
 <div class="overlay" id="modalDemanda">
 <div class="sheet">
   <button class="x" onclick="cerrarModal('modalDemanda')">×</button>
@@ -317,239 +321,32 @@ body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);mi
   <div id="fDemanda">
     <div class="fld"><label>Nombre del cliente *</label><input id="d_nom" type="text" placeholder="Nombre completo"></div>
     <div class="fld"><label>Zona preferida *</label><input id="d_zona" type="text" placeholder="Zona o barrio"></div>
-    <div class="row2">
-      <div class="fld"><label>Presupuesto máx. (€) *</label><input id="d_pre" type="number" placeholder="Importe"></div>
-      <div class="fld"><label>Habitaciones mín. *</label><input id="d_hab" type="number" placeholder="Nº" min="1"></div>
-    </div>
+    <div class="row2"><div class="fld"><label>Presupuesto máx. (€) *</label><input id="d_pre" type="number" placeholder="Importe"></div><div class="fld"><label>Habitaciones mín. *</label><input id="d_hab" type="number" placeholder="Nº" min="1"></div></div>
     <div class="fld"><label>Metros mínimos</label><input id="d_met" type="number" placeholder="Superficie mínima"></div>
     <div class="fld"><label>Perfil del cliente (opcional)</label><textarea id="d_per" rows="3" placeholder="Necesidades o prioridades..."></textarea></div>
-    <div class="fld"><label>Tipo de colaboración *</label>
-      <select id="d_tipo_colab">
-        <option value="Directa">Directa — solo pisos ONOMA (50% comisión)</option>
-        <option value="Compartida">Compartida — también pisos de otros colaboradores (33% comisión)</option>
-      </select>
-    </div>
+    <div class="fld"><label>Tipo de colaboración *</label><select id="d_tipo_colab"><option value="Directa">Directa — solo pisos ONOMA (50% comisión)</option><option value="Compartida">Compartida — también pisos de otros colaboradores (33% comisión)</option></select></div>
     <button class="sub" id="btnEnviarDemanda" onclick="enviarDemanda()">Enviar demanda →</button>
   </div>
-  <div class="ok" id="okDemanda">
-    <div class="ok-line"></div>
-    <h3>Demanda enviada</h3>
-    <p>Ya empezamos a buscar pisos para tu cliente.</p>
-  </div>
+  <div class="ok" id="okDemanda"><div class="ok-line"></div><h3>Demanda enviada</h3><p>Ya empezamos a buscar pisos para tu cliente.</p></div>
 </div>
 </div>
 
 <script>
-const CID = 'recUWuchXIkth5LYg';
-const WH = 'https://onomahomes.app.n8n.cloud/webhook';
-
-/* ── TABS ── */
-function showTab(name, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('on'));
-  document.getElementById('tab-' + name).classList.add('active');
-  btn.classList.add('on');
-}
-
-/* ── MODALS ── */
-function abrirModal(mid){ document.getElementById(mid).classList.add('on'); }
-function cerrarModal(mid){ document.getElementById(mid).classList.remove('on'); }
-document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('on'); }));
-
-/* ── STATUS BADGE ── */
-function badgeClass(st) {
-  const s = (st||'').toLowerCase().trim();
-  if (s.includes('activ')) return 'badge-green';
-  if (s.includes('pend')) return 'badge-amber';
-  if (s.includes('inactiv') || s.includes('cerr')) return 'badge-gray';
-  return 'badge-gold';
-}
-
-/* ── GALLERY ── */
-function galMove(btn, dir) {
-  const gal = btn.closest('.piso-gallery');
-  const imgs = gal.querySelectorAll('img');
-  const dots = gal.querySelectorAll('.gal-dot');
-  let cur = [...imgs].findIndex(i => i.classList.contains('on'));
-  imgs[cur].classList.remove('on'); dots[cur]?.classList.remove('on');
-  cur = (cur + dir + imgs.length) % imgs.length;
-  imgs[cur].classList.add('on'); dots[cur]?.classList.add('on');
-}
-
-/* ── RENDER PISOS ── */
-function renderPisos(pisos) {
-  const el = document.getElementById('lista-pisos');
-  document.getElementById('badge-pisos').textContent = pisos.length;
-  if (!pisos.length) { el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>Aún no has subido ningún piso</p></div>'; return; }
-  el.innerHTML = pisos.map(p => {
-    const est = (p.estado||'').trim() || 'Pendiente';
-    const dir = p.direccion || 'Sin dirección';
-    const sub = [p.barrio, 'Madrid'].filter(Boolean).join(', ');
-    let gallery;
-    if (p.fotos && p.fotos.length) {
-      const imgs = p.fotos.map((u,i) => '<img src="'+u+'" class="gal-img'+(i===0?' on':'')+'" loading="lazy">').join('');
-      const nav = p.fotos.length > 1
-        ? '<button class="gal-btn gal-prev" onclick="galMove(this,-1)">‹</button><button class="gal-btn gal-next" onclick="galMove(this,1)">›</button><div class="gal-dots">'+p.fotos.map((_,i)=>'<div class="gal-dot'+(i===0?' on':'')+'"></div>').join('')+'</div>'
-        : '';
-      gallery = '<div class="piso-gallery">'+imgs+nav+'</div>';
-    } else {
-      gallery = '<div class="piso-gallery"><div class="piso-ph"><svg width="36" height="36" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="14" height="10" rx="1"/><path d="M1 9l9-7 9 7"/><rect x="8" y="13" width="4" height="5"/></svg><span>SIN FOTOS</span></div></div>';
-    }
-    return '<div class="piso-card">'
-      + gallery
-      + '<div class="piso-body">'
-      + '<div class="piso-dir">'+dir+'</div>'
-      + '<div class="piso-sub">'+sub+'</div>'
-      + '<div class="piso-row">'
-      + '<span class="li-badge '+badgeClass(est)+'">'+est.replace(/_/g,' ')+'</span>'
-      + '<div class="piso-stats">'
-      + (p.precio ? '<span>€<strong>'+Number(p.precio).toLocaleString('es-ES')+'</strong></span>' : '')
-      + (p.hab ? '<span><strong>'+p.hab+'</strong> hab</span>' : '')
-      + (p.metros ? '<span><strong>'+p.metros+'</strong> m²</span>' : '')
-      + '</div></div>'
-      + '<div class="piso-meta">'
-      + '<div class="piso-meta-item"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 10s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7z"/><circle cx="10" cy="10" r="3"/></svg><strong>'+p.visitas+'</strong> visitas</div>'
-      + '<div class="piso-meta-item"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 12a5 5 0 01-5 5H6l-4 2V7a5 5 0 015-5h5a5 5 0 015 5v2z"/></svg><strong>'+p.matchings+'</strong> interesados</div>'
-      + '</div>'
-      + '</div></div>';
-  }).join('');
-}
-
-/* ── RENDER DEMANDAS ── */
-function renderDemandas(demandas) {
-  const el = document.getElementById('lista-demandas');
-  document.getElementById('badge-dem').textContent = demandas.length;
-  if (!demandas.length) { el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>Aún no has registrado ninguna demanda</p></div>'; return; }
-  el.innerHTML = demandas.map(d => {
-    const est = (d.estado||'').trim() || 'Pendiente';
-    const initials = (d.nombre||'C').split(' ').map(w=>w[0]||'').slice(0,2).join('').toUpperCase() || 'C';
-    const hasMatch = d.matchings > 0;
-    return '<div class="dem-card'+(hasMatch?' has-match':'')+'">'
-      + '<div class="dem-top">'
-      + '<div class="dem-avatar-wrap">'
-      + '<div class="dem-avatar">'+initials+'</div>'
-      + (hasMatch ? '<span class="notif-dot">'+d.matchings+'</span>' : '')
-      + '</div>'
-      + '<div class="dem-content">'
-      + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
-      + '<div class="dem-nombre">'+(d.nombre||'Cliente')+'</div>'
-      + '<span class="li-badge '+badgeClass(est)+'">'+est.replace(/_/g,' ')+'</span>'
-      + '</div>'
-      + '<div class="dem-zona">📍 '+(d.zona||'Sin zona')+'</div>'
-      + '<div class="dem-stats-row">'
-      + (d.presupuesto ? '<div class="dem-stat">Hasta <strong>€'+Number(d.presupuesto).toLocaleString('es-ES')+'</strong></div>' : '')
-      + (d.hab ? '<div class="dem-stat"><strong>'+d.hab+'</strong> hab. mín</div>' : '')
-      + (d.metros ? '<div class="dem-stat"><strong>'+d.metros+'</strong> m² mín</div>' : '')
-      + '</div>'
-      + (hasMatch ? '<div class="dem-matches-bar"><span class="dem-matches-txt">'+d.matchings+' opciones encontradas</span><span class="dem-matches-arrow">→</span></div>' : '')
-      + '</div></div></div>';
-  }).join('');
-}
-
-/* ── RENDER OPERACIONES ── */
-function renderOps(ops) {
-  const el = document.getElementById('lista-ops');
-  document.getElementById('badge-ops').textContent = ops.length;
-  if (!ops.length) { el.innerHTML = '<div class="empty"><div class="empty-line"></div><p>Todavía no tienes operaciones cerradas</p></div>'; return; }
-  el.innerHTML = ops.map(op => {
-    return '<div class="li-card op-card">'
-      + '<div class="op-imp">€' + Number(op.importe||0).toLocaleString('es-ES') + '</div>'
-      + '<div class="op-lbl">' + (op.rol||'Operación cerrada') + '</div>'
-      + (op.fecha ? '<div class="li-sub" style="margin-top:8px">' + op.fecha + '</div>' : '')
-      + '</div>';
-  }).join('');
-}
-
-/* ── PISO FORM ── */
-function pisoPaso2(){
-  const calle=document.getElementById('p_calle').value.trim();
-  const num=document.getElementById('p_num').value.trim();
-  const barrio=document.getElementById('p_barrio').value.trim();
-  if(!calle||!num||!barrio){ alert('Completa calle, número y barrio para continuar'); return; }
-  const addr=calle+' '+num+(document.getElementById('p_piso').value?', '+document.getElementById('p_piso').value:'')+' · '+barrio+', Madrid';
-  document.getElementById('p_addr_preview').textContent=addr;
-  document.getElementById('pPiso1').classList.remove('on');
-  document.getElementById('pPiso2').classList.add('on');
-}
-function pisoVolver(){
-  document.getElementById('pPiso2').classList.remove('on');
-  document.getElementById('pPiso1').classList.add('on');
-}
-async function enviarPiso(){
-  const pre=document.getElementById('p_pre').value;
-  const hab=document.getElementById('p_hab').value;
-  if(!pre||!hab){ alert('Completa precio y habitaciones'); return; }
-  const btn=document.getElementById('btnEnviarPiso');
-  btn.disabled=true; btn.textContent='Enviando...';
-  try{
-    const resp=await fetch(WH+'/colaborador-piso',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      colaborador_id:CID,
-      calle:document.getElementById('p_calle').value.trim(),
-      numero:document.getElementById('p_num').value.trim(),
-      piso_puerta:document.getElementById('p_piso').value.trim(),
-      barrio:document.getElementById('p_barrio').value.trim(),
-      precio:parseFloat(pre),habitaciones:parseInt(hab),
-      metros:parseInt(document.getElementById('p_met').value||0),
-      estado:document.getElementById('p_est').value,
-      ascensor:document.getElementById('p_asc').checked,
-      tipo_colaboracion:document.getElementById('p_tipo_colab').value,
-      descripcion:document.getElementById('p_des').value
-    })});
-    const data=await resp.json();
-    document.getElementById('pPiso2').style.display='none';
-    document.getElementById('okPiso').classList.add('on');
-    if(data.carpeta_url){ const l=document.getElementById('linkDrive'); l.href=data.carpeta_url; l.style.display='inline-block'; }
-  }catch(e){ alert('Error al enviar. Inténtalo de nuevo.'); btn.disabled=false; btn.textContent='Enviar piso →'; }
-}
-
-/* ── DEMANDA FORM ── */
-async function enviarDemanda(){
-  const nom=document.getElementById('d_nom').value.trim();
-  const zona=document.getElementById('d_zona').value.trim();
-  const pre=document.getElementById('d_pre').value;
-  const hab=document.getElementById('d_hab').value;
-  if(!nom||!zona||!pre||!hab){ alert('Completa los campos obligatorios (*)'); return; }
-  const btn=document.getElementById('btnEnviarDemanda');
-  btn.disabled=true; btn.textContent='Enviando...';
-  try{
-    await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      colaborador_id:CID,nombre:nom,zona,presupuesto:parseFloat(pre),
-      habitaciones:parseInt(hab),metros:parseInt(document.getElementById('d_met').value||0),
-      perfil:document.getElementById('d_per').value,
-      tipo_colaboracion:document.getElementById('d_tipo_colab').value
-    })});
-    document.getElementById('fDemanda').style.display='none';
-    document.getElementById('okDemanda').classList.add('on');
-  }catch(e){ alert('Error al enviar. Inténtalo de nuevo.'); btn.disabled=false; btn.textContent='Enviar demanda →'; }
-}
-
-/* ── DASHBOARD FETCH ── */
-async function fetchDashboard() {
-  try {
-    const r = await fetch(WH + '/colaborador-data?id=' + CID);
-    const d = await r.json();
-    const pisos = d.pisos || [];
-    const demandas = d.demandas || [];
-    const ops = d.ops || [];
-    const st = d.stats || {};
-
-    // Update home stats
-    document.getElementById('s-pisos').textContent = st.pisosActivos ?? pisos.filter(p=>(p.estado||'').toLowerCase().includes('activ')).length;
-    document.getElementById('s-dem').textContent = st.demandasActivas ?? demandas.filter(d=>(d.estado||'').toLowerCase().includes('activ')).length;
-    document.getElementById('s-vis').textContent = st.visitasTotal ?? 0;
-    document.getElementById('s-ventas').textContent = ops.length;
-    document.getElementById('s-ganado').textContent = ops.length ? ('€' + ops.reduce((s,o)=>s+(o.importe||0),0).toLocaleString('es-ES')) : '—';
-
-    renderPisos(pisos);
-    renderDemandas(demandas);
-    renderOps(ops);
-  } catch(e) {
-    console.error('Dashboard fetch error:', e);
-  }
-}
-
-/* ── INIT ── */
+const CID='recUWuchXIkth5LYg';const WH='https://onomahomes.app.n8n.cloud/webhook';
+function showTab(name,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));document.getElementById('tab-'+name).classList.add('active');btn.classList.add('on')}
+function abrirModal(mid){document.getElementById(mid).classList.add('on')}
+function cerrarModal(mid){document.getElementById(mid).classList.remove('on')}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on')}));
+function badgeClass(st){const s=(st||'').toLowerCase().trim();if(s.includes('activ'))return'badge-green';if(s.includes('pend'))return'badge-amber';if(s.includes('inactiv')||s.includes('cerr'))return'badge-gray';return'badge-gold'}
+function galMove(btn,dir){const gal=btn.closest('.piso-gallery');const imgs=gal.querySelectorAll('img');const dots=gal.querySelectorAll('.gal-dot');let cur=[...imgs].findIndex(i=>i.classList.contains('on'));imgs[cur].classList.remove('on');dots[cur]?.classList.remove('on');cur=(cur+dir+imgs.length)%imgs.length;imgs[cur].classList.add('on');dots[cur]?.classList.add('on')}
+function renderPisos(pisos){const el=document.getElementById('lista-pisos');document.getElementById('badge-pisos').textContent=pisos.length;if(!pisos.length){el.innerHTML='<div class="empty"><div class="empty-line"></div><p>Aún no has subido ningún piso</p></div>';return}el.innerHTML=pisos.map(p=>{const est=(p.estado||'').trim()||'Pendiente';const dir=p.direccion||'Sin dirección';const sub=[p.barrio,'Madrid'].filter(Boolean).join(', ');let gallery;if(p.fotos&&p.fotos.length){const imgs=p.fotos.map((u,i)=>'<img src="'+u+'" class="gal-img'+(i===0?' on':'')+'" loading="lazy">').join('');const nav=p.fotos.length>1?'<button class="gal-btn gal-prev" onclick="galMove(this,-1)">‹</button><button class="gal-btn gal-next" onclick="galMove(this,1)">›</button><div class="gal-dots">'+p.fotos.map((_,i)=>'<div class="gal-dot'+(i===0?' on':'')+'"></div>').join('')+'</div>':'';gallery='<div class="piso-gallery">'+imgs+nav+'</div>'}else{gallery='<div class="piso-gallery"><div class="piso-ph"><svg width="36" height="36" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="14" height="10" rx="1"/><path d="M1 9l9-7 9 7"/><rect x="8" y="13" width="4" height="5"/></svg><span>SIN FOTOS</span></div></div>'}return'<div class="piso-card">'+gallery+'<div class="piso-body"><div class="piso-dir">'+dir+'</div><div class="piso-sub">'+sub+'</div><div class="piso-row"><span class="li-badge '+badgeClass(est)+'">'+est.replace(/_/g,' ')+'</span><div class="piso-stats">'+(p.precio?'<span>€<strong>'+Number(p.precio).toLocaleString('es-ES')+'</strong></span>':'')+(p.hab?'<span><strong>'+p.hab+'</strong> hab</span>':'')+(p.metros?'<span><strong>'+p.metros+'</strong> m²</span>':'')+'</div></div><div class="piso-meta"><div class="piso-meta-item"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 10s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7z"/><circle cx="10" cy="10" r="3"/></svg><strong>'+p.visitas+'</strong> visitas</div><div class="piso-meta-item"><svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 12a5 5 0 01-5 5H6l-4 2V7a5 5 0 015-5h5a5 5 0 015 5v2z"/></svg><strong>'+p.matchings+'</strong> interesados</div></div></div></div>'}).join('')}
+function renderDemandas(demandas){const el=document.getElementById('lista-demandas');document.getElementById('badge-dem').textContent=demandas.length;if(!demandas.length){el.innerHTML='<div class="empty"><div class="empty-line"></div><p>Aún no has registrado ninguna demanda</p></div>';return}el.innerHTML=demandas.map(d=>{const est=(d.estado||'').trim()||'Pendiente';const initials=(d.nombre||'C').split(' ').map(w=>w[0]||'').slice(0,2).join('').toUpperCase()||'C';const hasMatch=d.matchings>0;return'<div class="dem-card'+(hasMatch?' has-match':'')+'"><div class="dem-top"><div class="dem-avatar-wrap"><div class="dem-avatar">'+initials+'</div>'+(hasMatch?'<span class="notif-dot">'+d.matchings+'</span>':'')+'</div><div class="dem-content"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div class="dem-nombre">'+(d.nombre||'Cliente')+'</div><span class="li-badge '+badgeClass(est)+'">'+est.replace(/_/g,' ')+'</span></div><div class="dem-zona">📍 '+(d.zona||'Sin zona')+'</div><div class="dem-stats-row">'+(d.presupuesto?'<div class="dem-stat">Hasta <strong>€'+Number(d.presupuesto).toLocaleString('es-ES')+'</strong></div>':'')+(d.hab?'<div class="dem-stat"><strong>'+d.hab+'</strong> hab. mín</div>':'')+(d.metros?'<div class="dem-stat"><strong>'+d.metros+'</strong> m² mín</div>':'')+'</div>'+(hasMatch?'<div class="dem-matches-bar"><span class="dem-matches-txt">'+d.matchings+' opciones encontradas</span><span class="dem-matches-arrow">→</span></div>':'')+'</div></div></div>'}).join('')}
+function renderOps(ops){const el=document.getElementById('lista-ops');document.getElementById('badge-ops').textContent=ops.length;if(!ops.length){el.innerHTML='<div class="empty"><div class="empty-line"></div><p>Todavía no tienes operaciones cerradas</p></div>';return}el.innerHTML=ops.map(op=>'<div class="li-card op-card"><div class="op-imp">€'+Number(op.importe||0).toLocaleString('es-ES')+'</div><div class="op-lbl">'+(op.rol||'Operación cerrada')+'</div>'+(op.fecha?'<div style="font-size:12px;color:var(--muted);margin-top:8px">'+op.fecha+'</div>':'')+'</div>').join('')}
+function pisoPaso2(){const calle=document.getElementById('p_calle').value.trim();const num=document.getElementById('p_num').value.trim();const barrio=document.getElementById('p_barrio').value.trim();if(!calle||!num||!barrio){alert('Completa calle, número y barrio para continuar');return}const addr=calle+' '+num+(document.getElementById('p_piso').value?', '+document.getElementById('p_piso').value:'')+' · '+barrio+', Madrid';document.getElementById('p_addr_preview').textContent=addr;document.getElementById('pPiso1').classList.remove('on');document.getElementById('pPiso2').classList.add('on')}
+function pisoVolver(){document.getElementById('pPiso2').classList.remove('on');document.getElementById('pPiso1').classList.add('on')}
+async function enviarPiso(){const pre=document.getElementById('p_pre').value;const hab=document.getElementById('p_hab').value;if(!pre||!hab){alert('Completa precio y habitaciones');return}const btn=document.getElementById('btnEnviarPiso');btn.disabled=true;btn.textContent='Enviando...';try{const resp=await fetch(WH+'/colaborador-piso',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,calle:document.getElementById('p_calle').value.trim(),numero:document.getElementById('p_num').value.trim(),piso_puerta:document.getElementById('p_piso').value.trim(),barrio:document.getElementById('p_barrio').value.trim(),precio:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('p_met').value||0),estado:document.getElementById('p_est').value,ascensor:document.getElementById('p_asc').checked,tipo_colaboracion:document.getElementById('p_tipo_colab').value,descripcion:document.getElementById('p_des').value})});const data=await resp.json();document.getElementById('pPiso2').style.display='none';document.getElementById('okPiso').classList.add('on');if(data.carpeta_url){const l=document.getElementById('linkDrive');l.href=data.carpeta_url;l.style.display='inline-block'}}catch(e){alert('Error al enviar. Inténtalo de nuevo.');btn.disabled=false;btn.textContent='Enviar piso →'}}
+async function enviarDemanda(){const nom=document.getElementById('d_nom').value.trim();const zona=document.getElementById('d_zona').value.trim();const pre=document.getElementById('d_pre').value;const hab=document.getElementById('d_hab').value;if(!nom||!zona||!pre||!hab){alert('Completa los campos obligatorios (*)');return}const btn=document.getElementById('btnEnviarDemanda');btn.disabled=true;btn.textContent='Enviando...';try{await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,nombre:nom,zona,presupuesto:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('d_met').value||0),perfil:document.getElementById('d_per').value,tipo_colaboracion:document.getElementById('d_tipo_colab').value})});document.getElementById('fDemanda').style.display='none';document.getElementById('okDemanda').classList.add('on')}catch(e){alert('Error al enviar. Inténtalo de nuevo.');btn.disabled=false;btn.textContent='Enviar demanda →'}}
+async function fetchDashboard(){try{const r=await fetch(WH+'/colaborador-data?id='+CID);const d=await r.json();const pisos=d.pisos||[];const demandas=d.demandas||[];const ops=d.ops||[];const st=d.stats||{};document.getElementById('s-pisos').textContent=st.pisosActivos??pisos.filter(p=>(p.estado||'').toLowerCase().includes('activ')).length;document.getElementById('s-dem').textContent=st.demandasActivas??demandas.filter(d=>(d.estado||'').toLowerCase().includes('activ')).length;document.getElementById('s-vis').textContent=st.visitasTotal??0;document.getElementById('s-ventas').textContent=ops.length;document.getElementById('s-ganado').textContent=ops.length?('€'+ops.reduce((s,o)=>s+(o.importe||0),0).toLocaleString('es-ES')):'—';renderPisos(pisos);renderDemandas(demandas);renderOps(ops)}catch(e){console.error('Dashboard fetch error:',e)}}
 fetchDashboard();
 </script>
-</body>
-</html>
+</body></html>
