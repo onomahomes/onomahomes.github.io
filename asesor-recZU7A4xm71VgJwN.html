@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>ONOMA · Asesor Nuevo Asesor</title>
+<style>
+:root{
+  --gold:#C5A059;--gold-dim:rgba(197,160,89,.12);--gold-b:rgba(197,160,89,.25);--gold-glow:rgba(197,160,89,.15);
+  --bg:#060611;--surface:rgba(255,255,255,.035);--surface-h:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.07);--border-h:rgba(255,255,255,.14);
+  --text:#f0f0f5;--muted:rgba(255,255,255,.42);--subtle:rgba(255,255,255,.07);
+  --blue:rgba(59,130,246,.12);--blue-b:rgba(59,130,246,.25);--blue-t:#60a5fa;
+  --green:rgba(74,222,128,.10);--green-b:rgba(74,222,128,.22);--green-t:#4ade80;
+  --amber:rgba(251,191,36,.10);--amber-b:rgba(251,191,36,.22);--amber-t:#fbbf24;
+  --red:rgba(239,68,68,.10);--red-b:rgba(239,68,68,.22);--red-t:#f87171;
+  --glass:blur(20px);--r:16px;--r-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',sans-serif;color:var(--text);min-height:100vh;overscroll-behavior:none;
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse at 15% 80%,rgba(197,160,89,.05) 0%,transparent 50%),
+    radial-gradient(ellipse at 85% 15%,rgba(59,130,246,.04) 0%,transparent 50%),
+    radial-gradient(ellipse at 50% 50%,rgba(120,80,200,.03) 0%,transparent 60%);
+  background-attachment:fixed;
+}
+
+/* ── Glass Card ── */
+.glass{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);transition:transform .25s,border-color .25s,box-shadow .25s}
+.glass:hover{border-color:var(--border-h);transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+
+/* ── Animations ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.7}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(197,160,89,.15)}50%{box-shadow:0 0 20px rgba(197,160,89,.25)}}
+.anim-up{animation:fadeUp .5s ease both}
+.anim-in{animation:fadeIn .4s ease both}
+.delay-1{animation-delay:.05s}.delay-2{animation-delay:.1s}.delay-3{animation-delay:.15s}.delay-4{animation-delay:.2s}.delay-5{animation-delay:.25s}.delay-6{animation-delay:.3s}
+
+/* ── App Shell ── */
+.app{padding-bottom:80px}
+
+/* ── Header ── */
+.hdr{padding:28px 24px 22px;border-bottom:1px solid var(--border);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);position:sticky;top:0;z-index:30;background:rgba(6,6,17,.85)}
+.logo-row{display:flex;align-items:baseline;gap:9px}
+.logo-row.center{justify-content:center;margin-bottom:18px}
+.brand{font-weight:700;font-size:28px;letter-spacing:4px}
+.brand-sub{font-weight:300;font-size:14px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
+.hdr-name{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;text-align:center}
+.hdr-badge{display:inline-block;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-b);border-radius:20px;padding:5px 16px;animation:glow 3s ease-in-out infinite}
+
+/* ── Tab System ── */
+.tab{display:none;padding:0 0 24px}.tab.active{display:block}
+.tab-hdr{display:flex;align-items:center;justify-content:space-between;padding:24px 20px 14px}
+.tab-ttl{font-family:'Playfair Display',serif;font-size:24px;font-weight:700}
+.tab-badge{font-size:14px;font-weight:600;color:var(--gold);background:var(--gold-dim);border-radius:20px;padding:4px 12px;margin-left:8px}
+.sec-lbl{padding:24px 20px 12px;font-size:14px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:600}
+
+/* ── Stats Grid ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.stat-card{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:24px 16px;text-align:center;transition:transform .25s,border-color .25s,box-shadow .25s}
+.stat-card:hover{border-color:var(--border-h);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.stat-num{font-family:'Playfair Display',serif;font-size:44px;font-weight:700;line-height:1}
+.stat-lbl{font-size:13px;color:var(--muted);margin-top:8px;text-transform:uppercase;letter-spacing:1px;font-weight:500}
+.stat-card.gold .stat-num{color:var(--gold)}
+.stat-card.gold{border-color:var(--gold-b)}
+.stat-card.amber .stat-num{color:var(--amber-t)}
+.stat-card.green .stat-num{color:var(--green-t)}
+.stat-card.wide{grid-column:span 2;border-color:var(--gold-b);background:var(--gold-dim)}
+
+/* ── KPI specific ── */
+.kpi-delta{font-size:13px;margin-top:6px;font-weight:600}
+
+/* ── List / Cards ── */
+.list-wrap{padding:0 16px;display:flex;flex-direction:column;gap:12px}
+.vcard,.li-card,.pipe-card{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:18px;transition:transform .2s,border-color .2s,box-shadow .2s}
+.vcard:hover,.li-card:hover,.pipe-card:hover{border-color:var(--border-h);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.vcard.pen{border-color:var(--amber-b)}.vcard.conf{border-color:var(--blue-b)}.vcard.feed{border-color:var(--red-b)}
+.vh{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.vdir{font-size:17px;font-weight:600;line-height:1.3;flex:1}
+.vm{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;font-size:15px;color:var(--muted)}
+.vm strong{color:var(--text);font-weight:600}
+.vact{display:flex;gap:8px}
+.li-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.li-name{font-size:17px;font-weight:600}
+.li-email{font-size:14px;color:var(--muted);margin-top:4px}
+.li-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.li-tag{font-size:13px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:5px 12px}
+.li-tag strong{color:var(--text)}
+.li-actions{display:flex;gap:8px;margin-top:12px}
+
+/* ── Badges ── */
+.vbadge,.badge,.li-badge{font-size:12px;font-weight:700;letter-spacing:.5px;padding:4px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.ba,.badge-amber{background:var(--amber);color:var(--amber-t);border:1px solid var(--amber-b)}
+.bb,.badge-blue{background:var(--blue);color:var(--blue-t);border:1px solid var(--blue-b)}
+.bg,.badge-green{background:var(--green);color:var(--green-t);border:1px solid var(--green-b)}
+.br,.badge-red{background:var(--red);color:var(--red-t);border:1px solid var(--red-b)}
+.bgr,.badge-gray{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)}
+.badge-gold{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-b)}
+
+/* ── Buttons ── */
+.bsm,.btn-sm{padding:11px 18px;border-radius:var(--r-sm);border:none;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.bsm:hover,.btn-sm:hover{transform:translateY(-1px)}
+.bsm:active,.btn-sm:active{opacity:.7;transform:translateY(0)}
+.bg2,.btn-gold{background:var(--gold);color:var(--bg)}
+.bo,.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold-b)}
+.bo:hover,.btn-outline:hover{background:var(--gold-dim);border-color:var(--gold)}
+.bb2{background:var(--blue);color:var(--blue-t);border:1px solid var(--blue-b)}
+.btn-new{background:var(--gold);color:var(--bg);border:none;border-radius:var(--r-sm);font-family:'Inter',sans-serif;font-size:15px;font-weight:700;padding:10px 20px;cursor:pointer;transition:all .2s}
+.btn-new:hover{transform:translateY(-1px);box-shadow:0 4px 16px var(--gold-glow)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px 8px}
+.btn-act{padding:18px 10px;border-radius:14px;border:none;font-family:'Inter',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-act:hover{transform:translateY(-1px)}.btn-act:active{opacity:.7}
+
+/* ── Empty State ── */
+.empty{text-align:center;padding:56px 20px}
+.empty-line{width:40px;height:1px;background:var(--border);margin:0 auto 20px}
+.empty p{font-size:16px;color:var(--muted)}
+
+/* ── Bottom Nav ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(6,6,17,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 4px 14px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:'Inter',sans-serif;font-size:11px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;transition:color .2s;position:relative}
+.bnav-btn.on{color:var(--gold)}
+.bnav-btn.on::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);border-radius:1px}
+.bnav-ico{font-size:22px;line-height:1;transition:transform .2s}
+.bnav-btn.on .bnav-ico{transform:scale(1.1)}
+
+/* ── Overlay / Sheet ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.overlay.on{display:flex}
+.sheet{background:rgba(12,12,24,.97);border:1px solid var(--border);border-top:1px solid rgba(255,255,255,.1);border-radius:24px 24px 0 0;padding:28px 20px 52px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;animation:fadeUp .3s ease}
+.sheet-ttl{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:22px}
+.x{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);margin:-4px -4px 0 0;line-height:1;transition:color .2s}
+.x:hover{color:var(--text)}
+
+/* ── Form Fields ── */
+.fld{margin-bottom:20px}
+.fld label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px}
+.fld input,.fld select,.fld textarea{width:100%;padding:12px 0;border:none;border-bottom:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text);font-size:16px;font-family:'Inter',sans-serif;outline:none;transition:border-color .3s,box-shadow .3s;-webkit-appearance:none;appearance:none}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-bottom-color:var(--gold);box-shadow:0 2px 12px rgba(197,160,89,.15)}
+.fld select{cursor:pointer;background:transparent;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23C5A059' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center}
+.fld select option{background:#151525;color:#f0f0f5;padding:8px}
+.fld textarea{resize:none;line-height:1.6}
+.fld input[type=file]{cursor:pointer;color:var(--muted);font-size:13px}
+.fld input[readonly]{color:var(--muted);cursor:not-allowed}
+::placeholder{color:rgba(255,255,255,.16)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+/* ── Submit Button ── */
+.sub{width:100%;padding:18px;background:linear-gradient(135deg,var(--gold),#d4b06a);color:var(--bg);border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:17px;font-weight:700;cursor:pointer;margin-top:6px;transition:all .25s;letter-spacing:.3px}
+.sub:hover{transform:translateY(-1px);box-shadow:0 8px 24px var(--gold-glow)}
+.sub:active{transform:translateY(0)}.sub:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ── Sections / Dividers ── */
+.sdiv{font-size:13px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);font-weight:600;margin:24px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--gold-b)}
+.stars{display:flex;gap:6px;margin-top:4px}
+.star{font-size:24px;cursor:pointer;color:rgba(255,255,255,.15);transition:color .15s,transform .15s}
+.star.on{color:var(--gold)}
+.star:hover{transform:scale(1.2)}
+
+/* ── Misc ── */
+.ok-box{display:none;text-align:center;padding:40px 10px}.ok-box.on{display:block}
+.err-box{background:var(--red);border:1px solid var(--red-b);border-radius:var(--r-sm);padding:12px;font-size:14px;color:var(--red-t);margin-bottom:14px;display:none}
+.skel{background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%);background-size:200% 100%;border-radius:var(--r);animation:shimmer 1.5s ease-in-out infinite}
+.chk-row{display:flex;align-items:center;gap:12px;padding:12px 0;margin-bottom:6px}
+.chk-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
+.chk-row label{font-size:14px;color:rgba(255,255,255,.7);cursor:pointer;margin:0}
+.confirm-box{background:var(--gold-dim);border:1px solid var(--gold-b);border-radius:12px;padding:16px;margin-bottom:20px}
+.confirm-box .cb-lbl{font-size:9px;color:var(--muted);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px}
+.confirm-box .addr{font-size:15px;font-weight:600;color:var(--text);line-height:1.4}
+.confirm-box .edit-lnk{font-size:12px;color:var(--gold);cursor:pointer;text-decoration:underline;margin-top:8px;display:inline-block}
+.step{display:none}.step.on{display:block}
+.step-info{font-size:11px;color:var(--muted);margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.ok{display:none;text-align:center;padding:40px 0}.ok.on{display:block}
+.ok .ok-line{width:60px;height:60px;margin:0 auto 20px;border-radius:50%;background:var(--green);border:2px solid var(--green-b);display:flex;align-items:center;justify-content:center}
+.ok .ok-line::after{content:'✓';font-size:28px;color:var(--green-t)}
+.ok h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:8px}
+.ok p{color:var(--muted);font-size:14px;line-height:1.5}
+.ok a{display:inline-block;margin-top:16px;color:var(--gold);font-weight:600;text-decoration:none;font-size:14px}
+
+/* ── Pipeline ── */
+.pipe-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.pipe-dir{font-size:17px;font-weight:600}
+.pipe-meta{font-size:14px;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px}
+.pipe-stars{color:var(--gold);font-size:13px;letter-spacing:1px}
+
+/* ── MOBILE BOOST ── */
+@media(max-width:768px){
+  html{font-size:18px;-webkit-text-size-adjust:100%}
+  .brand{font-size:32px;letter-spacing:5px}
+  .brand-sub{font-size:16px}
+  .hdr-name{font-size:32px}
+  .hdr-badge{font-size:14px;padding:6px 18px}
+  .hdr{padding:32px 20px 26px}
+  .sec-lbl{font-size:15px;padding:28px 20px 14px}
+  .stat-num{font-size:52px}
+  .stat-lbl{font-size:14px;margin-top:10px}
+  .stat-card{padding:28px 16px}
+  .grid{gap:12px;padding:0 14px}
+  .tab-ttl{font-size:28px}
+  .tab-badge{font-size:16px;padding:5px 14px}
+  .tab-hdr{padding:28px 20px 16px}
+  .vdir,.li-name,.pipe-dir,.piso-dir,.dem-nombre{font-size:19px}
+  .vm,.li-email,.pipe-meta,.piso-sub,.dem-zona{font-size:16px}
+  .vbadge,.badge,.li-badge{font-size:14px;padding:5px 14px}
+  .li-tag,.dem-stat{font-size:14px;padding:6px 12px}
+  .bsm,.btn-sm{font-size:16px;padding:12px 20px}
+  .btn-new{font-size:16px;padding:12px 22px}
+  .btn-act{font-size:18px;padding:20px 12px}
+  .bnav{padding-bottom:max(env(safe-area-inset-bottom,0px),8px)}
+  .bnav-btn{font-size:12px;padding:14px 4px 16px;gap:6px}
+  .bnav-ico{font-size:26px}
+  .sheet-ttl{font-size:28px}
+  .fld label{font-size:13px}
+  .fld input,.fld select,.fld textarea{font-size:18px;padding:14px 0}
+  .sub{font-size:18px;padding:20px}
+  .sdiv{font-size:14px}
+  .star{font-size:30px}
+  .empty p{font-size:18px}
+  .op-imp{font-size:40px}
+  .op-lbl{font-size:15px}
+  .kpi-delta{font-size:14px}
+  .piso-stats{font-size:15px}
+  .piso-meta-item{font-size:14px}
+  .dem-matches-txt{font-size:15px}
+  .dem-matches-bar{padding:10px 14px}
+  .list-wrap{gap:14px;padding:0 14px}
+  .vcard,.li-card,.pipe-card{padding:20px}
+  .piso-body{padding:18px}
+  .step-info{font-size:13px}
+  .confirm-box .addr{font-size:17px}
+  .ok h3{font-size:24px}
+  .ok p{font-size:16px}
+  .link{font-size:17px;margin-top:24px}
+  .forgot a{font-size:16px;display:block;padding:12px 0}
+  .login-fld label{font-size:15px;margin-bottom:10px}
+  .login-fld input{font-size:18px;padding:18px 16px;border-radius:14px}
+  .login-fld{margin-bottom:20px}
+  .logo-box .brand{font-size:36px;letter-spacing:6px}
+  .logo-box{padding:16px 30px;border-radius:14px}
+  .subtitle{font-size:18px;margin-top:16px}
+  .login-card{padding:32px 20px;border-radius:20px;max-width:100%;box-shadow:none;border:none;background:transparent}
+  .err,.err-box{font-size:16px;padding:14px;border-radius:12px}
+  .eye{font-size:22px;top:40px;right:16px}
+  /* Mobile: all buttons big & tappable */
+  .sub{font-size:18px;padding:20px;border-radius:14px;min-height:56px}
+  .btn-new{font-size:16px;padding:14px 20px;min-height:48px;border-radius:12px}
+  .btn-act{font-size:17px;padding:20px 14px;border-radius:14px;min-height:56px}
+  .bsm,.btn-sm{font-size:15px;padding:12px 18px;min-height:44px;border-radius:10px}
+  .btn-gold,.btn-outline,.bo,.bg2{min-height:44px}
+  /* Mobile: back buttons big */
+  .back-btn{font-size:16px!important;padding:10px 18px!important;min-height:44px!important;border-radius:10px!important;display:inline-flex!important;align-items:center!important;gap:8px!important;background:rgba(255,255,255,.06)!important;border:1px solid var(--border)!important;color:var(--gold)!important}
+  /* Mobile: checkboxes bigger */
+  .mc-check{width:36px!important;height:36px!important;font-size:20px!important}
+  /* Mobile: selection bar */
+  .selection-bar{padding:16px;margin:16px -16px -20px;font-size:16px}
+  .selection-bar .btn-new{font-size:16px;padding:14px 24px;min-height:52px}
+  /* Mobile: mode toggle bigger */
+  .mode-btn{font-size:14px;padding:10px 16px;min-height:42px}
+  /* Mobile: match cards */
+  .match-grid{grid-template-columns:1fr}
+  .mc-body{padding:18px}
+  .mc-dir{font-size:17px}
+  .mc-zona{font-size:14px}
+  .mc-rec{font-size:14px}
+  .mc-price{font-size:24px}
+  .mc-pills .mc-pill{font-size:13px;padding:5px 10px}
+  .mc-comision-val{font-size:22px}
+  /* Mobile: piso detail */
+  .pd-carousel{height:280px}
+  .pd-chars{grid-template-columns:1fr 1fr}
+  .pd-char-val{font-size:22px}
+  .pd-char-lbl{font-size:12px}
+  .pd-docs{grid-template-columns:1fr 1fr}
+  .pd-doc{padding:16px;min-height:70px}
+  .pd-doc-icon{font-size:28px}
+  .pd-doc-name{font-size:13px}
+  /* Mobile: demanda match cards */
+  .dem-match-name{font-size:19px}
+  .dem-match-tag{font-size:14px;padding:6px 12px}
+  .dem-match-count{font-size:16px}
+  .dem-match-badge{font-size:12px;padding:5px 14px}
+  .dem-match-footer{padding-top:16px;margin-top:16px}
+  /* Mobile: KPIs */
+  .kpi-box .kpi-val{font-size:38px}
+  .kpi-box .kpi-label{font-size:14px}
+  .kpi-box .kpi-icon{font-size:26px}
+  .kpi-box{padding:20px 16px}
+  /* Mobile: panels */
+  .panel{padding:22px 18px}
+  .panel-count{font-size:44px}
+  .panel-title{font-size:17px}
+  .panel-sub{font-size:15px}
+  /* Mobile: general text */
+  .sec-lbl{font-size:14px}
+  .main-ttl{font-size:22px}
+  .tab-badge{font-size:14px}
+  .hamburger{font-size:32px;padding:8px;min-width:44px;min-height:44px}
+}
+
+/* ── Piso Cards (Colaborador) ── */
+.piso-card{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:transform .25s,border-color .25s}
+.piso-card:hover{border-color:var(--border-h);transform:translateY(-2px)}
+.piso-gallery{position:relative;width:100%;height:220px;background:rgba(255,255,255,.02);overflow:hidden}
+.gal-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}
+.gal-img.on{opacity:1}
+.gal-btn{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:50%;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;z-index:2}
+.gal-btn:hover{background:rgba(0,0,0,.75);border-color:var(--gold)}
+.gal-prev{left:10px}.gal-next{right:10px}
+.gal-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}
+.gal-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .2s}
+.gal-dot.on{background:var(--gold);box-shadow:0 0 6px var(--gold-glow)}
+.piso-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--muted)}
+.piso-ph span{font-size:10px;letter-spacing:2px;font-weight:600}
+.piso-body{padding:16px}
+.piso-dir{font-size:17px;font-weight:600;margin-bottom:4px}
+.piso-sub{font-size:14px;color:var(--muted);margin-bottom:12px}
+.piso-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.piso-stats{display:flex;gap:12px;font-size:14px;color:var(--muted)}
+.piso-stats strong{color:var(--text)}
+.piso-meta{display:flex;gap:16px;padding-top:12px;border-top:1px solid var(--border)}
+.piso-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.piso-meta-item strong{color:var(--text)}
+
+/* ── Demanda Cards (Colaborador) ── */
+.dem-card{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:all .25s}
+.dem-card:hover{border-color:var(--border-h);transform:translateY(-1px)}
+.dem-card.has-match{border-color:var(--gold-b)}
+.dem-top{display:flex;gap:14px}
+.dem-avatar-wrap{position:relative;flex-shrink:0}
+.dem-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,rgba(197,160,89,.2),rgba(197,160,89,.05));border:1px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--gold);letter-spacing:1px}
+.notif-dot{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:var(--gold);color:var(--bg);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.dem-content{flex:1;min-width:0}
+.dem-nombre{font-size:17px;font-weight:600}
+.dem-zona{font-size:14px;color:var(--muted);margin-top:4px}
+.dem-stats-row{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.dem-stat{font-size:13px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:5px 10px}
+.dem-stat strong{color:var(--text)}
+.dem-matches-bar{margin-top:10px;background:var(--gold-dim);border:1px solid var(--gold-b);border-radius:8px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
+.dem-matches-txt{font-size:14px;font-weight:600;color:var(--gold)}
+.dem-matches-arrow{color:var(--gold);font-size:14px}
+
+/* ── Op Cards ── */
+.op-card{background:var(--gold-dim)!important;border-color:var(--gold-b)!important}
+.op-imp{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--gold)}
+.op-lbl{font-size:14px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr" style="text-align:center">
+  <div class="logo-row center"><span class="brand">ONOMA</span><span class="brand-sub">Homes</span></div>
+  <div class="hdr-name">Nuevo Asesor</div>
+  <div style="margin-top:8px"><span class="hdr-badge">Asesor ONOMA</span></div>
+</div>
+
+<div id="tab-home" class="tab active">
+  <div class="sec-lbl">Resumen</div>
+  <div class="grid">
+    <div class="stat-card amber anim-up delay-1"><div class="stat-num" id="s-pending">—</div><div class="stat-lbl">Pendientes confirm.</div></div>
+    <div class="stat-card anim-up delay-2"><div class="stat-num" id="s-today">—</div><div class="stat-lbl">Visitas hoy</div></div>
+    <div class="stat-card anim-up delay-3"><div class="stat-num" id="s-feedback">—</div><div class="stat-lbl">Feedback pendiente</div></div>
+    <div class="stat-card anim-up delay-4"><div class="stat-num" id="s-mes">—</div><div class="stat-lbl">Visitas este mes</div></div>
+    <div class="stat-card wide gold anim-up delay-5"><div class="stat-num" id="s-total">—</div><div class="stat-lbl">Total visitas realizadas</div></div>
+  </div>
+  <div class="sec-lbl" style="margin-top:8px">Próximas visitas</div>
+  <div class="list-wrap" id="home-vis">
+    <div class="skel" style="height:80px;border-radius:16px"></div>
+    <div class="skel" style="height:80px;border-radius:16px"></div>
+  </div>
+</div>
+
+<div id="tab-visitas" class="tab">
+  <div class="tab-hdr">
+    <div><span class="tab-ttl">Mis Visitas</span><span class="tab-badge" id="badge-vis">0</span></div>
+    <select id="filtro-vis" onchange="renderVisitas()" style="background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 28px 6px 10px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 fill=%27%23C5A059%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M8 11L3 6h10z%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 8px center">
+      <option value="all">Todas</option>
+      <option value="pendiente">Pendientes</option>
+      <option value="confirmada">Confirmadas</option>
+      <option value="feedback">Feedback due</option>
+      <option value="completada">Completadas</option>
+    </select>
+  </div>
+  <div class="list-wrap" id="lista-vis"></div>
+</div>
+</div>
+
+<nav class="bnav">
+  <button class="bnav-btn on" id="nav-home" onclick="showTab('home',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L10 3l7 6.5"/><path d="M5 8v8h4v-4h2v4h4V8"/></svg>Home</button>
+  <button class="bnav-btn" id="nav-visitas" onclick="showTab('visitas',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M8 4V2M12 4V2"/></svg>Visitas</button>
+</nav>
+
+<!-- MODAL FEEDBACK -->
+<div class="overlay" id="modalFB">
+<div class="sheet">
+  <button class="x" onclick="cerrar('modalFB')">×</button>
+  <div class="sheet-ttl">Feedback de Visita</div>
+  <div id="fbForm">
+    <input type="hidden" id="fb-vid"><input type="hidden" id="fb-pid"><input type="hidden" id="fb-cid">
+    <div class="sdiv">1 · Valoración del Piso</div>
+    <div class="fld"><label>Valoración general</label><div class="stars" id="sp"><span class="star" onclick="setStar('p',1)">★</span><span class="star" onclick="setStar('p',2)">★</span><span class="star" onclick="setStar('p',3)">★</span><span class="star" onclick="setStar('p',4)">★</span><span class="star" onclick="setStar('p',5)">★</span></div></div>
+    <div class="fld"><label>Conservación</label><select id="fc"><option value="">Selecciona...</option><option>Excelente</option><option>Bueno</option><option>Regular</option><option>Necesita reforma</option></select></div>
+    <div class="fld"><label>Precio vs mercado</label><select id="fpm"><option value="">Selecciona...</option><option>Muy por debajo</option><option>Ajustado</option><option>Alto</option><option>Muy alto</option></select></div>
+    <div class="fld"><label>Observaciones del piso</label><textarea id="fop" rows="2" placeholder="Luminosidad, distribución, vecindario..."></textarea></div>
+    <div class="sdiv">2 · Valoración del Comprador</div>
+    <div class="fld"><label>Nivel de interés</label><div class="stars" id="sc"><span class="star" onclick="setStar('c',1)">★</span><span class="star" onclick="setStar('c',2)">★</span><span class="star" onclick="setStar('c',3)">★</span><span class="star" onclick="setStar('c',4)">★</span><span class="star" onclick="setStar('c',5)">★</span></div></div>
+    <div class="fld"><label>Capacidad financiera</label><select id="ff"><option value="">Selecciona...</option><option>Alta (efectivo / pre-aprobado)</option><option>Media (necesita hipoteca)</option><option>Baja (dudas financiación)</option><option>No evaluada</option></select></div>
+    <div class="fld"><label>¿Encaja con su demanda?</label><select id="fe"><option value="">Selecciona...</option><option>Sí, muy bien</option><option>Parcialmente</option><option>No encaja</option></select></div>
+    <div class="fld"><label>Observaciones del comprador</label><textarea id="foc" rows="2" placeholder="Motivaciones, objeciones..."></textarea></div>
+    <div class="sdiv">3 · Broker del Comprador</div>
+    <div class="fld"><label>¿Hay broker del comprador?</label><select id="fbd" onchange="tog('bdf',this.value==='si')"><option value="no">No</option><option value="si">Sí</option></select></div>
+    <div id="bdf" style="display:none"><div class="fld"><label>Nombre</label><input type="text" id="fbdn" placeholder="Nombre y apellido"></div><div class="fld"><label>Agencia</label><input type="text" id="fbda" placeholder="Nombre de la agencia"></div><div class="fld"><label>Comisión</label><select id="fbdc"><option value="">Por definir</option><option>50% ONOMA / 50% broker-demanda</option><option>33.33% cada uno</option><option>Otra</option></select></div></div>
+    <div class="sdiv">4 · Broker del Vendedor</div>
+    <div class="fld"><label>¿Hay broker del vendedor?</label><select id="fbv" onchange="tog('bvf',this.value==='si')"><option value="no">No</option><option value="si">Sí</option></select></div>
+    <div id="bvf" style="display:none"><div class="fld"><label>Nombre</label><input type="text" id="fbvn" placeholder="Nombre y apellido"></div><div class="fld"><label>Agencia</label><input type="text" id="fbva" placeholder="Nombre de la agencia"></div></div>
+    <div class="sdiv">5 · Grabación</div>
+    <div class="fld"><label>Vídeo o audio (opcional)</label><input type="file" id="fmedia" accept="video/*,audio/*"><div style="font-size:11px;color:var(--muted);margin-top:6px">Se transcribirá automáticamente con IA</div></div>
+    <div class="fld"><label>Notas adicionales</label><textarea id="fnot" rows="2" placeholder="Cualquier detalle relevante..."></textarea></div>
+    <button class="sub" id="btnFB" onclick="enviarFB()">Enviar feedback →</button>
+  </div>
+  <div class="ok-box" id="fbOk">
+    <div style="font-size:52px">✅</div>
+    <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-top:12px">Feedback enviado</h3>
+    <p style="color:var(--muted);margin-top:10px;font-size:14px">Guardado correctamente. El matching se actualizará.</p>
+    <button onclick="cerrar('modalFB')" class="sub" style="margin-top:20px">Cerrar</button>
+  </div>
+</div>
+</div>
+
+<script>
+const AID='recZU7A4xm71VgJwN';const WH='https://onomahomes.app.n8n.cloud/webhook';let allV=[];let sv={p:0,c:0};
+function showTab(n,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));document.getElementById('tab-'+n).classList.add('active');btn.classList.add('on');if(n==='visitas')renderVisitas()}
+function abrir(id){document.getElementById(id).classList.add('on')}
+function cerrar(id){document.getElementById(id).classList.remove('on')}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on')}));
+function setStar(t,v){sv[t]=v;document.getElementById('s'+t).querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<v))}
+function tog(id,show){document.getElementById(id).style.display=show?'block':'none'}
+async function loadData(){try{const r=await fetch(WH+'/asesor-data?id='+AID);const d=await r.json();allV=d.visitas||[];const s=d.stats||{};document.getElementById('s-pending').textContent=s.pendientes??'0';document.getElementById('s-today').textContent=s.hoy??'0';document.getElementById('s-feedback').textContent=s.feedback??'0';document.getElementById('s-mes').textContent=s.mes??'0';document.getElementById('s-total').textContent=s.total??'0';document.getElementById('badge-vis').textContent=allV.length;renderHome()}catch(e){console.error(e)}}
+function visitCard(v,compact){const bc={'Pendiente Confirmación':'ba','Pendiente Confirmación Colab':'ba','Confirmada':'bb','Realizada':'bg','Completada':'bgr','Cancelada':'bgr','Rechazada por Colaborador':'br'}[v.estado]||'bgr';const cc={'Pendiente Confirmación':'pen','Pendiente Confirmación Colab':'pen','Confirmada':'conf','Realizada':(!v.feedback_enviado?'feed':'')}[v.estado]||'';const fd=v.fecha?new Date(v.fecha+'T12:00:00').toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}):'—';const briefingUrl='https://onomahomes.app.n8n.cloud/webhook/briefing?v='+v.id;let act='';if(!compact){const briefingBtn='<a href="'+briefingUrl+'" target="_blank" class="bsm bo">📋 Briefing</a>';if((v.estado==='Realizada')&&!v.feedback_enviado){act=briefingBtn+'<button class="bsm bg2" onclick="abrirFB(\''+v.id+'\',\''+v.piso_id+'\',\''+v.comprador_id+'\')">Dar feedback</button>'}else if(v.estado==='Confirmada'||v.estado==='Pendiente Confirmación'){act=briefingBtn}}else if(v.estado==='Confirmada'){act='<a href="'+briefingUrl+'" target="_blank" class="bsm bo" style="font-size:12px">📋 Ver briefing</a>'}return '<div class="vcard '+cc+'"><div class="vh"><div class="vdir">'+(v.piso_dir||'Piso')+'</div><span class="vbadge '+bc+'">'+v.estado+'</span></div><div class="vm"><span>👤 <strong>'+(v.comprador_nombre||'Comprador')+'</strong></span><span>📅 <strong>'+fd+'</strong>'+(v.hora?' '+v.hora:'')+'</span></div>'+(act?'<div class="vact">'+act+'</div>':'')+'</div>'}
+function renderHome(){const up=allV.filter(v=>!['Completada','Cancelada','Rechazada por Colaborador'].includes(v.estado)).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha)).slice(0,3);const el=document.getElementById('home-vis');el.innerHTML=up.length?up.map(v=>visitCard(v,true)).join(''):'<div class="empty"><div class="empty-line"></div><p>No hay visitas pendientes</p></div>'}
+function renderVisitas(){const f=document.getElementById('filtro-vis')?.value||'all';let list=allV;if(f==='pendiente')list=list.filter(v=>v.estado.includes('Pendiente'));else if(f==='confirmada')list=list.filter(v=>v.estado==='Confirmada');else if(f==='feedback')list=list.filter(v=>v.estado==='Realizada'&&!v.feedback_enviado);else if(f==='completada')list=list.filter(v=>v.estado==='Completada');list=list.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));const el=document.getElementById('lista-vis');el.innerHTML=list.length?list.map(v=>visitCard(v,false)).join(''):'<div class="empty"><div class="empty-line"></div><p>No hay visitas en esta categoría</p></div>'}
+function abrirFB(vid,pid,cid){document.getElementById('fb-vid').value=vid;document.getElementById('fb-pid').value=pid;document.getElementById('fb-cid').value=cid;sv={p:0,c:0};document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));document.querySelectorAll('.fld select').forEach(s=>s.value='');document.querySelectorAll('.fld textarea').forEach(t=>t.value='');['bdf','bvf'].forEach(id=>document.getElementById(id).style.display='none');document.getElementById('fbForm').style.display='block';document.getElementById('fbOk').classList.remove('on');abrir('modalFB')}
+async function enviarFB(){const btn=document.getElementById('btnFB');btn.disabled=true;btn.textContent='Enviando...';const mediaFile=document.getElementById('fmedia').files[0];let mediaUrl=null;if(mediaFile){try{const fd2=new FormData();fd2.append('file',mediaFile);fd2.append('visita_id',document.getElementById('fb-vid').value);fd2.append('asesor_id',AID);const ur=await fetch(WH+'/asesor-upload-media',{method:'POST',body:fd2});const ud=await ur.json();mediaUrl=ud.url||null}catch(e){console.warn('Media upload failed:',e)}}const payload={visita_id:document.getElementById('fb-vid').value,piso_id:document.getElementById('fb-pid').value,comprador_id:document.getElementById('fb-cid').value,asesor_id:AID,estrella_piso:sv.p,conservacion:document.getElementById('fc').value,precio_mercado:document.getElementById('fpm').value,obs_piso:document.getElementById('fop').value,estrella_comprador:sv.c,financiera:document.getElementById('ff').value,encaje:document.getElementById('fe').value,obs_comprador:document.getElementById('foc').value,tiene_broker_dem:document.getElementById('fbd').value==='si',broker_dem_nombre:document.getElementById('fbdn').value,broker_dem_agencia:document.getElementById('fbda').value,broker_dem_comision:document.getElementById('fbdc').value,tiene_broker_vend:document.getElementById('fbv').value==='si',broker_vend_nombre:document.getElementById('fbvn').value,broker_vend_agencia:document.getElementById('fbva').value,media_url:mediaUrl,notas:document.getElementById('fnot').value};try{const r=await fetch(WH+'/asesor-feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const d=await r.json();if(d.ok){document.getElementById('fbForm').style.display='none';document.getElementById('fbOk').classList.add('on');const v=allV.find(v=>v.id===payload.visita_id);if(v)v.feedback_enviado=true}else{alert(d.error||'Error al enviar');btn.disabled=false;btn.textContent='Enviar feedback →'}}catch(e){alert('Error de conexión');btn.disabled=false;btn.textContent='Enviar feedback →'}}
+loadData();
+</script>
+</body></html>
