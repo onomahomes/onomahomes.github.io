@@ -722,7 +722,18 @@ body{overflow-x:hidden}
     <div class="confirm-box"><div class="cb-lbl">Direccion</div><div class="addr" id="p_addr_preview"></div></div>
     <div class="row2"><div class="fld"><label>Precio *</label><input id="p_pre" type="number" placeholder="Precio"></div><div class="fld"><label>Habitaciones *</label><input id="p_hab" type="number" placeholder="N"></div></div>
     <div class="row2"><div class="fld"><label>Metros</label><input id="p_met" type="number" placeholder="m2"></div><div class="fld"><label>Estado</label><select id="p_est"><option value="Buen_Estado">Buen estado</option><option value="Reformado">Reformado</option><option value="A_Reformar">A reformar</option><option value="Obra_Nueva">Obra nueva</option></select></div></div>
-    <div class="fld"><label>Tipo colaboracion</label><select id="p_tipo_colab"><option value="Directa">Directa (50%)</option><option value="Compartida">Compartida (33%)</option></select></div>
+    <div class="fld"><label>Comparte con otros brokers? *</label><select id="p_comparte"><option value="Comparte">Comparte</option><option value="No Comparte">No Comparte</option></select></div>
+    <div class="fld"><label>% Honorarios vendedor *</label><input id="p_honorarios" type="number" step="0.1" placeholder="Ej: 3.0" min="0" max="10"></div>
+    <div class="sdiv">Fotos y multimedia</div>
+    <div class="fld"><label>Fotos del piso *</label><input type="file" id="p_fotos" accept="image/*" multiple><div style="font-size:11px;color:var(--muted);margin-top:4px">Minimo 3 fotos, maximo 10</div></div>
+    <div class="fld"><label>Video del piso</label><input type="file" id="p_video" accept="video/*"></div>
+    <div class="sdiv">Documentacion obligatoria</div>
+    <div class="fld"><label>Encargo de venta (PDF) *</label><input type="file" id="p_encargo" accept=".pdf,.jpg,.png"></div>
+    <div class="fld"><label>Ficha catastral</label><input type="file" id="p_catastral" accept=".pdf,.jpg,.png"></div>
+    <div class="fld"><label>ITE (Inspeccion Tecnica Edificio)</label><input type="file" id="p_ite" accept=".pdf,.jpg,.png"></div>
+    <div class="fld"><label>Planos</label><input type="file" id="p_planos" accept=".pdf,.jpg,.png" multiple></div>
+    <div class="fld"><label>Documentacion extra</label><input type="file" id="p_docs_extra" accept=".pdf,.jpg,.png" multiple><div style="font-size:11px;color:var(--muted);margin-top:4px">Nota simple, certificado energetico, escrituras, etc.</div></div>
+    <div class="chk-row"><input type="checkbox" id="p_veraz"><label for="p_veraz">Confirmo que la informacion es veraz</label></div>
     <button class="sub" id="btnEnviarPiso" onclick="enviarPiso()">Enviar piso</button>
   </div>
   <div class="ok" id="okPiso"><div class="ok-line"></div><h3>Piso registrado</h3><p>Se ha creado correctamente.</p></div>
@@ -739,6 +750,19 @@ body{overflow-x:hidden}
     <div class="fld"><label>Zona *</label><input id="d_zona" type="text" placeholder="Zona o barrio"></div>
     <div class="row2"><div class="fld"><label>Presupuesto max *</label><input id="d_pre" type="number" placeholder="Importe"></div><div class="fld"><label>Habitaciones min *</label><input id="d_hab" type="number" placeholder="N"></div></div>
     <div class="fld"><label>Metros minimos</label><input id="d_met" type="number" placeholder="m2"></div>
+    <div class="sdiv">Importancia de cada requisito</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5">Ajusta segun lo importante que sea para el cliente</div>
+    <div class="thermo-row"><div class="thermo-label">Zona</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_zona" min="0" max="100" value="70" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_zona_tag">Importante</div></div>
+    <div class="thermo-row"><div class="thermo-label">Habitaciones</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_hab" min="0" max="100" value="90" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_hab_tag">Indispensable</div></div>
+    <div class="thermo-row"><div class="thermo-label">Metros min.</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_met" min="0" max="100" value="60" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_met_tag">Importante</div></div>
+    <div class="thermo-row"><div class="thermo-label">Ascensor</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_asc" min="0" max="100" value="50" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_asc_tag">Preferible</div></div>
+    <div class="thermo-row"><div class="thermo-label">Terraza</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_ter" min="0" max="100" value="30" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_ter_tag">Deseable</div></div>
+    <div class="thermo-row"><div class="thermo-label">Parking</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_park" min="0" max="100" value="20" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_park_tag">Deseable</div></div>
+    <div class="thermo-row"><div class="thermo-label">Reformado</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_est" min="0" max="100" value="50" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_est_tag">Preferible</div></div>
+    <div class="sdiv">Honorarios</div>
+    <div class="fld"><label>% Honorarios comprador</label><input id="d_honorarios" type="number" step="0.1" placeholder="Ej: 3.0" min="0" max="10"></div>
+    <div class="chk-row"><input type="checkbox" id="d_no_cobra"><label for="d_no_cobra">No cobro honorarios al comprador</label></div>
+    <div class="fld"><label>Mandato de compra (PDF)</label><input type="file" id="d_mandato" accept=".pdf,.jpg,.png"></div>
     <button class="sub" id="btnEnviarDemanda" onclick="enviarDemanda()">Enviar demanda</button>
   </div>
   <div class="ok" id="okDemanda"><div class="ok-line"></div><h3>Demanda enviada</h3><p>Empezamos a buscar pisos.</p></div>
@@ -876,15 +900,19 @@ function pisoPaso2(){
 }
 async function enviarPiso(){
   var pre=document.getElementById('p_pre').value,hab=document.getElementById('p_hab').value;
+  var hon=document.getElementById('p_honorarios').value;
+  var veraz=document.getElementById('p_veraz').checked;
   if(!pre||!hab){alert('Precio y habitaciones obligatorios');return}
+  if(!hon){alert('Indica % honorarios vendedor');return}
+  if(!veraz){alert('Confirma que la info es veraz');return}
   var btn=document.getElementById('btnEnviarPiso');btn.disabled=true;btn.textContent='Enviando...';
-  try{await fetch(WH+'/colaborador-piso',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:AID,calle:document.getElementById('p_calle').value.trim(),numero:document.getElementById('p_num').value.trim(),barrio:document.getElementById('p_barrio').value.trim(),precio:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('p_met').value||0),estado:document.getElementById('p_est').value,tipo_colaboracion:document.getElementById('p_tipo_colab').value})});document.getElementById('pPiso2').style.display='none';document.getElementById('okPiso').classList.add('on')}catch(e){alert('Error');btn.disabled=false;btn.textContent='Enviar piso'}
+  try{await fetch(WH+'/colaborador-piso',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:AID,calle:document.getElementById('p_calle').value.trim(),numero:document.getElementById('p_num').value.trim(),barrio:document.getElementById('p_barrio').value.trim(),precio:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('p_met').value||0),estado:document.getElementById('p_est').value,comparte:document.getElementById('p_comparte').value,honorarios_vendedor:parseFloat(hon),info_veraz:true})});document.getElementById('pPiso2').style.display='none';document.getElementById('okPiso').classList.add('on')}catch(e){alert('Error');btn.disabled=false;btn.textContent='Enviar piso'}
 }
 async function enviarDemanda(){
   var nom=document.getElementById('d_nom').value.trim(),zona=document.getElementById('d_zona').value.trim(),pre=document.getElementById('d_pre').value,hab=document.getElementById('d_hab').value;
   if(!nom||!zona||!pre||!hab){alert('Campos obligatorios');return}
   var btn=document.getElementById('btnEnviarDemanda');btn.disabled=true;btn.textContent='Enviando...';
-  try{await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:AID,nombre:nom,zona,presupuesto:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('d_met').value||0)})});document.getElementById('fDemanda').style.display='none';document.getElementById('okDemanda').classList.add('on')}catch(e){alert('Error');btn.disabled=false;btn.textContent='Enviar demanda'}
+  try{await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:AID,nombre:nom,zona,presupuesto:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('d_met').value||0),peso_zona:parseInt(document.getElementById('pw_zona').value),peso_habitaciones:parseInt(document.getElementById('pw_hab').value),peso_metros:parseInt(document.getElementById('pw_met').value),peso_ascensor:parseInt(document.getElementById('pw_asc').value),peso_terraza:parseInt(document.getElementById('pw_ter').value),peso_parking:parseInt(document.getElementById('pw_park').value),peso_estado:parseInt(document.getElementById('pw_est').value),honorarios_comprador:parseFloat(document.getElementById('d_honorarios')?.value||0),no_cobra_comprador:document.getElementById('d_no_cobra')?.checked||false})});document.getElementById('fDemanda').style.display='none';document.getElementById('okDemanda').classList.add('on')}catch(e){alert('Error');btn.disabled=false;btn.textContent='Enviar demanda'}
 }
 
 // Invitar colaborador por email
@@ -900,6 +928,8 @@ async function enviarInvitacion(){
   }catch(e){alert('Error de conexion');btn.disabled=false;btn.textContent='Enviar invitacion por email'}
 }
 
+function thermoUpdate(el){var v=parseInt(el.value);var tag=el.id.replace('pw_','')+'_tag';var lbl=v<25?'Indiferente':v<50?'Deseable':v<75?'Preferible':v<90?'Importante':'Indispensable';var color=v<25?'#666':v<50?'#22c55e':v<75?'#eab308':v<90?'#f97316':'#ef4444';var el2=document.getElementById(tag);if(el2){el2.textContent=lbl;el2.style.color=color}}
+setTimeout(function(){document.querySelectorAll('.thermo').forEach(thermoUpdate)},200);
 loadData();
 </script>
 </body></html>
