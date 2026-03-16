@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ONOMA · Crear contraseña</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C5A059;--gold-dim:rgba(197,160,89,0.1);--gold-border:rgba(197,160,89,0.3);--black:#000;--g900:#0a0a0a;--g800:#111;--text:#fff;--muted:rgba(255,255,255,0.45);--subtle:rgba(255,255,255,0.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);min-height:100vh}
+.logo-mark{display:flex;align-items:baseline;justify-content:center;gap:9px}
+.lm-name{font-family:'Inter',sans-serif;font-weight:700;font-size:18px;letter-spacing:3px;color:var(--text)}
+.lm-homes{font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
+::placeholder{color:rgba(255,255,255,.18);font-style:normal}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;min-height:100vh}
+.page{width:100%;max-width:400px}
+.logo-wrap{text-align:center;margin-bottom:40px}
+.logo-sub{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;margin:12px 0 4px}
+.logo-sub2{font-size:12px;color:var(--muted)}
+.loading{text-align:center;padding:40px 0}
+.spin{display:inline-block;width:28px;height:28px;border:2px solid rgba(255,255,255,.1);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.spin-lbl{font-size:13px;color:var(--muted);margin-top:14px}
+.welcome-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:6px}
+.welcome-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+.fld{margin-bottom:22px;position:relative}
+.fld label{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px}
+.fld input{width:100%;padding:10px 0;border:none;border-bottom:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.fld input:focus{border-bottom-color:var(--gold)}
+.eye{position:absolute;right:0;top:32px;cursor:pointer;font-size:16px;color:var(--muted);user-select:none}
+.strength{height:2px;border-radius:2px;margin-top:8px;background:rgba(255,255,255,.08);overflow:hidden}
+.strength-bar{height:100%;width:0;transition:width .3s,background .3s;border-radius:2px}
+.req-hint{font-size:11px;color:var(--muted);margin-bottom:18px;opacity:.7}
+.btn{width:100%;padding:16px;background:var(--gold);color:var(--black);border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;letter-spacing:.2px;transition:opacity .15s}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.err{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:12px 16px;font-size:13px;color:#f87171;margin-bottom:18px;display:none}
+.ok-wrap{text-align:center;padding:20px 0;display:none}
+.ok-line{width:40px;height:1px;background:var(--gold);margin:0 auto 20px}
+.ok-wrap h3{font-family:'Playfair Display',serif;font-size:24px;font-weight:700}
+.ok-wrap p{color:var(--muted);margin-top:10px;font-size:14px;line-height:1.6}
+.err-token{display:none;text-align:center;padding:20px 0}
+.err-token-line{width:40px;height:1px;background:rgba(248,113,113,.5);margin:0 auto 20px}
+.err-token h3{font-family:'Playfair Display',serif;font-size:20px;color:#f87171}
+.err-token p{color:var(--muted);margin-top:10px;font-size:14px;line-height:1.5}
+.err-token a{color:var(--gold);font-weight:600;text-decoration:none;display:inline-block;margin-top:16px;font-size:13px;border-bottom:1px solid var(--gold-border);padding-bottom:2px}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="logo-wrap">
+    <div class="logo-mark"><span class="lm-name">ONOMA</span><span class="lm-homes">Homes</span></div>
+    <div class="logo-sub">Crear contraseña</div>
+    <div class="logo-sub2">Activa tu cuenta</div>
+  </div>
+
+  <div id="loading" class="loading">
+    <div class="spin"></div>
+    <div class="spin-lbl">Verificando enlace...</div>
+  </div>
+
+  <div id="formPass" style="display:none">
+    <div class="welcome-name" id="welcomeNombre"></div>
+    <div class="welcome-sub" id="welcomeSub"></div>
+    <div class="err" id="errMsg"></div>
+    <div class="fld">
+      <label>Contraseña</label>
+      <input id="pass1" type="password" placeholder="Mínimo 8 caracteres" oninput="checkStrength()">
+      <span class="eye" onclick="toggleVer('pass1',this)">👁</span>
+      <div class="strength"><div class="strength-bar" id="strBar"></div></div>
+    </div>
+    <p class="req-hint">Mínimo 8 caracteres. Combina letras y números.</p>
+    <div class="fld">
+      <label>Confirmar contraseña</label>
+      <input id="pass2" type="password" placeholder="Repite tu contraseña">
+      <span class="eye" onclick="toggleVer('pass2',this)">👁</span>
+    </div>
+    <button class="btn" id="btnSet" onclick="setPassword()">Guardar contraseña →</button>
+  </div>
+
+  <div class="ok-wrap" id="okBox">
+    <div class="ok-line"></div>
+    <h3>Contraseña creada</h3>
+    <p>Redirigiendo al acceso...</p>
+  </div>
+
+  <div class="err-token" id="errToken">
+    <div class="err-token-line"></div>
+    <h3>Enlace inválido</h3>
+    <p>Este enlace ha expirado o ya fue usado.<br>Solicita un nuevo acceso.</p>
+    <a href="portal.html">Volver al inicio →</a>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const token = params.get('token');
+const isReset = params.get('reset') === '1';
+let userEmail = '';
+
+(async () => {
+  if (!token) { showErrToken(); return; }
+  try {
+    const r = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-verificar-token?token=' + encodeURIComponent(token));
+    const d = await r.json();
+    if (!d.ok) { showErrToken(); return; }
+    userEmail = d.email || '';
+    document.getElementById('welcomeNombre').textContent = 'Hola, ' + (d.nombre || 'bienvenido');
+    document.getElementById('welcomeSub').textContent = isReset
+      ? 'Crea tu nueva contraseña de acceso'
+      : 'Crea tu contraseña para activar tu cuenta';
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('formPass').style.display = 'block';
+  } catch(e) { showErrToken(); }
+})();
+
+function showErrToken() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('errToken').style.display = 'block';
+}
+
+function toggleVer(id, el) {
+  const inp = document.getElementById(id);
+  if (inp.type === 'password') { inp.type = 'text'; el.textContent = '🙈'; }
+  else { inp.type = 'password'; el.textContent = '👁'; }
+}
+
+function checkStrength() {
+  const v = document.getElementById('pass1').value;
+  const bar = document.getElementById('strBar');
+  let score = 0;
+  if (v.length >= 8) score++;
+  if (/[A-Z]/.test(v)) score++;
+  if (/[0-9]/.test(v)) score++;
+  if (/[^A-Za-z0-9]/.test(v)) score++;
+  const colors = ['#ef4444','#f97316','#eab308','#22c55e'];
+  const widths = ['25%','50%','75%','100%'];
+  bar.style.width = score > 0 ? widths[score-1] : '0';
+  bar.style.background = score > 0 ? colors[score-1] : '';
+}
+
+async function setPassword() {
+  const err = document.getElementById('errMsg');
+  err.style.display = 'none';
+  const p1 = document.getElementById('pass1').value;
+  const p2 = document.getElementById('pass2').value;
+  if (p1.length < 8) { err.textContent = 'La contraseña debe tener mínimo 8 caracteres'; err.style.display='block'; return; }
+  if (p1 !== p2) { err.textContent = 'Las contraseñas no coinciden'; err.style.display='block'; return; }
+  const btn = document.getElementById('btnSet');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    const r = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-set-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, password: p1, is_reset: isReset })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      document.getElementById('formPass').style.display = 'none';
+      document.getElementById('okBox').style.display = 'block';
+      // Auto-redirect to login with email pre-filled after 1.5s
+      setTimeout(() => {
+        if (isReset) { window.location.href = 'portal.html?email=' + encodeURIComponent(userEmail); } else { window.location.href = 'contrato.html?email=' + encodeURIComponent(userEmail); }
+      }, 1500);
+    } else {
+      err.textContent = d.error || 'Error al guardar. Inténtalo de nuevo.';
+      err.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Guardar contraseña →';
+    }
+  } catch(e) {
+    err.textContent = 'Error de conexión.';
+    err.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Guardar contraseña →';
+  }
+}
+</script>
+</body>
+<!-- v5 1773643329385 -->
+</html>
