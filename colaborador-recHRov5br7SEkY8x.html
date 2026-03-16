@@ -576,6 +576,10 @@ body{overflow-x:hidden}
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3" y="8" width="14" height="10" rx="1"/><path d="M1 9l9-7 9 7"/><rect x="8" y="13" width="4" height="5"/></svg>
       Mis Pisos
     </a>
+    <a class="sb-item" data-tab="feedbacks" onclick="goTab('feedbacks',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 12a5 5 0 01-5 5H6l-4 2V7a5 5 0 015-5h5a5 5 0 015 5v2z"/></svg>
+      Feedbacks
+    </a>
     <a class="sb-item" data-tab="ops" onclick="goTab('ops',this)">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.3L10 14.3l-4.8 2.5.9-5.3L2.2 7.7l5.4-.8z"/></svg>
       Operaciones
@@ -717,6 +721,22 @@ body{overflow-x:hidden}
   </div>
 
   <!-- ══ OPERACIONES TAB ══ -->
+  <!-- FEEDBACKS TAB -->
+  <div id="tab-feedbacks" class="tab">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Feedbacks</span>
+      </div>
+    </div>
+    <div class="main-body">
+      <div class="sec-lbl">Pendientes de feedback</div>
+      <div class="list-wrap" id="colab-fb-pending"><div class="empty"><p>No hay feedbacks pendientes</p></div></div>
+      <div class="sec-lbl" style="margin-top:16px">Feedbacks enviados</div>
+      <div class="list-wrap" id="colab-fb-done"><div class="empty"><p>No hay feedbacks enviados</p></div></div>
+    </div>
+  </div>
+
   <div id="tab-ops" class="tab">
     <div class="main-hdr">
       <div style="display:flex;align-items:center;gap:14px">
@@ -810,6 +830,31 @@ body{overflow-x:hidden}
     <button class="sub" id="btnEnviarDemanda" onclick="enviarDemanda()">Enviar demanda →</button>
   </div>
   <div class="ok" id="okDemanda"><div class="ok-line"></div><h3>Demanda enviada</h3><p>Ya empezamos a buscar pisos para tu cliente.</p></div>
+</div>
+</div>
+
+<!-- MODAL FEEDBACK COLABORADOR -->
+<div class="overlay" id="modalColabFB">
+<div class="sheet">
+  <button class="x" onclick="cerrarModal('modalColabFB')">×</button>
+  <div class="sheet-ttl">Feedback de Visita</div>
+  <div id="colabFbForm">
+    <input type="hidden" id="cfb-vid">
+    <div class="sdiv">Valoración del broker/asesor</div>
+    <div class="fld"><label>Valoración (1-5)</label><select id="cfb-val-broker"><option value="">Selecciona...</option><option value="1">1 - Muy mal</option><option value="2">2 - Mal</option><option value="3">3 - Regular</option><option value="4">4 - Bien</option><option value="5">5 - Excelente</option></select></div>
+    <div class="fld"><label>Puntualidad</label><select id="cfb-puntualidad"><option value="">Selecciona...</option><option>Antes de hora</option><option>Puntual</option><option>Menos de 15min tarde</option><option>Más de 15min tarde</option></select></div>
+    <div class="sdiv">Sobre la visita</div>
+    <div class="fld"><label>¿Qué le gustó al cliente?</label><textarea id="cfb-gusto" rows="3" placeholder="Aspectos positivos del piso..."></textarea></div>
+    <div class="fld"><label>¿Qué no le gustó?</label><textarea id="cfb-no-gusto" rows="3" placeholder="Aspectos negativos o dudas..."></textarea></div>
+    <div class="fld"><label>Decisión del cliente</label><select id="cfb-decision"><option value="">Selecciona...</option><option>Quiere ver otro</option><option>Pensándolo</option><option>Descarta</option><option>Quiere hacer oferta</option></select></div>
+    <div class="fld"><label>Nuevos parámetros detectados</label><textarea id="cfb-params" rows="2" placeholder="Info nueva: tiene perro, necesita terraza..."></textarea></div>
+    <button class="sub" id="btnColabFB" onclick="enviarColabFB()">Enviar feedback</button>
+  </div>
+  <div class="ok-box" id="colabFbOk">
+    <div style="font-size:52px">✅</div>
+    <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-top:12px">Feedback enviado</h3>
+    <button onclick="cerrarModal('modalColabFB')" class="sub" style="margin-top:20px">Cerrar</button>
+  </div>
 </div>
 </div>
 
@@ -1069,8 +1114,24 @@ async function enviarACliente(){
 }
 
 function thermoUpdate(el){var v=parseInt(el.value);var tag=el.id.replace('pw_','')+'_tag';var lbl=v<25?'Indiferente':v<50?'Deseable':v<75?'Preferible':v<90?'Importante':'Indispensable';var color=v<25?'#666':v<50?'#22c55e':v<75?'#eab308':v<90?'#f97316':'#ef4444';var el2=document.getElementById(tag);if(el2){el2.textContent=lbl;el2.style.color=color}}
-// Init all thermos on load
 setTimeout(function(){document.querySelectorAll('.thermo').forEach(thermoUpdate)},200);
+
+// ═══ COLABORADOR FEEDBACKS ═══
+window._colabVisitas=[];
+function renderColabFeedbacks(){
+  var allV=window._colabVisitas||[];
+  var pending=allV.filter(function(v){return !v.fb_colab_hecho&&(v.estado||'').includes('Realizada')});
+  var done=allV.filter(function(v){return v.fb_colab_hecho});
+  var pendEl=document.getElementById('colab-fb-pending');
+  var doneEl=document.getElementById('colab-fb-done');
+  if(pendEl) pendEl.innerHTML=pending.length?pending.map(function(v){return '<div class="li-card" style="margin-bottom:10px;cursor:pointer;border-left:3px solid var(--amber-t)" onclick="abrirColabFB(\''+v.id+'\')"><div style="font-size:16px;font-weight:600">'+(v.piso_dir||'Piso')+'</div><div style="font-size:14px;color:var(--muted);margin-top:4px">'+(v.fecha||'')+' · '+(v.comprador||'')+'</div><div style="font-size:13px;color:var(--amber-t);margin-top:8px">Click para dar feedback →</div></div>'}).join(''):'<div class="empty"><p>No hay feedbacks pendientes</p></div>';
+  if(doneEl) doneEl.innerHTML=done.length?done.map(function(v){return '<div class="li-card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between"><div style="font-size:16px;font-weight:600">'+(v.piso_dir||'Piso')+'</div><span class="badge badge-green">Enviado</span></div></div>'}).join(''):'<div class="empty"><p>No hay feedbacks enviados</p></div>';
+}
+function abrirColabFB(vid){document.getElementById('cfb-vid').value=vid;document.getElementById('colabFbForm').style.display='block';document.getElementById('colabFbOk').classList.remove('on');abrirModal('modalColabFB')}
+async function enviarColabFB(){
+  var btn=document.getElementById('btnColabFB');btn.disabled=true;btn.textContent='Enviando...';
+  try{var r=await fetch(WH+'/feedback-visita',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({visita_id:document.getElementById('cfb-vid').value,tipo:'colaborador',valoracion_broker:parseInt(document.getElementById('cfb-val-broker')?.value)||0,puntualidad:document.getElementById('cfb-puntualidad')?.value||'',que_gusto:document.getElementById('cfb-gusto')?.value||'',que_no_gusto:document.getElementById('cfb-no-gusto')?.value||'',decision:document.getElementById('cfb-decision')?.value||'',nuevos_parametros:document.getElementById('cfb-params')?.value||''})});var d=await r.json();if(d.ok){document.getElementById('colabFbForm').style.display='none';document.getElementById('colabFbOk').classList.add('on');var v=window._colabVisitas.find(function(x){return x.id===document.getElementById('cfb-vid').value});if(v)v.fb_colab_hecho=true;renderColabFeedbacks()}else{alert(d.error||'Error');btn.disabled=false;btn.textContent='Enviar feedback'}}catch(e){alert('Error');btn.disabled=false;btn.textContent='Enviar feedback'}
+}
 
 async function fetchDashboard(){try{const r=await fetch(WH+'/colaborador-data?id='+CID);const d=await r.json();const pisos=d.pisos||[];const demandas=d.demandas||[];const ops=d.ops||[];const st=d.stats||{};const pisosActivos=st.pisosActivos??pisos.filter(p=>(p.estado||'').toLowerCase().includes('activ')).length;const demandasActivas=st.demandasActivas??demandas.filter(d=>(d.estado||'').toLowerCase().includes('activ')).length;document.getElementById('s-pisos').textContent=pisosActivos;document.getElementById('s-dem').textContent=demandasActivas;document.getElementById('s-vis').textContent=st.visitasTotal??0;document.getElementById('s-vis-pisos').textContent=pisos.reduce((s,p)=>s+(p.visitas||0),0);document.getElementById('s-vis-dem').textContent=demandas.reduce((s,d)=>s+(d.visitas||0),0);document.getElementById('s-ventas').textContent=ops.length;document.getElementById('s-ganado').textContent=ops.length?('€'+ops.reduce((s,o)=>s+(o.importe||0),0).toLocaleString('es-ES')):'—';const matchDem=demandas.filter(d=>d.matchings>0);document.getElementById('m-pending').textContent=matchDem.filter(d=>!d.revisado).length;document.getElementById('m-reviewed').textContent=matchDem.filter(d=>d.revisado).length;document.getElementById('m-total').textContent=demandas.reduce((s,d)=>s+(d.matchings||0),0);const alertEl=document.getElementById('matchings-alert');const pendingCount=matchDem.filter(d=>!d.revisado).length;if(pendingCount>0){alertEl.style.display='block';alertEl.innerHTML='<div class="alert-bar" onclick="goTab(\'demandas\',document.querySelector(\'[data-tab=demandas]\'))">⚠️ '+pendingCount+' demanda'+(pendingCount>1?'s':'')+' con matchings por revisar</div>'}renderPisos(pisos);renderDemandas(demandas);renderOps(ops)}catch(e){console.error('Dashboard fetch error:',e)}}
 fetchDashboard();
