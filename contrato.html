@@ -130,15 +130,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 const WH = 'https://onomahomes.app.n8n.cloud/webhook';
 const token = new URLSearchParams(location.search).get('token');
+const emailParam = new URLSearchParams(location.search).get('email');
 let userData = {};
 let scrolled = false;
 
 const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
 async function init() {
-  if (!token) { showErr('Enlace inválido. Vuelve a <a href="registro.html">registro</a>.'); return; }
+  if (!token && !emailParam) { showErr('Enlace inválido. Vuelve a <a href="registro.html">registro</a>.'); return; }
   try {
-    const r = await fetch(WH + '/colaborador-verificar-token?token=' + encodeURIComponent(token));
+    var r;
+    if (token) { r = await fetch(WH + '/colaborador-verificar-token?token=' + encodeURIComponent(token)); }
+    else { r = await fetch(WH + '/colaborador-login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:emailParam,google_auth:true})}); }
     const d = await r.json();
     if (!d.ok) { showErr('Este enlace no es válido o ya fue utilizado. Vuelve a <a href="registro.html">registro</a>.'); return; }
     userData = d;
