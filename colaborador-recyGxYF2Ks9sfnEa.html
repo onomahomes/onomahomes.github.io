@@ -195,6 +195,17 @@ select option{background:#0c0c1e;color:#f0f0f5;padding:10px}
 .pipe-meta{font-size:14px;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px}
 .pipe-stars{color:var(--gold);font-size:13px;letter-spacing:1px}
 
+/* ── Thermometer sliders ── */
+.thermo-row{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding:12px 0}
+.thermo-label{width:90px;font-size:13px;font-weight:600;color:var(--text);flex-shrink:0}
+.thermo-wrap{flex:1;position:relative}
+.thermo{width:100%;height:8px;border-radius:4px;appearance:none;-webkit-appearance:none;background:linear-gradient(90deg,#22c55e 0%,#eab308 50%,#ef4444 100%);outline:none;cursor:pointer}
+.thermo::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
+.thermo::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer}
+.thermo-scale{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--muted)}
+.thermo-val{width:100px;text-align:right;font-size:12px;font-weight:600;flex-shrink:0}
+@media(max-width:600px){.thermo-row{flex-wrap:wrap}.thermo-label{width:100%}.thermo-val{width:100%;text-align:left;margin-top:4px}}
+
 /* ── MOBILE BOOST ── */
 @media(max-width:768px){
   html{font-size:18px;-webkit-text-size-adjust:100%}
@@ -777,6 +788,16 @@ body{overflow-x:hidden}
     <div class="row2"><div class="fld"><label>Presupuesto máx. (€) *</label><input id="d_pre" type="number" placeholder="Importe"></div><div class="fld"><label>Habitaciones mín. *</label><input id="d_hab" type="number" placeholder="Nº" min="1"></div></div>
     <div class="fld"><label>Metros mínimos</label><input id="d_met" type="number" placeholder="Superficie mínima"></div>
     <div class="fld"><label>Perfil del cliente (opcional)</label><textarea id="d_per" rows="3" placeholder="Necesidades o prioridades..."></textarea></div>
+    <div class="sdiv">Importancia de cada requisito</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5">Ajusta el termómetro según lo importante que sea cada requisito para tu cliente</div>
+    <div class="thermo-row"><div class="thermo-label">Zona</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_zona" min="0" max="100" value="70" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_zona_tag">Importante</div></div>
+    <div class="thermo-row"><div class="thermo-label">Habitaciones</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_hab" min="0" max="100" value="90" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_hab_tag">Indispensable</div></div>
+    <div class="thermo-row"><div class="thermo-label">Metros mín.</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_met" min="0" max="100" value="60" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_met_tag">Importante</div></div>
+    <div class="thermo-row"><div class="thermo-label">Ascensor</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_asc" min="0" max="100" value="50" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_asc_tag">Preferible</div></div>
+    <div class="thermo-row"><div class="thermo-label">Terraza</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_ter" min="0" max="100" value="30" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_ter_tag">Deseable</div></div>
+    <div class="thermo-row"><div class="thermo-label">Parking</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_park" min="0" max="100" value="20" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_park_tag">Deseable</div></div>
+    <div class="thermo-row"><div class="thermo-label">Reformado</div><div class="thermo-wrap"><input type="range" class="thermo" id="pw_est" min="0" max="100" value="50" oninput="thermoUpdate(this)"><div class="thermo-scale"><span>Deseable</span><span>Indispensable</span></div></div><div class="thermo-val" id="pw_est_tag">Preferible</div></div>
+    <div class="sdiv">Honorarios</div>
     <div class="fld"><label>% Honorarios que cobra al comprador</label><input id="d_honorarios" type="number" step="0.1" placeholder="Ej: 3.0 (dejar vacío si no cobra)" min="0" max="10"></div>
     <div class="chk-row"><input type="checkbox" id="d_no_cobra"><label for="d_no_cobra">No cobro honorarios al comprador</label></div>
     <div class="fld"><label>Mandato de compra (PDF)</label><input type="file" id="d_mandato" accept=".pdf,.jpg,.png"></div>
@@ -861,7 +882,7 @@ async function enviarPiso(){
     document.getElementById('okPiso').classList.add('on');
   }catch(e){alert('Error al enviar');btn.disabled=false;btn.textContent='Enviar piso →'}
 }
-async function enviarDemanda(){const nom=document.getElementById('d_nom').value.trim();const zona=document.getElementById('d_zona').value.trim();const pre=document.getElementById('d_pre').value;const hab=document.getElementById('d_hab').value;if(!nom||!zona||!pre||!hab){alert('Completa los campos obligatorios (*)');return}const btn=document.getElementById('btnEnviarDemanda');btn.disabled=true;btn.textContent='Enviando...';try{await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,nombre:nom,zona,presupuesto:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('d_met').value||0),perfil:document.getElementById('d_per').value,tipo_colaboracion:document.getElementById('d_tipo_colab').value})});document.getElementById('fDemanda').style.display='none';document.getElementById('okDemanda').classList.add('on')}catch(e){alert('Error al enviar. Inténtalo de nuevo.');btn.disabled=false;btn.textContent='Enviar demanda →'}}
+async function enviarDemanda(){const nom=document.getElementById('d_nom').value.trim();const zona=document.getElementById('d_zona').value.trim();const pre=document.getElementById('d_pre').value;const hab=document.getElementById('d_hab').value;if(!nom||!zona||!pre||!hab){alert('Completa los campos obligatorios (*)');return}const btn=document.getElementById('btnEnviarDemanda');btn.disabled=true;btn.textContent='Enviando...';try{await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,nombre:nom,zona,presupuesto:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('d_met').value||0),perfil:document.getElementById('d_per').value,peso_zona:parseInt(document.getElementById('pw_zona').value),peso_habitaciones:parseInt(document.getElementById('pw_hab').value),peso_metros:parseInt(document.getElementById('pw_met').value),peso_ascensor:parseInt(document.getElementById('pw_asc').value),peso_terraza:parseInt(document.getElementById('pw_ter').value),peso_parking:parseInt(document.getElementById('pw_park').value),peso_estado:parseInt(document.getElementById('pw_est').value)})});document.getElementById('fDemanda').style.display='none';document.getElementById('okDemanda').classList.add('on')}catch(e){alert('Error al enviar. Inténtalo de nuevo.');btn.disabled=false;btn.textContent='Enviar demanda →'}}
 // ═══ MATCHINGS MODULE ═══
 async function loadMatchings(){
   try{
@@ -1040,6 +1061,10 @@ async function enviarACliente(){
     else{alert('Error: '+(d.error||'No se pudo enviar'));btn.disabled=false;btn.textContent='Enviar a cliente →'}
   }catch(e){alert('Error de conexión');btn.disabled=false;btn.textContent='Enviar a cliente →'}
 }
+
+function thermoUpdate(el){var v=parseInt(el.value);var tag=el.id.replace('pw_','')+'_tag';var lbl=v<25?'Indiferente':v<50?'Deseable':v<75?'Preferible':v<90?'Importante':'Indispensable';var color=v<25?'#666':v<50?'#22c55e':v<75?'#eab308':v<90?'#f97316':'#ef4444';var el2=document.getElementById(tag);if(el2){el2.textContent=lbl;el2.style.color=color}}
+// Init all thermos on load
+setTimeout(function(){document.querySelectorAll('.thermo').forEach(thermoUpdate)},200);
 
 async function fetchDashboard(){try{const r=await fetch(WH+'/colaborador-data?id='+CID);const d=await r.json();const pisos=d.pisos||[];const demandas=d.demandas||[];const ops=d.ops||[];const st=d.stats||{};const pisosActivos=st.pisosActivos??pisos.filter(p=>(p.estado||'').toLowerCase().includes('activ')).length;const demandasActivas=st.demandasActivas??demandas.filter(d=>(d.estado||'').toLowerCase().includes('activ')).length;document.getElementById('s-pisos').textContent=pisosActivos;document.getElementById('s-dem').textContent=demandasActivas;document.getElementById('s-vis').textContent=st.visitasTotal??0;document.getElementById('s-vis-pisos').textContent=pisos.reduce((s,p)=>s+(p.visitas||0),0);document.getElementById('s-vis-dem').textContent=demandas.reduce((s,d)=>s+(d.visitas||0),0);document.getElementById('s-ventas').textContent=ops.length;document.getElementById('s-ganado').textContent=ops.length?('€'+ops.reduce((s,o)=>s+(o.importe||0),0).toLocaleString('es-ES')):'—';const matchDem=demandas.filter(d=>d.matchings>0);document.getElementById('m-pending').textContent=matchDem.filter(d=>!d.revisado).length;document.getElementById('m-reviewed').textContent=matchDem.filter(d=>d.revisado).length;document.getElementById('m-total').textContent=demandas.reduce((s,d)=>s+(d.matchings||0),0);const alertEl=document.getElementById('matchings-alert');const pendingCount=matchDem.filter(d=>!d.revisado).length;if(pendingCount>0){alertEl.style.display='block';alertEl.innerHTML='<div class="alert-bar" onclick="goTab(\'demandas\',document.querySelector(\'[data-tab=demandas]\'))">⚠️ '+pendingCount+' demanda'+(pendingCount>1?'s':'')+' con matchings por revisar</div>'}renderPisos(pisos);renderDemandas(demandas);renderOps(ops)}catch(e){console.error('Dashboard fetch error:',e)}}
 fetchDashboard();
