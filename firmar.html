@@ -307,7 +307,7 @@ async function firmar() {
     const r = await fetch(WH + '/colab-firmar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, firma_nombre, acepta: true })
+      body: JSON.stringify({ token: token || '', firma_nombre, acepta: true, record_id: userData.record_id || '', email: userData.email || emailParam || '' })
     });
     const d = await r.json();
     if (d.ok) {
