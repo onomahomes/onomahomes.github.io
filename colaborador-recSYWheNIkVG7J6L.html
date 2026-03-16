@@ -551,7 +551,7 @@ body{overflow-x:hidden}
 
 <div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar()"></div>
 <aside class="sidebar" id="sidebar">
-  <div class="sb-logo">
+  <div class="sb-logo" id="sbLogo">
     <span class="brand">ONOMA</span>
     <span class="brand-sub">Homes</span>
   </div>
@@ -1134,6 +1134,20 @@ async function enviarColabFB(){
 }
 
 async function fetchDashboard(){try{const r=await fetch(WH+'/colaborador-data?id='+CID);const d=await r.json();const pisos=d.pisos||[];const demandas=d.demandas||[];const ops=d.ops||[];const st=d.stats||{};const pisosActivos=st.pisosActivos??pisos.filter(p=>(p.estado||'').toLowerCase().includes('activ')).length;const demandasActivas=st.demandasActivas??demandas.filter(d=>(d.estado||'').toLowerCase().includes('activ')).length;document.getElementById('s-pisos').textContent=pisosActivos;document.getElementById('s-dem').textContent=demandasActivas;document.getElementById('s-vis').textContent=st.visitasTotal??0;document.getElementById('s-vis-pisos').textContent=pisos.reduce((s,p)=>s+(p.visitas||0),0);document.getElementById('s-vis-dem').textContent=demandas.reduce((s,d)=>s+(d.visitas||0),0);document.getElementById('s-ventas').textContent=ops.length;document.getElementById('s-ganado').textContent=ops.length?('€'+ops.reduce((s,o)=>s+(o.importe||0),0).toLocaleString('es-ES')):'—';const matchDem=demandas.filter(d=>d.matchings>0);document.getElementById('m-pending').textContent=matchDem.filter(d=>!d.revisado).length;document.getElementById('m-reviewed').textContent=matchDem.filter(d=>d.revisado).length;document.getElementById('m-total').textContent=demandas.reduce((s,d)=>s+(d.matchings||0),0);const alertEl=document.getElementById('matchings-alert');const pendingCount=matchDem.filter(d=>!d.revisado).length;if(pendingCount>0){alertEl.style.display='block';alertEl.innerHTML='<div class="alert-bar" onclick="goTab(\'demandas\',document.querySelector(\'[data-tab=demandas]\'))">⚠️ '+pendingCount+' demanda'+(pendingCount>1?'s':'')+' con matchings por revisar</div>'}renderPisos(pisos);renderDemandas(demandas);renderOps(ops)}catch(e){console.error('Dashboard fetch error:',e)}}
+// Load empresa logo if exists
+async function loadEmpresaLogo(){
+  try{
+    var r=await fetch(WH+'/colaborador-data?id='+CID);
+    var d=await r.json();
+    var logo=d.logo_empresa;
+    if(logo){
+      var sbLogo=document.getElementById('sbLogo');
+      sbLogo.innerHTML='<img src="'+logo+'" style="max-height:50px;max-width:180px;object-fit:contain;display:block;margin:0 auto">';
+      if(d.empresa) sbLogo.innerHTML+='<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:6px">'+d.empresa+'</div>';
+    }
+  }catch(e){}
+}
+loadEmpresaLogo();
 fetchDashboard();
 loadMatchings();
 
