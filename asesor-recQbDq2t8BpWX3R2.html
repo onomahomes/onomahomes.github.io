@@ -363,6 +363,7 @@ select option{background:#0c0c1e;color:#f0f0f5;padding:10px}
   <div class="logo-row center"><span class="brand">ONOMA</span><span class="brand-sub">Homes</span></div>
   <div class="hdr-name">Asesor ONOMA</div>
   <div style="margin-top:8px"><span class="hdr-badge">Asesor ONOMA</span></div>
+  <div style="margin-top:6px;font-size:14px;color:var(--muted)">Asesor ONOMA</div>
 </div>
 
 <div id="tab-home" class="tab active">
@@ -383,7 +384,7 @@ select option{background:#0c0c1e;color:#f0f0f5;padding:10px}
 
 <div id="tab-visitas" class="tab">
   <div class="tab-hdr">
-    <div><span class="tab-ttl">Mis Visitas</span><span class="tab-badge" id="badge-vis">0</span></div>
+    <div><span class="tab-ttl" id="visitas-ttl">Mis Visitas</span><span class="tab-badge" id="badge-vis">0</span></div>
     <select id="filtro-vis" onchange="renderVisitas()" style="background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 28px 6px 10px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 fill=%27%23C5A059%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M8 11L3 6h10z%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 8px center">
       <option value="all">Todas</option>
       <option value="pendiente">Pendientes</option>
@@ -440,6 +441,20 @@ select option{background:#0c0c1e;color:#f0f0f5;padding:10px}
 
 <script>
 const AID='recQbDq2t8BpWX3R2';const WH='https://onomahomes.app.n8n.cloud/webhook';let allV=[];let sv={p:0,c:0};
+const isViewerAsesor=new URLSearchParams(window.location.search).get('viewer')==='direccion';
+if(isViewerAsesor){
+  // Add back button at top
+  var backBar=document.createElement('div');
+  backBar.style.cssText='padding:12px 20px;background:rgba(59,130,246,.08);border-bottom:1px solid rgba(59,130,246,.2);display:flex;align-items:center;gap:12px';
+  backBar.innerHTML='<a href="javascript:window.close()" style="color:#60a5fa;font-size:14px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px" onclick="event.preventDefault();window.close();if(!window.closed)history.back()">← Volver a Dirección</a><span style="color:rgba(255,255,255,.3);font-size:13px">Vista solo lectura</span>';
+  document.body.insertBefore(backBar,document.body.firstChild);
+  // Change labels for viewer mode
+  setTimeout(function(){
+    var ttl=document.getElementById('visitas-ttl');if(ttl)ttl.textContent='Visitas';
+    // Hide feedback button in visitor cards
+    document.querySelectorAll('.bg2').forEach(function(el){if(el.textContent.includes('feedback'))el.style.display='none'});
+  },100);
+}
 function showTab(n,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));document.getElementById('tab-'+n).classList.add('active');btn.classList.add('on');if(n==='visitas')renderVisitas()}
 function abrir(id){document.getElementById(id).classList.add('on')}
 function cerrar(id){document.getElementById(id).classList.remove('on')}
