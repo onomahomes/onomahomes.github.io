@@ -82,7 +82,7 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:cente
   <div class="ok-wrap" id="okBox">
     <div class="ok-line"></div>
     <h3>Contraseña creada</h3>
-    <p>Redirigiendo al acceso...</p>
+    <p>¡Cuenta activada!</p><a href="contrato.html" style="display:inline-block;margin-top:16px;padding:16px 32px;background:#C5A059;color:#000;border-radius:12px;font-weight:700;text-decoration:none;font-size:16px">Continuar al contrato →</a>
   </div>
 
   <div class="err-token" id="errToken">
@@ -161,7 +161,7 @@ async function setPassword() {
       document.getElementById('okBox').style.display = 'block';
       // Auto-redirect to login with email pre-filled after 1.5s
       setTimeout(() => {
-        if (isReset) { window.location.href = 'portal.html?email=' + encodeURIComponent(userEmail); } else { window.location.href = 'contrato.html?email=' + encodeURIComponent(userEmail); }
+        document.getElementById("okBox").scrollIntoView(); if (isReset) { window.location.href = 'portal.html?email=' + encodeURIComponent(userEmail); } else { window.location.href = 'contrato.html?email=' + encodeURIComponent(userEmail); }
       }, 1500);
     } else {
       err.textContent = d.error || 'Error al guardar. Inténtalo de nuevo.';
