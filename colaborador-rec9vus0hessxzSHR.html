@@ -766,10 +766,15 @@ body{overflow-x:hidden}
     <div class="fld"><label>¿Comparte con otros brokers? *</label><select id="p_comparte"><option value="Comparte">Comparte — otros brokers pueden traer comprador</option><option value="No Comparte">No Comparte — solo clientes ONOMA</option></select></div>
     <div class="fld"><label>% Honorarios que cobra al vendedor *</label><input id="p_honorarios" type="number" step="0.1" placeholder="Ej: 3.0" min="0" max="10"></div>
     <div class="fld"><label>Descripción (opcional)</label><textarea id="p_des" rows="3" placeholder="Características destacadas..."></textarea></div>
-    <div class="sdiv">Documentación del piso</div>
+    <div class="sdiv">Fotos y multimedia</div>
+    <div class="fld"><label>Fotos del piso *</label><input type="file" id="p_fotos" accept="image/*" multiple><div style="font-size:11px;color:var(--muted);margin-top:4px">Mínimo 3 fotos, máximo 10</div></div>
+    <div class="fld"><label>Vídeo del piso</label><input type="file" id="p_video" accept="video/*"></div>
+    <div class="sdiv">Documentación obligatoria</div>
     <div class="fld"><label>Encargo de venta (PDF) *</label><input type="file" id="p_encargo" accept=".pdf,.jpg,.png"></div>
-    <div class="fld"><label>Planos (opcional)</label><input type="file" id="p_planos" accept=".pdf,.jpg,.png" multiple></div>
-    <div class="fld"><label>Vídeo del piso (opcional)</label><input type="file" id="p_video" accept="video/*"></div>
+    <div class="fld"><label>Ficha catastral</label><input type="file" id="p_catastral" accept=".pdf,.jpg,.png"></div>
+    <div class="fld"><label>ITE (Inspección Técnica Edificio)</label><input type="file" id="p_ite" accept=".pdf,.jpg,.png"></div>
+    <div class="fld"><label>Planos</label><input type="file" id="p_planos" accept=".pdf,.jpg,.png" multiple></div>
+    <div class="fld"><label>Documentación extra</label><input type="file" id="p_docs_extra" accept=".pdf,.jpg,.png" multiple><div style="font-size:11px;color:var(--muted);margin-top:4px">Nota simple, certificado energético, escrituras, etc.</div></div>
     <div class="chk-row"><input type="checkbox" id="p_veraz"><label for="p_veraz">Confirmo que la información proporcionada es veraz y coincide con la documentación adjunta</label></div>
     <button class="sub" id="btnEnviarPiso" onclick="enviarPiso()">Enviar piso →</button>
   </div>
