@@ -137,6 +137,22 @@ let scrolled = false;
 const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
 async function init() {
+  if (!token && emailParam) {
+    // Lookup by email
+    try {
+      const lr = await fetch(WH + "/colaborador-login", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:emailParam,google_auth:true})});
+      const ld = await lr.json();
+      if (ld.ok) {
+        userData = {ok:true, nombre:ld.nombre, email:ld.email, record_id:ld.record_id};
+        document.getElementById("loading").style.display="none";
+        document.getElementById("contrato").style.display="block";
+        fillContrato();
+        return;
+      }
+    } catch(e) {}
+    showErr("No se encontró la cuenta. Vuelve a <a href=registro.html>registro</a>.");
+    return;
+  }
   if (!token && !emailParam) { showErr('Enlace inválido. Vuelve a <a href="registro.html">registro</a>.'); return; }
   try {
     var r;
