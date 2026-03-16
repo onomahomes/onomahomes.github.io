@@ -361,12 +361,30 @@ body{
 </div>
 
 <div id="tab-dash" class="tab active">
-  <div class="sec-lbl">Hoy</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0">
+    <span style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700">Dashboard</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select id="periodoSel" onchange="cambioPeriodo()" style="background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;-webkit-appearance:none;appearance:none">
+        <option value="hoy">Hoy</option>
+        <option value="semana">Esta semana</option>
+        <option value="mes" selected>Este mes</option>
+        <option value="periodo">Periodo...</option>
+      </select>
+      <div id="periodoCustom" style="display:none;gap:6px;align-items:center">
+        <input type="date" id="periodoDesde" style="background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;font-family:'Inter',sans-serif">
+        <span style="color:var(--muted);font-size:13px">a</span>
+        <input type="date" id="periodoHasta" style="background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;font-family:'Inter',sans-serif">
+        <button onclick="aplicarPeriodo()" style="background:var(--gold);color:var(--bg);border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer">OK</button>
+      </div>
+    </div>
+  </div>
+  <div id="periodoLabel" style="padding:4px 20px 0;font-size:13px;color:var(--muted)"></div>
+  <div class="sec-lbl">Actividad</div>
   <div class="grid">
     <div class="stat-card amber anim-up delay-1"><div class="stat-num" id="k-hoy">—</div><div class="stat-lbl">Visitas hoy</div></div>
     <div class="stat-card anim-up delay-2"><div class="stat-num" id="k-fb">—</div><div class="stat-lbl">Feedback pendiente</div></div>
   </div>
-  <div class="sec-lbl" style="margin-top:8px">Este mes</div>
+  <div class="sec-lbl" style="margin-top:8px" id="periodoSecLabel">Este mes</div>
   <div class="grid">
     <div class="stat-card anim-up delay-1"><div class="stat-num" id="k-vis-mes">—</div><div class="stat-lbl">Visitas</div><div class="kpi-delta" id="k-vis-delta"></div></div>
     <div class="stat-card green anim-up delay-2"><div class="stat-num" id="k-vis-real">—</div><div class="stat-lbl">Realizadas</div></div>
@@ -425,12 +443,14 @@ body{
 </div>
 
 <script>
-const WH='https://onomahomes.app.n8n.cloud/webhook';let allData={};let allColabs=[];
+const WH='https://onomahomes.app.n8n.cloud/webhook';let allData={};let allColabs=[];let currentDesde='';let currentHasta='';
 function showTab(n,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));document.getElementById('tab-'+n).classList.add('active');btn.classList.add('on')}
 function abrir(id){document.getElementById(id).classList.add('on')}
 function cerrar(id){document.getElementById(id).classList.remove('on')}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on')}));
-async function loadData(){try{const r=await fetch(WH+'/direccion-data');const d=await r.json();allData=d;allColabs=d.colaboradores||[];renderKPIs(d.kpis||{});renderEquipo(d.asesores||[]);renderColabs(allColabs);renderPipeline(d.pipeline||[])}catch(e){console.error('Error loading:',e)}}
+function cambioPeriodo(){var sel=document.getElementById('periodoSel').value;var custom=document.getElementById('periodoCustom');if(sel==='periodo'){custom.style.display='flex';return}custom.style.display='none';var t=new Date();var d='';var h='';if(sel==='hoy'){d=t.toISOString().split('T')[0];h=d}else if(sel==='semana'){var day=t.getDay()||7;var mon=new Date(t);mon.setDate(t.getDate()-(day-1));d=mon.toISOString().split('T')[0];h=t.toISOString().split('T')[0]}else{d=t.toISOString().substring(0,7)+'-01';h=t.toISOString().split('T')[0]}currentDesde=d;currentHasta=h;var labels={hoy:'Hoy',semana:'Esta semana',mes:'Este mes'};document.getElementById('periodoSecLabel').textContent=labels[sel]||sel;document.getElementById('periodoLabel').textContent=d+' — '+h;loadData()}
+function aplicarPeriodo(){currentDesde=document.getElementById('periodoDesde').value;currentHasta=document.getElementById('periodoHasta').value;if(!currentDesde||!currentHasta){alert('Selecciona ambas fechas');return}document.getElementById('periodoSecLabel').textContent='Periodo personalizado';document.getElementById('periodoLabel').textContent=currentDesde+' — '+currentHasta;loadData()}
+async function loadData(){try{var url=WH+'/direccion-data';if(currentDesde)url+='?desde='+currentDesde+'&hasta='+currentHasta;const r=await fetch(url);const d=await r.json();allData=d;allColabs=d.colaboradores||[];renderKPIs(d.kpis||{});renderEquipo(d.asesores||[]);renderColabs(allColabs);renderPipeline(d.pipeline||[])}catch(e){console.error('Error loading:',e)}}
 function fmt(n){return n!=null?n.toLocaleString('es-ES'):'—'}
 function renderKPIs(k){document.getElementById('k-hoy').textContent=fmt(k.visitas_hoy);document.getElementById('k-fb').textContent=fmt(k.feedback_pendiente);document.getElementById('k-vis-mes').textContent=fmt(k.visitas_mes);document.getElementById('k-vis-real').textContent=fmt(k.visitas_realizadas_mes);document.getElementById('k-pisos').textContent=fmt(k.pisos_activos);document.getElementById('k-demandas').textContent=fmt(k.demandas_activas);document.getElementById('k-matchings').textContent=fmt(k.matchings_total);document.getElementById('k-team').textContent=(k.asesores_activos||0)+' / '+(k.colaboradores_activos||0);document.getElementById('k-comision').textContent=k.comision_estimada?fmt(k.comision_estimada)+'€':'—';if(k.visitas_mes!=null&&k.visitas_mes_anterior!=null&&k.visitas_mes_anterior>0){const pct=Math.round(((k.visitas_mes-k.visitas_mes_anterior)/k.visitas_mes_anterior)*100);const el=document.getElementById('k-vis-delta');el.textContent=(pct>=0?'▲ +':'▼ ')+pct+'% vs mes anterior';el.style.color=pct>=0?'var(--green-t)':'var(--red-t)'}}
 function renderEquipo(asesores){document.getElementById('badge-equipo').textContent=asesores.length;const el=document.getElementById('lista-asesores');if(!asesores.length){el.innerHTML='<div class="empty"><div class="empty-line"></div><p>No hay asesores. Crea el primero.</p></div>';return}el.innerHTML=asesores.map(a=>'<div class="li-card"><div class="li-top"><div><div class="li-name">'+a.nombre+'</div><div class="li-email">'+a.email+'</div></div><span class="badge '+(a.activo?'badge-green':'badge-amber')+'">'+(a.activo?'Activo':'Pendiente')+'</span></div><div class="li-meta"><div class="li-tag">Hoy: <strong>'+a.visitas_hoy+'</strong></div><div class="li-tag">Mes: <strong>'+a.visitas_mes+'</strong></div><div class="li-tag">Total: <strong>'+a.visitas_total+'</strong></div>'+(a.feedback_pendiente>0?'<div class="li-tag" style="color:var(--amber-t);border-color:var(--amber-b)">⚠ Feedback: <strong>'+a.feedback_pendiente+'</strong></div>':'')+'</div><div class="li-actions"><a href="https://onomahomes.github.io/asesor-'+a.id+'.html" target="_blank" class="btn-sm btn-outline">Ver portal →</a></div></div>').join('')}
