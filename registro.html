@@ -230,6 +230,7 @@ async function registrar() {
         cif_empresa: (tipo !== 'comprador' && !esIndep) ? cif : '',
         cargo: (tipo !== 'comprador' && !esIndep) ? cargo : '',
         es_independiente: tipo === 'comprador' ? true : esIndep,
+        landing: document.getElementById('landing')?.value?.trim() || '',
         asesor_id: new URLSearchParams(window.location.search).get('asesor') || ''
       })
     });
