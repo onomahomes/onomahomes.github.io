@@ -381,18 +381,44 @@ body{
   <div id="periodoLabel" style="padding:4px 20px 0;font-size:13px;color:var(--muted)"></div>
   <div class="sec-lbl">Actividad</div>
   <div class="grid">
-    <div class="stat-card amber anim-up delay-1"><div class="stat-num" id="k-hoy">—</div><div class="stat-lbl">Visitas hoy</div></div>
-    <div class="stat-card anim-up delay-2"><div class="stat-num" id="k-fb">—</div><div class="stat-lbl">Feedback pendiente</div></div>
+    <div class="stat-card amber anim-up delay-1" style="cursor:pointer" onclick="showDetail('visitas-hoy')"><div class="stat-num" id="k-hoy">—</div><div class="stat-lbl">Visitas hoy</div></div>
+    <div class="stat-card anim-up delay-2" style="cursor:pointer" onclick="showDetail('feedback')"><div class="stat-num" id="k-fb">—</div><div class="stat-lbl">Feedback pendiente</div></div>
   </div>
   <div class="sec-lbl" style="margin-top:8px" id="periodoSecLabel">Este mes</div>
   <div class="grid">
-    <div class="stat-card anim-up delay-1"><div class="stat-num" id="k-vis-mes">—</div><div class="stat-lbl">Visitas</div><div class="kpi-delta" id="k-vis-delta"></div></div>
+    <div class="stat-card anim-up delay-1" style="cursor:pointer" onclick="showDetail('visitas')"><div class="stat-num" id="k-vis-mes">—</div><div class="stat-lbl">Visitas</div><div class="kpi-delta" id="k-vis-delta"></div></div>
     <div class="stat-card green anim-up delay-2"><div class="stat-num" id="k-vis-real">—</div><div class="stat-lbl">Realizadas</div></div>
-    <div class="stat-card anim-up delay-3"><div class="stat-num" id="k-pisos">—</div><div class="stat-lbl">Pisos activos</div></div>
+    <div class="stat-card anim-up delay-3" style="cursor:pointer" onclick="showDetail('pisos')"><div class="stat-num" id="k-pisos">—</div><div class="stat-lbl">Pisos activos</div></div>
     <div class="stat-card anim-up delay-4"><div class="stat-num" id="k-demandas">—</div><div class="stat-lbl">Compradores activos</div></div>
     <div class="stat-card anim-up delay-5"><div class="stat-num" id="k-matchings">—</div><div class="stat-lbl">Matchings totales</div></div>
     <div class="stat-card anim-up delay-6"><div class="stat-num" id="k-team">—</div><div class="stat-lbl">Asesores / Colabs</div></div>
     <div class="stat-card wide gold anim-up"><div class="stat-num" id="k-comision">—</div><div class="stat-lbl">Comisión ONOMA estimada en cartera</div></div>
+  </div>
+  <!-- Detail views (hidden by default) -->
+  <div id="detail-panel" style="display:none;padding-top:16px">
+    <div style="display:flex;align-items:center;gap:12px;padding:0 0 16px">
+      <button onclick="closeDetail()" class="back-btn" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);color:var(--gold);border-radius:10px;padding:8px 16px;font-size:14px;cursor:pointer">← Volver</button>
+      <span id="detail-title" style="font-size:18px;font-weight:700"></span>
+    </div>
+    <div id="detail-content"></div>
+  </div>
+  <!-- Chatbot demo -->
+  <div style="margin-top:24px;padding:0 0 16px">
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:22px">🤖</span>
+        <span style="font-size:16px;font-weight:600">Asistente ONOMA</span>
+        <span style="font-size:10px;background:rgba(251,191,36,.1);color:var(--amber-t);padding:3px 8px;border-radius:6px;font-weight:600">DEMO</span>
+      </div>
+      <div id="chatMessages" style="min-height:80px;margin-bottom:12px">
+        <div style="background:rgba(197,160,89,.08);border:1px solid rgba(197,160,89,.15);border-radius:12px;padding:12px 16px;font-size:14px;color:rgba(255,255,255,.7);line-height:1.6;max-width:85%">Hola, soy el asistente de ONOMA. Puedo responder preguntas como:<br>• ¿Cuántas visitas tiene el piso de Alonso Cano?<br>• ¿Qué feedback tiene el piso de Salamanca?<br>• ¿Cuántos pisos activos tenemos?</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="chatInput" placeholder="Escribe tu pregunta..." style="flex:1;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none" onkeydown="if(event.key==='Enter')chatDemo()">
+        <button onclick="chatDemo()" style="background:var(--gold);color:var(--bg);border:none;border-radius:12px;padding:12px 20px;font-weight:700;cursor:pointer;font-size:14px">Enviar</button>
+      </div>
+      <div style="text-align:center;margin-top:8px;font-size:11px;color:rgba(255,255,255,.2)">Sin funcionamiento real — próximamente con IA</div>
+    </div>
   </div>
 </div>
 
@@ -459,6 +485,87 @@ function filtrarColabs(){const q=document.getElementById('buscar-colab').value.t
 function renderPipeline(pipe){document.getElementById('badge-pipe').textContent=pipe.length;const el=document.getElementById('lista-pipeline');if(!pipe.length){el.innerHTML='<div class="empty"><div class="empty-line"></div><p>No hay operaciones activas</p></div>';return}el.innerHTML=pipe.map(v=>{const fecha=v.fecha?new Date(v.fecha+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'}):'—';const stars=v.interes?'★'.repeat(v.interes)+'☆'.repeat(5-v.interes):'';return '<div class="pipe-card"><div class="pipe-top"><div class="pipe-dir">'+v.piso_dir+'</div><span class="badge '+(v.estado==='Confirmada'?'badge-green':'badge-amber')+'">'+v.estado+'</span></div><div class="pipe-meta"><span>👤 '+v.comprador+'</span><span>📅 '+fecha+(v.hora?' · '+v.hora:'')+'</span>'+(v.piso_precio?'<span>💶 '+v.piso_precio.toLocaleString('es-ES')+'€</span>':'')+(stars?'<span class="pipe-stars">'+stars+'</span>':'')+'</div></div>'}).join('')}
 async function crearAsesor(){const btn=document.getElementById('btnCrearAsesor');const err=document.getElementById('asesorErr');err.style.display='none';const nombre=document.getElementById('a-nombre').value.trim();const apellido=document.getElementById('a-apellido').value.trim();const email=document.getElementById('a-email').value.trim();const tel=document.getElementById('a-tel').value.trim();if(!nombre||!apellido||!email){err.textContent='Nombre, apellido y email son obligatorios';err.style.display='block';return}btn.disabled=true;btn.textContent='Creando...';try{const r=await fetch(WH+'/crear-asesor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre,apellido,email,telefono:tel})});const d=await r.json();if(d.ok){document.getElementById('asesorForm').style.display='none';document.getElementById('asesorOk').classList.add('on');document.getElementById('asesorOkNombre').textContent=d.nombre;document.getElementById('asesorOkPortal').textContent='asesor-'+d.record_id+'.html';setTimeout(loadData,2000)}else{err.textContent=d.error||'Error al crear asesor';err.style.display='block';btn.disabled=false;btn.textContent='Crear asesor y enviar email →'}}catch(e){err.textContent='Error de conexión';err.style.display='block';btn.disabled=false;btn.textContent='Crear asesor y enviar email →'}}
 function resetAsesorForm(){document.getElementById('asesorForm').style.display='block';document.getElementById('asesorOk').classList.remove('on');document.getElementById('btnCrearAsesor').disabled=false;document.getElementById('btnCrearAsesor').textContent='Crear asesor y enviar email →';['a-nombre','a-apellido','a-email','a-tel'].forEach(id=>document.getElementById(id).value='')}
+
+// ═══ DETAIL VIEWS ═══
+function showDetail(tipo){
+  var panel=document.getElementById('detail-panel');
+  var title=document.getElementById('detail-title');
+  var content=document.getElementById('detail-content');
+  panel.style.display='block';
+  var vd=allData.visitas_detail||[];
+  var today=new Date().toISOString().split('T')[0];
+
+  if(tipo==='visitas-hoy'){
+    title.textContent='Visitas de hoy';
+    var hoy=vd.filter(function(v){return v.fecha===today});
+    content.innerHTML=hoy.length?hoy.map(visitaCard).join(''):'<div class="empty"><p>No hay visitas hoy</p></div>';
+  }else if(tipo==='visitas'){
+    title.textContent='Visitas del periodo';
+    content.innerHTML=vd.length?vd.map(visitaCard).join(''):'<div class="empty"><p>No hay visitas en este periodo</p></div>';
+  }else if(tipo==='feedback'){
+    title.textContent='Feedback pendiente';
+    var pending=vd.filter(function(v){return v.estado==='Realizada'||(!v.feedback_asesor||!v.feedback_colab)&&v.estado!=='Programada'&&v.estado!=='Cancelada'});
+    content.innerHTML=pending.length?pending.map(feedbackCard).join(''):'<div class="empty"><p>No hay feedback pendiente</p></div>';
+  }else if(tipo==='pisos'){
+    title.textContent='Pisos activos';
+    content.innerHTML='<div style="margin-bottom:16px"><input type="text" id="pisoSearch" placeholder="Buscar por zona, precio, colaborador..." oninput="filterPisos()" style="width:100%;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;color:#f0f0f5;font-size:15px;font-family:Inter,sans-serif;outline:none"></div><div id="pisosList"></div>';
+    renderPisosDir();
+  }
+  panel.scrollIntoView({behavior:'smooth'});
+}
+function closeDetail(){document.getElementById('detail-panel').style.display='none'}
+
+function visitaCard(v){
+  return '<div class="li-card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:12px"><div style="flex:1;text-align:left"><div style="font-size:16px;font-weight:600">'+v.comprador_nombre+'</div><div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:2px">Traído por: <strong style="color:rgba(255,255,255,.7)">'+v.comprador_origen+'</strong></div></div><div style="color:rgba(255,255,255,.2);font-size:20px">→</div><div style="flex:1;text-align:right"><div style="font-size:16px;font-weight:600">'+v.piso_dir+'</div><div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:2px">Piso de: <strong style="color:rgba(255,255,255,.7)">'+v.piso_origen+'</strong></div></div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05)"><div style="font-size:13px;color:rgba(255,255,255,.4)">'+v.fecha+(v.hora?' · '+v.hora:'')+'</div><span class="badge '+(v.estado==='Programada'?'badge-amber':v.estado==='Realizada'?'badge-green':'badge-gray')+'">'+v.estado+'</span></div></div>';
+}
+
+function feedbackCard(v){
+  var asesorStatus=v.feedback_asesor?'<span style="color:#4ade80;font-weight:600">✓ Hecho</span>':'<span style="color:#f87171;font-weight:600">✗ Falta</span>';
+  var colabStatus=v.feedback_colab?'<span style="color:#4ade80;font-weight:600">✓ Hecho</span>':'<span style="color:#f87171;font-weight:600">✗ Falta</span>';
+  var clickable=(v.feedback_asesor||v.feedback_colab)?'style="cursor:pointer" onclick="showFeedbackData(this)" data-asesor="'+encodeURIComponent(v.feedback_asesor_data)+'" data-colab="'+encodeURIComponent(v.feedback_colab_data)+'"':'';
+  return '<div class="li-card" style="margin-bottom:10px" '+clickable+'><div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:16px;font-weight:600">'+v.comprador_nombre+' → '+v.piso_dir+'</div><div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:4px">'+v.fecha+'</div></div></div><div style="display:flex;gap:20px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.05)"><div style="font-size:14px">Feedback asesor: '+asesorStatus+'</div><div style="font-size:14px">Feedback colaborador: '+colabStatus+'</div></div>'+(v.feedback_asesor||v.feedback_colab?'<div style="font-size:12px;color:var(--gold);margin-top:8px">Click para ver respuestas →</div>':'')+'</div>';
+}
+
+function showFeedbackData(el){
+  var asesor=decodeURIComponent(el.dataset.asesor||'');
+  var colab=decodeURIComponent(el.dataset.colab||'');
+  var html='<div class="overlay on" onclick="if(event.target===this)this.remove()"><div class="sheet"><button class="x" onclick="this.closest(\'.overlay\').remove()">×</button><div class="sheet-ttl">Detalle Feedback</div>';
+  if(asesor){html+='<div style="margin-bottom:20px"><div style="font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);font-weight:600;margin-bottom:8px">Feedback Asesor</div><div style="font-size:15px;line-height:1.7;color:rgba(255,255,255,.65);background:rgba(255,255,255,.03);padding:14px;border-radius:10px">'+asesor+'</div></div>'}
+  if(colab){html+='<div><div style="font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);font-weight:600;margin-bottom:8px">Feedback Colaborador</div><div style="font-size:15px;line-height:1.7;color:rgba(255,255,255,.65);background:rgba(255,255,255,.03);padding:14px;border-radius:10px">'+colab+'</div></div>'}
+  if(!asesor&&!colab){html+='<p style="color:rgba(255,255,255,.4)">No hay feedback disponible aún</p>'}
+  html+='</div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+
+// Pisos directory with search
+var allPisosDir=[];
+function renderPisosDir(){
+  allPisosDir=(allData.pisos_detail||allData.colaboradores||[]);
+  // Use pisos from KPI data - we need to fetch separately or use what we have
+  filterPisos();
+}
+function filterPisos(){
+  var q=(document.getElementById('pisoSearch')?.value||'').toLowerCase();
+  var el=document.getElementById('pisosList');
+  if(!el) return;
+  // Show placeholder for now
+  el.innerHTML='<div class="empty"><p>Los pisos se cargan del endpoint /direccion-data. Próximamente con buscador avanzado.</p></div>';
+}
+
+// Chatbot demo
+function chatDemo(){
+  var input=document.getElementById('chatInput');
+  var msg=input.value.trim();
+  if(!msg) return;
+  var msgs=document.getElementById('chatMessages');
+  msgs.innerHTML+='<div style="text-align:right;margin-bottom:10px"><div style="display:inline-block;background:rgba(197,160,89,.15);border:1px solid rgba(197,160,89,.25);border-radius:12px;padding:10px 16px;font-size:14px;color:rgba(255,255,255,.8);max-width:85%">'+msg+'</div></div>';
+  input.value='';
+  setTimeout(function(){
+    msgs.innerHTML+='<div style="margin-bottom:10px"><div style="display:inline-block;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px 16px;font-size:14px;color:rgba(255,255,255,.5);max-width:85%;line-height:1.6"><em>Esta función estará disponible próximamente. El asistente IA podrá consultar todos los datos de Airtable en tiempo real y generar dashboards personalizados.</em></div></div>';
+    msgs.scrollTop=msgs.scrollHeight;
+  },800);
+}
+
 loadData();
 </script>
 </body></html>
