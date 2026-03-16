@@ -355,86 +355,421 @@ select option{background:#0c0c1e;color:#f0f0f5;padding:10px}
 .op-card{background:var(--gold-dim)!important;border-color:var(--gold-b)!important}
 .op-imp{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--gold)}
 .op-lbl{font-size:14px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:1px}
+
+
+/* ── SIDEBAR LAYOUT ── */
+body{overflow-x:hidden}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:250px;background:#0c0c1e;border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;transition:transform .3s}
+.sb-logo{padding:28px 24px 24px;border-bottom:1px solid var(--border)}
+.sb-logo .brand{font-size:24px;letter-spacing:4px;display:block}
+.sb-logo .brand-sub{font-size:12px;display:block;margin-top:2px}
+.sb-user{padding:20px 24px;border-bottom:1px solid var(--border)}
+.sb-user-name{font-size:16px;font-weight:600}
+.sb-user-role{font-size:12px;color:var(--muted);margin-top:2px}
+.sb-nav{flex:1;padding:16px 0}
+.sb-item{display:flex;align-items:center;gap:14px;padding:14px 24px;color:var(--muted);text-decoration:none;font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;border-left:3px solid transparent}
+.sb-item:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.sb-item.active{color:var(--gold);background:rgba(197,160,89,.08);border-left-color:var(--gold);font-weight:600}
+.sb-item svg{width:20px;height:20px;flex-shrink:0}
+.sb-logout{padding:18px 24px;border-top:1px solid var(--border);display:flex;align-items:center;gap:14px;color:var(--red-t);font-size:14px;font-weight:500;cursor:pointer;transition:background .2s;text-decoration:none}
+.sb-logout:hover{background:rgba(239,68,68,.08)}
+.main{flex:1;margin-left:250px;min-height:100vh}
+.main-hdr{padding:24px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(6,6,17,.6);backdrop-filter:blur(20px);position:sticky;top:0;z-index:30}
+.main-ttl{font-family:'Playfair Display',serif;font-size:26px;font-weight:700}
+.main-actions{display:flex;gap:10px}
+.main-body{padding:28px 32px}
+.hamburger{display:none;background:none;border:none;color:var(--text);font-size:28px;cursor:pointer;padding:4px}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49}
+
+/* ── KPI row (CleanFix style) ── */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.kpi-box{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:16px;padding:22px 20px;transition:all .25s}
+.kpi-box:hover{border-color:var(--border-h);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.kpi-box .kpi-icon{font-size:28px;margin-bottom:10px}
+.kpi-box .kpi-val{font-family:'Playfair Display',serif;font-size:40px;font-weight:700;line-height:1}
+.kpi-box .kpi-label{font-size:14px;color:var(--muted);margin-top:6px}
+.kpi-box.amber{border-color:var(--amber-b)}.kpi-box.amber .kpi-val{color:var(--amber-t)}
+.kpi-box.green{border-color:var(--green-b)}.kpi-box.green .kpi-val{color:var(--green-t)}
+.kpi-box.blue{border-color:var(--blue-b)}.kpi-box.blue .kpi-val{color:var(--blue-t)}
+.kpi-box.gold{border-color:var(--gold-b)}.kpi-box.gold .kpi-val{color:var(--gold)}
+
+/* ── Alert banner ── */
+.alert-bar{background:rgba(251,191,36,.08);border:1px solid var(--amber-b);border-radius:12px;padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px;font-size:15px;color:var(--amber-t);font-weight:500;cursor:pointer;transition:background .2s}
+.alert-bar:hover{background:rgba(251,191,36,.12)}
+
+/* ── Panels (Cuenta tab) ── */
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.panel{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:16px;padding:24px}
+.panel-title{font-size:16px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.panel-count{font-family:'Playfair Display',serif;font-size:48px;font-weight:700;line-height:1;margin:16px 0 8px}
+.panel-sub{font-size:14px;color:var(--muted)}
+.panel-sub strong{color:var(--text)}
+
+/* ── Matchings Module ── */
+.mode-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s}
+.mode-btn.active{background:var(--gold-dim);color:var(--gold);border-color:var(--gold-b)}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.match-card{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all .25s;position:relative;cursor:pointer}
+.match-card:hover{border-color:var(--border-h);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.match-card.selected{border-color:var(--gold);box-shadow:0 0 20px rgba(197,160,89,.2)}
+.match-card .mc-img{width:100%;height:180px;object-fit:cover;display:block;background:rgba(255,255,255,.03)}
+.match-card .mc-noimg{width:100%;height:180px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.03);color:var(--muted);font-size:12px;letter-spacing:1px}
+.match-card .mc-body{padding:16px}
+.match-card .mc-score{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--gold)}
+.match-card .mc-dir{font-size:16px;font-weight:600;margin-bottom:4px}
+.match-card .mc-zona{font-size:13px;color:var(--muted);margin-bottom:10px}
+.match-card .mc-rec{font-size:13px;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.match-card .mc-price{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold)}
+.match-card .mc-comision{margin-top:8px;padding:10px 12px;background:rgba(74,222,128,.06);border:1px solid var(--green-b);border-radius:8px}
+.match-card .mc-comision-label{font-size:11px;color:var(--muted)}
+.match-card .mc-comision-val{font-size:20px;font-weight:700;color:var(--green-t);margin-top:2px}
+.match-card .mc-comision-type{font-size:11px;color:var(--muted);margin-top:2px}
+.match-card .mc-check{position:absolute;top:12px;left:12px;width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:16px;color:transparent}
+.match-card.selected .mc-check{border-color:var(--gold);background:var(--gold);color:var(--bg)}
+.match-card .mc-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.match-card .mc-pill{font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted)}
+.selection-bar{position:sticky;bottom:0;background:rgba(6,6,17,.95);backdrop-filter:blur(20px);border-top:1px solid var(--gold-b);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin:20px -32px -28px;border-radius:0}
+
+/* ── Piso Detail ── */
+.pd-carousel{position:relative;width:100%;height:360px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,.03);margin-bottom:24px}
+.pd-carousel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;cursor:pointer}
+.pd-carousel img.on{opacity:1}
+.pd-carousel .pd-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:50%;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;transition:all .2s}
+.pd-carousel .pd-nav:hover{background:rgba(0,0,0,.8);border-color:var(--gold)}
+.pd-carousel .pd-prev{left:12px}.pd-carousel .pd-next{right:12px}
+.pd-dots{display:flex;gap:6px;justify-content:center;margin-top:12px}
+.pd-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:all .2s}
+.pd-dot.on{background:var(--gold);box-shadow:0 0 8px var(--gold-glow)}
+.pd-chars{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:20px 0}
+.pd-char{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.pd-char-val{font-size:20px;font-weight:700}
+.pd-char-lbl{font-size:11px;color:var(--muted);margin-top:4px}
+.pd-section{margin-top:24px}
+.pd-section-ttl{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--gold-b)}
+.pd-rec{font-size:15px;line-height:1.7;color:rgba(255,255,255,.7)}
+.pd-docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+.pd-doc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text)}
+.pd-doc:hover{border-color:var(--gold-b);background:var(--gold-dim)}
+.pd-doc-icon{font-size:24px;margin-bottom:6px}
+.pd-doc-name{font-size:12px;color:var(--muted)}
+
+/* ── Fullscreen photo viewer ── */
+.photo-viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:100;align-items:center;justify-content:center;flex-direction:column}
+.photo-viewer.on{display:flex}
+.photo-viewer img{max-width:95vw;max-height:85vh;object-fit:contain;border-radius:8px}
+.photo-viewer .pv-close{position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:32px;cursor:pointer}
+.photo-viewer .pv-nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;background:rgba(255,255,255,.1);border:none;border-radius:50%;color:#fff;font-size:24px;cursor:pointer}
+.photo-viewer .pv-prev{left:16px}
+.photo-viewer .pv-next{right:16px}
+.photo-viewer .pv-counter{color:var(--muted);font-size:14px;margin-top:12px}
+
+/* ── Demanda match card in list ── */
+.dem-match-card{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;transition:all .25s}
+.dem-match-card:hover{border-color:var(--gold-b);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.dem-match-card.has-pending{border-left:3px solid var(--amber-t)}
+.dem-match-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.dem-match-name{font-size:18px;font-weight:700}
+.dem-match-badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:var(--amber);color:var(--amber-t);border:1px solid var(--amber-b)}
+.dem-match-badge.reviewed{background:var(--green);color:var(--green-t);border-color:var(--green-b)}
+.dem-match-info{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.dem-match-tag{font-size:13px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:4px 10px}
+.dem-match-tag strong{color:var(--text)}
+.dem-match-footer{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.dem-match-count{font-size:14px;color:var(--gold);font-weight:600}
+.dem-match-arrow{color:var(--gold);font-size:18px}
+
+/* ── Mobile ── */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sb-overlay.open{display:block}
+  .main{margin-left:0}
+  .hamburger{display:block}
+  .main-body{padding:20px 16px}
+  .main-hdr{padding:16px 16px}
+  .main-ttl{font-size:22px}
+  .main-actions{gap:8px}
+  .main-actions .btn-new{font-size:13px;padding:8px 14px}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .kpi-box{padding:18px 16px}
+  .kpi-box .kpi-val{font-size:36px}
+  .kpi-box .kpi-icon{font-size:24px;margin-bottom:8px}
+  .kpi-box .kpi-label{font-size:13px}
+  .panels{grid-template-columns:1fr}
+  .panel-count{font-size:42px}
+  .panel-title{font-size:15px}
+  .panel-sub{font-size:13px}
+  .alert-bar{font-size:14px;padding:12px 16px}
+  .sb-item{font-size:18px;padding:18px 24px;min-height:52px}
+  .sb-user-name{font-size:18px}
+  .sb-user-role{font-size:14px}
+  .sb-logout{font-size:16px;padding:22px 24px;min-height:52px}
+  .sb-logo .brand{font-size:28px}
+  .sb-logo .brand-sub{font-size:14px}
+  .sb-logo{padding:24px}
+  .sb-user{padding:18px 24px}
+  .sidebar{width:280px}
+  /* Shared component mobile overrides */
+  .sec-lbl{font-size:13px;padding:20px 0 10px}
+  .list-wrap{padding:0}
+  .stat-num{font-size:38px}
+  .stat-lbl{font-size:12px}
+  .tab-badge{font-size:13px}
+  .dem-nombre,.piso-dir,.li-name{font-size:16px}
+  .dem-zona,.piso-sub,.li-email{font-size:14px}
+  .dem-stat,.li-tag{font-size:12px}
+  .vbadge,.badge,.li-badge{font-size:11px;padding:4px 10px}
+  .sheet{padding:24px 18px 40px}
+  .sheet-ttl{font-size:22px}
+  .fld label{font-size:11px}
+  .fld input,.fld select,.fld textarea{font-size:16px}
+  .sub{font-size:16px;padding:16px}
+  .btn-new{font-size:14px;padding:9px 16px}
+  .empty p{font-size:15px}
+}
+@media(max-width:480px){
+  .kpi-row{grid-template-columns:1fr}
+  .main-hdr{flex-direction:column;align-items:flex-start;gap:12px}
+  .main-actions{width:100%}
+  .main-actions .btn-new{flex:1;text-align:center}
+}
 </style>
 </head>
 <body>
-<div class="app">
-<div class="hdr" style="text-align:center">
-  <div class="logo-row center"><span class="brand">ONOMA</span><span class="brand-sub">Homes</span></div>
-  <div class="hdr-name">ramses michelena</div>
-  <div style="margin-top:8px"><span class="hdr-badge">Asesor ONOMA</span></div>
-  <div style="margin-top:6px;font-size:14px;color:var(--muted)">ramses michelena</div>
+
+<div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <span class="brand">ONOMA</span>
+    <span class="brand-sub">Homes</span>
+  </div>
+  <div class="sb-user">
+    <div class="sb-user-name">ramses michelena</div>
+    <div class="sb-user-role">Asesor ONOMA</div>
+  </div>
+  <nav class="sb-nav">
+    <a class="sb-item active" data-tab="dash" onclick="goTab('dash',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="sb-item" data-tab="visitas" onclick="goTab('visitas',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M8 4V2M12 4V2"/></svg>
+      Mis Visitas
+    </a>
+    <a class="sb-item" data-tab="feedbacks" onclick="goTab('feedbacks',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 12a5 5 0 01-5 5H6l-4 2V7a5 5 0 015-5h5a5 5 0 015 5v2z"/></svg>
+      Feedbacks
+    </a>
+    <a class="sb-item" data-tab="pisos" onclick="goTab('pisos',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3" y="8" width="14" height="10" rx="1"/><path d="M1 9l9-7 9 7"/><rect x="8" y="13" width="4" height="5"/></svg>
+      Pisos
+    </a>
+    <a class="sb-item" data-tab="demandas" onclick="goTab('demandas',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="3.5"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6"/></svg>
+      Demandas
+    </a>
+    <a class="sb-item" data-tab="cartera" onclick="goTab('cartera',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.3L10 14.3l-4.8 2.5.9-5.3L2.2 7.7l5.4-.8z"/></svg>
+      Mi Cartera
+    </a>
+  </nav>
+  <a class="sb-logout" onclick="if(confirm('Cerrar sesion?'))window.location.href='portal.html'">
+    <svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 3h3a1 1 0 011 1v12a1 1 0 01-1 1h-3M8 15l-5-5 5-5M3 10h10"/></svg>
+    Cerrar sesion
+  </a>
+</aside>
+
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div id="tab-dash" class="tab active">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Dashboard</span>
+      </div>
+    </div>
+    <div class="main-body">
+      <div class="kpi-row">
+        <div class="kpi-box amber"><div class="kpi-icon">⏳</div><div class="kpi-val" id="s-pending">—</div><div class="kpi-label">Pendientes confirm.</div></div>
+        <div class="kpi-box"><div class="kpi-icon">📅</div><div class="kpi-val" id="s-today">—</div><div class="kpi-label">Visitas hoy</div></div>
+        <div class="kpi-box"><div class="kpi-icon">💬</div><div class="kpi-val" id="s-feedback">—</div><div class="kpi-label">Feedback pendiente</div></div>
+        <div class="kpi-box"><div class="kpi-icon">📊</div><div class="kpi-val" id="s-mes">—</div><div class="kpi-label">Visitas este mes</div></div>
+        <div class="kpi-box gold"><div class="kpi-icon">🏆</div><div class="kpi-val" id="s-total">—</div><div class="kpi-label">Total realizadas</div></div>
+      </div>
+      <div class="sec-lbl">Proximas visitas</div>
+      <div class="list-wrap" id="home-vis">
+        <div class="skel" style="height:80px;border-radius:16px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISITAS -->
+  <div id="tab-visitas" class="tab">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Mis Visitas</span>
+        <span class="tab-badge" id="badge-vis">0</span>
+      </div>
+      <select id="filtro-vis" onchange="renderVisitas()" style="background:rgba(12,12,28,.95);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 32px 8px 14px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;-webkit-appearance:none;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 fill=%27%23C5A059%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M8 11L3 6h10z%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 10px center">
+        <option value="all">Todas</option>
+        <option value="pendiente">Pendientes</option>
+        <option value="confirmada">Confirmadas</option>
+        <option value="feedback">Feedback due</option>
+        <option value="completada">Completadas</option>
+      </select>
+    </div>
+    <div class="main-body">
+      <div class="list-wrap" id="lista-vis"></div>
+    </div>
+  </div>
+
+  <!-- FEEDBACKS -->
+  <div id="tab-feedbacks" class="tab">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Feedbacks</span>
+      </div>
+    </div>
+    <div class="main-body">
+      <div class="sec-lbl">Pendientes de feedback</div>
+      <div class="list-wrap" id="fb-pending"></div>
+      <div class="sec-lbl" style="margin-top:16px">Feedbacks enviados</div>
+      <div class="list-wrap" id="fb-done"></div>
+    </div>
+  </div>
+
+  <!-- PISOS -->
+  <div id="tab-pisos" class="tab">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Pisos</span>
+      </div>
+      <button class="btn-new" onclick="abrirModal('modalPiso')">+ Nuevo Piso</button>
+    </div>
+    <div class="main-body">
+      <div class="list-wrap" id="lista-pisos-asesor"><div class="empty"><p>Los pisos se cargan del sistema</p></div></div>
+    </div>
+  </div>
+
+  <!-- DEMANDAS -->
+  <div id="tab-demandas" class="tab">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Demandas</span>
+      </div>
+      <button class="btn-new" onclick="abrirModal('modalDemanda')">+ Nueva Demanda</button>
+    </div>
+    <div class="main-body">
+      <div class="list-wrap" id="lista-demandas-asesor"><div class="empty"><p>Las demandas se cargan del sistema</p></div></div>
+    </div>
+  </div>
+
+  <!-- MI CARTERA -->
+  <div id="tab-cartera" class="tab">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Mi Cartera</span>
+      </div>
+      <button class="btn-new" onclick="abrirModal('modalInvitar')">+ Invitar Colaborador</button>
+    </div>
+    <div class="main-body">
+      <div class="kpi-row">
+        <div class="kpi-box gold"><div class="kpi-icon">👥</div><div class="kpi-val" id="c-total">0</div><div class="kpi-label">Colaboradores captados</div></div>
+        <div class="kpi-box"><div class="kpi-icon">🏠</div><div class="kpi-val" id="c-pisos">0</div><div class="kpi-label">Pisos de mi cartera</div></div>
+      </div>
+      <div class="sec-lbl">Mi link de invitacion</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <input type="text" id="miLink" value="https://onomahomes.github.io/tipo.html?asesor=reclKBO4HkpCdf15N" readonly style="flex:1;background:transparent;border:none;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none">
+        <button onclick="navigator.clipboard.writeText(document.getElementById('miLink').value);this.textContent='Copiado!';setTimeout(()=>this.textContent='Copiar',2000)" style="background:var(--gold);color:var(--bg);border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">Copiar</button>
+      </div>
+      <div class="sec-lbl">Colaboradores de mi cartera</div>
+      <div class="list-wrap" id="lista-cartera"><div class="empty"><p>Aun no tienes colaboradores captados</p></div></div>
+    </div>
+  </div>
+
 </div>
 
-<div id="tab-home" class="tab active">
-  <div class="sec-lbl">Resumen</div>
-  <div class="grid">
-    <div class="stat-card amber anim-up delay-1"><div class="stat-num" id="s-pending">—</div><div class="stat-lbl">Pendientes confirm.</div></div>
-    <div class="stat-card anim-up delay-2"><div class="stat-num" id="s-today">—</div><div class="stat-lbl">Visitas hoy</div></div>
-    <div class="stat-card anim-up delay-3"><div class="stat-num" id="s-feedback">—</div><div class="stat-lbl">Feedback pendiente</div></div>
-    <div class="stat-card anim-up delay-4"><div class="stat-num" id="s-mes">—</div><div class="stat-lbl">Visitas este mes</div></div>
-    <div class="stat-card wide gold anim-up delay-5"><div class="stat-num" id="s-total">—</div><div class="stat-lbl">Total visitas realizadas</div></div>
+<!-- MODAL PISO -->
+<div class="overlay" id="modalPiso">
+<div class="sheet">
+  <button class="x" onclick="cerrarModal('modalPiso')">×</button>
+  <div class="sheet-ttl">Nuevo Piso</div>
+  <div class="step on" id="pPiso1">
+    <div class="fld"><label>Calle *</label><input id="p_calle" type="text" placeholder="Nombre de la calle"></div>
+    <div class="row2"><div class="fld"><label>Numero *</label><input id="p_num" type="text" placeholder="Ej: 14"></div><div class="fld"><label>Piso / Puerta</label><input id="p_piso" type="text" placeholder="Ej: 3B"></div></div>
+    <div class="fld"><label>Barrio *</label><input id="p_barrio" type="text" placeholder="Barrio o distrito"></div>
+    <button class="sub" onclick="pisoPaso2()">Continuar</button>
   </div>
-  <div class="sec-lbl" style="margin-top:8px">Próximas visitas</div>
-  <div class="list-wrap" id="home-vis">
-    <div class="skel" style="height:80px;border-radius:16px"></div>
-    <div class="skel" style="height:80px;border-radius:16px"></div>
+  <div class="step" id="pPiso2">
+    <div class="confirm-box"><div class="cb-lbl">Direccion</div><div class="addr" id="p_addr_preview"></div></div>
+    <div class="row2"><div class="fld"><label>Precio *</label><input id="p_pre" type="number" placeholder="Precio"></div><div class="fld"><label>Habitaciones *</label><input id="p_hab" type="number" placeholder="N"></div></div>
+    <div class="row2"><div class="fld"><label>Metros</label><input id="p_met" type="number" placeholder="m2"></div><div class="fld"><label>Estado</label><select id="p_est"><option value="Buen_Estado">Buen estado</option><option value="Reformado">Reformado</option><option value="A_Reformar">A reformar</option><option value="Obra_Nueva">Obra nueva</option></select></div></div>
+    <div class="fld"><label>Tipo colaboracion</label><select id="p_tipo_colab"><option value="Directa">Directa (50%)</option><option value="Compartida">Compartida (33%)</option></select></div>
+    <button class="sub" id="btnEnviarPiso" onclick="enviarPiso()">Enviar piso</button>
   </div>
-</div>
-
-<div id="tab-visitas" class="tab">
-  <div class="tab-hdr">
-    <div><span class="tab-ttl" id="visitas-ttl">Mis Visitas</span><span class="tab-badge" id="badge-vis">0</span></div>
-    <select id="filtro-vis" onchange="renderVisitas()" style="background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 28px 6px 10px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 fill=%27%23C5A059%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M8 11L3 6h10z%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 8px center">
-      <option value="all">Todas</option>
-      <option value="pendiente">Pendientes</option>
-      <option value="confirmada">Confirmadas</option>
-      <option value="feedback">Feedback due</option>
-      <option value="completada">Completadas</option>
-    </select>
-  </div>
-  <div class="list-wrap" id="lista-vis"></div>
+  <div class="ok" id="okPiso"><div class="ok-line"></div><h3>Piso registrado</h3><p>Se ha creado correctamente.</p></div>
 </div>
 </div>
 
-<nav class="bnav">
-  <button class="bnav-btn on" id="nav-home" onclick="showTab('home',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L10 3l7 6.5"/><path d="M5 8v8h4v-4h2v4h4V8"/></svg>Home</button>
-  <button class="bnav-btn" id="nav-visitas" onclick="showTab('visitas',this)"><svg class="bnav-ico" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M8 4V2M12 4V2"/></svg>Visitas</button>
-</nav>
+<!-- MODAL DEMANDA -->
+<div class="overlay" id="modalDemanda">
+<div class="sheet">
+  <button class="x" onclick="cerrarModal('modalDemanda')">×</button>
+  <div class="sheet-ttl">Nueva Demanda</div>
+  <div id="fDemanda">
+    <div class="fld"><label>Nombre cliente *</label><input id="d_nom" type="text" placeholder="Nombre completo"></div>
+    <div class="fld"><label>Zona *</label><input id="d_zona" type="text" placeholder="Zona o barrio"></div>
+    <div class="row2"><div class="fld"><label>Presupuesto max *</label><input id="d_pre" type="number" placeholder="Importe"></div><div class="fld"><label>Habitaciones min *</label><input id="d_hab" type="number" placeholder="N"></div></div>
+    <div class="fld"><label>Metros minimos</label><input id="d_met" type="number" placeholder="m2"></div>
+    <button class="sub" id="btnEnviarDemanda" onclick="enviarDemanda()">Enviar demanda</button>
+  </div>
+  <div class="ok" id="okDemanda"><div class="ok-line"></div><h3>Demanda enviada</h3><p>Empezamos a buscar pisos.</p></div>
+</div>
+</div>
+
+<!-- MODAL INVITAR -->
+<div class="overlay" id="modalInvitar">
+<div class="sheet">
+  <button class="x" onclick="cerrarModal('modalInvitar')">×</button>
+  <div class="sheet-ttl">Invitar Colaborador</div>
+  <div id="fInvitar">
+    <p style="color:var(--muted);font-size:14px;margin-bottom:20px;line-height:1.6">Envia una invitacion por email. El colaborador se registrara con tu link y quedara vinculado a tu cartera.</p>
+    <div class="fld"><label>Email del colaborador *</label><input id="inv_email" type="email" placeholder="email@ejemplo.com"></div>
+    <div class="fld"><label>Nombre (opcional)</label><input id="inv_nombre" type="text" placeholder="Nombre del colaborador"></div>
+    <button class="sub" id="btnInvitar" onclick="enviarInvitacion()">Enviar invitacion por email</button>
+  </div>
+  <div class="ok" id="okInvitar"><div class="ok-line"></div><h3>Invitacion enviada</h3><p>El colaborador recibira un email con tu link de registro.</p></div>
+</div>
+</div>
 
 <!-- MODAL FEEDBACK -->
 <div class="overlay" id="modalFB">
 <div class="sheet">
-  <button class="x" onclick="cerrar('modalFB')">×</button>
+  <button class="x" onclick="cerrarModal('modalFB')">×</button>
   <div class="sheet-ttl">Feedback de Visita</div>
   <div id="fbForm">
     <input type="hidden" id="fb-vid"><input type="hidden" id="fb-pid"><input type="hidden" id="fb-cid">
-    <div class="sdiv">1 · Valoración del Piso</div>
-    <div class="fld"><label>Valoración general</label><div class="stars" id="sp"><span class="star" onclick="setStar('p',1)">★</span><span class="star" onclick="setStar('p',2)">★</span><span class="star" onclick="setStar('p',3)">★</span><span class="star" onclick="setStar('p',4)">★</span><span class="star" onclick="setStar('p',5)">★</span></div></div>
-    <div class="fld"><label>Conservación</label><select id="fc"><option value="">Selecciona...</option><option>Excelente</option><option>Bueno</option><option>Regular</option><option>Necesita reforma</option></select></div>
-    <div class="fld"><label>Precio vs mercado</label><select id="fpm"><option value="">Selecciona...</option><option>Muy por debajo</option><option>Ajustado</option><option>Alto</option><option>Muy alto</option></select></div>
-    <div class="fld"><label>Observaciones del piso</label><textarea id="fop" rows="2" placeholder="Luminosidad, distribución, vecindario..."></textarea></div>
-    <div class="sdiv">2 · Valoración del Comprador</div>
-    <div class="fld"><label>Nivel de interés</label><div class="stars" id="sc"><span class="star" onclick="setStar('c',1)">★</span><span class="star" onclick="setStar('c',2)">★</span><span class="star" onclick="setStar('c',3)">★</span><span class="star" onclick="setStar('c',4)">★</span><span class="star" onclick="setStar('c',5)">★</span></div></div>
-    <div class="fld"><label>Capacidad financiera</label><select id="ff"><option value="">Selecciona...</option><option>Alta (efectivo / pre-aprobado)</option><option>Media (necesita hipoteca)</option><option>Baja (dudas financiación)</option><option>No evaluada</option></select></div>
-    <div class="fld"><label>¿Encaja con su demanda?</label><select id="fe"><option value="">Selecciona...</option><option>Sí, muy bien</option><option>Parcialmente</option><option>No encaja</option></select></div>
-    <div class="fld"><label>Observaciones del comprador</label><textarea id="foc" rows="2" placeholder="Motivaciones, objeciones..."></textarea></div>
-    <div class="sdiv">3 · Broker del Comprador</div>
-    <div class="fld"><label>¿Hay broker del comprador?</label><select id="fbd" onchange="tog('bdf',this.value==='si')"><option value="no">No</option><option value="si">Sí</option></select></div>
-    <div id="bdf" style="display:none"><div class="fld"><label>Nombre</label><input type="text" id="fbdn" placeholder="Nombre y apellido"></div><div class="fld"><label>Agencia</label><input type="text" id="fbda" placeholder="Nombre de la agencia"></div><div class="fld"><label>Comisión</label><select id="fbdc"><option value="">Por definir</option><option>50% ONOMA / 50% broker-demanda</option><option>33.33% cada uno</option><option>Otra</option></select></div></div>
-    <div class="sdiv">4 · Broker del Vendedor</div>
-    <div class="fld"><label>¿Hay broker del vendedor?</label><select id="fbv" onchange="tog('bvf',this.value==='si')"><option value="no">No</option><option value="si">Sí</option></select></div>
-    <div id="bvf" style="display:none"><div class="fld"><label>Nombre</label><input type="text" id="fbvn" placeholder="Nombre y apellido"></div><div class="fld"><label>Agencia</label><input type="text" id="fbva" placeholder="Nombre de la agencia"></div></div>
-    <div class="sdiv">5 · Grabación</div>
-    <div class="fld"><label>Vídeo o audio (opcional)</label><input type="file" id="fmedia" accept="video/*,audio/*"><div style="font-size:11px;color:var(--muted);margin-top:6px">Se transcribirá automáticamente con IA</div></div>
-    <div class="fld"><label>Notas adicionales</label><textarea id="fnot" rows="2" placeholder="Cualquier detalle relevante..."></textarea></div>
-    <button class="sub" id="btnFB" onclick="enviarFB()">Enviar feedback →</button>
+    <div class="sdiv">1 - Valoracion del Piso</div>
+    <div class="fld"><label>Valoracion general</label><div class="stars" id="sp"><span class="star" onclick="setStar('p',1)">★</span><span class="star" onclick="setStar('p',2)">★</span><span class="star" onclick="setStar('p',3)">★</span><span class="star" onclick="setStar('p',4)">★</span><span class="star" onclick="setStar('p',5)">★</span></div></div>
+    <div class="fld"><label>Conservacion</label><select id="fc"><option value="">Selecciona...</option><option>Excelente</option><option>Bueno</option><option>Regular</option><option>Necesita reforma</option></select></div>
+    <div class="fld"><label>Observaciones piso</label><textarea id="fop" rows="2" placeholder="Luminosidad, distribucion..."></textarea></div>
+    <div class="sdiv">2 - Valoracion del Comprador</div>
+    <div class="fld"><label>Nivel de interes</label><div class="stars" id="sc"><span class="star" onclick="setStar('c',1)">★</span><span class="star" onclick="setStar('c',2)">★</span><span class="star" onclick="setStar('c',3)">★</span><span class="star" onclick="setStar('c',4)">★</span><span class="star" onclick="setStar('c',5)">★</span></div></div>
+    <div class="fld"><label>Capacidad financiera</label><select id="ff"><option value="">Selecciona...</option><option>Alta</option><option>Media</option><option>Baja</option></select></div>
+    <div class="fld"><label>Observaciones comprador</label><textarea id="foc" rows="2" placeholder="Motivaciones, objeciones..."></textarea></div>
+    <button class="sub" id="btnFB" onclick="enviarFB()">Enviar feedback</button>
   </div>
   <div class="ok-box" id="fbOk">
     <div style="font-size:52px">✅</div>
     <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-top:12px">Feedback enviado</h3>
-    <p style="color:var(--muted);margin-top:10px;font-size:14px">Guardado correctamente. El matching se actualizará.</p>
-    <button onclick="cerrar('modalFB')" class="sub" style="margin-top:20px">Cerrar</button>
+    <button onclick="cerrarModal('modalFB')" class="sub" style="margin-top:20px">Cerrar</button>
   </div>
 </div>
 </div>
@@ -443,30 +778,117 @@ select option{background:#0c0c1e;color:#f0f0f5;padding:10px}
 const AID='reclKBO4HkpCdf15N';const WH='https://onomahomes.app.n8n.cloud/webhook';let allV=[];let sv={p:0,c:0};
 const isViewerAsesor=new URLSearchParams(window.location.search).get('viewer')==='direccion';
 if(isViewerAsesor){
-  // Add back button at top
   var backBar=document.createElement('div');
   backBar.style.cssText='padding:12px 20px;background:rgba(59,130,246,.08);border-bottom:1px solid rgba(59,130,246,.2);display:flex;align-items:center;gap:12px';
-  backBar.innerHTML='<a href="javascript:window.close()" style="color:#60a5fa;font-size:14px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px" onclick="event.preventDefault();window.close();if(!window.closed)history.back()">← Volver a Dirección</a><span style="color:rgba(255,255,255,.3);font-size:13px">Vista solo lectura</span>';
+  backBar.innerHTML='<a href="javascript:window.close()" style="color:#60a5fa;font-size:14px;font-weight:600;text-decoration:none" onclick="event.preventDefault();window.close();if(!window.closed)history.back()">← Volver a Direccion</a><span style="color:rgba(255,255,255,.3);font-size:13px">Vista solo lectura</span>';
   document.body.insertBefore(backBar,document.body.firstChild);
-  // Change labels for viewer mode
-  setTimeout(function(){
-    var ttl=document.getElementById('visitas-ttl');if(ttl)ttl.textContent='Visitas';
-    // Hide feedback button in visitor cards
-    document.querySelectorAll('.bg2').forEach(function(el){if(el.textContent.includes('feedback'))el.style.display='none'});
-  },100);
+  document.querySelectorAll('.btn-new').forEach(function(el){el.style.display='none'});
+  document.querySelector('.sb-logout').style.display='none';
+  setTimeout(function(){document.querySelectorAll('.main-ttl').forEach(function(el){if(el.textContent==='Mis Visitas')el.textContent='Visitas'})},100);
 }
-function showTab(n,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));document.getElementById('tab-'+n).classList.add('active');btn.classList.add('on');if(n==='visitas')renderVisitas()}
-function abrir(id){document.getElementById(id).classList.add('on')}
-function cerrar(id){document.getElementById(id).classList.remove('on')}
+
+function goTab(name,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+name).classList.add('active');if(el)el.classList.add('active');closeSidebar()}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOverlay').classList.remove('open')}
+function abrirModal(mid){document.getElementById(mid).classList.add('on')}
+function cerrarModal(mid){document.getElementById(mid).classList.remove('on')}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on')}));
 function setStar(t,v){sv[t]=v;document.getElementById('s'+t).querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<v))}
-function tog(id,show){document.getElementById(id).style.display=show?'block':'none'}
-async function loadData(){try{const r=await fetch(WH+'/asesor-data?id='+AID);const d=await r.json();allV=d.visitas||[];const s=d.stats||{};document.getElementById('s-pending').textContent=s.pendientes??'0';document.getElementById('s-today').textContent=s.hoy??'0';document.getElementById('s-feedback').textContent=s.feedback??'0';document.getElementById('s-mes').textContent=s.mes??'0';document.getElementById('s-total').textContent=s.total??'0';document.getElementById('badge-vis').textContent=allV.length;renderHome()}catch(e){console.error(e)}}
-function visitCard(v,compact){const bc={'Pendiente Confirmación':'ba','Pendiente Confirmación Colab':'ba','Confirmada':'bb','Realizada':'bg','Completada':'bgr','Cancelada':'bgr','Rechazada por Colaborador':'br'}[v.estado]||'bgr';const cc={'Pendiente Confirmación':'pen','Pendiente Confirmación Colab':'pen','Confirmada':'conf','Realizada':(!v.feedback_enviado?'feed':'')}[v.estado]||'';const fd=v.fecha?new Date(v.fecha+'T12:00:00').toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}):'—';const briefingUrl='https://onomahomes.app.n8n.cloud/webhook/briefing?v='+v.id;let act='';if(!compact){const briefingBtn='<a href="'+briefingUrl+'" target="_blank" class="bsm bo">📋 Briefing</a>';if((v.estado==='Realizada')&&!v.feedback_enviado){act=briefingBtn+'<button class="bsm bg2" onclick="abrirFB(\''+v.id+'\',\''+v.piso_id+'\',\''+v.comprador_id+'\')">Dar feedback</button>'}else if(v.estado==='Confirmada'||v.estado==='Pendiente Confirmación'){act=briefingBtn}}else if(v.estado==='Confirmada'){act='<a href="'+briefingUrl+'" target="_blank" class="bsm bo" style="font-size:12px">📋 Ver briefing</a>'}return '<div class="vcard '+cc+'"><div class="vh"><div class="vdir">'+(v.piso_dir||'Piso')+'</div><span class="vbadge '+bc+'">'+v.estado+'</span></div><div class="vm"><span>👤 <strong>'+(v.comprador_nombre||'Comprador')+'</strong></span><span>📅 <strong>'+fd+'</strong>'+(v.hora?' '+v.hora:'')+'</span></div>'+(act?'<div class="vact">'+act+'</div>':'')+'</div>'}
-function renderHome(){const up=allV.filter(v=>!['Completada','Cancelada','Rechazada por Colaborador'].includes(v.estado)).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha)).slice(0,3);const el=document.getElementById('home-vis');el.innerHTML=up.length?up.map(v=>visitCard(v,true)).join(''):'<div class="empty"><div class="empty-line"></div><p>No hay visitas pendientes</p></div>'}
-function renderVisitas(){const f=document.getElementById('filtro-vis')?.value||'all';let list=allV;if(f==='pendiente')list=list.filter(v=>v.estado.includes('Pendiente'));else if(f==='confirmada')list=list.filter(v=>v.estado==='Confirmada');else if(f==='feedback')list=list.filter(v=>v.estado==='Realizada'&&!v.feedback_enviado);else if(f==='completada')list=list.filter(v=>v.estado==='Completada');list=list.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));const el=document.getElementById('lista-vis');el.innerHTML=list.length?list.map(v=>visitCard(v,false)).join(''):'<div class="empty"><div class="empty-line"></div><p>No hay visitas en esta categoría</p></div>'}
-function abrirFB(vid,pid,cid){document.getElementById('fb-vid').value=vid;document.getElementById('fb-pid').value=pid;document.getElementById('fb-cid').value=cid;sv={p:0,c:0};document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));document.querySelectorAll('.fld select').forEach(s=>s.value='');document.querySelectorAll('.fld textarea').forEach(t=>t.value='');['bdf','bvf'].forEach(id=>document.getElementById(id).style.display='none');document.getElementById('fbForm').style.display='block';document.getElementById('fbOk').classList.remove('on');abrir('modalFB')}
-async function enviarFB(){const btn=document.getElementById('btnFB');btn.disabled=true;btn.textContent='Enviando...';const mediaFile=document.getElementById('fmedia').files[0];let mediaUrl=null;if(mediaFile){try{const fd2=new FormData();fd2.append('file',mediaFile);fd2.append('visita_id',document.getElementById('fb-vid').value);fd2.append('asesor_id',AID);const ur=await fetch(WH+'/asesor-upload-media',{method:'POST',body:fd2});const ud=await ur.json();mediaUrl=ud.url||null}catch(e){console.warn('Media upload failed:',e)}}const payload={visita_id:document.getElementById('fb-vid').value,piso_id:document.getElementById('fb-pid').value,comprador_id:document.getElementById('fb-cid').value,asesor_id:AID,estrella_piso:sv.p,conservacion:document.getElementById('fc').value,precio_mercado:document.getElementById('fpm').value,obs_piso:document.getElementById('fop').value,estrella_comprador:sv.c,financiera:document.getElementById('ff').value,encaje:document.getElementById('fe').value,obs_comprador:document.getElementById('foc').value,tiene_broker_dem:document.getElementById('fbd').value==='si',broker_dem_nombre:document.getElementById('fbdn').value,broker_dem_agencia:document.getElementById('fbda').value,broker_dem_comision:document.getElementById('fbdc').value,tiene_broker_vend:document.getElementById('fbv').value==='si',broker_vend_nombre:document.getElementById('fbvn').value,broker_vend_agencia:document.getElementById('fbva').value,media_url:mediaUrl,notas:document.getElementById('fnot').value};try{const r=await fetch(WH+'/asesor-feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const d=await r.json();if(d.ok){document.getElementById('fbForm').style.display='none';document.getElementById('fbOk').classList.add('on');const v=allV.find(v=>v.id===payload.visita_id);if(v)v.feedback_enviado=true}else{alert(d.error||'Error al enviar');btn.disabled=false;btn.textContent='Enviar feedback →'}}catch(e){alert('Error de conexión');btn.disabled=false;btn.textContent='Enviar feedback →'}}
+
+async function loadData(){
+  try{
+    const r=await fetch(WH+'/asesor-data?id='+AID);
+    const d=await r.json();
+    allV=d.visitas||[];
+    const s=d.stats||{};
+    document.getElementById('s-pending').textContent=s.pendientes??'0';
+    document.getElementById('s-today').textContent=s.hoy??'0';
+    document.getElementById('s-feedback').textContent=s.feedback??'0';
+    document.getElementById('s-mes').textContent=s.mes??'0';
+    document.getElementById('s-total').textContent=s.total??'0';
+    document.getElementById('badge-vis').textContent=allV.length;
+    renderHome();
+    renderFeedbacks();
+  }catch(e){console.error(e)}
+}
+
+function visitCard(v){
+  var bc={'Pendiente Confirmacion':'ba','Confirmada':'bb','Realizada':'bg','Completada':'bgr','Cancelada':'bgr'}[v.estado]||'bgr';
+  var fd=v.fecha?new Date(v.fecha+'T12:00:00').toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'}):'—';
+  var briefUrl='https://onomahomes.app.n8n.cloud/webhook/briefing?v='+v.id;
+  var act='<a href="'+briefUrl+'" target="_blank" class="bsm bo">Briefing</a>';
+  if(v.estado==='Realizada'&&!v.feedback_enviado) act+='<button class="bsm bg2" onclick="abrirFB(\''+v.id+'\',\''+v.piso_id+'\',\''+v.comprador_id+'\')">Dar feedback</button>';
+  return '<div class="li-card" style="margin-bottom:10px"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px"><div style="font-size:16px;font-weight:600">'+(v.piso_dir||'Piso')+'</div><span class="badge '+bc+'">'+v.estado+'</span></div><div style="font-size:14px;color:var(--muted);margin-top:6px">👤 '+(v.comprador_nombre||'Comprador')+' · 📅 '+fd+(v.hora?' · '+v.hora:'')+'</div><div style="display:flex;gap:8px;margin-top:12px">'+act+'</div></div>';
+}
+
+function renderHome(){
+  var up=allV.filter(v=>!['Completada','Cancelada'].includes(v.estado)).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha)).slice(0,5);
+  document.getElementById('home-vis').innerHTML=up.length?up.map(visitCard).join(''):'<div class="empty"><p>No hay visitas pendientes</p></div>';
+}
+
+function renderVisitas(){
+  var f=document.getElementById('filtro-vis')?.value||'all';
+  var list=allV;
+  if(f==='pendiente') list=list.filter(v=>v.estado.includes('Pendiente'));
+  else if(f==='confirmada') list=list.filter(v=>v.estado==='Confirmada');
+  else if(f==='feedback') list=list.filter(v=>v.estado==='Realizada'&&!v.feedback_enviado);
+  else if(f==='completada') list=list.filter(v=>v.estado==='Completada');
+  document.getElementById('lista-vis').innerHTML=list.length?list.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).map(visitCard).join(''):'<div class="empty"><p>No hay visitas</p></div>';
+}
+
+function renderFeedbacks(){
+  var pending=allV.filter(v=>v.estado==='Realizada'&&!v.feedback_enviado);
+  var done=allV.filter(v=>v.feedback_enviado);
+  document.getElementById('fb-pending').innerHTML=pending.length?pending.map(v=>'<div class="li-card" style="margin-bottom:10px;cursor:pointer;border-left:3px solid var(--amber-t)" onclick="abrirFB(\''+v.id+'\',\''+v.piso_id+'\',\''+v.comprador_id+'\')"><div style="font-size:16px;font-weight:600">'+(v.piso_dir||'Piso')+'</div><div style="font-size:14px;color:var(--muted);margin-top:4px">👤 '+(v.comprador_nombre||'')+'</div><div style="font-size:13px;color:var(--amber-t);margin-top:8px">Click para dar feedback →</div></div>').join(''):'<div class="empty"><p>No hay feedbacks pendientes</p></div>';
+  document.getElementById('fb-done').innerHTML=done.length?done.map(v=>'<div class="li-card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between"><div style="font-size:16px;font-weight:600">'+(v.piso_dir||'Piso')+'</div><span class="badge badge-green">Enviado</span></div><div style="font-size:14px;color:var(--muted);margin-top:4px">👤 '+(v.comprador_nombre||'')+'</div></div>').join(''):'<div class="empty"><p>No hay feedbacks enviados aun</p></div>';
+}
+
+function abrirFB(vid,pid,cid){
+  document.getElementById('fb-vid').value=vid;document.getElementById('fb-pid').value=pid;document.getElementById('fb-cid').value=cid;
+  sv={p:0,c:0};document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.fld select').forEach(s=>s.value='');document.querySelectorAll('.fld textarea').forEach(t=>t.value='');
+  document.getElementById('fbForm').style.display='block';document.getElementById('fbOk').classList.remove('on');
+  abrirModal('modalFB');
+}
+async function enviarFB(){
+  var btn=document.getElementById('btnFB');btn.disabled=true;btn.textContent='Enviando...';
+  var payload={visita_id:document.getElementById('fb-vid').value,piso_id:document.getElementById('fb-pid').value,comprador_id:document.getElementById('fb-cid').value,asesor_id:AID,estrella_piso:sv.p,conservacion:document.getElementById('fc').value,obs_piso:document.getElementById('fop').value,estrella_comprador:sv.c,financiera:document.getElementById('ff').value,obs_comprador:document.getElementById('foc').value};
+  try{var r=await fetch(WH+'/asesor-feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});var d=await r.json();if(d.ok){document.getElementById('fbForm').style.display='none';document.getElementById('fbOk').classList.add('on');var v=allV.find(v=>v.id===payload.visita_id);if(v)v.feedback_enviado=true;renderFeedbacks()}else{alert(d.error||'Error');btn.disabled=false;btn.textContent='Enviar feedback'}}catch(e){alert('Error');btn.disabled=false;btn.textContent='Enviar feedback'}
+}
+
+// Piso form
+function pisoPaso2(){
+  var c=document.getElementById('p_calle').value.trim(),n=document.getElementById('p_num').value.trim(),b=document.getElementById('p_barrio').value.trim();
+  if(!c||!n||!b){alert('Completa calle, numero y barrio');return}
+  document.getElementById('p_addr_preview').textContent=c+' '+n+', '+b+', Madrid';
+  document.getElementById('pPiso1').classList.remove('on');document.getElementById('pPiso2').classList.add('on');
+}
+async function enviarPiso(){
+  var pre=document.getElementById('p_pre').value,hab=document.getElementById('p_hab').value;
+  if(!pre||!hab){alert('Precio y habitaciones obligatorios');return}
+  var btn=document.getElementById('btnEnviarPiso');btn.disabled=true;btn.textContent='Enviando...';
+  try{await fetch(WH+'/colaborador-piso',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:AID,calle:document.getElementById('p_calle').value.trim(),numero:document.getElementById('p_num').value.trim(),barrio:document.getElementById('p_barrio').value.trim(),precio:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('p_met').value||0),estado:document.getElementById('p_est').value,tipo_colaboracion:document.getElementById('p_tipo_colab').value})});document.getElementById('pPiso2').style.display='none';document.getElementById('okPiso').classList.add('on')}catch(e){alert('Error');btn.disabled=false;btn.textContent='Enviar piso'}
+}
+async function enviarDemanda(){
+  var nom=document.getElementById('d_nom').value.trim(),zona=document.getElementById('d_zona').value.trim(),pre=document.getElementById('d_pre').value,hab=document.getElementById('d_hab').value;
+  if(!nom||!zona||!pre||!hab){alert('Campos obligatorios');return}
+  var btn=document.getElementById('btnEnviarDemanda');btn.disabled=true;btn.textContent='Enviando...';
+  try{await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:AID,nombre:nom,zona,presupuesto:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('d_met').value||0)})});document.getElementById('fDemanda').style.display='none';document.getElementById('okDemanda').classList.add('on')}catch(e){alert('Error');btn.disabled=false;btn.textContent='Enviar demanda'}
+}
+
+// Invitar colaborador por email
+async function enviarInvitacion(){
+  var email=document.getElementById('inv_email').value.trim();
+  if(!email||!email.includes('@')){alert('Email valido requerido');return}
+  var btn=document.getElementById('btnInvitar');btn.disabled=true;btn.textContent='Enviando...';
+  try{
+    var r=await fetch(WH+'/enviar-invitacion-asesor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({asesor_id:AID,email:email,nombre:document.getElementById('inv_nombre').value.trim()})});
+    var d=await r.json();
+    if(d.ok){document.getElementById('fInvitar').style.display='none';document.getElementById('okInvitar').classList.add('on')}
+    else{alert(d.error||'Error');btn.disabled=false;btn.textContent='Enviar invitacion por email'}
+  }catch(e){alert('Error de conexion');btn.disabled=false;btn.textContent='Enviar invitacion por email'}
+}
+
 loadData();
 </script>
 </body></html>
