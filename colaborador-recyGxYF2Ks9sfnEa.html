@@ -737,7 +737,7 @@ body{overflow-x:hidden}
   <div class="sheet-ttl">Nuevo Piso</div>
   <div class="step on" id="pPiso1">
     <div class="step-info">Paso 1 de 2 · Dirección del inmueble</div>
-    <div class="fld"><label>Dirección *</label><input id="p_calle" type="text" placeholder="Escribe la dirección y selecciona..." autocomplete="off"></div>
+    <div class="fld"><label>Calle *</label><input id="p_calle" type="text" placeholder="Nombre de la calle"></div>
     <div id="catastroInfo" style="display:none;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:rgba(74,222,128,.8)"></div>
     <div id="duplicateWarn" style="display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#f87171"></div>
     <div class="row2"><div class="fld"><label>Número *</label><input id="p_num" type="text" placeholder="Ej: 14"></div><div class="fld"><label>Piso / Puerta</label><input id="p_piso" type="text" placeholder="Ej: 3ºB"></div></div>
@@ -1007,58 +1007,67 @@ async function fetchDashboard(){try{const r=await fetch(WH+'/colaborador-data?id
 fetchDashboard();
 loadMatchings();
 
-// ═══ GOOGLE MAPS AUTOCOMPLETE ═══
-function initAutocomplete(){
-  var input=document.getElementById('p_calle');
-  if(!input||!window.google) return;
-  var ac=new google.maps.places.Autocomplete(input,{types:['address'],componentRestrictions:{country:'es'},fields:['address_components','geometry','formatted_address']});
-  ac.addListener('place_changed',function(){
-    var place=ac.getPlace();
-    if(!place.geometry) return;
-    var lat=place.geometry.location.lat();
-    var lng=place.geometry.location.lng();
-    document.getElementById('p_lat').value=lat;
-    document.getElementById('p_lng').value=lng;
-    // Parse address components
-    var comps=place.address_components||[];
-    var num='';var barrio='';var calle='';
-    comps.forEach(function(c){
-      if(c.types.includes('street_number')) num=c.long_name;
-      if(c.types.includes('route')) calle=c.long_name;
-      if(c.types.includes('sublocality_level_1')||c.types.includes('neighborhood')) barrio=c.long_name;
-      if(!barrio&&c.types.includes('locality')) barrio=c.long_name;
-    });
-    if(num) document.getElementById('p_num').value=num;
-    if(barrio) document.getElementById('p_barrio').value=barrio;
-    // Catastro lookup
-    buscarCatastro(lat,lng,place.formatted_address);
-  });
-}
-async function buscarCatastro(lat,lng,addr){
+// ═══ VALIDACIÓN DIRECCIÓN + CATASTRO ═══
+var pisoValidado=false;
+var oldPisoPaso2=pisoPaso2;
+pisoPaso2=async function(){
+  var calle=document.getElementById('p_calle').value.trim();
+  var num=document.getElementById('p_num').value.trim();
+  var barrio=document.getElementById('p_barrio').value.trim();
+  if(!calle||!num||!barrio){alert('Completa calle, número y barrio');return}
   var info=document.getElementById('catastroInfo');
   var warn=document.getElementById('duplicateWarn');
   info.style.display='none';warn.style.display='none';
+  // Validate address with Google Geocoding
+  var addr=calle+' '+num+', '+barrio+', Madrid, España';
+  var btn=document.querySelector('#pPiso1 .sub');
+  btn.disabled=true;btn.textContent='Verificando dirección...';
   try{
-    var r=await fetch('https://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx/Consulta_RCCOOR?SRS=EPSG:4326&Coordenada_X='+lng+'&Coordenada_Y='+lat);
-    var text=await r.text();
-    var rcMatch=text.match(/<pc1>([^<]+)<\/pc1>\s*<pc2>([^<]+)<\/pc2>/);
-    if(rcMatch){
-      var refCat=rcMatch[1]+rcMatch[2];
-      document.getElementById('p_catastro').value=refCat;
-      info.innerHTML='\u2705 Ref. Catastral: <strong>'+refCat+'</strong>';
-      info.style.display='block';
-      // Check for duplicates in Airtable
+    var r=await fetch('https://maps.googleapis.com/maps/api/geocode/json?address='+encodeURIComponent(addr)+'&key=AIzaSyCvPlI9NFE7soKo0Nl7mWMuY42yIRkrfCY&components=country:ES');
+    var d=await r.json();
+    if(d.status!=='OK'||!d.results.length){
+      info.innerHTML='\u274C Dirección no encontrada. Verifica calle, número y barrio.';
+      info.style.display='block';info.style.background='rgba(239,68,68,.08)';info.style.borderColor='rgba(239,68,68,.25)';info.style.color='#f87171';
+      btn.disabled=false;btn.textContent='Continuar →';return;
+    }
+    var loc=d.results[0].geometry.location;
+    document.getElementById('p_lat').value=loc.lat;
+    document.getElementById('p_lng').value=loc.lng;
+    // Catastro lookup
+    try{
+      var cr=await fetch('https://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx/Consulta_RCCOOR?SRS=EPSG:4326&Coordenada_X='+loc.lng+'&Coordenada_Y='+loc.lat);
+      var ct=await cr.text();
+      var rcM=ct.match(/<pc1>([^<]+)<\/pc1>[\s\S]*?<pc2>([^<]+)<\/pc2>/);
+      if(rcM){
+        var ref=rcM[1]+rcM[2];
+        document.getElementById('p_catastro').value=ref;
+        info.innerHTML='\u2705 Dirección verificada · Ref. Catastral: <strong>'+ref+'</strong>';
+        info.style.display='block';info.style.background='rgba(74,222,128,.06)';info.style.borderColor='rgba(74,222,128,.2)';info.style.color='rgba(74,222,128,.8)';
+      }
+    }catch(e){}
+    // Check duplicates
+    try{
       var dr=await fetch(WH+'/colaborador-data?id='+CID);
       var dd=await dr.json();
       var pisos=dd.pisos||[];
-      var dup=pisos.find(function(p){return p.catastro===refCat});
+      var dirLower=addr.toLowerCase();
+      var dup=pisos.find(function(p){return p.direccion&&p.direccion.toLowerCase().includes(calle.toLowerCase())&&p.direccion.toLowerCase().includes(num)});
       if(dup){
-        warn.innerHTML='\u26A0\uFE0F Este piso ya est\u00E1 registrado: <strong>'+dup.direccion+'</strong>';
+        warn.innerHTML='\u26A0\uFE0F Ya tienes un piso similar registrado: <strong>'+dup.direccion+'</strong>. ¿Seguro que quieres continuar?';
         warn.style.display='block';
       }
-    }
-  }catch(e){console.log('Catastro error:',e)}
-}
+    }catch(e){}
+    pisoValidado=true;
+    // Continue to step 2
+    var addrPreview=calle+' '+num+(document.getElementById('p_piso').value?', '+document.getElementById('p_piso').value:'')+' · '+barrio+', Madrid';
+    document.getElementById('p_addr_preview').textContent=addrPreview;
+    document.getElementById('pPiso1').classList.remove('on');
+    document.getElementById('pPiso2').classList.add('on');
+  }catch(e){
+    info.innerHTML='\u274C Error verificando dirección. Inténtalo de nuevo.';
+    info.style.display='block';info.style.background='rgba(239,68,68,.08)';info.style.borderColor='rgba(239,68,68,.25)';info.style.color='#f87171';
+  }
+  btn.disabled=false;btn.textContent='Continuar →';
+};
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCvPlI9NFE7soKo0Nl7mWMuY42yIRkrfCY&libraries=places&callback=initAutocomplete" async defer></script>
 </body></html>
