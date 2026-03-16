@@ -774,6 +774,33 @@ body{overflow-x:hidden}
 <script>
 const CID='rec9vus0hessxzSHR';const WH='https://onomahomes.app.n8n.cloud/webhook';
 let matchData=[];let currentDemanda=null;let viewMode=1;let selectedPisos=[];let currentPhotos=[];let currentPhotoIdx=0;
+const isViewer=new URLSearchParams(window.location.search).get('viewer')==='direccion';
+if(isViewer){
+  // Hide action buttons, change labels to 3rd person
+  document.querySelectorAll('.btn-new,.btn-act,.main-actions').forEach(function(el){el.style.display='none'});
+  document.querySelectorAll('.sb-item[data-tab=matchings]').forEach(function(el){
+    // Hide matchings selection features for viewer
+  });
+  // Change sidebar labels
+  var sbItems=document.querySelectorAll('.sb-item');
+  sbItems.forEach(function(el){
+    if(el.textContent.trim()==='Mis Pisos') el.innerHTML=el.innerHTML.replace('Mis Pisos','Sus Pisos');
+  });
+  // Change tab titles
+  setTimeout(function(){
+    document.querySelectorAll('.main-ttl').forEach(function(el){
+      if(el.textContent==='Mis Pisos') el.textContent='Sus Pisos';
+      if(el.textContent==='Mis Demandas') el.textContent='Sus Demandas';
+    });
+  },100);
+  // Hide logout
+  document.querySelector('.sb-logout').style.display='none';
+  // Add viewer banner
+  var banner=document.createElement('div');
+  banner.style.cssText='background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:#60a5fa;padding:10px 16px;font-size:13px;text-align:center;font-weight:500';
+  banner.textContent='Vista de Dirección — solo lectura';
+  document.querySelector('.main').insertBefore(banner,document.querySelector('.main').firstChild);
+}
 
 function goTab(name,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+name).classList.add('active');if(el)el.classList.add('active');closeSidebar()}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')}
@@ -857,6 +884,7 @@ function volverMatchList(){
 function setMode(m){viewMode=m;document.getElementById('modeBtn1').classList.toggle('active',m===1);document.getElementById('modeBtn2').classList.toggle('active',m===2);renderMatchPisos()}
 function renderMatchPisos(){
   if(!currentDemanda) return;
+  if(isViewer){document.getElementById('match-selection-bar').style.display='none'}
   const el=document.getElementById('match-pisos-grid');
   el.innerHTML=currentDemanda.matchings.map((m,i)=>{
     const p=m.piso;const sel=selectedPisos.includes(m.matching_id);
@@ -876,13 +904,13 @@ function renderMatchPisos(){
       body+='<div class="mc-price" style="margin-top:8px">€'+Number(p.precio).toLocaleString('es-ES')+'</div>';
     }
     return '<div class="match-card'+(sel?' selected':'')+'" data-mid="'+m.matching_id+'">'
-      +'<div class="mc-check" onclick="event.stopPropagation();toggleSelect(\''+m.matching_id+'\')">✓</div>'
+      +(isViewer?'':'<div class="mc-check" onclick="event.stopPropagation();toggleSelect(\''+m.matching_id+'\')">✓</div>')
       +'<div class="mc-score">Score '+m.score+'%</div>'
       +img+'<div class="mc-body" onclick="openPisoDetail(\''+m.matching_id+'\')">'+body+'</div></div>';
   }).join('');
   updateSelectionBar();
 }
-function toggleSelect(mid){
+function toggleSelect(mid){if(isViewer) return;
   const idx=selectedPisos.indexOf(mid);
   if(idx>=0){selectedPisos.splice(idx,1)}
   else{if(selectedPisos.length>=3){alert('Máximo 3 pisos. Deselecciona uno primero.');return}selectedPisos.push(mid)}
