@@ -223,7 +223,8 @@ async function registrar() {
         empresa: (tipo !== 'comprador' && !esIndep) ? empresa : '',
         cif_empresa: (tipo !== 'comprador' && !esIndep) ? cif : '',
         cargo: (tipo !== 'comprador' && !esIndep) ? cargo : '',
-        es_independiente: tipo === 'comprador' ? true : esIndep
+        es_independiente: tipo === 'comprador' ? true : esIndep,
+        asesor_id: new URLSearchParams(window.location.search).get('asesor') || ''
       })
     });
     const d = await r.json();
@@ -249,6 +250,19 @@ function mostrarError(msg) {
   err.style.display = 'block';
   err.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
+</script>
+
+<script>
+(function(){
+  var asesor = new URLSearchParams(window.location.search).get('asesor');
+  if (asesor) {
+    var banner = document.createElement('div');
+    banner.style.cssText = 'background:rgba(197,160,89,.08);border:1px solid rgba(197,160,89,.2);border-radius:10px;padding:10px 16px;margin-bottom:16px;font-size:13px;color:#C5A059;text-align:center';
+    banner.textContent = 'Registro a través de un asesor ONOMA';
+    var card = document.querySelector('.card');
+    if (card) card.insertBefore(banner, card.firstChild);
+  }
+})();
 </script>
 </body>
 </html>
