@@ -737,10 +737,13 @@ body{overflow-x:hidden}
   <div class="sheet-ttl">Nuevo Piso</div>
   <div class="step on" id="pPiso1">
     <div class="step-info">Paso 1 de 2 · Dirección del inmueble</div>
-    <div class="fld"><label>Calle *</label><input id="p_calle" type="text" placeholder="Nombre de la calle"></div>
+    <div class="fld"><label>Dirección *</label><input id="p_calle" type="text" placeholder="Escribe la dirección y selecciona..." autocomplete="off"></div>
+    <div id="catastroInfo" style="display:none;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:rgba(74,222,128,.8)"></div>
+    <div id="duplicateWarn" style="display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#f87171"></div>
     <div class="row2"><div class="fld"><label>Número *</label><input id="p_num" type="text" placeholder="Ej: 14"></div><div class="fld"><label>Piso / Puerta</label><input id="p_piso" type="text" placeholder="Ej: 3ºB"></div></div>
     <div class="fld"><label>Distrito / Barrio *</label><input id="p_barrio" type="text" placeholder="Barrio o distrito"></div>
     <div class="fld"><label>Ciudad</label><input type="text" value="Madrid" readonly></div>
+    <input type="hidden" id="p_lat"><input type="hidden" id="p_lng"><input type="hidden" id="p_catastro">
     <button class="sub" onclick="pisoPaso2()">Continuar →</button>
   </div>
   <div class="step" id="pPiso2">
@@ -819,7 +822,7 @@ function renderDemandas(demandas){const el=document.getElementById('lista-demand
 function renderOps(ops){const el=document.getElementById('lista-ops');document.getElementById('badge-ops').textContent=ops.length;if(!ops.length){el.innerHTML='<div class="empty"><div class="empty-line"></div><p>Todavía no tienes operaciones cerradas</p></div>';return}el.innerHTML=ops.map(op=>'<div class="li-card op-card"><div class="op-imp">€'+Number(op.importe||0).toLocaleString('es-ES')+'</div><div class="op-lbl">'+(op.rol||'Operación cerrada')+'</div>'+(op.fecha?'<div style="font-size:12px;color:var(--muted);margin-top:8px">'+op.fecha+'</div>':'')+'</div>').join('')}
 function pisoPaso2(){const calle=document.getElementById('p_calle').value.trim();const num=document.getElementById('p_num').value.trim();const barrio=document.getElementById('p_barrio').value.trim();if(!calle||!num||!barrio){alert('Completa calle, número y barrio para continuar');return}const addr=calle+' '+num+(document.getElementById('p_piso').value?', '+document.getElementById('p_piso').value:'')+' · '+barrio+', Madrid';document.getElementById('p_addr_preview').textContent=addr;document.getElementById('pPiso1').classList.remove('on');document.getElementById('pPiso2').classList.add('on')}
 function pisoVolver(){document.getElementById('pPiso2').classList.remove('on');document.getElementById('pPiso1').classList.add('on')}
-async function enviarPiso(){const pre=document.getElementById('p_pre').value;const hab=document.getElementById('p_hab').value;if(!pre||!hab){alert('Completa precio y habitaciones');return}const btn=document.getElementById('btnEnviarPiso');btn.disabled=true;btn.textContent='Enviando...';try{const resp=await fetch(WH+'/colaborador-piso',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,calle:document.getElementById('p_calle').value.trim(),numero:document.getElementById('p_num').value.trim(),piso_puerta:document.getElementById('p_piso').value.trim(),barrio:document.getElementById('p_barrio').value.trim(),precio:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('p_met').value||0),estado:document.getElementById('p_est').value,ascensor:document.getElementById('p_asc').checked,tipo_colaboracion:document.getElementById('p_tipo_colab').value,descripcion:document.getElementById('p_des').value})});const data=await resp.json();document.getElementById('pPiso2').style.display='none';document.getElementById('okPiso').classList.add('on');if(data.carpeta_url){const l=document.getElementById('linkDrive');l.href=data.carpeta_url;l.style.display='inline-block'}}catch(e){alert('Error al enviar. Inténtalo de nuevo.');btn.disabled=false;btn.textContent='Enviar piso →'}}
+async function enviarPiso(){const pre=document.getElementById('p_pre').value;const hab=document.getElementById('p_hab').value;if(!pre||!hab){alert('Completa precio y habitaciones');return}const btn=document.getElementById('btnEnviarPiso');btn.disabled=true;btn.textContent='Enviando...';try{const resp=await fetch(WH+'/colaborador-piso',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,calle:document.getElementById('p_calle').value.trim(),numero:document.getElementById('p_num').value.trim(),piso_puerta:document.getElementById('p_piso').value.trim(),barrio:document.getElementById('p_barrio').value.trim(),precio:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('p_met').value||0),estado:document.getElementById('p_est').value,ascensor:document.getElementById('p_asc').checked,tipo_colaboracion:document.getElementById('p_tipo_colab').value,descripcion:document.getElementById('p_des').value,latitud:parseFloat(document.getElementById('p_lat').value)||0,longitud:parseFloat(document.getElementById('p_lng').value)||0,ref_catastral:document.getElementById('p_catastro').value})});const data=await resp.json();document.getElementById('pPiso2').style.display='none';document.getElementById('okPiso').classList.add('on');if(data.carpeta_url){const l=document.getElementById('linkDrive');l.href=data.carpeta_url;l.style.display='inline-block'}}catch(e){alert('Error al enviar. Inténtalo de nuevo.');btn.disabled=false;btn.textContent='Enviar piso →'}}
 async function enviarDemanda(){const nom=document.getElementById('d_nom').value.trim();const zona=document.getElementById('d_zona').value.trim();const pre=document.getElementById('d_pre').value;const hab=document.getElementById('d_hab').value;if(!nom||!zona||!pre||!hab){alert('Completa los campos obligatorios (*)');return}const btn=document.getElementById('btnEnviarDemanda');btn.disabled=true;btn.textContent='Enviando...';try{await fetch(WH+'/colaborador-demanda',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,nombre:nom,zona,presupuesto:parseFloat(pre),habitaciones:parseInt(hab),metros:parseInt(document.getElementById('d_met').value||0),perfil:document.getElementById('d_per').value,tipo_colaboracion:document.getElementById('d_tipo_colab').value})});document.getElementById('fDemanda').style.display='none';document.getElementById('okDemanda').classList.add('on')}catch(e){alert('Error al enviar. Inténtalo de nuevo.');btn.disabled=false;btn.textContent='Enviar demanda →'}}
 // ═══ MATCHINGS MODULE ═══
 async function loadMatchings(){
@@ -1003,5 +1006,59 @@ async function enviarACliente(){
 async function fetchDashboard(){try{const r=await fetch(WH+'/colaborador-data?id='+CID);const d=await r.json();const pisos=d.pisos||[];const demandas=d.demandas||[];const ops=d.ops||[];const st=d.stats||{};const pisosActivos=st.pisosActivos??pisos.filter(p=>(p.estado||'').toLowerCase().includes('activ')).length;const demandasActivas=st.demandasActivas??demandas.filter(d=>(d.estado||'').toLowerCase().includes('activ')).length;document.getElementById('s-pisos').textContent=pisosActivos;document.getElementById('s-dem').textContent=demandasActivas;document.getElementById('s-vis').textContent=st.visitasTotal??0;document.getElementById('s-vis-pisos').textContent=pisos.reduce((s,p)=>s+(p.visitas||0),0);document.getElementById('s-vis-dem').textContent=demandas.reduce((s,d)=>s+(d.visitas||0),0);document.getElementById('s-ventas').textContent=ops.length;document.getElementById('s-ganado').textContent=ops.length?('€'+ops.reduce((s,o)=>s+(o.importe||0),0).toLocaleString('es-ES')):'—';const matchDem=demandas.filter(d=>d.matchings>0);document.getElementById('m-pending').textContent=matchDem.filter(d=>!d.revisado).length;document.getElementById('m-reviewed').textContent=matchDem.filter(d=>d.revisado).length;document.getElementById('m-total').textContent=demandas.reduce((s,d)=>s+(d.matchings||0),0);const alertEl=document.getElementById('matchings-alert');const pendingCount=matchDem.filter(d=>!d.revisado).length;if(pendingCount>0){alertEl.style.display='block';alertEl.innerHTML='<div class="alert-bar" onclick="goTab(\'demandas\',document.querySelector(\'[data-tab=demandas]\'))">⚠️ '+pendingCount+' demanda'+(pendingCount>1?'s':'')+' con matchings por revisar</div>'}renderPisos(pisos);renderDemandas(demandas);renderOps(ops)}catch(e){console.error('Dashboard fetch error:',e)}}
 fetchDashboard();
 loadMatchings();
+
+// ═══ GOOGLE MAPS AUTOCOMPLETE ═══
+function initAutocomplete(){
+  var input=document.getElementById('p_calle');
+  if(!input||!window.google) return;
+  var ac=new google.maps.places.Autocomplete(input,{types:['address'],componentRestrictions:{country:'es'},fields:['address_components','geometry','formatted_address']});
+  ac.addListener('place_changed',function(){
+    var place=ac.getPlace();
+    if(!place.geometry) return;
+    var lat=place.geometry.location.lat();
+    var lng=place.geometry.location.lng();
+    document.getElementById('p_lat').value=lat;
+    document.getElementById('p_lng').value=lng;
+    // Parse address components
+    var comps=place.address_components||[];
+    var num='';var barrio='';var calle='';
+    comps.forEach(function(c){
+      if(c.types.includes('street_number')) num=c.long_name;
+      if(c.types.includes('route')) calle=c.long_name;
+      if(c.types.includes('sublocality_level_1')||c.types.includes('neighborhood')) barrio=c.long_name;
+      if(!barrio&&c.types.includes('locality')) barrio=c.long_name;
+    });
+    if(num) document.getElementById('p_num').value=num;
+    if(barrio) document.getElementById('p_barrio').value=barrio;
+    // Catastro lookup
+    buscarCatastro(lat,lng,place.formatted_address);
+  });
+}
+async function buscarCatastro(lat,lng,addr){
+  var info=document.getElementById('catastroInfo');
+  var warn=document.getElementById('duplicateWarn');
+  info.style.display='none';warn.style.display='none';
+  try{
+    var r=await fetch('https://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx/Consulta_RCCOOR?SRS=EPSG:4326&Coordenada_X='+lng+'&Coordenada_Y='+lat);
+    var text=await r.text();
+    var rcMatch=text.match(/<pc1>([^<]+)<\/pc1>\s*<pc2>([^<]+)<\/pc2>/);
+    if(rcMatch){
+      var refCat=rcMatch[1]+rcMatch[2];
+      document.getElementById('p_catastro').value=refCat;
+      info.innerHTML='\u2705 Ref. Catastral: <strong>'+refCat+'</strong>';
+      info.style.display='block';
+      // Check for duplicates in Airtable
+      var dr=await fetch(WH+'/colaborador-data?id='+CID);
+      var dd=await dr.json();
+      var pisos=dd.pisos||[];
+      var dup=pisos.find(function(p){return p.catastro===refCat});
+      if(dup){
+        warn.innerHTML='\u26A0\uFE0F Este piso ya est\u00E1 registrado: <strong>'+dup.direccion+'</strong>';
+        warn.style.display='block';
+      }
+    }
+  }catch(e){console.log('Catastro error:',e)}
+}
 </script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCvPlI9NFE7soKo0Nl7mWMuY42yIRkrfCY&libraries=places&callback=initAutocomplete" async defer></script>
 </body></html>
