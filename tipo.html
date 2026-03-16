@@ -70,5 +70,16 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:cente
 
   <div class="footer-lnk">¿Ya tienes cuenta? <a href="portal.html">Inicia sesión</a></div>
 </div>
+
+<script>
+(function(){
+  var asesor = new URLSearchParams(window.location.search).get('asesor');
+  if (asesor) {
+    document.querySelectorAll('a[href*="registro.html"]').forEach(function(a) {
+      a.href = a.href + '&asesor=' + asesor;
+    });
+  }
+})();
+</script>
 </body>
 </html>
