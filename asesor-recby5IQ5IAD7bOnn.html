@@ -465,6 +465,35 @@ body{overflow-x:hidden}
 .pd-doc-icon{font-size:24px;margin-bottom:6px}
 .pd-doc-name{font-size:12px;color:var(--muted)}
 
+/* ── Dossier: Speech de venta ── */
+.pd-speech{font-size:15px;line-height:1.8;color:rgba(255,255,255,.75);background:linear-gradient(135deg,rgba(197,160,89,.06),rgba(197,160,89,.02));border:1px solid var(--gold-b);border-radius:14px;padding:20px 22px;position:relative}
+.pd-speech::before{content:'\201C';position:absolute;top:8px;left:14px;font-size:48px;color:var(--gold);opacity:.25;font-family:Georgia,serif;line-height:1}
+.pd-speech-loading{text-align:center;padding:24px;color:var(--muted);font-size:14px}
+.pd-speech-loading .dot-pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);animation:dotPulse 1.2s infinite;margin:0 3px}
+.pd-speech-loading .dot-pulse:nth-child(2){animation-delay:.2s}
+.pd-speech-loading .dot-pulse:nth-child(3){animation-delay:.4s}
+@keyframes dotPulse{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+/* ── Dossier: Highlights pills ── */
+.pd-highlights{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.pd-hl{font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;background:var(--gold-dim);border:1px solid var(--gold-b);color:var(--gold)}
+.pd-hl.green{background:var(--green);border-color:var(--green-b);color:var(--green-t)}
+.pd-hl.blue{background:var(--blue);border-color:var(--blue-b);color:var(--blue-t)}
+
+/* ── Dossier: Feedback cards ── */
+.pd-fb-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.pd-fb-card .pd-fb-quote{font-size:14px;line-height:1.6;color:rgba(255,255,255,.6);font-style:italic}
+.pd-fb-card .pd-fb-source{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* ── Dossier: Score ring ── */
+.pd-score-ring{width:80px;height:80px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+.pd-score-ring .ring-val{font-size:24px;font-weight:700;color:var(--gold);font-family:'DM Mono',monospace}
+.pd-score-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+
+/* ── Urban Flip badge on match card ── */
+.mc-uf-badge{position:absolute;top:12px;left:12px;background:linear-gradient(135deg,var(--gold),#d4b06a);color:var(--bg);font-size:10px;font-weight:800;padding:4px 10px;border-radius:6px;letter-spacing:.5px;z-index:2}
+.mc-uf-lock{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,transparent,rgba(197,160,89,.12));padding:8px 12px;text-align:center;font-size:11px;color:var(--gold);font-weight:600;border-top:1px solid var(--gold-b)}
+
 /* ── Fullscreen photo viewer ── */
 .photo-viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:100;align-items:center;justify-content:center;flex-direction:column}
 .photo-viewer.on{display:flex}
@@ -564,6 +593,10 @@ body{overflow-x:hidden}
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg>
       Dashboard
     </a>
+    <a class="sb-item" data-tab="matchings" onclick="goTab('matchings',this)">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.3L10 14.3l-4.8 2.5.9-5.3L2.2 7.7l5.4-.8z"/></svg>
+      Matchings
+    </a>
     <a class="sb-item" data-tab="visitas" onclick="goTab('visitas',this)">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M8 4V2M12 4V2"/></svg>
       Mis Visitas
@@ -612,6 +645,51 @@ body{overflow-x:hidden}
       <div class="sec-lbl">Proximas visitas</div>
       <div class="list-wrap" id="home-vis">
         <div class="skel" style="height:80px;border-radius:16px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATCHINGS (Asesor) -->
+  <div id="tab-matchings" class="tab">
+    <div class="main-hdr">
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <span class="main-ttl">Matchings</span>
+      </div>
+    </div>
+    <div class="main-body">
+      <style>
+        
+      </style>
+      <!-- VISTA 1: Lista demandas (Asesor ve TODAS las demandas del sistema) -->
+      <div id="asesor-match-list">
+        <div class="kpi-row" style="margin-bottom:20px">
+          <div class="kpi-box amber"><div class="kpi-icon">⏳</div><div class="kpi-val" id="am-pending">0</div><div class="kpi-label">Por revisar</div></div>
+          <div class="kpi-box green"><div class="kpi-icon">✅</div><div class="kpi-val" id="am-reviewed">0</div><div class="kpi-label">Revisadas</div></div>
+          <div class="kpi-box blue"><div class="kpi-icon">🔗</div><div class="kpi-val" id="am-total">0</div><div class="kpi-label">Matchings</div></div>
+        </div>
+        <div class="sec-lbl">Demandas con matchings</div>
+        <div id="asesor-match-demands"></div>
+      </div>
+      <!-- VISTA 2: Grid pisos -->
+      <div id="asesor-match-pisos" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <button class="back-btn" onclick="asesorMatchBack()">← Atrás</button>
+          <div><div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Matchings para</div>
+          <div id="asesor-match-dem-name" style="font-size:20px;font-weight:700;font-family:'Playfair Display',serif"></div></div>
+        </div>
+        <div id="asesor-match-grid" class="match-grid"></div>
+        <div id="asesor-sel-bar" class="selection-bar" style="display:none">
+          <div><strong id="asesor-sel-count">0</strong>/3 pisos seleccionados</div>
+          <button class="btn-new" id="btnAsesorEnviar" onclick="asesorEnviarCliente()">Enviar a cliente →</button>
+        </div>
+      </div>
+      <!-- VISTA 3: Dossier piso -->
+      <div id="asesor-match-detail" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <button class="back-btn" onclick="asesorDetailBack()">← Atrás</button>
+        </div>
+        <div id="asesor-piso-detail-content"></div>
       </div>
     </div>
   </div>
@@ -931,6 +1009,170 @@ async function enviarInvitacion(){
 
 function thermoUpdate(el){var v=parseInt(el.value);var tag=el.id.replace('pw_','')+'_tag';var lbl=v<25?'Indiferente':v<50?'Deseable':v<75?'Preferible':v<90?'Importante':'Indispensable';var color=v<25?'#666':v<50?'#22c55e':v<75?'#eab308':v<90?'#f97316':'#ef4444';var el2=document.getElementById(tag);if(el2){el2.textContent=lbl;el2.style.color=color}}
 setTimeout(function(){document.querySelectorAll('.thermo').forEach(thermoUpdate)},200);
+
+// ═══ ASESOR MATCHING SYSTEM ═══
+var asesorMatchData=[];var asesorCurrentDem=null;var asesorSelectedPisos=[];var asesorCurrentPhotos=[];var asesorCurrentPhotoIdx=0;
+async function loadAsesorMatchings(){
+  try{
+    // Asesor loads all active demandas' matchings
+    const r=await fetch(WH+'/asesor-data?id='+AID);
+    const d=await r.json();
+    const demandas=d.demandas||[];
+    // For each demanda that has matchings, fetch them
+    var pending=0,reviewed=0,total=0;
+    for(var i=0;i<demandas.length;i++){
+      var dem=demandas[i];
+      if(dem.matchings_count>0||dem.matchings>0){
+        try{
+          var mr=await fetch(WH+'/colaborador-matchings?id='+AID+'&demanda_id='+(dem.id||dem.record_id));
+          var md=await mr.json();
+          if(md.demandas&&md.demandas.length){
+            md.demandas.forEach(function(dd){dd.asesor_view=true;asesorMatchData.push(dd);total+=dd.matchings.length;if(dd.pending_review)pending++;else reviewed++});
+          }
+        }catch(e){}
+      }
+    }
+    document.getElementById('am-pending').textContent=pending;
+    document.getElementById('am-reviewed').textContent=reviewed;
+    document.getElementById('am-total').textContent=total;
+    renderAsesorMatchList();
+  }catch(e){console.error('Asesor matchings error:',e)}
+}
+function renderAsesorMatchList(){
+  var el=document.getElementById('asesor-match-demands');
+  if(!asesorMatchData.length){el.innerHTML='<div class="empty"><p>No hay demandas con matchings disponibles</p></div>';return}
+  el.innerHTML=asesorMatchData.map(function(d){
+    return '<div class="dem-match-card'+(d.pending_review?' has-pending':'')+'" onclick="openAsesorDemMatchings(\''+d.id+'\')">'+
+      '<div class="dem-match-top"><div class="dem-match-name">'+d.nombre+'</div>'+
+      '<span class="dem-match-badge'+(d.pending_review?'':' reviewed')+'">'+(d.pending_review?'Por revisar':'Revisada')+'</span></div>'+
+      '<div class="dem-match-info">'+
+      (d.zona?'<div class="dem-match-tag">📍 <strong>'+d.zona+'</strong></div>':'')+
+      (d.presupuesto?'<div class="dem-match-tag">💰 Hasta <strong>€'+Number(d.presupuesto).toLocaleString('es-ES')+'</strong></div>':'')+
+      (d.hab?'<div class="dem-match-tag">🛏 <strong>'+d.hab+'</strong> hab</div>':'')+
+      '</div>'+
+      '<div class="dem-match-footer"><div class="dem-match-count">'+d.matchings.length+' pisos</div><div style="color:var(--gold)">→</div></div></div>';
+  }).join('');
+}
+async function openAsesorDemMatchings(demId){
+  asesorCurrentDem=asesorMatchData.find(function(d){return d.id===demId});
+  if(!asesorCurrentDem) return;
+  asesorSelectedPisos=[];
+  document.getElementById('asesor-match-list').style.display='none';
+  document.getElementById('asesor-match-pisos').style.display='block';
+  document.getElementById('asesor-match-dem-name').textContent=asesorCurrentDem.nombre;
+  renderAsesorMatchGrid();
+  // Check Urban Flip
+  try{var ufr=await fetch(WH+'/urban-flip/aplicar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({demanda_id:demId})});var ufd=await ufr.json();if(ufd.urban_flip_matching&&!asesorCurrentDem.matchings.find(function(m){return m.matching_id===ufd.urban_flip_matching.matching_id})){ufd.urban_flip_matching.es_urban_flip=true;asesorCurrentDem.matchings.push(ufd.urban_flip_matching);renderAsesorMatchGrid()}}catch(e){}
+}
+function renderAsesorMatchGrid(){
+  if(!asesorCurrentDem)return;
+  var el=document.getElementById('asesor-match-grid');
+  var normal=asesorCurrentDem.matchings.filter(function(m){return !m.es_urban_flip});
+  var uf=asesorCurrentDem.matchings.filter(function(m){return m.es_urban_flip});
+  var all=normal.concat(uf);
+  el.innerHTML=all.map(function(m){
+    var p=m.piso;var sel=asesorSelectedPisos.indexOf(m.matching_id)>=0;var isUF=m.es_urban_flip||p.urban_flip;
+    var img=p.fotos&&p.fotos.length?'<img class="mc-img" src="'+p.fotos[0]+'" loading="lazy">':'<div class="mc-noimg">SIN FOTOS</div>';
+    var pills='';if(p.hab)pills+='<span class="mc-pill">'+p.hab+' hab</span>';if(p.metros)pills+='<span class="mc-pill">'+p.metros+' m²</span>';if(p.ascensor)pills+='<span class="mc-pill">Ascensor</span>';
+    var body='<div class="mc-dir">'+p.direccion+'</div><div class="mc-zona">'+p.barrio+'</div><div class="mc-pills">'+pills+'</div>';
+    body+='<div class="mc-rec">'+(m.recomendacion||'Matching por compatibilidad')+'</div>';
+    body+='<div class="mc-price">€'+Number(p.precio).toLocaleString('es-ES')+'</div>';
+    if(isUF)body+='<div class="mc-uf-lock">⭐ Incluido automáticamente</div>';
+    return '<div class="match-card'+(sel?' selected':'')+'" style="'+(isUF?'border-color:var(--gold-b)':'')+'">'
+      +(isUF?'<div class="mc-uf-badge">⭐ URBAN FLIP</div>':'<div class="mc-check" onclick="event.stopPropagation();asesorToggleSel(\''+m.matching_id+'\')">✓</div>')
+      +'<div class="mc-score" style="'+(isUF?'background:var(--gold);color:var(--bg)':'')+'">'+m.score+'%</div>'
+      +img+'<div class="mc-body" onclick="openAsesorPisoDetail(\''+m.matching_id+'\')">'+body+'</div></div>';
+  }).join('');
+  var bar=document.getElementById('asesor-sel-bar');
+  document.getElementById('asesor-sel-count').textContent=asesorSelectedPisos.length;
+  bar.style.display=asesorSelectedPisos.length>0?'flex':'none';
+}
+function asesorToggleSel(mid){
+  var idx=asesorSelectedPisos.indexOf(mid);
+  if(idx>=0){asesorSelectedPisos.splice(idx,1)}else{if(asesorSelectedPisos.length>=3){alert('Máximo 3 pisos');return}asesorSelectedPisos.push(mid)}
+  renderAsesorMatchGrid();
+}
+function asesorMatchBack(){document.getElementById('asesor-match-pisos').style.display='none';document.getElementById('asesor-match-list').style.display='block';asesorCurrentDem=null;asesorSelectedPisos=[]}
+function asesorDetailBack(){document.getElementById('asesor-match-detail').style.display='none';document.getElementById('asesor-match-pisos').style.display='block'}
+function scoreColor(s){return s>=80?'var(--green-t)':s>=60?'var(--gold)':s>=40?'var(--amber-t)':'var(--red-t)'}
+function openAsesorPisoDetail(mid){
+  var m=asesorCurrentDem.matchings.find(function(x){return x.matching_id===mid});
+  if(!m) return;var p=m.piso;
+  document.getElementById('asesor-match-pisos').style.display='none';
+  document.getElementById('asesor-match-detail').style.display='block';
+  var html='';
+  if(p.fotos&&p.fotos.length){
+    html+='<div class="pd-carousel" onclick="openAsesorPhotos('+JSON.stringify(p.fotos).replace(/"/g,'&quot;')+',0)">';
+    html+=p.fotos.map(function(f,i){return '<img src="'+f+'" class="pd-img'+(i===0?' on':'')+'" loading="lazy">'}).join('');
+    if(p.fotos.length>1){html+='<div class="pd-nav pd-prev" onclick="event.stopPropagation();asesorPdNav(-1)">‹</div><div class="pd-nav pd-next" onclick="event.stopPropagation();asesorPdNav(1)">›</div>'}
+    html+='</div>';
+    if(p.fotos.length>1) html+='<div class="pd-dots">'+p.fotos.map(function(_,i){return '<div class="pd-dot'+(i===0?' on':'')+'" onclick="asesorPdGo('+i+')"></div>'}).join('')+'</div>';
+  }
+  if(m.es_urban_flip||p.urban_flip)html+='<div style="display:inline-block;background:linear-gradient(135deg,var(--gold),#d4b06a);color:var(--bg);font-size:12px;font-weight:800;padding:6px 16px;border-radius:8px;margin-bottom:16px">⭐ EXCLUSIVO URBAN FLIP</div>';
+  html+='<div style="display:flex;align-items:flex-start;gap:20px;margin-bottom:20px">';
+  html+='<div style="flex-shrink:0;text-align:center"><div class="pd-score-ring"><svg width="80" height="80"><circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="4"/><circle cx="40" cy="40" r="36" fill="none" stroke="'+scoreColor(m.score)+'" stroke-width="4" stroke-dasharray="'+(Math.PI*72*m.score/100)+' '+(Math.PI*72)+'" stroke-linecap="round"/></svg><span class="ring-val">'+m.score+'</span></div><div style="font-size:11px;color:var(--muted)">Score</div></div>';
+  html+='<div><div style="font-size:24px;font-weight:700;font-family:\'Playfair Display\',serif;margin-bottom:4px">'+p.direccion+'</div>';
+  html+='<div style="color:var(--muted);font-size:14px;margin-bottom:8px">'+p.barrio+'</div>';
+  html+='<div style="font-family:\'Playfair Display\',serif;font-size:28px;font-weight:700;color:var(--gold)">€'+Number(p.precio).toLocaleString('es-ES')+'</div></div></div>';
+  html+='<div class="pd-highlights" id="asesor-dossier-hl"></div>';
+  html+='<div class="pd-chars">';
+  if(p.hab)html+='<div class="pd-char"><div class="pd-char-val">'+p.hab+'</div><div class="pd-char-lbl">Habitaciones</div></div>';
+  if(p.metros)html+='<div class="pd-char"><div class="pd-char-val">'+p.metros+'</div><div class="pd-char-lbl">m²</div></div>';
+  html+='<div class="pd-char"><div class="pd-char-val">'+(p.ascensor?'Sí':'No')+'</div><div class="pd-char-lbl">Ascensor</div></div>';
+  if(p.conservacion)html+='<div class="pd-char"><div class="pd-char-val">'+p.conservacion.replace(/_/g,' ')+'</div><div class="pd-char-lbl">Estado</div></div>';
+  html+='</div>';
+  html+='<div class="pd-section"><div class="pd-section-ttl">💡 Por qué este piso para el cliente</div>';
+  html+='<div id="asesor-dossier-speech" class="pd-speech-loading"><span class="dot-pulse"></span><span class="dot-pulse"></span><span class="dot-pulse"></span> Generando speech...</div></div>';
+  if(p.descripcion)html+='<div class="pd-section"><div class="pd-section-ttl">Descripción</div><div class="pd-rec">'+p.descripcion+'</div></div>';
+  html+='<div class="pd-section"><div class="pd-section-ttl">💬 Feedback visitantes</div><div id="asesor-dossier-fb"><div class="pd-speech-loading"><span class="dot-pulse"></span><span class="dot-pulse"></span><span class="dot-pulse"></span></div></div></div>';
+  html+='<div class="pd-section"><div class="pd-section-ttl">Documentación</div><div class="pd-docs" id="asesor-dossier-docs"><div style="color:var(--muted);font-size:13px">Cargando...</div></div></div>';
+  document.getElementById('asesor-piso-detail-content').innerHTML=html;
+  // Load dossier
+  loadAsesorDossier(p.id,asesorCurrentDem.id,m);
+}
+async function loadAsesorDossier(pisoId,demandaId,matchingData){
+  try{
+    var r=await fetch(WH+'/matching-dossier',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({piso_id:pisoId,demanda_id:demandaId})});
+    var d=await r.json();
+    var spEl=document.getElementById('asesor-dossier-speech');
+    if(d.speech){spEl.className='pd-speech';spEl.textContent=d.speech}else if(matchingData.recomendacion){spEl.className='pd-speech';spEl.textContent=matchingData.recomendacion}else{spEl.className='pd-rec';spEl.textContent='Matching por compatibilidad'}
+    var hlEl=document.getElementById('asesor-dossier-hl');
+    var hls=d.highlights||[];hlEl.innerHTML=hls.map(function(h){return '<span class="pd-hl">'+h+'</span>'}).join('');
+    var fbEl=document.getElementById('asesor-dossier-fb');
+    var fbs=d.relevant_feedback||[];
+    fbEl.innerHTML=fbs.length?fbs.map(function(f){return '<div class="pd-fb-card"><div class="pd-fb-quote">"'+f+'"</div><div class="pd-fb-source">— Visitante anterior</div></div>'}).join(''):'<div style="color:var(--muted);font-size:14px">Sin feedback aún</div>';
+    var docsEl=document.getElementById('asesor-dossier-docs');var docsHtml='';var docs=d.documentos||{};
+    var dl={encargo:'📝 Encargo',ibi:'🏛️ IBI',ite:'🔍 ITE',catastro:'🗺️ Catastro',escritura:'📜 Escritura'};
+    Object.keys(dl).forEach(function(k){if(docs[k]&&docs[k].url){docsHtml+='<a class="pd-doc" href="'+docs[k].url+'" target="_blank"><div class="pd-doc-icon">'+dl[k].split(' ')[0]+'</div><div class="pd-doc-name">'+dl[k].split(' ').slice(1).join(' ')+'</div></a>'}else{docsHtml+='<div class="pd-doc" style="opacity:.3"><div class="pd-doc-icon">'+dl[k].split(' ')[0]+'</div><div class="pd-doc-name">'+dl[k].split(' ').slice(1).join(' ')+'</div></div>'}});
+    docsEl.innerHTML=docsHtml||'<div style="color:var(--muted)">Sin documentación</div>';
+  }catch(e){
+    var spEl=document.getElementById('asesor-dossier-speech');
+    if(matchingData.recomendacion){spEl.className='pd-speech';spEl.textContent=matchingData.recomendacion}else{spEl.className='pd-rec';spEl.textContent='No disponible'}
+  }
+}
+function asesorPdNav(dir){var imgs=document.querySelectorAll('#asesor-piso-detail-content .pd-img');var dots=document.querySelectorAll('#asesor-piso-detail-content .pd-dot');if(!imgs.length)return;var cur=[].slice.call(imgs).findIndex(function(i){return i.classList.contains('on')});imgs[cur].classList.remove('on');if(dots[cur])dots[cur].classList.remove('on');cur=(cur+dir+imgs.length)%imgs.length;imgs[cur].classList.add('on');if(dots[cur])dots[cur].classList.add('on')}
+function asesorPdGo(i){var imgs=document.querySelectorAll('#asesor-piso-detail-content .pd-img');var dots=document.querySelectorAll('#asesor-piso-detail-content .pd-dot');imgs.forEach(function(img,j){img.classList.toggle('on',j===i);if(dots[j])dots[j].classList.toggle('on',j===i)})}
+function openAsesorPhotos(fotos,idx){asesorCurrentPhotos=fotos;asesorCurrentPhotoIdx=idx;var pv=document.querySelector('.photo-viewer');if(!pv){pv=document.createElement('div');pv.className='photo-viewer';pv.innerHTML='<button class="pv-close" onclick="this.parentElement.classList.remove(\'on\')">×</button><button class="pv-nav pv-prev" onclick="asesorPhotoNav(-1)">‹</button><button class="pv-nav pv-next" onclick="asesorPhotoNav(1)">›</button><img id="asesorPvImg" src=""><div class="pv-counter" id="asesorPvCounter"></div>';document.body.appendChild(pv)}document.getElementById('asesorPvImg').src=fotos[idx];document.getElementById('asesorPvCounter').textContent=(idx+1)+' / '+fotos.length;pv.classList.add('on')}
+function asesorPhotoNav(dir){asesorCurrentPhotoIdx=(asesorCurrentPhotoIdx+dir+asesorCurrentPhotos.length)%asesorCurrentPhotos.length;document.getElementById('asesorPvImg').src=asesorCurrentPhotos[asesorCurrentPhotoIdx];document.getElementById('asesorPvCounter').textContent=(asesorCurrentPhotoIdx+1)+' / '+asesorCurrentPhotos.length}
+async function asesorEnviarCliente(){
+  if(!asesorSelectedPisos.length||!asesorCurrentDem)return;
+  var btn=document.getElementById('btnAsesorEnviar');btn.disabled=true;btn.textContent='Enviando...';
+  var ufM=asesorCurrentDem.matchings.find(function(m){return m.es_urban_flip});
+  var allSel=asesorSelectedPisos.slice();
+  if(ufM&&allSel.indexOf(ufM.matching_id)<0)allSel.push(ufM.matching_id);
+  var pisos=allSel.map(function(mid){return asesorCurrentDem.matchings.find(function(m){return m.matching_id===mid})}).filter(Boolean);
+  try{
+    var r=await fetch(WH+'/enviar-matchings-cliente',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:AID,demanda_id:asesorCurrentDem.id,matchings:allSel,pisos_data:pisos.map(function(m){return {matching_id:m.matching_id,piso_id:m.piso.id,direccion:m.piso.direccion,precio:m.piso.precio,recomendacion:m.recomendacion,fotos:m.piso.fotos,es_urban_flip:m.es_urban_flip||false}})})});
+    var d=await r.json();
+    if(d.ok){alert('✅ Enviado al cliente');asesorMatchBack()}
+    else{alert('Error: '+(d.error||''));btn.disabled=false;btn.textContent='Enviar a cliente →'}
+  }catch(e){alert('Error');btn.disabled=false;btn.textContent='Enviar a cliente →'}
+}
+// Load matchings when tab is visited
+var asesorMatchLoaded=false;
+var origGoTab=window.goTab;
+window.goTab=function(tab,el){origGoTab(tab,el);if(tab==='matchings'&&!asesorMatchLoaded){asesorMatchLoaded=true;loadAsesorMatchings()}};
+
 loadData();
 </script>
 </body></html>
