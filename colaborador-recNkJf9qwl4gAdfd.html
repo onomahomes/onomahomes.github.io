@@ -465,6 +465,35 @@ body{overflow-x:hidden}
 .pd-doc-icon{font-size:24px;margin-bottom:6px}
 .pd-doc-name{font-size:12px;color:var(--muted)}
 
+/* ── Dossier: Speech de venta ── */
+.pd-speech{font-size:15px;line-height:1.8;color:rgba(255,255,255,.75);background:linear-gradient(135deg,rgba(197,160,89,.06),rgba(197,160,89,.02));border:1px solid var(--gold-b);border-radius:14px;padding:20px 22px;position:relative}
+.pd-speech::before{content:'\201C';position:absolute;top:8px;left:14px;font-size:48px;color:var(--gold);opacity:.25;font-family:Georgia,serif;line-height:1}
+.pd-speech-loading{text-align:center;padding:24px;color:var(--muted);font-size:14px}
+.pd-speech-loading .dot-pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);animation:dotPulse 1.2s infinite;margin:0 3px}
+.pd-speech-loading .dot-pulse:nth-child(2){animation-delay:.2s}
+.pd-speech-loading .dot-pulse:nth-child(3){animation-delay:.4s}
+@keyframes dotPulse{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+/* ── Dossier: Highlights pills ── */
+.pd-highlights{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.pd-hl{font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;background:var(--gold-dim);border:1px solid var(--gold-b);color:var(--gold)}
+.pd-hl.green{background:var(--green);border-color:var(--green-b);color:var(--green-t)}
+.pd-hl.blue{background:var(--blue);border-color:var(--blue-b);color:var(--blue-t)}
+
+/* ── Dossier: Feedback cards ── */
+.pd-fb-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.pd-fb-card .pd-fb-quote{font-size:14px;line-height:1.6;color:rgba(255,255,255,.6);font-style:italic}
+.pd-fb-card .pd-fb-source{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* ── Dossier: Score ring ── */
+.pd-score-ring{width:80px;height:80px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+.pd-score-ring .ring-val{font-size:24px;font-weight:700;color:var(--gold);font-family:'DM Mono',monospace}
+.pd-score-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+
+/* ── Urban Flip badge on match card ── */
+.mc-uf-badge{position:absolute;top:12px;left:12px;background:linear-gradient(135deg,var(--gold),#d4b06a);color:var(--bg);font-size:10px;font-weight:800;padding:4px 10px;border-radius:6px;letter-spacing:.5px;z-index:2}
+.mc-uf-lock{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,transparent,rgba(197,160,89,.12));padding:8px 12px;text-align:center;font-size:11px;color:var(--gold);font-weight:600;border-top:1px solid var(--gold-b)}
+
 /* ── Fullscreen photo viewer ── */
 .photo-viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:100;align-items:center;justify-content:center;flex-direction:column}
 .photo-viewer.on{display:flex}
@@ -978,7 +1007,7 @@ function renderMatchList(){
   });
   el.innerHTML=html;
 }
-function openDemandaMatchings(demId){
+async function openDemandaMatchings(demId){
   currentDemanda=matchData.find(d=>d.id===demId);
   if(!currentDemanda||!currentDemanda.matchings.length) return;
   selectedPisos=[];
@@ -992,6 +1021,16 @@ function openDemandaMatchings(demId){
   if(currentDemanda.metros) info+=currentDemanda.metros+' m²';
   document.getElementById('match-dem-info').textContent=info.replace(/ · $/,'');
   renderMatchPisos();
+  // Check Urban Flip in background — inject if found in Top 20
+  try{
+    const ufr=await fetch(WH+'/urban-flip/aplicar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({demanda_id:demId})});
+    const ufd=await ufr.json();
+    if(ufd.urban_flip_matching&&!currentDemanda.matchings.find(m=>m.matching_id===ufd.urban_flip_matching.matching_id)){
+      ufd.urban_flip_matching.es_urban_flip=true;
+      currentDemanda.matchings.push(ufd.urban_flip_matching);
+      renderMatchPisos();
+    }
+  }catch(e){/* Urban Flip check is best-effort */}
 }
 function volverMatchList(){
   document.getElementById('match-pisos-view').style.display='none';
@@ -1003,14 +1042,21 @@ function renderMatchPisos(){
   if(!currentDemanda) return;
   if(isViewer){document.getElementById('match-selection-bar').style.display='none'}
   const el=document.getElementById('match-pisos-grid');
-  el.innerHTML=currentDemanda.matchings.map((m,i)=>{
+  // Separate normal matchings from Urban Flip
+  const normal=currentDemanda.matchings.filter(m=>!m.es_urban_flip);
+  const uf=currentDemanda.matchings.filter(m=>m.es_urban_flip);
+  const allCards=normal.concat(uf);
+  el.innerHTML=allCards.map((m,i)=>{
     const p=m.piso;const sel=selectedPisos.includes(m.matching_id);
+    const isUF=m.es_urban_flip||p.urban_flip;
     const img=p.fotos&&p.fotos.length?'<img class="mc-img" src="'+p.fotos[0]+'" loading="lazy">':'<div class="mc-noimg">SIN FOTOS</div>';
     let body='<div class="mc-dir">'+p.direccion+'</div><div class="mc-zona">'+p.barrio+'</div>';
     body+='<div class="mc-pills">';
     if(p.hab) body+='<span class="mc-pill">'+p.hab+' hab</span>';
     if(p.metros) body+='<span class="mc-pill">'+p.metros+' m²</span>';
     if(p.ascensor) body+='<span class="mc-pill">Ascensor</span>';
+    if(p.terraza) body+='<span class="mc-pill">Terraza</span>';
+    if(p.garaje) body+='<span class="mc-pill">Garaje</span>';
     if(p.conservacion) body+='<span class="mc-pill">'+p.conservacion+'</span>';
     body+='</div>';
     if(viewMode===1){
@@ -1020,9 +1066,12 @@ function renderMatchPisos(){
       body+='<div class="mc-comision"><div class="mc-comision-label">Tu comisión estimada</div><div class="mc-comision-val">€'+Number(m.tu_comision).toLocaleString('es-ES')+'</div><div class="mc-comision-type">'+m.comision_label+'</div></div>';
       body+='<div class="mc-price" style="margin-top:8px">€'+Number(p.precio).toLocaleString('es-ES')+'</div>';
     }
-    return '<div class="match-card'+(sel?' selected':'')+'" data-mid="'+m.matching_id+'">'
-      +(isViewer?'':'<div class="mc-check" onclick="event.stopPropagation();toggleSelect(\''+m.matching_id+'\')">✓</div>')
-      +'<div class="mc-score">Score '+m.score+'%</div>'
+    if(isUF) body+='<div class="mc-uf-lock">⭐ Incluido automáticamente para el cliente</div>';
+    const ufBadge=isUF?'<div class="mc-uf-badge">⭐ URBAN FLIP</div>':'';
+    const checkBox=isViewer||isUF?'':'<div class="mc-check" onclick="event.stopPropagation();toggleSelect(\''+m.matching_id+'\')">✓</div>';
+    return '<div class="match-card'+(sel?' selected':'')+(isUF?' uf-card':'')+'" data-mid="'+m.matching_id+'" style="'+(isUF?'border-color:var(--gold-b);background:linear-gradient(135deg,rgba(197,160,89,.04),var(--surface))':'')+'">'
+      +checkBox+ufBadge
+      +'<div class="mc-score" style="'+(isUF?'background:var(--gold);color:var(--bg)':'')+'">'+m.score+'%</div>'
       +img+'<div class="mc-body" onclick="openPisoDetail(\''+m.matching_id+'\')">'+body+'</div></div>';
   }).join('');
   updateSelectionBar();
@@ -1059,20 +1108,34 @@ function openPisoDetail(mid){
   }else{
     html+='<div style="height:200px;display:flex;align-items:center;justify-content:center;background:var(--surface);border-radius:16px;color:var(--muted);margin-bottom:24px">Sin fotos disponibles</div>';
   }
-  // Characteristics
-  html+='<div style="font-size:22px;font-weight:700;font-family:\'Playfair Display\',serif;margin-bottom:4px">'+p.direccion+'</div>';
-  html+='<div style="color:var(--muted);font-size:14px;margin-bottom:20px">'+p.barrio+'</div>';
-  html+='<div style="font-family:\'Playfair Display\',serif;font-size:28px;font-weight:700;color:var(--gold);margin-bottom:20px">€'+Number(p.precio).toLocaleString('es-ES')+'</div>';
+  // Urban Flip badge
+  if(m.es_urban_flip||p.urban_flip) html+='<div style="display:inline-block;background:linear-gradient(135deg,var(--gold),#d4b06a);color:var(--bg);font-size:12px;font-weight:800;padding:6px 16px;border-radius:8px;margin-bottom:16px;letter-spacing:.5px">⭐ EXCLUSIVO URBAN FLIP</div>';
+  // Score ring + title
+  html+='<div style="display:flex;align-items:flex-start;gap:20px;margin-bottom:20px">';
+  html+='<div style="flex-shrink:0;text-align:center"><div class="pd-score-ring"><svg width="80" height="80"><circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="4"/><circle cx="40" cy="40" r="36" fill="none" stroke="'+scoreColor(m.score)+'" stroke-width="4" stroke-dasharray="'+(Math.PI*72*m.score/100)+' '+(Math.PI*72)+'" stroke-linecap="round"/></svg><span class="ring-val">'+m.score+'</span></div><div style="font-size:11px;color:var(--muted)">Score match</div></div>';
+  html+='<div><div style="font-size:24px;font-weight:700;font-family:\'Playfair Display\',serif;margin-bottom:4px">'+p.direccion+'</div>';
+  html+='<div style="color:var(--muted);font-size:14px;margin-bottom:8px">'+p.barrio+'</div>';
+  html+='<div style="font-family:\'Playfair Display\',serif;font-size:28px;font-weight:700;color:var(--gold)">€'+Number(p.precio).toLocaleString('es-ES')+'</div></div></div>';
+  // Highlights (placeholder — filled by dossier API)
+  html+='<div class="pd-highlights" id="dossier-highlights"></div>';
+  // Characteristics grid
   html+='<div class="pd-chars">';
   if(p.hab) html+='<div class="pd-char"><div class="pd-char-val">'+p.hab+'</div><div class="pd-char-lbl">Habitaciones</div></div>';
   if(p.metros) html+='<div class="pd-char"><div class="pd-char-val">'+p.metros+'</div><div class="pd-char-lbl">m²</div></div>';
   html+='<div class="pd-char"><div class="pd-char-val">'+(p.ascensor?'Sí':'No')+'</div><div class="pd-char-lbl">Ascensor</div></div>';
   if(p.conservacion) html+='<div class="pd-char"><div class="pd-char-val">'+p.conservacion.replace(/_/g,' ')+'</div><div class="pd-char-lbl">Estado</div></div>';
+  if(p.terraza) html+='<div class="pd-char"><div class="pd-char-val">Sí</div><div class="pd-char-lbl">Terraza</div></div>';
+  if(p.garaje) html+='<div class="pd-char"><div class="pd-char-val">Sí</div><div class="pd-char-lbl">Garaje</div></div>';
+  if(p.orientacion) html+='<div class="pd-char"><div class="pd-char-val">'+p.orientacion+'</div><div class="pd-char-lbl">Orientación</div></div>';
   html+='</div>';
-  // Recommendation
-  if(m.recomendacion){html+='<div class="pd-section"><div class="pd-section-ttl">Por qué se recomienda</div><div class="pd-rec">'+m.recomendacion+'</div></div>'}
+  // ─── SPEECH DE VENTA (most important section) ───
+  html+='<div class="pd-section"><div class="pd-section-ttl">💡 Por qué este piso para tu cliente</div>';
+  html+='<div id="dossier-speech" class="pd-speech-loading"><span class="dot-pulse"></span><span class="dot-pulse"></span><span class="dot-pulse"></span> Generando speech de venta personalizado...</div></div>';
   // Description
-  if(p.descripcion){html+='<div class="pd-section"><div class="pd-section-ttl">Descripción</div><div class="pd-rec">'+p.descripcion+'</div></div>'}
+  if(p.descripcion){html+='<div class="pd-section"><div class="pd-section-ttl">Descripción del piso</div><div class="pd-rec">'+p.descripcion+'</div></div>'}
+  // ─── FEEDBACK DE OTROS CLIENTES ───
+  html+='<div class="pd-section"><div class="pd-section-ttl">💬 Lo que dicen otros visitantes</div>';
+  html+='<div id="dossier-feedback"><div class="pd-speech-loading"><span class="dot-pulse"></span><span class="dot-pulse"></span><span class="dot-pulse"></span> Cargando feedback...</div></div></div>';
   // Commission
   html+='<div class="pd-section"><div class="pd-section-ttl">Información comercial</div>';
   html+='<div style="display:flex;gap:16px;flex-wrap:wrap">';
@@ -1080,16 +1143,64 @@ function openPisoDetail(mid){
   html+='<div class="pd-char" style="flex:1;min-width:140px"><div class="pd-char-val" style="color:var(--gold)">'+m.comision_label+'</div><div class="pd-char-lbl">Tipo negociación</div></div>';
   html+='<div class="pd-char" style="flex:1;min-width:140px"><div class="pd-char-val" style="color:var(--blue-t)">'+m.score+'%</div><div class="pd-char-lbl">Score matching</div></div>';
   html+='</div></div>';
-  // Documents
+  // Documents (real docs from Cloudinary if available)
   html+='<div class="pd-section"><div class="pd-section-ttl">Documentación</div>';
-  html+='<div class="pd-docs">';
-  html+='<a class="pd-doc" href="#" onclick="event.preventDefault();alert(\'Documento no disponible aún\')"><div class="pd-doc-icon">📋</div><div class="pd-doc-name">Catastro</div></a>';
-  html+='<a class="pd-doc" href="#" onclick="event.preventDefault();alert(\'Documento no disponible aún\')"><div class="pd-doc-icon">🏗</div><div class="pd-doc-name">ITE</div></a>';
-  html+='<a class="pd-doc" href="#" onclick="event.preventDefault();alert(\'Documento no disponible aún\')"><div class="pd-doc-icon">📐</div><div class="pd-doc-name">Planos</div></a>';
-  html+='<a class="pd-doc" href="#" onclick="event.preventDefault();alert(\'Documento no disponible aún\')"><div class="pd-doc-icon">📑</div><div class="pd-doc-name">Memoria calidades</div></a>';
-  html+='<a class="pd-doc" href="#" onclick="event.preventDefault();alert(\'Documento no disponible aún\')"><div class="pd-doc-icon">📄</div><div class="pd-doc-name">Nota simple</div></a>';
+  html+='<div class="pd-docs" id="dossier-docs">';
+  html+='<a class="pd-doc" href="#" onclick="event.preventDefault()"><div class="pd-doc-icon">📋</div><div class="pd-doc-name">Cargando...</div></a>';
   html+='</div></div>';
   document.getElementById('piso-detail-content').innerHTML=html;
+  // ─── Fetch dossier from MOD52 ───
+  loadDossier(m.piso.id, currentDemanda.id, m);
+}
+function scoreColor(s){return s>=80?'var(--green-t)':s>=60?'var(--gold)':s>=40?'var(--amber-t)':'var(--red-t)'}
+async function loadDossier(pisoId, demandaId, matchingData){
+  try{
+    const r=await fetch(WH+'/matching-dossier',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({piso_id:pisoId,demanda_id:demandaId})});
+    const d=await r.json();
+    // Speech
+    const speechEl=document.getElementById('dossier-speech');
+    if(d.speech){speechEl.className='pd-speech';speechEl.textContent=d.speech}
+    else if(matchingData.recomendacion){speechEl.className='pd-speech';speechEl.textContent=matchingData.recomendacion}
+    else{speechEl.className='pd-rec';speechEl.textContent='Matching basado en compatibilidad de características'}
+    // Highlights
+    const hlEl=document.getElementById('dossier-highlights');
+    const hls=d.highlights||[];
+    if(matchingData.es_urban_flip) hls.unshift('⭐ Urban Flip');
+    hlEl.innerHTML=hls.map(function(h){var cls='pd-hl';if(h.includes('presupuesto')||h.includes('Superficie'))cls+=' green';if(h.includes('demanda')||h.includes('Alta'))cls+=' blue';return '<span class="'+cls+'">'+h+'</span>'}).join('');
+    // Feedback
+    const fbEl=document.getElementById('dossier-feedback');
+    const fbs=d.relevant_feedback||[];
+    if(fbs.length){
+      fbEl.innerHTML=fbs.map(function(f){return '<div class="pd-fb-card"><div class="pd-fb-quote">"'+f+'"</div><div class="pd-fb-source">— Visitante anterior</div></div>'}).join('');
+      if(d.piso_feedback_summary){
+        var sum=d.piso_feedback_summary;
+        fbEl.innerHTML+='<div style="font-size:12px;color:var(--muted);margin-top:8px;display:flex;gap:16px"><span>'+sum.total_visitas+' visitas</span><span>'+sum.positivos_count+' valoraciones positivas</span></div>';
+      }
+    }else{
+      fbEl.innerHTML='<div style="color:var(--muted);font-size:14px">Este piso aún no tiene feedback de visitantes anteriores</div>';
+    }
+    // Documents (real)
+    const docsEl=document.getElementById('dossier-docs');
+    var docsHtml='';
+    var docs=d.documentos||{};
+    var docLabels={encargo:'📝 Encargo',ibi:'🏛️ IBI',ite:'🔍 ITE',catastro:'🗺️ Catastro',escritura:'📜 Escritura'};
+    Object.keys(docLabels).forEach(function(k){
+      if(docs[k]&&docs[k].url){docsHtml+='<a class="pd-doc" href="'+docs[k].url+'" target="_blank"><div class="pd-doc-icon">'+docLabels[k].split(' ')[0]+'</div><div class="pd-doc-name">'+docLabels[k].split(' ').slice(1).join(' ')+'</div></a>'}
+      else{docsHtml+='<a class="pd-doc" style="opacity:.3;cursor:default"><div class="pd-doc-icon">'+docLabels[k].split(' ')[0]+'</div><div class="pd-doc-name">'+docLabels[k].split(' ').slice(1).join(' ')+'</div></a>'}
+    });
+    var otros=d.otros_documentos||[];
+    otros.forEach(function(od){docsHtml+='<a class="pd-doc" href="'+(od.url||'#')+'" target="_blank"><div class="pd-doc-icon">📄</div><div class="pd-doc-name">'+(od.nombre||'Documento')+'</div></a>'});
+    if(d.planos){var pl=typeof d.planos==='string'?JSON.parse(d.planos):d.planos;if(Array.isArray(pl))pl.forEach(function(p){docsHtml+='<a class="pd-doc" href="'+(p.url||'#')+'" target="_blank"><div class="pd-doc-icon">📐</div><div class="pd-doc-name">Plano</div></a>'})}
+    if(d.video){docsHtml+='<a class="pd-doc" href="'+d.video+'" target="_blank"><div class="pd-doc-icon">🎬</div><div class="pd-doc-name">Vídeo</div></a>'}
+    docsEl.innerHTML=docsHtml||'<div style="color:var(--muted);font-size:13px">Sin documentación disponible</div>';
+  }catch(e){
+    console.error('Dossier load error:',e);
+    var speechEl=document.getElementById('dossier-speech');
+    if(matchingData.recomendacion){speechEl.className='pd-speech';speechEl.textContent=matchingData.recomendacion}
+    else{speechEl.className='pd-rec';speechEl.textContent='No se pudo cargar el speech — matching por compatibilidad'}
+    document.getElementById('dossier-feedback').innerHTML='<div style="color:var(--muted)">No disponible</div>';
+    document.getElementById('dossier-docs').innerHTML='<div style="color:var(--muted);font-size:13px">Sin documentación disponible</div>';
+  }
 }
 function volverPisosList(){document.getElementById('match-piso-detail').style.display='none';document.getElementById('match-pisos-view').style.display='block'}
 // Carousel helpers for piso detail
@@ -1104,11 +1215,17 @@ async function enviarACliente(){
   if(!selectedPisos.length||!currentDemanda) return;
   const btn=document.getElementById('btnEnviarCliente');
   btn.disabled=true;btn.textContent='Enviando...';
-  const pisos=selectedPisos.map(mid=>currentDemanda.matchings.find(m=>m.matching_id===mid)).filter(Boolean);
+  // Auto-include Urban Flip if present
+  const ufMatching=currentDemanda.matchings.find(m=>m.es_urban_flip);
+  const allSelected=[...selectedPisos];
+  if(ufMatching&&!allSelected.includes(ufMatching.matching_id)){allSelected.push(ufMatching.matching_id)}
+  const pisos=allSelected.map(mid=>currentDemanda.matchings.find(m=>m.matching_id===mid)).filter(Boolean);
+  const normalCount=pisos.filter(p=>!p.es_urban_flip).length;
+  const ufCount=pisos.filter(p=>p.es_urban_flip).length;
   try{
-    const r=await fetch(WH+'/enviar-matchings-cliente',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,demanda_id:currentDemanda.id,matchings:selectedPisos,pisos_data:pisos.map(m=>({matching_id:m.matching_id,piso_id:m.piso.id,direccion:m.piso.direccion,precio:m.piso.precio,recomendacion:m.recomendacion,fotos:m.piso.fotos}))})});
+    const r=await fetch(WH+'/enviar-matchings-cliente',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({colaborador_id:CID,demanda_id:currentDemanda.id,matchings:allSelected,pisos_data:pisos.map(m=>({matching_id:m.matching_id,piso_id:m.piso.id,direccion:m.piso.direccion,precio:m.piso.precio,recomendacion:m.recomendacion,fotos:m.piso.fotos,es_urban_flip:m.es_urban_flip||false}))})});
     const d=await r.json();
-    if(d.ok){alert('✅ Enviado al cliente. Recibirá un email y un mensaje de WhatsApp con los '+pisos.length+' pisos seleccionados.');volverMatchList()}
+    if(d.ok){alert('✅ Enviado al cliente: '+normalCount+' pisos seleccionados'+(ufCount?' + 1 Urban Flip exclusivo':'')+'.');volverMatchList()}
     else{alert('Error: '+(d.error||'No se pudo enviar'));btn.disabled=false;btn.textContent='Enviar a cliente →'}
   }catch(e){alert('Error de conexión');btn.disabled=false;btn.textContent='Enviar a cliente →'}
 }
@@ -1214,5 +1331,4 @@ pisoPaso2=async function(){
   btn.disabled=false;btn.textContent='Continuar →';
 };
 </script>
-</body><!-- cache-bust-1773685721119 -->
-</html>
+</body></html>
