@@ -106,19 +106,78 @@ async function handleGoogleToken(response) {
       headers: { Authorization: 'Bearer ' + response.access_token }
     });
     const user = await r.json();
-    // Fill form fields
-    if (user.given_name) document.getElementById('nombre').value = user.given_name;
-    if (user.family_name) document.getElementById('apellido').value = user.family_name;
-    if (user.email) document.getElementById('email').value = user.email;
-    // Show confirmation
-    document.getElementById('googleFilled').style.display = 'block';
-    document.getElementById('googleName').textContent = (user.given_name || '') + ' ' + (user.family_name || '') + ' (' + user.email + ')';
-    // Focus on next empty field
-    if (!document.getElementById('tel').value) document.getElementById('tel').focus();
+    if (!user.email) { alert('No se pudo obtener tu email de Google'); return; }
+
+    // Show loading
+    if (typeof showLoading === 'function') showLoading('Entrando con Google', 'Verificando tu cuenta...');
+
+    // Try login first
+    var loginR = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user.email, google_auth: true })
+    });
+    var loginD = await loginR.json();
+
+    if (loginD.ok && loginD.record_id) {
+      // User exists — go to portal
+      localStorage.setItem('onoma_token', loginD.token || '');
+      localStorage.setItem('onoma_record_id', loginD.record_id);
+      localStorage.setItem('onoma_role', loginD.rol || 'Colaborador');
+      localStorage.setItem('onoma_nombre', loginD.nombre || '');
+      if (typeof hideLoading === 'function') hideLoading();
+      window.location.href = loginD.redirect || ('colaborador-' + loginD.record_id + '.html');
+      return;
+    }
+
+    // User doesn't exist — register automatically
+    if (typeof showLoading === 'function') showLoading('Creando tu cuenta', 'Registrándote con Google...');
+
+    var regR = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-registro', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: user.given_name || '',
+        apellido: user.family_name || '',
+        email: user.email,
+        telefono: '',
+        tipo: 'colaborador',
+        es_independiente: true,
+        google_auth: true
+      })
+    });
+    var regD = await regR.json();
+
+    if (regD.ok && regD.record_id) {
+      // Now login with google_auth
+      var login2R = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, google_auth: true })
+      });
+      var login2D = await login2R.json();
+
+      if (login2D.ok) {
+        localStorage.setItem('onoma_token', login2D.token || '');
+        localStorage.setItem('onoma_record_id', login2D.record_id);
+        localStorage.setItem('onoma_role', login2D.rol || 'Colaborador');
+        localStorage.setItem('onoma_nombre', login2D.nombre || '');
+        if (typeof hideLoading === 'function') hideLoading();
+        // New user → go to contrato first
+        window.location.href = 'firmar.html?email=' + encodeURIComponent(user.email);
+        return;
+      }
+    }
+
+    if (typeof hideLoading === 'function') hideLoading();
+    alert('Error al crear tu cuenta. Inténtalo de nuevo.');
   } catch(e) {
+    if (typeof hideLoading === 'function') hideLoading();
     console.error('Google auth error:', e);
+    alert('Error de conexión. Inténtalo de nuevo.');
   }
 }
+
 </script>
 </head>
 <body>
