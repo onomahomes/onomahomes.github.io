@@ -246,6 +246,23 @@ document.getElementById('indep').addEventListener('click', function(e) {
   else sec2.classList.remove('disabled');
 });
 
+
+async function uploadLogoToCloudinary() {
+  var logoInput = document.getElementById('logo');
+  if (!logoInput || !logoInput.files || !logoInput.files[0]) return null;
+  var file = logoInput.files[0];
+  var formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'onoma_pisos');
+  formData.append('folder', 'onoma/logos');
+  formData.append('tags', 'logo,empresa');
+  try {
+    var r = await fetch('https://api.cloudinary.com/v1_1/duy8wxcrq/image/upload', { method: 'POST', body: formData });
+    var d = await r.json();
+    return d.secure_url || null;
+  } catch(e) { return null; }
+}
+
 async function registrar() {
     // ── Friendly error messages ──
     var friendlyErrors = {
@@ -290,7 +307,13 @@ async function registrar() {
     const r = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-registro', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      // Upload logo first
+    var logoUrl = null;
+    try { logoUrl = await uploadLogoToCloudinary(); } catch(e) {}
+
+    body: JSON.stringify({
+        logo_empresa: logoUrl || '',
+        brand_color: selectedBrandColor || '',
         nombre, apellido,
         nif: document.getElementById('nif').value.trim(),
         telefono: tel, email, tipo,
