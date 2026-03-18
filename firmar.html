@@ -314,6 +314,14 @@ function checkFirma() {
   }
 
 async function firmar() {
+    var expected = (nombreCompleto || '').trim().toLowerCase();
+    var typed = document.getElementById('firmaNombre').value.trim().toLowerCase();
+    if (expected && typed !== expected) {
+      var errEl = document.getElementById('firmaErr');
+      errEl.textContent = 'El nombre debe coincidir exactamente con: ' + nombreCompleto;
+      errEl.style.display = 'block';
+      return;
+    }
   const firma_nombre = document.getElementById('firmaNombre').value.trim();
   const errEl = document.getElementById('firmaErr');
   errEl.style.display = 'none';
@@ -351,4 +359,5 @@ async function firmar() {
 init();
 </script>
 </body>
+<!-- v1773801924980 -->
 </html>
