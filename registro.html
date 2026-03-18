@@ -4,146 +4,316 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ONOMA · Registro</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
-:root{--gold:#C5A059;--gold-dim:rgba(197,160,89,0.1);--gold-border:rgba(197,160,89,0.3);--black:#000;--g900:#0a0a0a;--g800:#111;--text:#fff;--muted:rgba(255,255,255,0.45);--subtle:rgba(255,255,255,0.08)}
+:root{--gold:#C5A059;--gold-dim:rgba(197,160,89,0.1);--gold-border:rgba(197,160,89,0.3);--black:#000;--text:#fff;--muted:rgba(255,255,255,0.45);--subtle:rgba(255,255,255,0.08);--blue:#3B82F6}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);min-height:100vh}
-.logo-mark{display:flex;align-items:baseline;justify-content:center;gap:9px}
-.lm-name{font-family:'Inter',sans-serif;font-weight:700;font-size:18px;letter-spacing:3px;color:var(--text)}
-.lm-homes{font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
-::placeholder{color:rgba(255,255,255,.18);font-style:normal}
-body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px 60px}
-.logo-wrap{text-align:center;margin-bottom:36px}
-.logo-sub{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--text);margin:12px 0 4px}
-.logo-sub2{font-size:12px;color:var(--muted);letter-spacing:.5px}
-.card{width:100%;max-width:440px}
-.sec-title{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:600;margin:28px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--subtle)}
-.sec-title:first-of-type{margin-top:0}
-.fld{margin-bottom:22px;position:relative}
-.fld label{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1.5px}
-.req{color:var(--gold);font-size:12px;margin-left:1px}
-.opt{font-size:10px;color:rgba(255,255,255,.25);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px;font-style:italic}
-.fld input{width:100%;padding:10px 0;border:none;border-bottom:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:32px 16px 60px}
+::placeholder{color:rgba(255,255,255,.18)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.logo-wrap{text-align:center;margin-bottom:28px}
+.lm{display:flex;align-items:baseline;justify-content:center;gap:9px}
+.lm-name{font-weight:700;font-size:22px;letter-spacing:4px}
+.lm-homes{font-weight:300;font-size:13px;letter-spacing:5px;color:var(--muted);text-transform:uppercase}
+.logo-sub{font-family:'Playfair Display',serif;font-size:24px;margin:12px 0 4px}
+.logo-sub2{font-size:13px;color:var(--muted)}
+
+.card{width:100%;max-width:460px}
+.sec-title{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:600;margin:24px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--subtle)}
+.fld{margin-bottom:18px}
+.fld label{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1.5px}
+.req{color:var(--gold);font-size:12px}
+.opt{font-size:10px;color:rgba(255,255,255,.2);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px;font-style:italic}
+.fld input,.fld select{width:100%;padding:12px 0;border:none;border-bottom:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text);font-size:16px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
 .fld input:focus{border-bottom-color:var(--gold)}
-.fld input.err-field{border-bottom-color:#f87171}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.indep-box{display:flex;align-items:center;gap:14px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:12px;padding:14px 16px;margin-bottom:22px;cursor:pointer}
-.indep-box input[type=checkbox]{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
-.indep-box label{font-size:14px;font-weight:600;color:var(--text);cursor:pointer;margin:0}
-.indep-box span{font-size:12px;color:var(--muted);display:block;margin-top:3px;font-weight:400}
-#sec2fields{transition:opacity .2s}
-#sec2fields.disabled{opacity:.35;pointer-events:none}
-.btn{width:100%;padding:16px;background:var(--gold);color:var(--black);border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;letter-spacing:.2px;transition:opacity .15s}
-.btn:active{opacity:.8}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* Type selection cards */
+.type-card{display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.03);border:2px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;cursor:pointer;transition:all .3s;margin-bottom:12px}
+.type-card:hover{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05)}
+.type-card .tc-ico{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.type-card .tc-arrow{color:rgba(255,255,255,.2);font-size:18px}
+
+/* Agreement checkboxes */
+.agree-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;transition:all .2s;display:flex;gap:14px;align-items:flex-start}
+.agree-box:hover{border-color:rgba(255,255,255,.15)}
+.agree-box.on{border-color:var(--gold-border);background:var(--gold-dim)}
+.agree-box input{width:20px;height:20px;accent-color:var(--gold);flex-shrink:0;margin-top:2px;cursor:pointer}
+.agree-box .ab-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.agree-box .ab-desc{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* Back button */
+.back-btn{background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);padding:10px 18px;border-radius:10px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:16px;display:flex;align-items:center;gap:6px;transition:all .2s}
+.back-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:16px}
+
+/* Buttons */
+.btn{width:100%;padding:16px;background:var(--gold);color:var(--black);border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .15s}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.link{text-align:center;margin-top:20px;font-size:13px;color:var(--muted)}
-.link a{color:var(--gold);font-weight:600;text-decoration:none}
-.err-msg{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:14px;padding:16px 20px;font-size:14px;color:#fbbf24;margin-bottom:18px;display:none;line-height:1.6;text-align:center}
-.ok-box{text-align:center;padding:16px 0;display:none}
-.ok-line{width:40px;height:1px;background:var(--gold);margin:0 auto 20px}
-.ok-box h3{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text)}
+.btn-google{width:100%;padding:16px;background:#fff;color:#333;border:none;border-radius:14px;font-family:'Inter',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;min-height:52px;margin-bottom:16px}
+
+/* Collapsible */
+.collapse-header{cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.collapse-arrow{font-size:12px;color:rgba(255,255,255,.2);transition:transform .3s}
+.collapse-body{display:none;padding-top:10px}
+
+/* Logo upload */
+.logo-zone{border:2px dashed rgba(255,255,255,.12);border-radius:16px;padding:20px;text-align:center;transition:all .3s;position:relative;cursor:pointer}
+.logo-zone:hover{border-color:rgba(255,255,255,.2)}
+
+/* Error & success */
+.err-msg{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:14px;padding:14px 18px;font-size:14px;color:#fbbf24;margin-bottom:16px;display:none;text-align:center;line-height:1.6}
+.ok-box{text-align:center;padding:20px 0;display:none}
+.ok-box h3{font-family:'Playfair Display',serif;font-size:24px}
 .ok-box p{color:var(--muted);margin-top:12px;font-size:14px;line-height:1.7}
-.ok-box strong{color:var(--text);font-weight:600}
-.nota{font-size:11px;color:rgba(255,255,255,.2);text-align:center;margin-top:16px}
-.google-divider{display:flex;align-items:center;gap:14px;margin:24px 0 20px}
+.link{text-align:center;margin-top:20px;font-size:14px;color:var(--muted)}
+.link a{color:var(--gold);font-weight:600;text-decoration:none}
+.google-divider{display:flex;align-items:center;gap:14px;margin:20px 0}
 .google-divider::before,.google-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
-.google-divider span{font-size:12px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
-.btn-google{width:100%;padding:16px;background:#fff;color:#333;border:none;border-radius:14px;font-family:'Inter',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:all .2s;min-height:56px}
-.btn-google:hover{background:#f5f5f5;box-shadow:0 4px 16px rgba(0,0,0,.2)}
-.btn-google:active{transform:scale(.98)}
-.btn-google svg{flex-shrink:0}
-.google-filled{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:12px;padding:12px 16px;margin-bottom:20px;display:none;font-size:14px;color:rgba(74,222,128,.8)}
-.google-filled strong{color:#4ade80}
+.google-divider span{font-size:12px;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
+
+/* Loading overlay */
+.loading-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.92);flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.loading-overlay.on{display:flex}
+.loading-text{font-family:'Playfair Display',serif;font-size:20px;text-align:center}
+.loading-sub{font-size:14px;color:rgba(255,255,255,.4);text-align:center}
+.loading-bar{width:200px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:8px}
+.loading-fill{height:100%;background:var(--gold);border-radius:2px;width:0;transition:width .5s}
+
+.mockup{background:rgba(10,10,20,.95);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px 20px;display:inline-flex;align-items:center;gap:12px}
 
 @media(max-width:768px){
   body{padding:24px 16px}
-  .hdr h1{font-size:30px}
-  .hdr p{font-size:16px}
-  .fld label{font-size:14px;margin-bottom:10px}
-  .fld input,.fld select{font-size:17px;padding:14px 0}
-  .sub{font-size:18px;padding:18px;min-height:56px}
-  .step-info{font-size:15px}
-  .lm-name{font-size:22px}
-  .footer-lnk{font-size:15px}
-  .err-box{font-size:15px}
-  .chk-row{font-size:15px}
-  .chk-row label{font-size:15px}
+  .logo-sub{font-size:28px}
+  .fld label{font-size:13px}
+  .fld input{font-size:17px;padding:14px 0}
+  .btn{font-size:17px;padding:18px;min-height:54px}
+  .btn-google{font-size:17px;min-height:54px}
+  .type-card{padding:18px}
+  .type-card .tc-ico{width:44px;height:44px}
+  .agree-box .ab-title{font-size:15px}
+  .agree-box .ab-desc{font-size:13px}
 }
-
-/* Loading overlay */
-.loading-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.92);flex-direction:column;align-items:center;justify-content:center;gap:20px}
-.loading-overlay.on{display:flex}
-.house-loader{width:120px;height:120px;position:relative}
-.house-loader svg{width:100%;height:100%}
-.house-fill{transition:height 1s ease;height:0}
-.loading-text{font-family:'Playfair Display',serif;font-size:20px;color:#fff;text-align:center}
-.loading-sub{font-size:14px;color:rgba(255,255,255,.4);text-align:center;max-width:280px;line-height:1.6}
-.loading-dots span{animation:ldot 1.4s infinite;opacity:.2;font-size:24px;color:#C5A059}
-.loading-dots span:nth-child(2){animation-delay:.2s}
-.loading-dots span:nth-child(3){animation-delay:.4s}
-@keyframes ldot{0%,80%,100%{opacity:.2}40%{opacity:1}}
-.loading-progress{width:200px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:8px}
-.loading-bar{height:100%;background:linear-gradient(90deg,#C5A059,#d4b06a);border-radius:2px;width:0;transition:width .5s ease}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 </style>
-<script src="https://accounts.google.com/gsi/client" async></script>
-<script>
+</head>
+<body>
 
+<div class="logo-wrap">
+  <div class="lm"><span class="lm-name">ONOMA</span><span class="lm-homes">Homes</span></div>
+  <div class="logo-sub">Registro</div>
+  <div class="logo-sub2">Red de inmobiliarias partner</div>
+</div>
+
+<div class="card">
+  <div class="err-msg" id="errMsg"></div>
+
+  <div id="formReg">
+
+    <!-- ═══ STEP 1: Type selection ═══ -->
+    <div id="stepType">
+      <div class="sec-title">¿Cómo quieres colaborar?</div>
+      <div class="type-card" onclick="selectType('independiente')">
+        <div class="tc-ico" style="background:rgba(197,160,89,.1);border:1px solid rgba(197,160,89,.25)">👤</div>
+        <div style="flex:1">
+          <div style="font-size:16px;font-weight:700;margin-bottom:4px">Colaborador independiente</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.5">Autónomo o agente por cuenta propia</div>
+        </div>
+        <div class="tc-arrow">→</div>
+      </div>
+      <div class="type-card" onclick="selectType('empresa')">
+        <div class="tc-ico" style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25)">🏢</div>
+        <div style="flex:1">
+          <div style="font-size:16px;font-weight:700;margin-bottom:4px">Represento a una empresa</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.5">Inmobiliaria, agencia o grupo</div>
+        </div>
+        <div class="tc-arrow">→</div>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 2: Form ═══ -->
+    <div id="stepForm" style="display:none">
+      <button class="back-btn" onclick="goBack()">← Cambiar tipo</button>
+      <div class="badge" id="typeBadge"></div>
+
+      <!-- Empresa fields -->
+      <div id="empresaFields" style="display:none">
+        <div class="sec-title">Tu empresa</div>
+        <div class="fld"><label>Empresa <span class="req">*</span></label><input id="empresa" type="text" placeholder="Nombre de tu empresa" oninput="updateMockup()"></div>
+        <div class="row2">
+          <div class="fld"><label>CIF <span class="req">*</span></label><input id="cif" type="text" placeholder="CIF empresa"></div>
+          <div class="fld"><label>Cargo <span class="req">*</span></label><input id="cargo" type="text" placeholder="Tu cargo"></div>
+        </div>
+        <div class="fld"><label>Dirección fiscal <span class="opt">(opcional)</span></label><input id="direccion_fiscal" type="text" placeholder="Dirección fiscal de la empresa"></div>
+
+        <!-- Logo -->
+        <div class="fld">
+          <label>Logo <span class="opt">(recomendado)</span></label>
+          <div class="logo-zone" id="logoZone">
+            <div id="logoPreview" style="display:none;margin-bottom:8px">
+              <img id="logoPreviewImg" src="" style="max-height:60px;max-width:180px;object-fit:contain;border-radius:8px">
+              <div style="font-size:11px;color:rgba(74,222,128,.7);margin-top:4px">✓ Logo cargado</div>
+            </div>
+            <div id="logoPlaceholder">
+              <div style="font-size:24px;opacity:.3;margin-bottom:4px">🏢</div>
+              <div style="font-size:13px;color:var(--muted)">Toca para subir tu <strong style="color:var(--gold)">logo</strong></div>
+            </div>
+            <input id="logo" type="file" accept="image/*" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:5" onchange="previewLogo(this)">
+          </div>
+          <div id="mockupBox" style="display:none;margin-top:10px;text-align:center">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:600;margin-bottom:8px">Vista previa</div>
+            <div class="mockup" id="mockup">
+              <img id="mockupLogo" src="" style="max-height:28px;max-width:80px;object-fit:contain">
+              <div><div id="mockupName" style="font-size:13px;font-weight:700">Tu Empresa</div><div style="font-size:8px;color:rgba(255,255,255,.3);letter-spacing:1.5px">PARTNER ONOMA</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Color (collapsible) -->
+        <div class="fld">
+          <div class="collapse-header" onclick="toggleCollapse('colorBody','colorArrow')">
+            <label style="cursor:pointer;margin:0">Color de marca <span class="opt">(opcional)</span></label>
+            <span class="collapse-arrow" id="colorArrow">▼</span>
+          </div>
+          <div class="collapse-body" id="colorBody">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:4px">
+              <div class="clr" onclick="pickColor('#C5A059')" style="width:34px;height:34px;border-radius:10px;background:#C5A059;cursor:pointer;border:3px solid transparent"></div>
+              <div class="clr" onclick="pickColor('#3B82F6')" style="width:34px;height:34px;border-radius:10px;background:#3B82F6;cursor:pointer;border:3px solid transparent"></div>
+              <div class="clr" onclick="pickColor('#10B981')" style="width:34px;height:34px;border-radius:10px;background:#10B981;cursor:pointer;border:3px solid transparent"></div>
+              <div class="clr" onclick="pickColor('#EF4444')" style="width:34px;height:34px;border-radius:10px;background:#EF4444;cursor:pointer;border:3px solid transparent"></div>
+              <div class="clr" onclick="pickColor('#8B5CF6')" style="width:34px;height:34px;border-radius:10px;background:#8B5CF6;cursor:pointer;border:3px solid transparent"></div>
+              <div class="clr" onclick="pickColor('#EC4899')" style="width:34px;height:34px;border-radius:10px;background:#EC4899;cursor:pointer;border:3px solid transparent"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fld"><label>Web <span class="opt">(opcional)</span></label><input id="landing" type="url" placeholder="https://www.tuempresa.com"></div>
+      </div>
+
+      <!-- ═══ Tipos de acuerdo ═══ -->
+      <div class="sec-title">Tipo de colaboración <span class="req">*</span></div>
+      <div class="agree-box" onclick="toggleAgree(1,this)">
+        <input type="checkbox" id="agree1">
+        <div>
+          <div class="ab-title">Inter-Agencia (50/50)</div>
+          <div class="ab-desc">Piso de broker + demanda ONOMA o viceversa. Honorarios totales se dividen al 50% entre ONOMA y colaborador.</div>
+        </div>
+      </div>
+      <div class="agree-box" onclick="toggleAgree(2,this)">
+        <input type="checkbox" id="agree2">
+        <div>
+          <div class="ab-title">Urban Flip Capital (2% + IVA)</div>
+          <div class="ab-desc">Solo pisos propiedad de Urban Flip. Colaborador recibe 2% + IVA sobre precio final. Pago en dos tramos: 50% arras + 50% escritura.</div>
+        </div>
+      </div>
+      <div class="agree-box" onclick="toggleAgree(3,this)">
+        <input type="checkbox" id="agree3">
+        <div>
+          <div class="ab-title">Operación Tripartita (33.33%)</div>
+          <div class="ab-desc">Piso de un broker + demanda de otro broker + ONOMA conecta. Honorarios divididos en 3 partes iguales.</div>
+        </div>
+      </div>
+
+      <!-- Datos personales -->
+      <div class="sec-title">Tus datos personales</div>
+      <div class="row2">
+        <div class="fld"><label>Nombre <span class="req">*</span></label><input id="nombre" type="text" placeholder="Tu nombre"></div>
+        <div class="fld"><label>Apellido <span class="req">*</span></label><input id="apellido" type="text" placeholder="Tu apellido"></div>
+      </div>
+      <div class="fld"><label>NIF / NIE <span class="opt">(opcional)</span></label><input id="nif" type="text" placeholder="Documento de identidad"></div>
+      <div class="fld"><label>Teléfono <span class="req">*</span></label><input id="tel" type="tel" placeholder="+34 600 000 000"></div>
+      <div class="fld"><label>Email <span class="req">*</span></label><input id="email" type="email" placeholder="tu@email.com"></div>
+
+      <button class="btn" id="btnReg" onclick="registrar()">Solicitar acceso →</button>
+
+      <div class="google-divider"><span>o regístrate con</span></div>
+      <button class="btn-google" onclick="googleLogin()">
+        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continuar con Google
+      </button>
+
+      <p style="font-size:11px;color:rgba(255,255,255,.15);text-align:center;margin-top:12px">Campos con <strong style="color:var(--gold)">*</strong> son obligatorios</p>
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div class="ok-box" id="okReg">
+    <div style="width:40px;height:1px;background:var(--gold);margin:0 auto 20px"></div>
+    <h3>Solicitud enviada</h3>
+    <p>Hemos enviado un email de confirmación a<br><strong id="emailConf"></strong>.</p>
+    <div id="noEmailBox" style="margin-top:20px;padding:16px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:14px">
+      <div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:8px">¿No ha llegado?</div>
+      <button onclick="reenviarEmail()" style="background:var(--gold);color:#000;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Reenviar email</button>
+      <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:8px">O escríbenos a <strong style="color:var(--gold)">info@onomahomes.com</strong></div>
+    </div>
+  </div>
+
+  <div class="link">¿Ya tienes cuenta? <a href="portal.html">Inicia sesión</a></div>
+</div>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div style="font-size:48px;margin-bottom:8px">🏠</div>
+  <div class="loading-text" id="loadingTitle">Preparando tu espacio</div>
+  <div class="loading-bar"><div class="loading-fill" id="loadingFill"></div></div>
+  <div class="loading-sub" id="loadingSub">Creando tu cuenta en ONOMA</div>
+</div>
+
+<script>
 var esIndep = false;
 var tipoSelected = '';
-var selectedBrandColor = '';
+var selectedColor = '';
+var agreements = [];
 
 function selectType(tipo) {
   tipoSelected = tipo;
   esIndep = (tipo === 'independiente');
-  // Hide step 1, show step 2
   document.getElementById('stepType').style.display = 'none';
-  document.getElementById('stepForm').style.display = 'block';
-  document.getElementById('stepForm').style.animation = 'fadeUp .3s ease';
-  // Show/hide empresa fields
+  var form = document.getElementById('stepForm');
+  form.style.display = 'block';
+  form.style.animation = 'fadeUp .3s ease';
   document.getElementById('empresaFields').style.display = tipo === 'empresa' ? 'block' : 'none';
-  // Badge
-  var badge = document.getElementById('selectedBadge');
+  var badge = document.getElementById('typeBadge');
   if (tipo === 'independiente') {
-    badge.style.background = 'rgba(197,160,89,.1)';
-    badge.style.color = '#C5A059';
-    badge.style.border = '1px solid rgba(197,160,89,.25)';
+    badge.style.background = 'rgba(197,160,89,.1)'; badge.style.color = '#C5A059'; badge.style.border = '1px solid rgba(197,160,89,.25)';
     badge.innerHTML = '👤 Colaborador independiente';
   } else {
-    badge.style.background = 'rgba(59,130,246,.1)';
-    badge.style.color = '#60a5fa';
-    badge.style.border = '1px solid rgba(59,130,246,.25)';
+    badge.style.background = 'rgba(59,130,246,.1)'; badge.style.color = '#60a5fa'; badge.style.border = '1px solid rgba(59,130,246,.25)';
     badge.innerHTML = '🏢 Empresa';
   }
 }
 
-function goBackToType() {
+function goBack() {
   document.getElementById('stepForm').style.display = 'none';
-  document.getElementById('stepType').style.display = 'block';
-  document.getElementById('stepType').style.animation = 'fadeUp .3s ease';
-  tipoSelected = '';
+  var step1 = document.getElementById('stepType');
+  step1.style.display = 'block';
+  step1.style.animation = 'fadeUp .3s ease';
 }
 
-function toggleIndep() { selectType('independiente'); }
-function applyIndepState() {}
-
-function toggleColors() {
-  var wrap = document.getElementById('colorPickerWrap');
-  var arrow = document.getElementById('colorArrow');
-  if (wrap.style.display === 'none') {
-    wrap.style.display = 'block';
-    arrow.style.transform = 'rotate(180deg)';
-  } else {
-    wrap.style.display = 'none';
-    arrow.style.transform = 'rotate(0)';
-  }
+function toggleAgree(n, el) {
+  var cb = document.getElementById('agree' + n);
+  cb.checked = !cb.checked;
+  el.classList.toggle('on', cb.checked);
+  if (cb.checked && !agreements.includes(n)) agreements.push(n);
+  else agreements = agreements.filter(function(x) { return x !== n; });
 }
 
-function updateMockupName() {
-  var el = document.getElementById('brandMockupName');
-  if (el) el.textContent = document.getElementById('empresa')?.value?.trim() || 'Tu Empresa';
+function toggleCollapse(bodyId, arrowId) {
+  var body = document.getElementById(bodyId);
+  var arrow = document.getElementById(arrowId);
+  if (body.style.display === 'none' || !body.style.display) { body.style.display = 'block'; arrow.style.transform = 'rotate(180deg)'; }
+  else { body.style.display = 'none'; arrow.style.transform = 'rotate(0)'; }
+}
+
+function pickColor(color) {
+  selectedColor = color;
+  document.querySelectorAll('.clr').forEach(function(c) { c.style.border = '3px solid transparent'; });
+  event.target.style.border = '3px solid #fff';
+  var m = document.getElementById('mockup');
+  if (m) m.style.borderColor = color;
 }
 
 function previewLogo(input) {
@@ -153,68 +323,138 @@ function previewLogo(input) {
     document.getElementById('logoPreviewImg').src = e.target.result;
     document.getElementById('logoPreview').style.display = 'block';
     document.getElementById('logoPlaceholder').style.display = 'none';
-    document.getElementById('brandPreviewBox').style.display = 'block';
-    document.getElementById('brandMockupLogo').src = e.target.result;
-    updateMockupName();
+    document.getElementById('mockupBox').style.display = 'block';
+    document.getElementById('mockupLogo').src = e.target.result;
+    updateMockup();
   };
   reader.readAsDataURL(input.files[0]);
 }
 
-function pickColor(el) {
-  document.querySelectorAll('.clr-opt').forEach(function(c) { c.style.border = '3px solid transparent'; });
-  el.style.border = '3px solid #fff';
-  selectedBrandColor = el.getAttribute('data-color');
-  var mockup = document.getElementById('brandMockup');
-  if (mockup) mockup.style.borderColor = selectedBrandColor;
-}
-function pickCustomColor(color) {
-  document.querySelectorAll('.clr-opt').forEach(function(c) { c.style.border = '3px solid transparent'; });
-  selectedBrandColor = color;
-  var mockup = document.getElementById('brandMockup');
-  if (mockup) mockup.style.borderColor = color;
+function updateMockup() {
+  var el = document.getElementById('mockupName');
+  if (el) el.textContent = (document.getElementById('empresa')?.value || '').trim() || 'Tu Empresa';
 }
 
-async function uploadLogoToCloudinary() {
-  var logoInput = document.getElementById('logo');
-  if (!logoInput || !logoInput.files || !logoInput.files[0]) return null;
-  var formData = new FormData();
-  formData.append('file', logoInput.files[0]);
-  formData.append('upload_preset', 'onoma_pisos');
-  formData.append('folder', 'onoma/logos');
+async function uploadLogo() {
+  var input = document.getElementById('logo');
+  if (!input || !input.files || !input.files[0]) return null;
+  var fd = new FormData();
+  fd.append('file', input.files[0]);
+  fd.append('upload_preset', 'onoma_pisos');
+  fd.append('folder', 'onoma/logos');
   try {
-    var r = await fetch('https://api.cloudinary.com/v1_1/duy8wxcrq/image/upload', { method: 'POST', body: formData });
+    var r = await fetch('https://api.cloudinary.com/v1_1/duy8wxcrq/image/upload', { method: 'POST', body: fd });
     var d = await r.json();
     return d.secure_url || null;
   } catch(e) { return null; }
 }
 
+function showLoading(title, sub) {
+  document.getElementById('loadingTitle').textContent = title;
+  document.getElementById('loadingSub').textContent = sub;
+  document.getElementById('loadingOverlay').classList.add('on');
+  var fill = document.getElementById('loadingFill');
+  fill.style.width = '0';
+  setTimeout(function() { fill.style.width = '30%'; }, 300);
+  setTimeout(function() { fill.style.width = '60%'; }, 1500);
+  setTimeout(function() { fill.style.width = '85%'; }, 3000);
+}
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('on'); }
 
+function showErr(msg) {
+  var el = document.getElementById('errMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 
+async function registrar() {
+  document.getElementById('errMsg').style.display = 'none';
+  var nombre = (document.getElementById('nombre')?.value || '').trim();
+  var apellido = (document.getElementById('apellido')?.value || '').trim();
+  var tel = (document.getElementById('tel')?.value || '').trim();
+  var email = (document.getElementById('email')?.value || '').trim();
 
+  if (!nombre) { showErr('El nombre es obligatorio'); return; }
+  if (!apellido) { showErr('El apellido es obligatorio'); return; }
+  if (!tel) { showErr('El teléfono es obligatorio'); return; }
+  if (!email || !email.includes('@')) { showErr('Introduce un email válido'); return; }
+  if (agreements.length === 0) { showErr('Selecciona al menos un tipo de colaboración'); return; }
+  if (tipoSelected === 'empresa') {
+    if (!(document.getElementById('empresa')?.value || '').trim()) { showErr('El nombre de empresa es obligatorio'); return; }
+    if (!(document.getElementById('cif')?.value || '').trim()) { showErr('El CIF es obligatorio'); return; }
+  }
 
+  var btn = document.getElementById('btnReg');
+  btn.disabled = true;
+  showLoading('Creando tu cuenta', 'Preparando tu espacio en ONOMA...');
 
-async function handleGoogleToken(response) {
+  var logoUrl = null;
+  try { logoUrl = await uploadLogo(); } catch(e) {}
+
+  try {
+    var r = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-registro', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: nombre, apellido: apellido, email: email, telefono: tel,
+        nif: (document.getElementById('nif')?.value || '').trim(),
+        tipo: 'colaborador', es_independiente: esIndep,
+        empresa: (document.getElementById('empresa')?.value || '').trim(),
+        cif_empresa: (document.getElementById('cif')?.value || '').trim(),
+        cargo: (document.getElementById('cargo')?.value || '').trim(),
+        landing: (document.getElementById('landing')?.value || '').trim(),
+        direccion_fiscal: (document.getElementById('direccion_fiscal')?.value || '').trim(),
+        logo_empresa: logoUrl || '',
+        brand_color: selectedColor,
+        tipos_acuerdo: agreements
+      })
+    });
+    var d = await r.json();
+    hideLoading();
+    if (d.ok) {
+      document.getElementById('formReg').style.display = 'none';
+      document.getElementById('emailConf').textContent = email;
+      document.getElementById('okReg').style.display = 'block';
+    } else {
+      showErr(d.error || 'Error en el registro. Inténtalo de nuevo.');
+      btn.disabled = false;
+    }
+  } catch(e) {
+    hideLoading();
+    showErr('Estamos mejorando la plataforma. Inténtalo en unos minutos.');
+    btn.disabled = false;
+  }
+}
+
+// Google Sign-In
+function googleLogin() {
+  var client = google.accounts.oauth2.initTokenClient({
+    client_id: '975921214393-68lhp4n61mnr385jurrpqvvfvc8e5103.apps.googleusercontent.com',
+    scope: 'email profile',
+    callback: handleGoogle
+  });
+  client.requestAccessToken();
+}
+
+async function handleGoogle(response) {
   if (!response.access_token) return;
   try {
-    var r = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: { Authorization: 'Bearer ' + response.access_token }
-    });
+    var r = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: 'Bearer ' + response.access_token } });
     var user = await r.json();
-    if (!user.email) { alert('No se pudo obtener tu email de Google'); return; }
+    if (!user.email) return;
 
-    // Collect empresa data from form (user filled it before clicking Google)
-    var empresa = document.getElementById('empresa')?.value?.trim() || '';
-    var cifEmpresa = document.getElementById('cif')?.value?.trim() || '';
-    var cargo = document.getElementById('cargo')?.value?.trim() || '';
-    var landing = document.getElementById('landing')?.value?.trim() || '';
+    // Collect form data
+    var empresa = (document.getElementById('empresa')?.value || '').trim();
+    var cif = (document.getElementById('cif')?.value || '').trim();
+    var cargo = (document.getElementById('cargo')?.value || '').trim();
 
-    if (typeof showLoading === 'function') showLoading('Entrando con Google', 'Verificando tu cuenta...');
+    if (agreements.length === 0) { showErr('Selecciona al menos un tipo de colaboración antes de continuar con Google'); return; }
 
-    // Upload logo if selected
+    showLoading('Entrando con Google', 'Verificando tu cuenta...');
     var logoUrl = null;
-    try { logoUrl = await uploadLogoToCloudinary(); } catch(e) {}
+    try { logoUrl = await uploadLogo(); } catch(e) {}
 
-    // Try login first
+    // Try login
     var lr = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-login', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: user.email, google_auth: true })
@@ -222,367 +462,61 @@ async function handleGoogleToken(response) {
     var ld = await lr.json();
 
     if (ld.ok && ld.record_id) {
-      // Existing user - check contrato
       localStorage.setItem('onoma_token', ld.token || '');
       localStorage.setItem('onoma_record_id', ld.record_id);
       localStorage.setItem('onoma_role', ld.rol || 'Colaborador');
-      if (typeof hideLoading === 'function') hideLoading();
-      // Check if contrato signed
+      hideLoading();
+      // Check contrato
       try {
-        var checkR = await fetch('https://wwaytwudfbwxttyyojjx.supabase.co/rest/v1/colaboradores?id=eq.' + ld.record_id + '&select=contrato_estado', {
+        var cr = await fetch('https://wwaytwudfbwxttyyojjx.supabase.co/rest/v1/colaboradores?id=eq.' + ld.record_id + '&select=contrato_estado', {
           headers: { apikey: 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b', Authorization: 'Bearer sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b' }
         });
-        var checkD = await checkR.json();
-        if (Array.isArray(checkD) && checkD[0] && checkD[0].contrato_estado === 'Firmado') {
+        var cd = await cr.json();
+        if (Array.isArray(cd) && cd[0] && cd[0].contrato_estado === 'Firmado') {
           window.location.href = ld.redirect || ('colaborador-' + ld.record_id + '.html');
         } else {
           window.location.href = 'firmar.html?email=' + encodeURIComponent(user.email);
         }
-      } catch(e) {
-        window.location.href = ld.redirect || ('colaborador-' + ld.record_id + '.html');
-      }
+      } catch(e) { window.location.href = ld.redirect || ('colaborador-' + ld.record_id + '.html'); }
       return;
     }
 
-    // New user - register
-    if (typeof showLoading === 'function') showLoading('Creando tu cuenta', 'Registrándote con Google...');
+    // New user — register
+    showLoading('Creando tu cuenta', 'Registrándote con Google...');
     var regR = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-registro', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         nombre: user.given_name || '', apellido: user.family_name || '',
-        email: user.email, telefono: document.getElementById('tel')?.value?.trim() || '',
-        tipo: 'colaborador', empresa: empresa, cif_empresa: cifEmpresa,
-        cargo: cargo, landing: landing, logo_empresa: logoUrl || '',
-        es_independiente: esIndep, google_auth: true
+        email: user.email, telefono: (document.getElementById('tel')?.value || '').trim(),
+        tipo: 'colaborador', es_independiente: esIndep,
+        empresa: empresa, cif_empresa: cif, cargo: cargo,
+        landing: (document.getElementById('landing')?.value || '').trim(),
+        logo_empresa: logoUrl || '', brand_color: selectedColor,
+        tipos_acuerdo: agreements, google_auth: true
       })
     });
     var regD = await regR.json();
+    hideLoading();
     if (regD.ok) {
-      if (typeof hideLoading === 'function') hideLoading();
       window.location.href = 'firmar.html?email=' + encodeURIComponent(user.email);
     } else {
-      if (typeof hideLoading === 'function') hideLoading();
-      alert(regD.error || 'Error al registrar');
-    }
-  } catch(e) {
-    if (typeof hideLoading === 'function') hideLoading();
-    alert('Error de conexión');
-  }
-}
-
-</script>
-</head>
-<body>
-<div class="logo-wrap">
-  <div class="logo-mark">
-    <span class="lm-name">ONOMA</span>
-    <span class="lm-homes">Homes</span>
-  </div>
-  <div class="logo-sub" id="pageTitle">Registro</div>
-  <div class="logo-sub2" id="pageSubtitle">Crea tu cuenta</div>
-</div>
-<div class="card">
-  <div class="err-msg" id="errMsg"></div>
-
-  <div id="formReg">
-
-    <!-- STEP 1: Choose type — both options visible -->
-    <div id="stepType">
-      <div class="sec-title">¿Cómo quieres colaborar?</div>
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div class="type-box" id="boxIndep" onclick="selectType('independiente')" style="display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.03);border:2px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;cursor:pointer;transition:all .3s">
-          <div style="width:48px;height:48px;border-radius:12px;background:rgba(197,160,89,.1);border:1px solid rgba(197,160,89,.25);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">👤</div>
-          <div style="flex:1">
-            <div style="font-size:16px;font-weight:700;margin-bottom:4px">Colaborador independiente</div>
-            <div style="font-size:13px;color:rgba(255,255,255,.4);line-height:1.5">Autónomo o agente por cuenta propia</div>
-          </div>
-          <div style="color:rgba(255,255,255,.2);font-size:20px">→</div>
-        </div>
-        <div class="type-box" id="boxEmpresa" onclick="selectType('empresa')" style="display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.03);border:2px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;cursor:pointer;transition:all .3s">
-          <div style="width:48px;height:48px;border-radius:12px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🏢</div>
-          <div style="flex:1">
-            <div style="font-size:16px;font-weight:700;margin-bottom:4px">Represento a una empresa</div>
-            <div style="font-size:13px;color:rgba(255,255,255,.4);line-height:1.5">Inmobiliaria, agencia o grupo</div>
-          </div>
-          <div style="color:rgba(255,255,255,.2);font-size:20px">→</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 2: Form (hidden until type selected) -->
-    <div id="stepForm" style="display:none">
-
-      <!-- Back button -->
-      <button onclick="goBackToType()" style="background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);padding:10px 18px;border-radius:10px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:20px;display:flex;align-items:center;gap:6px;transition:all .2s" onmouseenter="this.style.borderColor='#C5A059';this.style.color='#C5A059'" onmouseleave="this.style.borderColor='rgba(255,255,255,.1)';this.style.color='rgba(255,255,255,.5)'">← Cambiar tipo de colaboración</button>
-
-      <!-- Selected type badge -->
-      <div id="selectedBadge" style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:20px"></div>
-
-      <!-- Empresa fields (only if empresa) -->
-      <div id="empresaFields" style="display:none">
-        <div class="sec-title">Tu empresa</div>
-        <div class="fld"><label>Empresa <span class="req">*</span></label><input id="empresa" type="text" placeholder="Nombre de tu empresa o agencia" oninput="updateMockupName()"></div>
-        <div class="row2">
-          <div class="fld"><label>CIF <span class="req">*</span></label><input id="cif" type="text" placeholder="CIF de empresa"></div>
-          <div class="fld"><label>Cargo <span class="req">*</span></label><input id="cargo" type="text" placeholder="Tu cargo"></div>
-        </div>
-
-        <!-- Logo upload -->
-        <div class="fld">
-          <label>Logo de tu empresa <span class="opt">(recomendado)</span></label>
-          <div id="logoUploadZone" style="border:2px dashed rgba(255,255,255,.12);border-radius:16px;padding:20px;text-align:center;transition:all .3s;position:relative">
-            <div id="logoPreview" style="display:none;margin-bottom:8px">
-              <img id="logoPreviewImg" src="" style="max-height:60px;max-width:180px;object-fit:contain;border-radius:8px">
-              <div style="font-size:11px;color:rgba(74,222,128,.7);margin-top:4px">✓ Logo cargado</div>
-            </div>
-            <div id="logoPlaceholder">
-              <div style="font-size:28px;opacity:.3;margin-bottom:6px">🏢</div>
-              <div style="font-size:14px;color:rgba(255,255,255,.4)">Toca para subir tu <strong style="color:#C5A059">logo</strong></div>
-              <div style="font-size:11px;color:rgba(255,255,255,.15);margin-top:4px">PNG, JPG o SVG</div>
-            </div>
-            <input id="logo" type="file" accept="image/*,.svg" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:5" onchange="previewLogo(this)">
-          </div>
-          <!-- Brand mockup preview -->
-          <div id="brandPreviewBox" style="display:none;margin-top:12px;background:rgba(197,160,89,.05);border:1px solid rgba(197,160,89,.2);border-radius:12px;padding:14px;text-align:center">
-            <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#C5A059;font-weight:600;margin-bottom:10px">Vista previa de tu portal</div>
-            <div id="brandMockup" style="background:rgba(10,10,20,.95);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px 20px;display:inline-flex;align-items:center;gap:12px">
-              <img id="brandMockupLogo" src="" style="max-height:32px;max-width:100px;object-fit:contain">
-              <div style="text-align:left">
-                <div id="brandMockupName" style="font-size:14px;font-weight:700;color:#fff">Tu Empresa</div>
-                <div style="font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1.5px;text-transform:uppercase">Partner ONOMA</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Color picker as collapsible -->
-        <div class="fld">
-          <label onclick="toggleColors()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
-            <span>Color de tu marca <span class="opt">(opcional)</span></span>
-            <span id="colorArrow" style="font-size:12px;color:rgba(255,255,255,.2);transition:transform .3s">▼</span>
-          </label>
-          <div id="colorPickerWrap" style="display:none;padding-top:8px;transition:all .3s">
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <div class="clr-opt" data-color="#C5A059" onclick="pickColor(this)" style="width:36px;height:36px;border-radius:10px;background:#C5A059;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-              <div class="clr-opt" data-color="#3B82F6" onclick="pickColor(this)" style="width:36px;height:36px;border-radius:10px;background:#3B82F6;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-              <div class="clr-opt" data-color="#10B981" onclick="pickColor(this)" style="width:36px;height:36px;border-radius:10px;background:#10B981;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-              <div class="clr-opt" data-color="#EF4444" onclick="pickColor(this)" style="width:36px;height:36px;border-radius:10px;background:#EF4444;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-              <div class="clr-opt" data-color="#8B5CF6" onclick="pickColor(this)" style="width:36px;height:36px;border-radius:10px;background:#8B5CF6;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-              <div class="clr-opt" data-color="#F59E0B" onclick="pickColor(this)" style="width:36px;height:36px;border-radius:10px;background:#F59E0B;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-              <div class="clr-opt" data-color="#EC4899" onclick="pickColor(this)" style="width:36px;height:36px;border-radius:10px;background:#EC4899;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-              <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden" onclick="document.getElementById('customColor').click()">
-                <span style="font-size:16px">🎨</span>
-                <input type="color" id="customColor" value="#C5A059" style="position:absolute;opacity:0;width:100%;height:100%;cursor:pointer" onchange="pickCustomColor(this.value)">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="fld"><label>Web de tu empresa <span class="opt">(opcional)</span></label><input id="landing" type="url" placeholder="https://www.tuempresa.com"></div>
-      </div>
-
-      <!-- Personal info (always shown) -->
-      <div class="sec-title">Tus datos personales</div>
-      <div class="row2">
-        <div class="fld"><label>Nombre <span class="req">*</span></label><input id="nombre" type="text" placeholder="Tu nombre"></div>
-        <div class="fld"><label>Apellido <span class="req">*</span></label><input id="apellido" type="text" placeholder="Tu apellido"></div>
-      </div>
-      <div class="fld"><label>NIF / CIF personal <span class="opt">(opcional)</span></label><input id="nif" type="text" placeholder="Documento de identidad"></div>
-      <div class="fld"><label>Teléfono <span class="req">*</span></label><input id="tel" type="tel" placeholder="+34 600 000 000"></div>
-      <div class="fld"><label>Email <span class="req">*</span></label><input id="email" type="email" placeholder="tu@email.com"></div>
-
-      <!-- Google at bottom -->
-      <div class="google-divider"><span>o regístrate con</span></div>
-      <button class="btn-google" id="btnGoogle" onclick="googleLogin()" style="width:100%;padding:16px;background:#fff;color:#333;border:none;border-radius:14px;font-family:'Inter',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;min-height:52px;margin-bottom:20px">
-        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Continuar con Google
-      </button>
-      <div class="google-filled" id="googleFilled" style="display:none;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:14px;color:rgba(74,222,128,.8)">Datos cargados: <strong id="googleName"></strong></div>
-
-<button class="btn" id="btnReg" onclick="registrar()">Solicitar acceso →</button>
-    <p class="nota">Los campos marcados con <strong style="color:var(--gold)">*</strong> son obligatorios</p>
-  </div>
-
-  <div class="ok-box" id="okReg">
-    <div class="ok-line"></div>
-    <h3>Solicitud enviada</h3>
-    <p>Hemos enviado un email de confirmación a<br><strong id="emailConf"></strong>.<br><br>Haz clic en el enlace del email para activar tu cuenta.</p>
-    <div id="noEmailBox" style="margin-top:24px;padding:18px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:14px;text-align:center">
-      <div style="font-size:14px;color:rgba(255,255,255,.5);margin-bottom:10px">¿No ha llegado el email?</div>
-      <button onclick="reenviarEmail()" id="btnReenviar" style="background:#C5A059;color:#000;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Reenviar email de activación</button>
-      <div id="reenviarMsg" style="font-size:12px;color:rgba(255,255,255,.3);margin-top:8px"></div>
-      <div style="margin-top:12px;font-size:12px;color:rgba(255,255,255,.25)">Si sigue sin llegar, revisa tu carpeta de spam o escríbenos a <strong style="color:#C5A059">info@onomahomes.com</strong></div>
-    </div>
-  </div>
-
-  <div class="link">¿Ya tienes cuenta? <a href="portal.html">Inicia sesión</a></div>
-</div>
-
-<script>
-const params = new URLSearchParams(window.location.search);
-const tipo = params.get('tipo') || 'colaborador';
-
-// Adapt form to tipo
-if (tipo === 'comprador') {
-  document.getElementById('pageTitle').textContent = 'Registro de Comprador';
-  document.getElementById('pageSubtitle').textContent = 'Busca tu hogar con ONOMA';
-  document.getElementById('sec2wrap').style.display = 'none';
-} else {
-  document.getElementById('pageTitle').textContent = 'Registro de Colaborador';
-  document.getElementById('pageSubtitle').textContent = 'Red de inmobiliarias partner';
-}
-
-}
-
-
-
-
-async function registrar() {
-    // ── Friendly error messages ──
-    var friendlyErrors = {
-      'Failed to fetch': 'Estamos mejorando la plataforma. Déjanos tus datos y te contactamos en breve.',
-      'Request failed': 'Estamos actualizando el sistema de registro. Por favor, inténtalo en unos minutos.',
-      'Error de conexión': 'Parece que hay un problema de conexión. Verifica tu internet e inténtalo de nuevo.',
-      '400': 'Estamos realizando mejoras en el sistema. Inténtalo de nuevo en unos minutos o escríbenos a info@onomahomes.com.',
-      '500': 'Nuestro equipo técnico está trabajando en una mejora. Estaremos de vuelta en breve.',
-      '404': 'El servicio de registro está en mantenimiento. Estaremos disponibles en breve.'
-    };
-    function getFriendlyError(msg) {
-      for (var key in friendlyErrors) {
-        if (msg && msg.toString().indexOf(key) !== -1) return friendlyErrors[key];
-      }
-      return 'Estamos mejorando la experiencia. Inténtalo en unos minutos o escríbenos a info@onomahomes.com.';
-    }
-  const err = document.getElementById('errMsg');
-  err.style.display = 'none';
-  const nombre   = document.getElementById('nombre').value.trim();
-  const apellido = document.getElementById('apellido').value.trim();
-  const tel      = document.getElementById('tel').value.trim();
-  const email    = document.getElementById('email').value.trim();
-  const empresa  = tipo !== 'comprador' ? document.getElementById('empresa').value.trim() : '';
-  const cif      = tipo !== 'comprador' ? document.getElementById('cif').value.trim() : '';
-  const cargo    = tipo !== 'comprador' ? document.getElementById('cargo').value.trim() : '';
-
-  if (!nombre) { mostrarError('El nombre es obligatorio'); return; }
-  if (!apellido) { mostrarError('El apellido es obligatorio'); return; }
-  if (!tel) { mostrarError('El teléfono es obligatorio'); return; }
-  if (!email || !email.includes('@')) { mostrarError('Introduce un email válido'); return; }
-  if (tipo !== 'comprador' && !esIndep) {
-    if (!empresa) { mostrarError('El nombre de empresa es obligatorio'); return; }
-    if (!cif) { mostrarError('El CIF de empresa es obligatorio'); return; }
-    if (!cargo) { mostrarError('El cargo es obligatorio'); return; }
-  }
-
-  const btn = document.getElementById('btnReg');
-  btn.disabled = true;
-  btn.textContent = 'Enviando...';
-  showLoading('Creando tu cuenta', 'Estamos preparando tu espacio en ONOMA');
-
-  try {
-    const r = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-registro', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      // Upload logo first
-    var logoUrl = null;
-    try { logoUrl = await uploadLogoToCloudinary(); } catch(e) {}
-
-    body: JSON.stringify({
-        logo_empresa: logoUrl || '',
-        brand_color: selectedBrandColor || '',
-        nombre, apellido,
-        nif: document.getElementById('nif').value.trim(),
-        telefono: tel, email, tipo,
-        empresa: (tipo !== 'comprador' && !esIndep) ? empresa : '',
-        cif_empresa: (tipo !== 'comprador' && !esIndep) ? cif : '',
-        cargo: (tipo !== 'comprador' && !esIndep) ? cargo : '',
-        es_independiente: tipo === 'comprador' ? true : esIndep,
-        landing: document.getElementById('landing')?.value?.trim() || '',
-        asesor_id: new URLSearchParams(window.location.search).get('asesor') || ''
-      })
-    });
-    const d = await r.json();
-    if (d.ok) {
-      hideLoading();
-      document.getElementById('formReg').style.display = 'none';
-      document.getElementById('emailConf').textContent = email;
-      document.getElementById('okReg').style.display = 'block';
-    } else {
-      hideLoading();
-      mostrarError(getFriendlyError(d.error));
-      btn.disabled = false;
-      btn.textContent = 'Solicitar acceso →';
+      showErr(regD.error || 'Error al registrar');
     }
   } catch(e) {
     hideLoading();
-    mostrarError(getFriendlyError('Failed to fetch'));
-    btn.disabled = false;
-    btn.textContent = 'Solicitar acceso →';
+    showErr('Error de conexión');
   }
 }
 
-
-
-
-
-function updateMockupColor(color) {
-  var mockup = document.getElementById('brandMockup');
-  if (mockup) mockup.style.borderColor = color;
-  var name = document.getElementById('brandMockupName');
-  if (name) name.style.color = color;
-  var box = document.getElementById('brandPreviewBox');
-  if (box) box.style.borderColor = color + '40';
-}
-if (document.getElementById('empresa')) {
-  document.getElementById('empresa').addEventListener('input', function() {
-    var el = document.getElementById('brandMockupName');
-    if (el) el.textContent = this.value.trim() || 'Tu Empresa';
-  });
-}
-
-function mostrarError(msg) {
-    msg = '\u26A0\uFE0F ' + msg;
-  const err = document.getElementById('errMsg');
-  err.textContent = msg;
-  err.style.display = 'block';
-  err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+async function reenviarEmail() {
+  try {
+    await fetch('https://onomahomes.app.n8n.cloud/webhook/send-email', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to: document.getElementById('emailConf').textContent, template: 'activacion', data: { nombre: document.getElementById('nombre')?.value || '' } })
+    });
+    alert('Email reenviado. Revisa tu bandeja.');
+  } catch(e) { alert('Error. Escríbenos a info@onomahomes.com'); }
 }
 </script>
-
-<script>
-(function(){
-  var asesor = new URLSearchParams(window.location.search).get('asesor');
-  if (asesor) {
-    var banner = document.createElement('div');
-    banner.style.cssText = 'background:rgba(197,160,89,.08);border:1px solid rgba(197,160,89,.2);border-radius:10px;padding:10px 16px;margin-bottom:16px;font-size:13px;color:#C5A059;text-align:center';
-    banner.textContent = 'Registro a través de un asesor ONOMA';
-    var card = document.querySelector('.card');
-    if (card) card.insertBefore(banner, card.firstChild);
-  }
-})();
-</script>
-
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="house-loader">
-    <svg viewBox="0 0 100 100" fill="none">
-      <defs>
-        <clipPath id="houseClip">
-          <path d="M50 10 L90 45 L90 90 L10 90 L10 45 Z"/>
-        </clipPath>
-      </defs>
-      <path d="M50 10 L90 45 L90 90 L10 90 L10 45 Z" stroke="rgba(197,160,89,.3)" stroke-width="2" fill="none"/>
-      <path d="M50 10 L5 45 M50 10 L95 45" stroke="rgba(197,160,89,.3)" stroke-width="2"/>
-      <rect x="38" y="60" width="24" height="30" stroke="rgba(197,160,89,.3)" stroke-width="2" fill="none"/>
-      <rect class="house-fill" id="houseFill" x="10" y="90" width="80" height="0" clip-path="url(#houseClip)" fill="rgba(197,160,89,.15)" style="transform-origin:bottom">
-        <animate attributeName="height" from="0" to="80" dur="8s" fill="freeze"/>
-        <animate attributeName="y" from="90" to="10" dur="8s" fill="freeze"/>
-      </rect>
-    </svg>
-  </div>
-  <div class="loading-text" id="loadingTitle">Preparando tu espacio</div>
-  <div class="loading-dots"><span>.</span><span>.</span><span>.</span></div>
-  <div class="loading-progress"><div class="loading-bar" id="loadingBar"></div></div>
-  <div class="loading-sub" id="loadingSub">Estamos creando tu cuenta en la red ONOMA</div>
-</div>
-
 </body>
 </html>
