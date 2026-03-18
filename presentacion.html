@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ONOMA Homes — Presentación Completa</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C5A059;--gold-dim:rgba(197,160,89,.1);--gold-b:rgba(197,160,89,.25);--bg:#060611;--surface:rgba(255,255,255,.035);--border:rgba(255,255,255,.07);--text:#f0f0f5;--muted:rgba(255,255,255,.45);--green:#4ade80;--blue:#60a5fa;--amber:#fbbf24;--red:#f87171}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+::selection{background:var(--gold);color:var(--bg)}
+
+/* ── Navigation ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(6,6,17,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 24px}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-brand{font-weight:700;font-size:18px;letter-spacing:3px}
+.nav-brand span{font-weight:300;font-size:11px;letter-spacing:5px;color:var(--muted);margin-left:8px}
+.nav-tabs{display:flex;gap:4px}
+.nav-tab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;font-family:inherit;transition:all .2s}
+.nav-tab:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.nav-tab.active{color:var(--gold);background:var(--gold-dim)}
+@media(max-width:768px){.nav-tabs{gap:2px}.nav-tab{padding:8px 10px;font-size:11px}.nav-brand{font-size:15px}}
+
+/* ── Sections ── */
+.section{display:none;padding:80px 24px 60px;min-height:100vh}
+.section.active{display:block}
+.section-inner{max-width:900px;margin:0 auto}
+
+/* ── Hero ── */
+.hero{text-align:center;padding:60px 0 40px}
+.hero-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold-b);border-radius:20px;padding:6px 18px;margin-bottom:20px}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,52px);font-weight:700;line-height:1.2;margin-bottom:16px}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero p{font-size:clamp(16px,2vw,20px);color:var(--muted);max-width:600px;margin:0 auto;line-height:1.7}
+
+/* ── Cards ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 24px;margin-bottom:16px;transition:border-color .2s}
+.card:hover{border-color:var(--gold-b)}
+.card-gold{border-color:var(--gold-b);background:var(--gold-dim)}
+.card h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:12px}
+.card p{color:var(--muted);font-size:15px}
+
+/* ── Grid ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px}
+@media(max-width:768px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+
+/* ── KPI ── */
+.kpi{text-align:center;padding:24px 16px}
+.kpi-val{font-family:'DM Mono',monospace;font-size:clamp(28px,4vw,42px);font-weight:500;color:var(--gold);letter-spacing:-1px}
+.kpi-label{font-size:13px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:1px}
+
+/* ── Section headers ── */
+.sh{margin:48px 0 20px}
+.sh-num{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold-b);color:var(--gold);font-size:14px;font-weight:700;margin-right:12px}
+.sh-title{font-family:'Playfair Display',serif;font-size:clamp(22px,3vw,30px);font-weight:700}
+.sh-sub{font-size:15px;color:var(--muted);margin-top:8px;margin-left:44px}
+
+/* ── Table ── */
+.tbl{width:100%;border-collapse:collapse;margin:16px 0}
+.tbl th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);padding:12px 16px;border-bottom:1px solid var(--gold-b);font-weight:600}
+.tbl td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:14px;color:rgba(255,255,255,.7)}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+.tbl .mono{font-family:'DM Mono',monospace;color:var(--gold)}
+
+/* ── Steps ── */
+.step{display:flex;gap:16px;margin-bottom:24px;align-items:flex-start}
+.step-num{flex-shrink:0;width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--bg);font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center}
+.step-body{flex:1}
+.step-title{font-size:17px;font-weight:700;margin-bottom:4px}
+.step-desc{font-size:14px;color:var(--muted);line-height:1.7}
+.step-link{display:inline-block;margin-top:8px;color:var(--gold);font-size:13px;font-weight:600;text-decoration:none;border:1px solid var(--gold-b);padding:6px 14px;border-radius:8px;transition:all .2s}
+.step-link:hover{background:var(--gold-dim)}
+
+/* ── Quotes ── */
+.quote{border-left:3px solid var(--gold);padding:16px 20px;margin:20px 0;background:var(--gold-dim);border-radius:0 12px 12px 0}
+.quote p{font-size:16px;font-style:italic;color:rgba(255,255,255,.7)}
+.quote .author{font-size:13px;color:var(--gold);margin-top:8px;font-style:normal;font-weight:600}
+
+/* ── Comparison ── */
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin:20px 0}
+.vs-col{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
+.vs-col.win{border-color:var(--gold-b);background:var(--gold-dim)}
+.vs-sep{font-size:24px;color:var(--muted);font-weight:700;text-align:center}
+.vs-title{font-size:16px;font-weight:700;margin-bottom:12px}
+.vs-list{list-style:none;font-size:14px;color:var(--muted)}
+.vs-list li{padding:4px 0}
+.vs-list li::before{content:'✓ ';color:var(--green)}
+.vs-col:not(.win) .vs-list li::before{content:'✗ ';color:var(--red)}
+@media(max-width:768px){.vs{grid-template-columns:1fr;gap:12px}.vs-sep{display:none}}
+
+/* ── Channel cards ── */
+.channel{display:flex;gap:14px;align-items:flex-start;padding:18px;background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:12px}
+.channel-ico{font-size:28px;flex-shrink:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:var(--gold-dim);border-radius:12px}
+.channel-name{font-size:15px;font-weight:600;margin-bottom:4px}
+.channel-desc{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* ── Phase timeline ── */
+.phase{position:relative;padding-left:32px;margin-bottom:32px}
+.phase::before{content:'';position:absolute;left:11px;top:32px;bottom:-16px;width:2px;background:var(--gold-b)}
+.phase:last-child::before{display:none}
+.phase-dot{position:absolute;left:0;top:4px;width:24px;height:24px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--bg)}
+.phase-title{font-size:18px;font-weight:700;margin-bottom:4px}
+.phase-sub{font-size:13px;color:var(--gold);font-weight:600;margin-bottom:8px}
+.phase-desc{font-size:14px;color:var(--muted);line-height:1.7}
+
+/* ── Script box ── */
+.script-box{background:rgba(197,160,89,.04);border:1px solid var(--gold-b);border-radius:16px;padding:24px;margin:20px 0}
+.script-box h4{color:var(--gold);font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.script-box p{font-size:15px;line-height:1.8;color:rgba(255,255,255,.7)}
+
+/* ── Print ── */
+@media print{
+  .nav{display:none}
+  .section{display:block!important;padding:20px;page-break-after:always}
+  body{background:#fff;color:#111}
+  .card{border:1px solid #ddd;background:#f9f9f9}
+  .kpi-val{color:#C5A059}
+  .hero h1 em{color:#C5A059}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAVIGATION ═══ -->
+<div class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">ONOMA<span>Homes</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="goSec('inversor',this)">Inversor</button>
+      <button class="nav-tab" onclick="goSec('colaborador',this)">Colaborador</button>
+      <button class="nav-tab" onclick="goSec('comprador',this)">Comprador</button>
+      <button class="nav-tab" onclick="goSec('tutorial',this)">Tutorial</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECCIÓN 1 — INVERSOR
+     ═══════════════════════════════════════════════════════ -->
+<div id="sec-inversor" class="section active">
+<div class="section-inner">
+
+<div class="hero">
+  <div class="hero-badge">Grupo Urban Path · Confidencial</div>
+  <h1>ONOMA Homes:<br>El <em>matching inteligente</em><br>del inmobiliario premium</h1>
+  <p>Plataforma con IA que conecta la oferta fragmentada de pisos en Madrid con compradores cualificados, generando comisiones en cada operación.</p>
+</div>
+
+<div class="grid4">
+  <div class="card"><div class="kpi"><div class="kpi-val">€2.1B</div><div class="kpi-label">Mercado target Madrid premium</div></div></div>
+  <div class="card"><div class="kpi"><div class="kpi-val">12%</div><div class="kpi-label">Comisión media operación</div></div></div>
+  <div class="card"><div class="kpi"><div class="kpi-val">€0</div><div class="kpi-label">Coste de captación piso</div></div></div>
+  <div class="card card-gold"><div class="kpi"><div class="kpi-val">IA</div><div class="kpi-label">Matching con GPT-4o</div></div></div>
+</div>
+
+<!-- Problema -->
+<div class="sh"><span class="sh-num">1</span><span class="sh-title">El problema</span></div>
+<div class="sh-sub">El mercado inmobiliario español está fragmentado y opera con herramientas del siglo pasado.</div>
+
+<div class="grid2">
+  <div class="card">
+    <h3>Para el broker</h3>
+    <p>Un broker de Madrid tiene 15 pisos en cartera pero no tiene compradores. Otro broker tiene 8 compradores activos pero ningún piso que encaje. Hoy se envían WhatsApps y PDFs entre ellos. No hay sistema. Se pierden operaciones.</p>
+  </div>
+  <div class="card">
+    <h3>Para el comprador</h3>
+    <p>Un comprador entra en Idealista, ve 2.000 resultados, pierde horas filtrando. Nadie le explica POR QUÉ un piso le conviene. No hay personalización. El 70% de las visitas son a pisos que el comprador descarta en 5 minutos.</p>
+  </div>
+</div>
+
+<!-- Solución -->
+<div class="sh"><span class="sh-num">2</span><span class="sh-title">La solución ONOMA</span></div>
+<div class="sh-sub">Una red colaborativa de brokers con matching inteligente que conecta oferta y demanda automáticamente.</div>
+
+<div class="card card-gold">
+  <h3>Cómo funciona</h3>
+  <p>1. Los brokers colaboradores suben sus pisos y sus compradores a ONOMA.<br>
+  2. Nuestra IA (GPT-4o + embeddings) analiza cada comprador y cada piso.<br>
+  3. Genera un <strong>Top 5 de pisos</strong> para cada comprador con un <strong>speech de venta personalizado</strong>: no solo dice "este piso encaja", sino POR QUÉ encaja para ESE cliente específico.<br>
+  4. El colaborador selecciona 3, los envía al cliente con un clic.<br>
+  5. El cliente reacciona: visitar, descartar o pedir más info. Cada acción <strong>entrena al sistema</strong> — el siguiente matching es mejor.<br>
+  6. ONOMA cobra comisión solo cuando se cierra la operación. Coste cero para el colaborador.</p>
+</div>
+
+<!-- Por qué somos diferentes -->
+<div class="sh"><span class="sh-num">3</span><span class="sh-title">Por qué somos diferentes</span></div>
+
+<div class="vs">
+  <div class="vs-col">
+    <div class="vs-title">Idealista / Fotocasa</div>
+    <ul class="vs-list">
+      <li>Portales de anuncios — el comprador busca solo</li>
+      <li>Sin personalización ni IA</li>
+      <li>Cobran al anunciante, no al cierre</li>
+      <li>70% de visitas son descarte</li>
+      <li>No conectan brokers entre sí</li>
+    </ul>
+  </div>
+  <div class="vs-sep">VS</div>
+  <div class="vs-col win">
+    <div class="vs-title">ONOMA Homes</div>
+    <ul class="vs-list">
+      <li>IA busca POR el comprador con speech personalizado</li>
+      <li>Matching con 2 capas de preferencias + aprendizaje</li>
+      <li>Cobramos solo al cierre — alineados con el broker</li>
+      <li>85% de conversión en visitas seleccionadas</li>
+      <li>Red colaborativa — el piso de uno + el comprador de otro</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Modelo de negocio -->
+<div class="sh"><span class="sh-num">4</span><span class="sh-title">Modelo de negocio — 4 escenarios</span></div>
+<div class="sh-sub">Comisión del 3-5% sobre precio de venta, repartida según quién aporta qué.</div>
+
+<table class="tbl">
+  <tr><th>Escenario</th><th>Vendedor</th><th>Comprador</th><th>% ONOMA</th><th>Ejemplo (piso 500K€)</th></tr>
+  <tr><td><strong>A</strong> — Broker + Broker</td><td>Colaborador A</td><td>Colaborador B</td><td class="mono">20%</td><td class="mono">3.000€</td></tr>
+  <tr><td><strong>B</strong> — ONOMA vende + Broker compra</td><td>ONOMA</td><td>Colaborador</td><td class="mono">40%</td><td class="mono">6.000€</td></tr>
+  <tr><td><strong>C</strong> — Broker vende + ONOMA compra</td><td>Colaborador</td><td>ONOMA</td><td class="mono">60%</td><td class="mono">9.000€</td></tr>
+  <tr><td><strong>D</strong> — ONOMA + ONOMA</td><td>ONOMA</td><td>ONOMA</td><td class="mono">100%</td><td class="mono">15.000€</td></tr>
+</table>
+
+<div class="card card-gold">
+  <h3>Urban Flip — El multiplicador</h3>
+  <p>ONOMA compra pisos propios (Grupo Urban Path), los rehabilita y los introduce en el sistema como <strong>"exclusivos Urban Flip"</strong>. Aparecen automáticamente en el Top de matching de los compradores que encajan. Margen del 15-25% sobre precio de compra + comisión de venta. <strong>Es el escenario D: 100% para ONOMA.</strong></p>
+</div>
+
+<!-- Stack tecnológico -->
+<div class="sh"><span class="sh-num">5</span><span class="sh-title">Stack tecnológico — barato y escalable</span></div>
+
+<div class="grid3">
+  <div class="card"><h3>n8n Cloud</h3><p>52 workflows activos. Automatización sin código. €50/mes hasta 10K ejecuciones.</p></div>
+  <div class="card"><h3>Supabase (PostgreSQL)</h3><p>Base de datos + Auth + API REST. €25/mes. Escala a millones de registros.</p></div>
+  <div class="card"><h3>OpenAI GPT-4o</h3><p>Matching semántico + speech de venta + análisis de feedback. ~€0.30 por matching.</p></div>
+  <div class="card"><h3>Cloudinary</h3><p>Fotos y documentos. CDN global. €0/mes hasta 25K transformaciones.</p></div>
+  <div class="card"><h3>GitHub Pages</h3><p>Portales estáticos. Gratis. CDN global. Cero servidor.</p></div>
+  <div class="card"><h3>Telegram</h3><p>Alertas en tiempo real a coordinador. Gratis.</p></div>
+</div>
+
+<div class="card">
+  <h3>Coste operativo mensual actual</h3>
+  <p><span style="font-family:'DM Mono',monospace;font-size:28px;color:var(--gold)">~€120/mes</span><br>
+  Con una sola operación cerrada al mes (comisión media €6.000) el ROI es del <strong>5.000%</strong>.</p>
+</div>
+
+<!-- Scaling -->
+<div class="sh"><span class="sh-num">6</span><span class="sh-title">Plan de escalado en 3 fases</span></div>
+
+<div class="phase">
+  <div class="phase-dot">1</div>
+  <div class="phase-title">Fase 1 — Validación (0-100 usuarios)</div>
+  <div class="phase-sub">Meses 1-6 · Madrid centro · €0 inversión externa</div>
+  <div class="phase-desc">
+    20 colaboradores, 50-100 pisos, 30-50 demandas activas.<br>
+    Objetivo: 2-3 operaciones cerradas/mes.<br>
+    <strong>Ingresos proyectados: €8K-15K/mes</strong><br>
+    Coste operativo: €120/mes. Equipo: 1 asesor + 1 coordinador.
+  </div>
+</div>
+<div class="phase">
+  <div class="phase-dot">2</div>
+  <div class="phase-title">Fase 2 — Crecimiento (100-500 usuarios)</div>
+  <div class="phase-sub">Meses 6-18 · Madrid completo · €50K inversión</div>
+  <div class="phase-desc">
+    100 colaboradores, 500+ pisos, 200+ demandas.<br>
+    3 asesores, CRM avanzado, app móvil beta.<br>
+    10-15 operaciones/mes.<br>
+    <strong>Ingresos proyectados: €60K-100K/mes</strong><br>
+    Coste operativo: €3K/mes (infra + 3 asesores).
+  </div>
+</div>
+<div class="phase">
+  <div class="phase-dot">3</div>
+  <div class="phase-title">Fase 3 — Escala (500-5.000 usuarios)</div>
+  <div class="phase-sub">Meses 18-36 · Nacional · €200K inversión</div>
+  <div class="phase-desc">
+    Expansión a Barcelona, Valencia, Málaga.<br>
+    500+ colaboradores, modelo de franquicia para redes locales.<br>
+    App nativa iOS/Android, WhatsApp Business API.<br>
+    50+ operaciones/mes.<br>
+    <strong>Ingresos proyectados: €300K-500K/mes</strong><br>
+    Modelo SaaS: cobrar €99/mes a colaboradores premium por analytics avanzados.
+  </div>
+</div>
+
+<!-- Inversión -->
+<div class="sh"><span class="sh-num">7</span><span class="sh-title">Necesidad de inversión</span></div>
+
+<table class="tbl">
+  <tr><th>Concepto</th><th>Fase 2</th><th>Fase 3</th></tr>
+  <tr><td>Desarrollo app móvil nativa</td><td class="mono">€25K</td><td class="mono">€50K</td></tr>
+  <tr><td>Marketing y captación colaboradores</td><td class="mono">€10K</td><td class="mono">€80K</td></tr>
+  <tr><td>Equipo (3 asesores + 1 dev)</td><td class="mono">€12K/mes</td><td class="mono">€30K/mes</td></tr>
+  <tr><td>Infraestructura cloud</td><td class="mono">€500/mes</td><td class="mono">€2K/mes</td></tr>
+  <tr><td>Legal y compliance</td><td class="mono">€3K</td><td class="mono">€15K</td></tr>
+  <tr><td><strong>Total ronda</strong></td><td class="mono" style="font-size:18px">€50K</td><td class="mono" style="font-size:18px">€200K</td></tr>
+</table>
+
+<!-- Futuro -->
+<div class="sh"><span class="sh-num">8</span><span class="sh-title">Fases futuras del producto</span></div>
+
+<div class="grid2">
+  <div class="card"><h3>App móvil nativa</h3><p>iOS y Android. Notificaciones push para matchings. Cámara integrada para subir pisos in-situ. Chat directo comprador-asesor.</p></div>
+  <div class="card"><h3>WhatsApp Business API</h3><p>El cliente recibe sus matchings por WhatsApp. Responde "1" para visitar, "2" para descartar. Cero fricción.</p></div>
+  <div class="card"><h3>Expansión nacional</h3><p>Barcelona (Q3 2027), Valencia y Málaga (Q1 2028). Misma plataforma, redes de colaboradores locales.</p></div>
+  <div class="card"><h3>Franquicia White-Label</h3><p>Vender la plataforma a otras inmobiliarias como SaaS. "Tu propia red ONOMA" con tu marca. €299/mes.</p></div>
+  <div class="card"><h3>IA Vision para pisos</h3><p>GPT-4o Vision analiza fotos del piso: detecta reformas, calidad materiales, orientación. Scoring automático sin visita humana.</p></div>
+  <div class="card"><h3>Bot legal IA</h3><p>Asistente que responde preguntas legales sobre compraventa, ITP, hipotecas. Basado en LAU y normativa vigente.</p></div>
+</div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECCIÓN 2 — COLABORADOR
+     ═══════════════════════════════════════════════════════ -->
+<div id="sec-colaborador" class="section">
+<div class="section-inner">
+
+<div class="hero">
+  <div class="hero-badge">Para profesionales inmobiliarios</div>
+  <h1>Tus pisos merecen<br>los <em>mejores compradores</em></h1>
+  <p>ONOMA conecta tu cartera con compradores cualificados de toda la red. Sin cuotas. Solo cobras cuando cierras.</p>
+</div>
+
+<div class="grid3">
+  <div class="card"><div class="kpi"><div class="kpi-val">€0</div><div class="kpi-label">Coste de entrada</div></div></div>
+  <div class="card"><div class="kpi"><div class="kpi-val">5x</div><div class="kpi-label">Más compradores potenciales</div></div></div>
+  <div class="card card-gold"><div class="kpi"><div class="kpi-val">IA</div><div class="kpi-label">Matching automático</div></div></div>
+</div>
+
+<!-- Qué gana -->
+<div class="sh"><span class="sh-num">1</span><span class="sh-title">¿Qué ganas con ONOMA?</span></div>
+
+<div class="card card-gold">
+  <h3>Antes vs Después</h3>
+  <p><strong>Antes:</strong> Tienes 10 pisos. Haces 3 visitas al mes. Cierras 1 operación cada 3 meses. Pierdes tiempo en visitas a compradores que no encajan.<br><br>
+  <strong>Con ONOMA:</strong> Tus 10 pisos llegan a los compradores de TODOS los colaboradores de la red. La IA filtra: solo recibes visitas de gente que realmente quiere ESE piso. Cierras 1-2 operaciones al mes.</p>
+</div>
+
+<div class="grid2">
+  <div class="card"><h3>Acceso a la red completa</h3><p>Tus pisos los ven los compradores de otros 20+ brokers. Los compradores de tu cartera ven pisos de toda la red.</p></div>
+  <div class="card"><h3>IA que trabaja por ti</h3><p>No tienes que buscar compradores manualmente. El sistema cruza todo automáticamente y te dice quién encaja y por qué.</p></div>
+  <div class="card"><h3>Solo pagas al cerrar</h3><p>Sin cuotas mensuales, sin publicidad. ONOMA cobra una comisión sobre la operación cerrada. Si no vendes, no pagas.</p></div>
+  <div class="card"><h3>Herramientas premium</h3><p>Portal personalizado con tu marca, calculadora de inversión, valoración por consenso de 5 fuentes, alertas en tiempo real.</p></div>
+</div>
+
+<!-- Cómo funciona paso a paso -->
+<div class="sh"><span class="sh-num">2</span><span class="sh-title">Cómo funciona — paso a paso</span></div>
+
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body">
+    <div class="step-title">Te registras en 2 minutos</div>
+    <div class="step-desc">Entras desde el móvil o el ordenador. Nombre, email, teléfono, empresa. Recibes un email para crear tu contraseña y firmar el contrato de colaboración digitalmente.</div>
+    <a class="step-link" href="https://onomahomes.github.io/tipo.html" target="_blank">Abrir registro →</a>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body">
+    <div class="step-title">Subes tus pisos</div>
+    <div class="step-desc">Desde tu portal: botón "+ Nuevo Piso". Rellenas dirección, precio, habitaciones, metros, estado. Subes fotos (arrastrar y soltar), documentos (encargo de venta, IBI, ITE, catastro). El sistema valida todo automáticamente.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body">
+    <div class="step-title">Subes tus compradores</div>
+    <div class="step-desc">Botón "+ Nueva Demanda". Zona preferida, presupuesto máximo, habitaciones mínimas, metros. Y lo más potente: termómetros de prioridad — ¿cuánto importa el ascensor? ¿y el parking? El sistema usa estos pesos para el matching.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-body">
+    <div class="step-title">Recibes matchings automáticos</div>
+    <div class="step-desc">En tu pestaña "Matchings" aparecen las demandas con pisos recomendados. Cada piso tiene un <strong>score de compatibilidad</strong> (ej: 92%) y cuando haces clic ves el <strong>dossier completo</strong>: carrusel de fotos, speech de venta generado por IA, feedback de otros visitantes, documentación.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">5</div>
+  <div class="step-body">
+    <div class="step-title">Seleccionas 3 y envías al cliente</div>
+    <div class="step-desc">Marcas 3 pisos de los 5 recomendados. Si hay un piso Urban Flip (exclusivo ONOMA) en el Top 20, aparece automáticamente como sexta opción. Pulsas "Enviar a cliente" y le llega un email con una página interactiva preciosa.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">6</div>
+  <div class="step-body">
+    <div class="step-title">El cliente reacciona y el sistema aprende</div>
+    <div class="step-desc">El cliente puede: Visitar (se programa la visita), Descartar (nos dice por qué → el sistema ajusta sus preferencias automáticamente), o Más info. Cada interacción hace que el próximo matching sea más preciso.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">7</div>
+  <div class="step-body">
+    <div class="step-title">Cobras tu comisión</div>
+    <div class="step-desc">Cuando el comprador y el vendedor cierran la operación, la comisión se reparte según el escenario. Tú ves todo en tu sección "Operaciones": importe, estado, fecha de cobro.</div>
+  </div>
+</div>
+
+<!-- Guion de venta 5 min -->
+<div class="sh"><span class="sh-num">3</span><span class="sh-title">Guion de venta — 5 minutos</span></div>
+<div class="sh-sub">Úsalo en una llamada, un café o un WhatsApp para convencer a un broker.</div>
+
+<div class="script-box">
+  <h4>El pitch de 5 minutos</h4>
+  <p>"Oye [nombre], ¿cuántos pisos tienes ahora en cartera que llevan más de 3 meses sin cerrar? Te cuento: estamos montando una red de brokers en Madrid donde compartimos cartera. Tú subes tus pisos, yo subo los míos, y un sistema con inteligencia artificial cruza todo automáticamente.<br><br>
+  Lo potente es que no es un portal como Idealista donde el comprador busca solo. Aquí el sistema analiza exactamente qué busca cada comprador y le recomienda pisos con un informe personalizado: por qué ESE piso le conviene a ÉL.<br><br>
+  Coste para ti: cero. Nada de cuotas ni publicidad. Solo pagamos comisión cuando se cierra una operación. Es decir, si no vendes, no pagas.<br><br>
+  ¿Cuántos pisos tienes? ¿10? Perfecto. Te los subo yo mismo en la primera sesión. En 48 horas ya tendrás los primeros matchings. ¿Te mando el link de registro?"</p>
+</div>
+
+<!-- Canales -->
+<div class="sh"><span class="sh-num">4</span><span class="sh-title">Canales de captación de colaboradores</span></div>
+
+<div class="channel"><div class="channel-ico">📱</div><div><div class="channel-name">WhatsApp directo</div><div class="channel-desc">Mensaje personalizado al broker. Adjuntar PDF de una página con las ventajas. Enlace al registro. Tasa de conversión: 15-20%.</div></div></div>
+<div class="channel"><div class="channel-ico">☕</div><div><div class="channel-name">Café presencial</div><div class="channel-desc">Reunión de 15 min en su oficina. Llevar tablet con demo del portal. Registrarle en el momento. Tasa de conversión: 40-50%.</div></div></div>
+<div class="channel"><div class="channel-ico">💼</div><div><div class="channel-name">LinkedIn</div><div class="channel-desc">Conectar con agentes inmobiliarios de Madrid. Publicar casos de éxito. InMail con propuesta. Tasa de conversión: 5-8%.</div></div></div>
+<div class="channel"><div class="channel-ico">🎤</div><div><div class="channel-name">Eventos del sector</div><div class="channel-desc">SIMA, Barcelona Meeting Point, desayunos inmobiliarios locales. Stand o ponencia sobre IA en inmobiliaria. Captar 20-30 contactos por evento.</div></div></div>
+<div class="channel"><div class="channel-ico">📧</div><div><div class="channel-name">Email frío</div><div class="channel-desc">Campaña a base de datos de inmobiliarias de Madrid (APIs, directorios). Email con caso de uso real. CTA al registro. Tasa de apertura: 25%.</div></div></div>
+
+<!-- Registro paso a paso -->
+<div class="sh"><span class="sh-num">5</span><span class="sh-title">Registro del colaborador — pantalla a pantalla</span></div>
+
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body">
+    <div class="step-title">Entra a tipo.html</div>
+    <div class="step-desc">Toca <strong>"Soy profesional inmobiliario"</strong>. Te lleva al formulario de registro.</div>
+    <a class="step-link" href="https://onomahomes.github.io/tipo.html" target="_blank">tipo.html →</a>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body">
+    <div class="step-title">Formulario de registro</div>
+    <div class="step-desc">Rellena: Nombre, Apellido, Email, Teléfono, Empresa, CIF (opcional), Landing web (opcional), Logo empresa (opcional). Acepta términos. Toca "Registrarme".</div>
+    <a class="step-link" href="https://onomahomes.github.io/registro.html" target="_blank">registro.html →</a>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body">
+    <div class="step-title">Email de activación</div>
+    <div class="step-desc">Llega un email de ONOMA con botón "Activar mi cuenta". Le lleva a crear su contraseña.</div>
+    <a class="step-link" href="https://onomahomes.github.io/activar.html" target="_blank">activar.html →</a>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-body">
+    <div class="step-title">Contrato digital</div>
+    <div class="step-desc">Lee y acepta el contrato de colaboración ONOMA. Firma digital. Una vez firmado, accede a su portal.</div>
+    <a class="step-link" href="https://onomahomes.github.io/firmar.html" target="_blank">firmar.html →</a>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">5</div>
+  <div class="step-body">
+    <div class="step-title">Login y portal</div>
+    <div class="step-desc">Entra con email y contraseña. Ve su portal personalizado con sidebar: Matchings, Cuenta, Demandas, Pisos, Feedbacks, Operaciones.</div>
+    <a class="step-link" href="https://onomahomes.github.io/portal.html" target="_blank">portal.html →</a>
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECCIÓN 3 — COMPRADOR
+     ═══════════════════════════════════════════════════════ -->
+<div id="sec-comprador" class="section">
+<div class="section-inner">
+
+<div class="hero">
+  <div class="hero-badge">Para compradores de vivienda</div>
+  <h1>Tu piso ideal<br><em>te encuentra a ti</em></h1>
+  <p>Deja de buscar entre miles de anuncios. Dinos qué necesitas y nuestra IA encontrará los pisos perfectos para ti, explicándote exactamente por qué cada uno te conviene.</p>
+</div>
+
+<div class="grid3">
+  <div class="card"><div class="kpi"><div class="kpi-val">0€</div><div class="kpi-label">Coste para ti</div></div></div>
+  <div class="card"><div class="kpi"><div class="kpi-val">3-5</div><div class="kpi-label">Pisos seleccionados para ti</div></div></div>
+  <div class="card card-gold"><div class="kpi"><div class="kpi-val">92%</div><div class="kpi-label">Precisión del matching</div></div></div>
+</div>
+
+<!-- Por qué diferente -->
+<div class="sh"><span class="sh-num">1</span><span class="sh-title">¿Por qué ONOMA y no Idealista?</span></div>
+
+<div class="vs">
+  <div class="vs-col">
+    <div class="vs-title">Buscar en Idealista</div>
+    <ul class="vs-list">
+      <li>Tú buscas entre 2.000 resultados</li>
+      <li>Filtros básicos: zona, precio, metros</li>
+      <li>Visitas a pisos que no encajan</li>
+      <li>Nadie te explica por qué un piso te conviene</li>
+      <li>Pierdes semanas buscando</li>
+    </ul>
+  </div>
+  <div class="vs-sep">VS</div>
+  <div class="vs-col win">
+    <div class="vs-title">ONOMA te encuentra</div>
+    <ul class="vs-list">
+      <li>La IA analiza tu perfil completo</li>
+      <li>Te recomienda 3-5 pisos con explicación personalizada</li>
+      <li>Cada piso viene con "por qué te lo recomendamos"</li>
+      <li>Feedback sobre otros compradores que visitaron</li>
+      <li>El sistema aprende y mejora con cada interacción</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Proceso comprador -->
+<div class="sh"><span class="sh-num">2</span><span class="sh-title">Tu experiencia paso a paso</span></div>
+
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body">
+    <div class="step-title">Tu asesor te registra</div>
+    <div class="step-desc">Un asesor ONOMA o un colaborador te entrevista (por teléfono, WhatsApp o presencial). Te pregunta: ¿Qué zona prefieres? ¿Presupuesto máximo? ¿Habitaciones mínimas? ¿Metros? ¿Qué es imprescindible para ti: ascensor, terraza, garaje? Registra tu perfil en el sistema.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body">
+    <div class="step-title">La IA trabaja para ti</div>
+    <div class="step-desc">En 24-48 horas, el sistema ha cruzado tu perfil con todos los pisos de la red (100+ pisos activos). Ha generado un Top 5 con los que más encajan. Tu asesor revisa y selecciona los 3 mejores.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body">
+    <div class="step-title">Recibes tus pisos por email</div>
+    <div class="step-desc">Te llega un email con un link a una página personalizada. Abres en el móvil y ves una ficha por cada piso: fotos en carrusel, dirección, precio, características, y lo más importante: <strong>"Por qué te lo recomendamos"</strong> — un texto de IA explicando exactamente por qué ese piso encaja contigo.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-body">
+    <div class="step-title">Reaccionas a cada piso</div>
+    <div class="step-desc">Para cada piso tienes 3 botones:<br>
+    <strong>🏠 "Quiero visitarlo"</strong> → se agenda visita con tu asesor<br>
+    <strong>ℹ️ "Más información"</strong> → ves detalles adicionales<br>
+    <strong>"No me interesa"</strong> → nos dices por qué (ej: "demasiado ruido", "sin terraza") y el sistema APRENDE para la próxima ronda</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">5</div>
+  <div class="step-body">
+    <div class="step-title">Visitas con asesor dedicado</div>
+    <div class="step-desc">Un asesor ONOMA te acompaña a la visita. Lleva un briefing preparado por IA con los puntos que más te interesan, información del entorno (colegios, metro, supermercados) y speech de venta personalizado.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">6</div>
+  <div class="step-body">
+    <div class="step-title">Calculas tu inversión total</div>
+    <div class="step-desc">En la ficha de cada piso hay un botón <strong>"Calcular mi inversión total"</strong>. Te muestra: precio + ITP (6% o 5.4% vivienda habitual) + notaría + registro = total. Sin sorpresas.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">7</div>
+  <div class="step-body">
+    <div class="step-title">El sistema mejora contigo</div>
+    <div class="step-desc">Si descartas un piso porque "no tiene terraza", el sistema sube el peso de "terraza" en tu perfil. La próxima ronda de matchings priorizará pisos con terraza. Cuanto más usas ONOMA, más preciso se vuelve.</div>
+  </div>
+</div>
+
+<!-- Guion 2 min -->
+<div class="sh"><span class="sh-num">3</span><span class="sh-title">Guion de venta — 2 minutos</span></div>
+<div class="sh-sub">Para captar compradores en redes, eventos o boca a boca.</div>
+
+<div class="script-box">
+  <h4>El pitch al comprador</h4>
+  <p>"¿Estás buscando piso en Madrid? Imagina que en vez de pasar horas en Idealista filtrando, un sistema inteligente analiza exactamente lo que buscas y te manda solo los 3 pisos que más encajan contigo. Con una explicación personalizada de por qué cada uno te conviene.<br><br>
+  Eso es ONOMA. Es gratis para ti. Solo nos dices qué buscas — zona, presupuesto, qué es importante para ti — y en 48 horas recibes tus opciones por email. Si te gusta uno, te organizamos la visita con un asesor que ya sabe lo que te importa.<br><br>
+  ¿El truco? Si dices 'este no me gusta porque no tiene terraza', el sistema aprende y la próxima vez solo te manda pisos con terraza. Se vuelve más listo contigo cada vez."</p>
+</div>
+
+<!-- Canales captación compradores -->
+<div class="sh"><span class="sh-num">4</span><span class="sh-title">Canales de captación de compradores</span></div>
+
+<div class="channel"><div class="channel-ico">📸</div><div><div class="channel-name">Instagram / TikTok</div><div class="channel-desc">Contenido: "Te encontramos tu piso ideal en Madrid con IA". Reels de antes/después de matching. Stories de visitas. CTA: link en bio al registro. Coste: €500-1000/mes en ads.</div></div></div>
+<div class="channel"><div class="channel-ico">🔍</div><div><div class="channel-name">Google Ads</div><div class="channel-desc">Keywords: "comprar piso Madrid", "buscar piso Salamanca", "inmobiliaria con IA Madrid". Landing dedicada. Coste: €800-1500/mes. CPL estimado: €15-25.</div></div></div>
+<div class="channel"><div class="channel-ico">🗣️</div><div><div class="channel-name">Boca a boca / referidos</div><div class="channel-desc">Cada comprador satisfecho recomienda a 2-3 amigos. Programa de referidos: si tu referido compra, te regalamos una valoración gratuita de tu propiedad actual.</div></div></div>
+<div class="channel"><div class="channel-ico">🏢</div><div><div class="channel-name">Colaboradores como canal</div><div class="channel-desc">Cada colaborador ya tiene su red de compradores. Es el canal principal: ellos registran a sus clientes en ONOMA. Coste: €0.</div></div></div>
+<div class="channel"><div class="channel-ico">📰</div><div><div class="channel-name">Prensa / PR</div><div class="channel-desc">"La inmobiliaria que usa IA para encontrar tu piso perfecto". Nota de prensa a medios inmobiliarios y tecnológicos. El Confidencial, Idealista News, Business Insider España.</div></div></div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECCIÓN 4 — TUTORIAL
+     ═══════════════════════════════════════════════════════ -->
+<div id="sec-tutorial" class="section">
+<div class="section-inner">
+
+<div class="hero">
+  <div class="hero-badge">Guía de uso completa</div>
+  <h1>Tutorial<br><em>pantalla a pantalla</em></h1>
+  <p>Todo lo que necesitas saber para usar ONOMA, explicado botón a botón.</p>
+</div>
+
+<!-- TUTORIAL COMPRADOR -->
+<div class="sh"><span class="sh-num">A</span><span class="sh-title">Tutorial — Comprador</span></div>
+<div class="sh-sub">El comprador no usa la plataforma directamente. Interactúa a través de su asesor y de la página de matchings que recibe.</div>
+
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body">
+    <div class="step-title">Tu asesor crea tu perfil</div>
+    <div class="step-desc">El comprador no necesita registrarse. Su asesor o colaborador crea una "demanda" en el sistema con:<br>• Zona preferida (ej: "Salamanca, Retiro")<br>• Presupuesto máximo (ej: 500.000€)<br>• Habitaciones mínimas (ej: 3)<br>• Metros mínimos (ej: 80m²)<br>• Termómetros de prioridad: cuánto importa ascensor, terraza, parking, estado del piso (de 0 a 100)</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body">
+    <div class="step-title">Recibes email con tus pisos</div>
+    <div class="step-desc">El email tiene asunto: <em>"ONOMA Homes · Hemos encontrado 3 pisos para ti"</em>. Contiene un botón dorado "Ver mis pisos". Al tocarlo, se abre una página web en el móvil.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body">
+    <div class="step-title">Página de selección — lo que ves</div>
+    <div class="step-desc">Cabecera: logo ONOMA + "Hola [tu nombre]" + "Hemos encontrado 3 pisos para ti".<br><br>
+    <strong>Para cada piso:</strong><br>
+    • "Opción 1 de 3" (o "Exclusivo para ti" si es Urban Flip)<br>
+    • Carrusel de fotos (deslizar izquierda/derecha)<br>
+    • Dirección + barrio<br>
+    • Precio en grande dorado<br>
+    • Pills: "3 hab", "95 m²", "Ascensor", "Reformado"<br>
+    • <strong>"Por qué te lo recomendamos"</strong> — texto de IA personalizado<br>
+    • Descripción del piso<br>
+    • 3 botones de acción</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-body">
+    <div class="step-title">Los 3 botones de acción</div>
+    <div class="step-desc">
+    <strong>🏠 "Quiero visitarlo"</strong> (botón dorado grande) → Aparece mensaje "Tu asesor organizará la visita". Se registra en el sistema.<br><br>
+    <strong>ℹ️ "Más información"</strong> (botón azul) → Se expande un panel con detalles: habitaciones, superficie, ascensor, estado. Dice "Si necesitas más detalles, tu asesor te los proporcionará en la visita".<br><br>
+    <strong>"No me interesa"</strong> (botón gris) → Se abre un textarea: "¿Por qué no te interesa? Tu feedback nos ayuda...". Escribes el motivo y pulsas "Enviar y ver siguiente". Ese feedback alimenta la IA para mejorar tus próximos matchings.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">5</div>
+  <div class="step-body">
+    <div class="step-title">Después de reaccionar a los 3</div>
+    <div class="step-desc">Cuando has respondido a los 3 pisos, aparece: <em>"¡Gracias por tu feedback! Hemos registrado tus preferencias. Tu asesor te contactará pronto."</em> Si pediste visitas, tu asesor recibe una alerta y te contacta para agendar.</div>
+  </div>
+</div>
+
+<!-- TUTORIAL COLABORADOR -->
+<div class="sh"><span class="sh-num">B</span><span class="sh-title">Tutorial — Colaborador</span></div>
+<div class="sh-sub">Accede desde móvil o PC. Todas las acciones están en su portal personalizado.</div>
+
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body">
+    <div class="step-title">Login</div>
+    <div class="step-desc">Entra a <strong>onomahomes.github.io/portal.html</strong> desde cualquier dispositivo. Email + contraseña. También disponible Google Sign-In. El sistema detecta tu rol y te redirige a tu portal.</div>
+    <a class="step-link" href="https://onomahomes.github.io/portal.html" target="_blank">Abrir login →</a>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body">
+    <div class="step-title">Dashboard — lo que ves al entrar</div>
+    <div class="step-desc"><strong>Sidebar izquierda:</strong> Matchings (con badge si hay pendientes), Cuenta, Demandas, Pisos, Feedbacks, Operaciones, Cerrar sesión.<br><br>
+    <strong>Tab "Matchings" (activa por defecto):</strong><br>
+    • KPIs: Demandas por revisión, Revisadas, Matchings totales<br>
+    • Lista de demandas con matchings. Cada una muestra: nombre del comprador, zona, presupuesto, habitaciones, y cuántos pisos encontró el sistema.<br>
+    • Badge naranja "Por revisar" o verde "Revisada".</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body">
+    <div class="step-title">Subir un piso — botón a botón</div>
+    <div class="step-desc">Tab "Pisos" → botón <strong>"+ Nuevo Piso"</strong>. Se abre un modal en 2 pasos:<br><br>
+    <strong>Paso 1 — Dirección:</strong> Calle, Número, Piso/Puerta, Barrio, Ciudad (Madrid por defecto). El sistema valida con Google Maps y Catastro automáticamente.<br><br>
+    <strong>Paso 2 — Detalles:</strong><br>
+    • Precio (€) y Habitaciones — obligatorios<br>
+    • Metros m² y Estado (Buen estado / Reformado / A reformar / Obra nueva)<br>
+    • Checkbox "El inmueble tiene ascensor"<br>
+    • Exclusividad (Exclusiva / Sin exclusiva)<br>
+    • ¿Comparte con otros brokers? (Comparte / No comparte)<br>
+    • % Honorarios que cobra al vendedor<br>
+    • Descripción (opcional)<br>
+    • <strong>Fotos del piso</strong> — mínimo 3, máximo 10. Arrastrar o clic para seleccionar<br>
+    • Vídeo del piso (opcional)<br>
+    • <strong>Encargo de venta</strong> (PDF obligatorio)<br>
+    • Ficha catastral, ITE, Planos (opcionales)<br>
+    • Checkbox "Declaro que la información es veraz"<br><br>
+    Pulsa <strong>"Publicar piso"</strong>. El sistema le asigna un scoring automático y si pasa el umbral, queda Activo.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-body">
+    <div class="step-title">Subir una demanda de cliente</div>
+    <div class="step-desc">Tab "Demandas" → botón <strong>"+ Nueva Demanda"</strong>:<br><br>
+    • Nombre del comprador<br>
+    • Zona preferida (texto libre: "Salamanca, Retiro, Chamberí")<br>
+    • Presupuesto máximo (€)<br>
+    • Habitaciones mínimas<br>
+    • Metros mínimos<br>
+    • <strong>Termómetros de prioridad</strong> (0-100): Zona, Habitaciones, Metros, Ascensor, Terraza, Parking, Estado, Precio. Cada uno tiene un slider visual con colores: verde (Indiferente) → amarillo (Preferible) → rojo (Indispensable)<br>
+    • % Honorarios comprador (opcional)<br>
+    • Mandato de compra (documento, opcional)<br><br>
+    Pulsa <strong>"Crear demanda"</strong>. En 24-48h aparecen los matchings automáticos.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">5</div>
+  <div class="step-body">
+    <div class="step-title">Revisar matchings — el corazón del sistema</div>
+    <div class="step-desc">Tab "Matchings" → clic en una demanda → <strong>Vista Grid</strong>: 5 cards de pisos.<br><br>
+    <strong>Cada card muestra:</strong><br>
+    • Foto principal del piso<br>
+    • Score (ej: "92%") en badge arriba-derecha<br>
+    • Checkbox de selección arriba-izquierda<br>
+    • Dirección, barrio<br>
+    • Pills: "3 hab", "95 m²", "Ascensor"<br>
+    • Texto de recomendación IA (preview de 3 líneas)<br>
+    • Precio en grande dorado<br><br>
+    <strong>Toggle:</strong> "Recomendación" (por defecto) o "Comisión" (muestra tu comisión estimada por piso).<br><br>
+    <strong>Si hay Urban Flip:</strong> aparece como 6ª card con borde dorado, badge "⭐ URBAN FLIP", y etiqueta "Incluido automáticamente para el cliente". No se puede deseleccionar.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">6</div>
+  <div class="step-body">
+    <div class="step-title">Dossier completo de un piso — clic en la card</div>
+    <div class="step-desc">Al tocar una card se abre el <strong>dossier completo</strong>:<br><br>
+    • <strong>Carrusel de fotos</strong> (flechas izq/der, puntos indicadores, clic para pantalla completa)<br>
+    • Badge "⭐ EXCLUSIVO URBAN FLIP" si aplica<br>
+    • <strong>Score ring</strong>: anillo circular animado con el % de match en el centro<br>
+    • Dirección, barrio, precio<br>
+    • <strong>Highlights</strong>: pills dorados/verdes/azules (Ascensor, Terraza, Dentro de presupuesto, Superficie ideal, etc.)<br>
+    • <strong>Características</strong>: grid con habitaciones, m², ascensor, estado, terraza, garaje, orientación<br>
+    • <strong>💡 "Por qué este piso para tu cliente"</strong> — sección principal. La IA genera un speech de venta de 3-4 párrafos explicando la conexión piso↔cliente. Se carga en tiempo real (animación de carga con puntos dorados pulsantes).<br>
+    • <strong>Descripción del piso</strong><br>
+    • <strong>💬 "Lo que dicen otros visitantes"</strong> — citas reales de feedback de otros clientes que visitaron ese piso. Ej: <em>"Les encantó la luminosidad y las vistas a la Castellana."</em><br>
+    • <strong>Información comercial</strong>: tu comisión estimada, tipo negociación, score<br>
+    • <strong>Documentación</strong>: botones para ver Encargo, IBI, ITE, Catastro, Escritura, Planos, Vídeo (los que estén disponibles se muestran activos, los que no están aparecen en gris)</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">7</div>
+  <div class="step-body">
+    <div class="step-title">Seleccionar 3 y enviar</div>
+    <div class="step-desc">Vuelves a la vista grid (botón "← Atrás"). Tocas el checkbox de 3 pisos. Aparece una barra fija abajo: <strong>"3/3 pisos seleccionados | Enviar a cliente →"</strong>. Si hay Urban Flip, se incluye automáticamente (el cliente recibe 3+1).<br><br>
+    Pulsas <strong>"Enviar a cliente →"</strong>. El sistema genera la página HTML personalizada, la sube a GitHub Pages, y envía un email al comprador con el link. Aparece alerta: "✅ Enviado al cliente: 3 pisos seleccionados + 1 Urban Flip exclusivo."</div>
+  </div>
+</div>
+
+<!-- TUTORIAL ASESOR y DIRECCIÓN -->
+<div class="sh"><span class="sh-num">C</span><span class="sh-title">Tutorial — Asesor ONOMA</span></div>
+<div class="sh-sub">El asesor gestiona visitas, da feedback y tiene acceso a los matchings del sistema.</div>
+
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body">
+    <div class="step-title">Login como asesor</div>
+    <div class="step-desc">Misma URL de login. El sistema detecta rol "Asesor" y redirige a su portal. Credencial demo: <strong>asesor@onomahomes.com / onoma2024</strong></div>
+    <a class="step-link" href="https://onomahomes.github.io/portal.html" target="_blank">Login →</a>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body">
+    <div class="step-title">Dashboard asesor</div>
+    <div class="step-desc"><strong>Sidebar:</strong> Matchings, Dashboard, Mis Visitas, Feedbacks, Pisos, Demandas, Mi Cartera, Cerrar sesión.<br><br>
+    <strong>Dashboard:</strong> KPIs (Pendientes confirmación, Visitas hoy, Feedback pendiente, Visitas este mes, Total realizadas). Lista de próximas visitas.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body">
+    <div class="step-title">Matchings — igual que colaborador</div>
+    <div class="step-desc">El asesor ve TODAS las demandas del sistema (no solo las suyas). Mismo flujo: lista de demandas → grid de pisos → dossier con speech IA → seleccionar 3 → enviar a cliente. Incluye Urban Flip automático.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-body">
+    <div class="step-title">Gestión de visitas</div>
+    <div class="step-desc">Tab "Mis Visitas": lista de todas las visitas asignadas. Filtros: Todas, Pendientes, Confirmadas, Feedback due, Completadas. Cada visita muestra: comprador, piso, fecha, hora, estado. Antes de la visita, el asesor recibe un briefing diario por email (MOD29) con toda la info preparada.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">5</div>
+  <div class="step-body">
+    <div class="step-title">Feedback post-visita</div>
+    <div class="step-desc">Tab "Feedbacks": lista de visitas realizadas sin feedback. Modal con formulario: valoración del comprador (1-5 estrellas), qué le gustó, qué no le gustó, decisión del comprador, nuevos parámetros descubiertos. Este feedback alimenta el matching para el próximo ciclo.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">6</div>
+  <div class="step-body">
+    <div class="step-title">Mi Cartera — link de invitación</div>
+    <div class="step-desc">Cada asesor tiene un link único de invitación para captar colaboradores. Sección "Mi Cartera" muestra el link y permite enviarlo por email directamente desde la plataforma.</div>
+  </div>
+</div>
+
+<div class="sh"><span class="sh-num">D</span><span class="sh-title">Tutorial — Dirección</span></div>
+<div class="sh-sub">Visión global del negocio + subida de pisos propios.</div>
+
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body">
+    <div class="step-title">Login como dirección</div>
+    <div class="step-desc">Credencial demo: <strong>admin@onomahomes.com / admin2024</strong>. Redirige al portal de dirección con sidebar completa.</div>
+    <a class="step-link" href="https://onomahomes.github.io/portal.html" target="_blank">Login →</a>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body">
+    <div class="step-title">Dashboard — KPIs en tiempo real</div>
+    <div class="step-desc"><strong>Sidebar:</strong> Dashboard, Visitas, Equipo, Colaboradores, Pisos, Pipeline, Facturación.<br><br>
+    <strong>KPIs:</strong> Visitas hoy, Feedback pendiente, Visitas del mes (con delta vs mes anterior), Realizadas, Pisos activos, Compradores, Matchings, Asesores/Colaboradores, Comisión ONOMA estimada en cartera (grande, dorado).<br><br>
+    <strong>Filtro de periodo:</strong> Hoy, Esta semana, Este mes, Periodo personalizado.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body">
+    <div class="step-title">Visitas — control total</div>
+    <div class="step-desc">Lista de TODAS las visitas del sistema. Filtros: Todas, Hoy, Programadas, Realizadas, Sin feedback. Cada visita muestra flujo visual: Comprador (origen) → Piso (origen), fecha, hora, estado, dots de feedback (verde=hecho, rojo=falta, amarillo=pendiente). Clic en una visita con feedback abre el modal con el texto completo.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-body">
+    <div class="step-title">Equipo — gestión de asesores</div>
+    <div class="step-desc">Lista de asesores ONOMA con KPIs individuales: visitas hoy, este mes, total, feedback pendiente. Botón <strong>"+ Nuevo asesor"</strong>: nombre, apellido, email, teléfono, DNI/NIE. Crea la cuenta y envía email de activación. Botón "Ver portal" abre el portal del asesor en modo lectura (viewer).</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">5</div>
+  <div class="step-body">
+    <div class="step-title">Colaboradores — la red</div>
+    <div class="step-desc">Lista de todos los colaboradores con: pisos activos, demandas, matchings, estado (activo/inactivo). Buscador por nombre o email. Botón "Ver portal" para ver el portal de cada colaborador en modo lectura.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">6</div>
+  <div class="step-body">
+    <div class="step-title">Pisos — cartera completa + SUBIDA</div>
+    <div class="step-desc">Grid visual con todos los pisos: foto, dirección, barrio, precio, habitaciones, metros, estado, colaborador, visitas.<br><br>
+    <strong>DOS BOTONES en la parte superior:</strong><br>
+    • <strong>📋 "Piso de Terceros"</strong> (azul) — piso de un colaborador o externo<br>
+    • <strong>⭐ "Piso Urban Flip"</strong> (dorado) — piso propio del grupo Urban Path<br><br>
+    Ambos abren el mismo formulario completo (4 secciones colapsables):<br>
+    <strong>Sección 1 — Características:</strong> Dirección, precio, barrio, habitaciones, baños, m², planta, ascensor, terraza, garaje, trastero, orientación, estado, año construcción.<br>
+    <strong>Sección 2 — Multimedia:</strong> Fotos (drag&drop hasta 20), vídeo (URL o archivo), planos.<br>
+    <strong>Sección 3 — Documentación legal:</strong> Encargo de venta, IBI, ITE, Catastro, Escritura + "Otros documentos" dinámicos con nombre personalizable.<br>
+    <strong>Sección 4 — Descripción:</strong> Texto libre + botón <strong>"✨ Generar descripción con IA"</strong> — GPT-4o crea una descripción premium basada en las características.<br><br>
+    Barra de progreso de subida. Notificación por Telegram al coordinador.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">7</div>
+  <div class="step-body">
+    <div class="step-title">Pipeline y Facturación</div>
+    <div class="step-desc"><strong>Pipeline:</strong> Operaciones en curso con fases visuales. Cada card: piso, comprador, fecha, precio, nivel de interés (estrellas), estado.<br><br>
+    <strong>Facturación:</strong> 4 KPIs grandes: En cartera, Facturado, Pendiente cobro, Operaciones. Lista de operaciones cerradas con importes.</div>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">8</div>
+  <div class="step-body">
+    <div class="step-title">Chatbot ONOMA (próximamente)</div>
+    <div class="step-desc">Botón flotante 🤖 abajo-derecha. Actualmente en modo demo. Futuro: asistente IA que responde preguntas sobre KPIs, visitas, pisos. "¿Cuántas visitas hay hoy?" → respuesta instantánea.</div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- ═══ SCRIPTS ═══ -->
+<script>
+function goSec(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
