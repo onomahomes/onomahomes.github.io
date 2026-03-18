@@ -118,9 +118,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <!-- OK -->
         <div class="ok-box" id="okBox" style="display:none">
           <div class="ok-ico">✅</div>
-          <h3>¡Contrato firmado!</h3>
-          <p>Hemos enviado un email a <strong id="emailConf"></strong>.<br><br>
-          Haz clic en el enlace del email para crear tu contraseña y acceder a tu portal ONOMA.</p>
+          <h3>¡Contrato firmado con éxito!</h3>
+          <p>Tu cuenta está activa. Redirigiendo a tu portal ONOMA...</p>
         </div>
       </div>
     </div>
@@ -312,6 +311,8 @@ async function firmar() {
     const d = await r.json();
     if (d.ok) {
       document.getElementById('firmaForm').style.display = 'none';
+      // Redirect to portal after 2 seconds
+      setTimeout(function() { window.location.href = 'portal.html'; }, 2500);
       document.getElementById('emailConf').textContent = userData.email;
       document.getElementById('okBox').style.display = 'block';
     } else {
