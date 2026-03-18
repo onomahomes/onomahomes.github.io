@@ -86,9 +86,36 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 .loading-progress{width:200px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:8px}
 .loading-bar{height:100%;background:linear-gradient(90deg,#C5A059,#d4b06a);border-radius:2px;width:0;transition:width .5s ease}
 
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 </style>
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script>
+
+var esIndep = false;
+var tipoSelected = '';
+function selectType(tipo) {
+  tipoSelected = tipo;
+  esIndep = (tipo === 'independiente');
+  // Update visual
+  document.getElementById('boxIndep').style.borderColor = tipo === 'independiente' ? '#C5A059' : 'rgba(255,255,255,.08)';
+  document.getElementById('boxIndep').style.background = tipo === 'independiente' ? 'rgba(197,160,89,.06)' : 'rgba(255,255,255,.03)';
+  document.getElementById('checkIndep').style.borderColor = tipo === 'independiente' ? '#C5A059' : 'rgba(255,255,255,.15)';
+  document.getElementById('checkIndep').style.background = tipo === 'independiente' ? '#C5A059' : 'transparent';
+  document.getElementById('checkIndep').style.color = tipo === 'independiente' ? '#000' : 'transparent';
+  document.getElementById('boxEmpresa').style.borderColor = tipo === 'empresa' ? '#3B82F6' : 'rgba(255,255,255,.08)';
+  document.getElementById('boxEmpresa').style.background = tipo === 'empresa' ? 'rgba(59,130,246,.06)' : 'rgba(255,255,255,.03)';
+  document.getElementById('checkEmpresa').style.borderColor = tipo === 'empresa' ? '#3B82F6' : 'rgba(255,255,255,.15)';
+  document.getElementById('checkEmpresa').style.background = tipo === 'empresa' ? '#3B82F6' : 'transparent';
+  document.getElementById('checkEmpresa').style.color = tipo === 'empresa' ? '#fff' : 'transparent';
+  // Show form with animation
+  document.getElementById('stepForm').style.display = 'block';
+  document.getElementById('stepForm').style.animation = 'fadeUp .3s ease';
+  // Show/hide empresa fields
+  document.getElementById('empresaFields').style.display = tipo === 'empresa' ? 'block' : 'none';
+}
+function toggleIndep() { selectType(esIndep ? '' : 'independiente'); }
+function applyIndepState() {}
+
 // Google Sign-In
 function googleLogin() {
   const client = google.accounts.oauth2.initTokenClient({
@@ -192,85 +219,84 @@ async function handleGoogleToken(response) {
 
   <div id="formReg">
 
-    <div id="sec2wrap">
-      <div class="sec-title">¿Cómo colaboras?</div>
-
-      <div class="indep-box" onclick="toggleIndep()">
-        <input type="checkbox" id="indep">
-        <div>
-          <label for="indep">Soy colaborador independiente</label>
-          <span>Marca esta opción si trabajas como autónomo sin empresa</span>
+    <!-- STEP 1: Choose type -->
+    <div id="stepType">
+      <div class="sec-title">¿Cómo quieres colaborar?</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="type-box" id="boxIndep" onclick="selectType('independiente')" style="display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.03);border:2px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;cursor:pointer;transition:all .3s">
+          <div style="width:48px;height:48px;border-radius:12px;background:rgba(197,160,89,.1);border:1px solid rgba(197,160,89,.25);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">👤</div>
+          <div style="flex:1">
+            <div style="font-size:16px;font-weight:700;margin-bottom:4px">Colaborador independiente</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.4);line-height:1.5">Trabajo como autónomo o agente inmobiliario por cuenta propia</div>
+          </div>
+          <div class="type-check" id="checkIndep" style="width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .3s;font-size:14px;color:transparent">✓</div>
+        </div>
+        <div class="type-box" id="boxEmpresa" onclick="selectType('empresa')" style="display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.03);border:2px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;cursor:pointer;transition:all .3s">
+          <div style="width:48px;height:48px;border-radius:12px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🏢</div>
+          <div style="flex:1">
+            <div style="font-size:16px;font-weight:700;margin-bottom:4px">Represento a una empresa</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.4);line-height:1.5">Soy parte de una inmobiliaria, agencia o grupo inmobiliario</div>
+          </div>
+          <div class="type-check" id="checkEmpresa" style="width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .3s;font-size:14px;color:transparent">✓</div>
         </div>
       </div>
+    </div>
 
-      <div id="sec2fields">
+    <!-- STEP 2: Form fields (hidden until type selected) -->
+    <div id="stepForm" style="display:none">
+
+      <!-- Empresa fields (only shown if empresa selected) -->
+      <div id="empresaFields" style="display:none">
+        <div class="sec-title">Tu empresa</div>
         <div class="fld"><label>Empresa representada <span class="req">*</span></label><input id="empresa" type="text" placeholder="Nombre de tu empresa o agencia"></div>
         <div class="row2">
           <div class="fld"><label>CIF de empresa <span class="req">*</span></label><input id="cif" type="text" placeholder="CIF"></div>
           <div class="fld"><label>Cargo <span class="req">*</span></label><input id="cargo" type="text" placeholder="Tu cargo"></div>
         </div>
         <div class="fld">
-          <label>Logo y marca de tu empresa <span class="opt">(recomendado)</span></label>
-          <div id="logoUploadZone" style="border:2px dashed rgba(255,255,255,.12);border-radius:16px;padding:24px;text-align:center;cursor:pointer;transition:all .3s;position:relative">
-            <div id="logoPreview" style="display:none;margin-bottom:12px">
-              <img id="logoPreviewImg" src="" style="max-height:80px;max-width:200px;object-fit:contain;border-radius:8px;border:1px solid rgba(255,255,255,.1)">
-              <div style="font-size:11px;color:rgba(74,222,128,.7);margin-top:6px">Logo cargado &#10003;</div>
+          <label>Logo de tu empresa <span class="opt">(recomendado)</span></label>
+          <div id="logoUploadZone" style="border:2px dashed rgba(255,255,255,.12);border-radius:16px;padding:20px;text-align:center;cursor:pointer;transition:all .3s;position:relative">
+            <div id="logoPreview" style="display:none;margin-bottom:8px">
+              <img id="logoPreviewImg" src="" style="max-height:60px;max-width:180px;object-fit:contain;border-radius:8px">
+              <div style="font-size:11px;color:rgba(74,222,128,.7);margin-top:4px">Logo cargado ✓</div>
             </div>
             <div id="logoPlaceholder">
-              <div style="font-size:36px;opacity:.3;margin-bottom:8px">&#127970;</div>
-              <div style="font-size:15px;color:rgba(255,255,255,.4)">Toca para subir el <strong style="color:#C5A059">logo de tu empresa</strong></div>
-              <div style="font-size:12px;color:rgba(255,255,255,.2);margin-top:6px">PNG, JPG o SVG</div>
+              <div style="font-size:28px;opacity:.3;margin-bottom:6px">🏢</div>
+              <div style="font-size:14px;color:rgba(255,255,255,.4)">Toca para subir tu <strong style="color:#C5A059">logo</strong></div>
+              <div style="font-size:11px;color:rgba(255,255,255,.15);margin-top:4px">PNG, JPG o SVG</div>
             </div>
             <input id="logo" type="file" accept="image/*" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:5" onchange="previewLogo(this)">
           </div>
-          <div id="brandPreviewBox" style="display:none;margin-top:16px;background:rgba(197,160,89,.05);border:1px solid rgba(197,160,89,.2);border-radius:14px;padding:18px;text-align:center">
-            <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#C5A059;font-weight:600;margin-bottom:14px">&#9733; Así se verá tu portal personalizado</div>
-            <div id="brandMockup" style="background:rgba(10,10,20,.95);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px 24px;display:inline-flex;align-items:center;gap:14px">
-              <img id="brandMockupLogo" src="" style="max-height:40px;max-width:120px;object-fit:contain">
+          <div id="brandPreviewBox" style="display:none;margin-top:12px;background:rgba(197,160,89,.05);border:1px solid rgba(197,160,89,.2);border-radius:12px;padding:14px;text-align:center">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#C5A059;font-weight:600;margin-bottom:10px">Vista previa de tu portal</div>
+            <div id="brandMockup" style="background:rgba(10,10,20,.95);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px 20px;display:inline-flex;align-items:center;gap:12px">
+              <img id="brandMockupLogo" src="" style="max-height:32px;max-width:100px;object-fit:contain">
               <div style="text-align:left">
-                <div id="brandMockupName" style="font-size:15px;font-weight:700;color:#fff">Tu Empresa</div>
-                <div style="font-size:10px;color:rgba(255,255,255,.3);letter-spacing:1.5px;text-transform:uppercase">Partner ONOMA</div>
+                <div id="brandMockupName" style="font-size:14px;font-weight:700;color:#fff">Tu Empresa</div>
+                <div style="font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1.5px;text-transform:uppercase">Partner ONOMA</div>
               </div>
             </div>
           </div>
         </div>
-        <div class="fld"><label>Color principal de tu marca <span class="opt">(opcional)</span></label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap" id="colorPicker">
-            <div class="clr-opt" data-color="#C5A059" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#C5A059;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-            <div class="clr-opt" data-color="#3B82F6" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#3B82F6;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-            <div class="clr-opt" data-color="#10B981" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#10B981;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-            <div class="clr-opt" data-color="#EF4444" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#EF4444;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-            <div class="clr-opt" data-color="#8B5CF6" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#8B5CF6;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-            <div class="clr-opt" data-color="#F59E0B" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#F59E0B;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-            <div class="clr-opt" data-color="#EC4899" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#EC4899;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
-            <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden" onclick="document.getElementById('customColor').click()">
-              <span style="font-size:18px">&#127912;</span>
-              <input type="color" id="customColor" value="#C5A059" style="position:absolute;opacity:0;width:100%;height:100%;cursor:pointer" onchange="pickCustomColor(this.value)">
-            </div>
-          </div>
-          <div style="font-size:11px;color:rgba(255,255,255,.15);margin-top:6px">Los acentos de tu portal usarán este color</div>
-        </div>
         <div class="fld"><label>Web de tu empresa <span class="opt">(opcional)</span></label><input id="landing" type="url" placeholder="https://www.tuempresa.com"></div>
       </div>
-    </div>
 
-    <div class="sec-title" style="margin-top:28px">Datos personales</div>
+      <!-- Personal info (always shown) -->
+      <div class="sec-title">Tus datos</div>
+      <div class="row2">
+        <div class="fld"><label>Nombre <span class="req">*</span></label><input id="nombre" type="text" placeholder="Tu nombre"></div>
+        <div class="fld"><label>Apellido <span class="req">*</span></label><input id="apellido" type="text" placeholder="Tu apellido"></div>
+      </div>
+      <div class="fld"><label>NIF / CIF personal <span class="opt">(opcional)</span></label><input id="nif" type="text" placeholder="Documento de identidad"></div>
+      <div class="fld"><label>Teléfono <span class="req">*</span></label><input id="tel" type="tel" placeholder="+34 600 000 000"></div>
+      <div class="fld"><label>Email <span class="req">*</span></label><input id="email" type="email" placeholder="tu@email.com"></div>
 
-    <div class="row2">
-      <div class="fld"><label>Nombre <span class="req">*</span></label><input id="nombre" type="text" placeholder="Tu nombre"></div>
-      <div class="fld"><label>Apellido <span class="req">*</span></label><input id="apellido" type="text" placeholder="Tu apellido"></div>
-    </div>
-
-    <div class="fld"><label>NIF / CIF <span class="opt">(opcional)</span></label><input id="nif" type="text" placeholder="Documento de identidad"></div>
-    <div class="fld"><label>Teléfono <span class="req">*</span></label><input id="tel" type="tel" placeholder="Número de teléfono"></div>
-    <div class="fld"><label>Email <span class="req">*</span></label><input id="email" type="email" placeholder="Tu email"></div>
-
-    <div class="google-divider"><span>o regístrate con</span></div>
-    <button class="btn-google" id="btnGoogle" onclick="googleLogin()" style="width:100%;padding:16px;background:#fff;color:#333;border:none;border-radius:14px;font-family:'Inter',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;min-height:52px;margin-bottom:16px">
-      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-      Continuar con Google
-    </button>
-    <div class="google-filled" id="googleFilled" style="display:none;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:12px;padding:12px 16px;margin-bottom:20px;font-size:14px;color:rgba(74,222,128,.8)">Datos de Google cargados: <strong id="googleName"></strong></div>
+      <div class="google-divider"><span>o regístrate con</span></div>
+      <button class="btn-google" id="btnGoogle" onclick="googleLogin()" style="width:100%;padding:16px;background:#fff;color:#333;border:none;border-radius:14px;font-family:'Inter',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;min-height:52px;margin-bottom:20px">
+        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continuar con Google
+      </button>
+      <div class="google-filled" id="googleFilled" style="display:none;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:14px;color:rgba(74,222,128,.8)">Datos cargados: <strong id="googleName"></strong></div>
 
 <button class="btn" id="btnReg" onclick="registrar()">Solicitar acceso →</button>
     <p class="nota">Los campos marcados con <strong style="color:var(--gold)">*</strong> son obligatorios</p>
@@ -294,7 +320,6 @@ async function handleGoogleToken(response) {
 <script>
 const params = new URLSearchParams(window.location.search);
 const tipo = params.get('tipo') || 'colaborador';
-let esIndep = false;
 
 // Adapt form to tipo
 if (tipo === 'comprador') {
@@ -306,34 +331,6 @@ if (tipo === 'comprador') {
   document.getElementById('pageSubtitle').textContent = 'Red de inmobiliarias partner';
 }
 
-function toggleIndep() {
-  esIndep = !esIndep;
-  document.getElementById('indep').checked = esIndep;
-  applyIndepState();
-}
-document.getElementById('indep').addEventListener('click', function(e) {
-  e.stopPropagation();
-  esIndep = this.checked;
-  applyIndepState();
-});
-function applyIndepState() {
-  var sec2 = document.getElementById('sec2fields');
-  if (esIndep) {
-    sec2.style.opacity = '0.25';
-    sec2.style.pointerEvents = 'none';
-    sec2.style.maxHeight = '0';
-    sec2.style.overflow = 'hidden';
-    sec2.style.transition = 'all 0.3s ease';
-    sec2.style.padding = '0';
-    sec2.style.margin = '0';
-  } else {
-    sec2.style.opacity = '1';
-    sec2.style.pointerEvents = 'auto';
-    sec2.style.maxHeight = '2000px';
-    sec2.style.overflow = 'visible';
-    sec2.style.padding = '';
-    sec2.style.margin = '';
-  }
 }
 
 
