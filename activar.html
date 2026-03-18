@@ -112,18 +112,42 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:cente
 
 <script>
 const params = new URLSearchParams(window.location.search);
-const token = params.get('token');
+const token = params.get('token') || '';
 const isReset = params.get('reset') === '1';
-let userEmail = '';
+const emailParam = params.get('email') || '';
+let userEmail = emailParam;
 
 (async () => {
+  // If we have email param, skip token verification — show form directly
+  if (emailParam) {
+    // Try to get the user name from token verification, but don't block if it fails
+    try {
+      var r = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-verificar-token?token=' + encodeURIComponent(token));
+      var d = await r.json();
+      if (d.ok && d.nombre) {
+        document.getElementById('welcomeNombre').textContent = 'Hola, ' + d.nombre;
+      } else {
+        document.getElementById('welcomeNombre').textContent = 'Bienvenido a ONOMA';
+      }
+    } catch(e) {
+      document.getElementById('welcomeNombre').textContent = 'Bienvenido a ONOMA';
+    }
+    document.getElementById('welcomeSub').textContent = isReset
+      ? 'Crea tu nueva contraseña de acceso'
+      : 'Crea tu contraseña para activar tu cuenta';
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('formPass').style.display = 'block';
+    return;
+  }
+
+  // No email param — try token only
   if (!token) { showErrToken(); return; }
   try {
-    const r = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-verificar-token?token=' + encodeURIComponent(token));
-    const d = await r.json();
-    if (!d.ok) { showErrToken(); return; }
-    userEmail = d.email || '';
-    document.getElementById('welcomeNombre').textContent = 'Hola, ' + (d.nombre || 'bienvenido');
+    var r2 = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-verificar-token?token=' + encodeURIComponent(token));
+    var d2 = await r2.json();
+    if (!d2.ok) { showErrToken(); return; }
+    userEmail = d2.email || '';
+    document.getElementById('welcomeNombre').textContent = 'Hola, ' + (d2.nombre || 'bienvenido');
     document.getElementById('welcomeSub').textContent = isReset
       ? 'Crea tu nueva contraseña de acceso'
       : 'Crea tu contraseña para activar tu cuenta';
@@ -134,7 +158,16 @@ let userEmail = '';
 
 function showErrToken() {
   document.getElementById('loading').style.display = 'none';
-  document.getElementById('errToken').style.display = 'block';
+  var errEl = document.getElementById('errToken');
+  errEl.style.display = 'block';
+  // Update the error content to be friendly
+  errEl.innerHTML = '<div class="err-token-line"></div>' +
+    '<h3 style="color:#C5A059;font-family:Playfair Display,serif;font-size:22px">Estamos preparando tu acceso</h3>' +
+    '<p style="color:rgba(255,255,255,.5);margin-top:12px;font-size:15px;line-height:1.7">' +
+    'Tu enlace de activación llegará en breve a tu email.<br>' +
+    'Si ya creaste tu contraseña, inicia sesión directamente.</p>' +
+    '<a href="portal.html" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#C5A059;color:#000;border-radius:12px;font-weight:600;text-decoration:none;font-size:15px">Iniciar sesión →</a>' +
+    '<div style="margin-top:20px;font-size:13px;color:rgba(255,255,255,.25)">¿Problemas? Escríbenos a <strong style="color:#C5A059">info@onomahomes.com</strong></div>';
 }
 
 function toggleVer(id, el) {
@@ -170,7 +203,7 @@ async function setPassword() {
     const r = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-set-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, password: p1, is_reset: isReset })
+      body: JSON.stringify({ token: token, email: userEmail, password: p1, is_reset: isReset })
     });
     const d = await r.json();
     if (d.ok) {
