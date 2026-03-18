@@ -152,9 +152,47 @@ async function handleGoogleToken(response) {
           <div class="fld"><label>CIF de empresa <span class="req">*</span></label><input id="cif" type="text" placeholder="CIF"></div>
           <div class="fld"><label>Cargo <span class="req">*</span></label><input id="cargo" type="text" placeholder="Tu cargo"></div>
         </div>
-        <div class="fld"><label>Logo de tu empresa <span class="opt">(recomendado)</span></label>
-          <input id="logo" type="file" accept="image/*" style="cursor:pointer">
-          <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:4px">Tu portal se personalizará con el logo de tu empresa</div>
+        <div class="fld">
+          <label>Logo y marca de tu empresa <span class="opt">(recomendado)</span></label>
+          <div id="logoUploadZone" style="border:2px dashed rgba(255,255,255,.12);border-radius:16px;padding:24px;text-align:center;cursor:pointer;transition:all .3s;position:relative" onclick="document.getElementById('logo').click()">
+            <div id="logoPreview" style="display:none;margin-bottom:12px">
+              <img id="logoPreviewImg" src="" style="max-height:80px;max-width:200px;object-fit:contain;border-radius:8px;border:1px solid rgba(255,255,255,.1)">
+              <div style="font-size:11px;color:rgba(74,222,128,.7);margin-top:6px">Logo cargado &#10003;</div>
+            </div>
+            <div id="logoPlaceholder">
+              <div style="font-size:36px;opacity:.3;margin-bottom:8px">&#127970;</div>
+              <div style="font-size:15px;color:rgba(255,255,255,.4)">Toca para subir el <strong style="color:#C5A059">logo de tu empresa</strong></div>
+              <div style="font-size:12px;color:rgba(255,255,255,.2);margin-top:6px">PNG, JPG o SVG &middot; Fondo transparente recomendado</div>
+            </div>
+            <input id="logo" type="file" accept="image/*" style="display:none" onchange="previewLogo(this)">
+          </div>
+          <div id="brandPreviewBox" style="display:none;margin-top:16px;background:rgba(197,160,89,.05);border:1px solid rgba(197,160,89,.2);border-radius:14px;padding:18px;text-align:center">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#C5A059;font-weight:600;margin-bottom:14px">&#9733; As&iacute; se ver&aacute; tu portal personalizado</div>
+            <div id="brandMockup" style="background:rgba(10,10,20,.95);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px 24px;display:inline-flex;align-items:center;gap:14px">
+              <img id="brandMockupLogo" src="" style="max-height:40px;max-width:120px;object-fit:contain">
+              <div style="text-align:left">
+                <div id="brandMockupName" style="font-size:15px;font-weight:700;color:#fff">Tu Empresa</div>
+                <div style="font-size:10px;color:rgba(255,255,255,.3);letter-spacing:1.5px;text-transform:uppercase">Partner ONOMA</div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:rgba(255,255,255,.2);margin-top:10px">Tu logo aparecer&aacute; en el sidebar de tu portal</div>
+          </div>
+        </div>
+        <div class="fld"><label>Color principal de tu marca <span class="opt">(opcional)</span></label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap" id="colorPicker">
+            <div class="clr-opt" data-color="#C5A059" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#C5A059;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
+            <div class="clr-opt" data-color="#3B82F6" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#3B82F6;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
+            <div class="clr-opt" data-color="#10B981" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#10B981;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
+            <div class="clr-opt" data-color="#EF4444" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#EF4444;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
+            <div class="clr-opt" data-color="#8B5CF6" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#8B5CF6;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
+            <div class="clr-opt" data-color="#F59E0B" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#F59E0B;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
+            <div class="clr-opt" data-color="#EC4899" onclick="pickColor(this)" style="width:38px;height:38px;border-radius:10px;background:#EC4899;cursor:pointer;border:3px solid transparent;transition:all .2s"></div>
+            <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden" onclick="document.getElementById('customColor').click()">
+              <span style="font-size:18px">&#127912;</span>
+              <input type="color" id="customColor" value="#C5A059" style="position:absolute;opacity:0;width:100%;height:100%;cursor:pointer" onchange="pickCustomColor(this.value)">
+            </div>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,.15);margin-top:6px">Los acentos de tu portal usar&aacute;n este color</div>
         </div>
         <div class="fld"><label>Web de tu empresa <span class="opt">(opcional)</span></label><input id="landing" type="url" placeholder="https://www.tuempresa.com"></div>
     
@@ -264,6 +302,50 @@ async function registrar() {
     btn.disabled = false;
     btn.textContent = 'Solicitar acceso →';
   }
+}
+
+
+function previewLogo(input) {
+  if (!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('logoPreviewImg').src = e.target.result;
+    document.getElementById('logoPreview').style.display = 'block';
+    document.getElementById('logoPlaceholder').style.display = 'none';
+    document.getElementById('logoUploadZone').style.borderColor = 'rgba(74,222,128,.3)';
+    document.getElementById('logoUploadZone').style.background = 'rgba(74,222,128,.04)';
+    document.getElementById('brandPreviewBox').style.display = 'block';
+    document.getElementById('brandMockupLogo').src = e.target.result;
+    var empresa = document.getElementById('empresa').value.trim();
+    document.getElementById('brandMockupName').textContent = empresa || 'Tu Empresa';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+var selectedBrandColor = '';
+function pickColor(el) {
+  document.querySelectorAll('.clr-opt').forEach(function(c) { c.style.border = '3px solid transparent'; });
+  el.style.border = '3px solid #fff';
+  selectedBrandColor = el.getAttribute('data-color');
+  updateMockupColor(selectedBrandColor);
+}
+function pickCustomColor(color) {
+  document.querySelectorAll('.clr-opt').forEach(function(c) { c.style.border = '3px solid transparent'; });
+  selectedBrandColor = color;
+  updateMockupColor(color);
+}
+function updateMockupColor(color) {
+  var mockup = document.getElementById('brandMockup');
+  if (mockup) mockup.style.borderColor = color;
+  var name = document.getElementById('brandMockupName');
+  if (name) name.style.color = color;
+  var box = document.getElementById('brandPreviewBox');
+  if (box) box.style.borderColor = color + '40';
+}
+if (document.getElementById('empresa')) {
+  document.getElementById('empresa').addEventListener('input', function() {
+    var el = document.getElementById('brandMockupName');
+    if (el) el.textContent = this.value.trim() || 'Tu Empresa';
+  });
 }
 
 function mostrarError(msg) {
