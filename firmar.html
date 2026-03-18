@@ -118,8 +118,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <!-- OK -->
         <div class="ok-box" id="okBox" style="display:none">
           <div class="ok-ico">✅</div>
-          <h3>¡Contrato firmado con éxito!</h3>
-          <p>Tu cuenta está activa. Redirigiendo a tu portal ONOMA...</p>
+          <h3>¡Contrato firmado!</h3>
+          <p>Bienvenido a ONOMA. Accediendo a tu portal...</p>
         </div>
       </div>
     </div>
@@ -289,10 +289,29 @@ function toggleAcepta() {
 }
 
 function checkFirma() {
-  const nombre = document.getElementById('firmaNombre').value.trim();
-  const acepta = document.getElementById('acepta').checked;
-  document.getElementById('btnFirmar').disabled = !nombre || !acepta;
-}
+    var nombre = document.getElementById('firmaNombre').value.trim();
+    var acepta = document.getElementById('acepta')?.checked;
+    var btn = document.getElementById('btnFirmar');
+    var expected = (nombreCompleto || '').trim();
+    var match = nombre.toLowerCase() === expected.toLowerCase();
+    var hint = document.getElementById('firmaNameHint');
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.id = 'firmaNameHint';
+      hint.style.cssText = 'font-size:12px;margin-top:4px;';
+      document.getElementById('firmaNombre').parentNode.appendChild(hint);
+    }
+    if (nombre && !match) {
+      hint.textContent = 'El nombre debe coincidir exactamente: ' + expected;
+      hint.style.color = '#e74c3c';
+    } else if (match) {
+      hint.textContent = '✓ Nombre verificado';
+      hint.style.color = '#2ecc71';
+    } else {
+      hint.textContent = '';
+    }
+    btn.disabled = !(match && acepta);
+  }
 
 async function firmar() {
   const firma_nombre = document.getElementById('firmaNombre').value.trim();
