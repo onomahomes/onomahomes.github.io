@@ -39,7 +39,7 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:flex-
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .link{text-align:center;margin-top:20px;font-size:13px;color:var(--muted)}
 .link a{color:var(--gold);font-weight:600;text-decoration:none}
-.err-msg{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:12px 16px;font-size:13px;color:#f87171;margin-bottom:18px;display:none}
+.err-msg{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:14px;padding:16px 20px;font-size:14px;color:#fbbf24;margin-bottom:18px;display:none;line-height:1.6;text-align:center}
 .ok-box{text-align:center;padding:16px 0;display:none}
 .ok-line{width:40px;height:1px;background:var(--gold);margin:0 auto 20px}
 .ok-box h3{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text)}
@@ -247,6 +247,21 @@ document.getElementById('indep').addEventListener('click', function(e) {
 });
 
 async function registrar() {
+    // ── Friendly error messages ──
+    var friendlyErrors = {
+      'Failed to fetch': 'Estamos mejorando la plataforma. Déjanos tus datos y te contactamos en breve.',
+      'Request failed': 'Estamos actualizando el sistema de registro. Por favor, inténtalo en unos minutos.',
+      'Error de conexión': 'Parece que hay un problema de conexión. Verifica tu internet e inténtalo de nuevo.',
+      '400': 'Estamos realizando mejoras en el sistema. Inténtalo de nuevo en unos minutos o escríbenos a info@onomahomes.com.',
+      '500': 'Nuestro equipo técnico está trabajando en una mejora. Estaremos de vuelta en breve.',
+      '404': 'El servicio de registro está en mantenimiento. Estaremos disponibles en breve.'
+    };
+    function getFriendlyError(msg) {
+      for (var key in friendlyErrors) {
+        if (msg && msg.toString().indexOf(key) !== -1) return friendlyErrors[key];
+      }
+      return 'Estamos mejorando la experiencia. Inténtalo en unos minutos o escríbenos a info@onomahomes.com.';
+    }
   const err = document.getElementById('errMsg');
   err.style.display = 'none';
   const nombre   = document.getElementById('nombre').value.trim();
@@ -293,12 +308,12 @@ async function registrar() {
       document.getElementById('emailConf').textContent = email;
       document.getElementById('okReg').style.display = 'block';
     } else {
-      mostrarError(d.error || 'Error al registrar. Inténtalo de nuevo.');
+      mostrarError(getFriendlyError(d.error));
       btn.disabled = false;
       btn.textContent = 'Solicitar acceso →';
     }
   } catch(e) {
-    mostrarError('Error de conexión. Inténtalo de nuevo.');
+    mostrarError(getFriendlyError('Failed to fetch'));
     btn.disabled = false;
     btn.textContent = 'Solicitar acceso →';
   }
@@ -349,6 +364,7 @@ if (document.getElementById('empresa')) {
 }
 
 function mostrarError(msg) {
+    msg = '\u26A0\uFE0F ' + msg;
   const err = document.getElementById('errMsg');
   err.textContent = msg;
   err.style.display = 'block';
