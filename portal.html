@@ -466,7 +466,20 @@ function googleLogin() {
           localStorage.setItem('onoma_record_id', ld.record_id);
           localStorage.setItem('onoma_role', ld.rol || 'Colaborador');
           localStorage.setItem('onoma_nombre', ld.nombre || '');
-          window.location.href = ld.redirect || ('colaborador-' + ld.record_id + '.html');
+          // Check contrato
+          try {
+            var cr = await fetch('https://wwaytwudfbwxttyyojjx.supabase.co/rest/v1/colaboradores?id=eq.' + ld.record_id + '&select=contrato_estado', {
+              headers: { apikey: 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b', Authorization: 'Bearer sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b' }
+            });
+            var cd = await cr.json();
+            if (Array.isArray(cd) && cd[0] && cd[0].contrato_estado === 'Firmado') {
+              window.location.href = ld.redirect || ('colaborador-' + ld.record_id + '.html');
+            } else {
+              window.location.href = 'firmar.html?email=' + encodeURIComponent(user.email);
+            }
+          } catch(e) {
+            window.location.href = ld.redirect || ('colaborador-' + ld.record_id + '.html');
+          }
         } else {
           // No account - go to register
           window.location.href = 'registro.html';
