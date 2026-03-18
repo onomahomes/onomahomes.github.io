@@ -147,7 +147,7 @@ async function init() {
       var users = await sr.json();
       if (Array.isArray(users) && users[0]) {
         userData = users[0]; userData.ok = true; userData.record_id = users[0].id;
-        try { renderContrato(userData); } catch(renderErr) { showErr("Error renderizando contrato: " + renderErr.message); console.error("renderContrato error:", renderErr); }
+        document.getElementById("loadingBox").style.display = "none"; document.getElementById("mainBox").style.display = "block"; try { renderContrato(userData); } catch(renderErr) { showErr("Error renderizando contrato: " + renderErr.message); console.error("renderContrato error:", renderErr); }
       } else {
         showErr('Usuario no encontrado. <a href="registro.html">Regístrate aquí</a>');
       }
@@ -373,5 +373,5 @@ async function firmar() {
 init();
 </script>
 </body>
-<!-- v1773839620731 -->
+<!-- v1773839773791 -->
 </html>
