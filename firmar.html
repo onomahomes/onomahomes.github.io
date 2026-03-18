@@ -136,18 +136,29 @@ let scrolled = false;
 const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
 async function init() {
-  /* emailParam handled in main flow below */
-  if (!token && !emailParam) { showErr('Enlace inválido. Vuelve a <a href="registro.html">registro</a>.'); return; }
+  if (!token && !emailParam) { showErr('Enlace inválido. <a href="registro.html">Regístrate aquí</a>'); return; }
   try {
-    var r;
-    if (token) { r = await fetch(WH + '/colaborador-verificar-token?token=' + encodeURIComponent(token)); }
-    else { r = await fetch(WH + '/colaborador-login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:emailParam,google_auth:true})}); }
-    const d = await r.json();
-    if (!d.ok) { showErr('Este enlace no es válido o ya fue utilizado. Vuelve a <a href="registro.html">registro</a>.'); return; }
-    userData = d;
-    renderContrato(d);
+    var email = emailParam || '';
+    if (emailParam) {
+      // Direct Supabase lookup - fast, no auth needed
+      var sr = await fetch('https://wwaytwudfbwxttyyojjx.supabase.co/rest/v1/colaboradores?email=eq.' + encodeURIComponent(emailParam) + '&select=id,nombre,email,apellido', {
+        headers: { apikey: 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b', Authorization: 'Bearer sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b' }
+      });
+      var users = await sr.json();
+      if (Array.isArray(users) && users[0]) {
+        userData = { ok: true, nombre: users[0].nombre, email: users[0].email, record_id: users[0].id };
+        renderContrato(userData);
+      } else {
+        showErr('Usuario no encontrado. <a href="registro.html">Regístrate aquí</a>');
+      }
+    } else if (token) {
+      var r = await fetch(WH + '/colaborador-verificar-token?token=' + encodeURIComponent(token));
+      var d = await r.json();
+      if (d.ok) { userData = d; renderContrato(d); }
+      else { showErr('Enlace expirado. <a href="portal.html">Inicia sesión</a>'); }
+    }
   } catch(e) {
-    showErr('Error de conexión. Recarga la página.');
+    showErr('Error de conexión. Recarga la página e inténtalo de nuevo.');
   }
 }
 
@@ -359,5 +370,5 @@ async function firmar() {
 init();
 </script>
 </body>
-<!-- v1773817424640 -->
+<!-- v1773817459717 -->
 </html>
