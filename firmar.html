@@ -261,7 +261,7 @@ async function firmarContrato() {
     if (d.ok) {
       document.getElementById('firmaForm').style.display = 'none';
       document.getElementById('okBox').style.display = 'block';
-      setTimeout(function() { window.location.href = 'portal.html'; }, 2000);
+      setTimeout(function() { window.location.href = 'colaborador-' + (userData.id || '') + '.html'; }, 2000);
     } else {
       errEl.textContent = d.error || 'Error al firmar';
       errEl.style.display = 'block';
