@@ -636,12 +636,7 @@ body{overflow-x:hidden}
       <!-- VISTA 1: Lista de demandas -->
       <div id="match-list-view">
         <div id="matchings-alert" style="display:none"></div>
-        <div class="kpi-row">
-          <div class="kpi-box amber"><div class="kpi-icon">⏳</div><div class="kpi-val" id="m-pending">0</div><div class="kpi-label">Demandas por revisión</div></div>
-          <div class="kpi-box green"><div class="kpi-icon">✅</div><div class="kpi-val" id="m-reviewed">0</div><div class="kpi-label">Revisadas</div></div>
-          <div class="kpi-box blue"><div class="kpi-icon">🔗</div><div class="kpi-val" id="m-total">0</div><div class="kpi-label">Matchings totales</div></div>
-        </div>
-        <div class="sec-lbl">Demandas con matchings</div>
+                <div class="sec-lbl">Demandas con matchings</div>
         <div class="list-wrap" id="lista-matchings">
           <div class="skel" style="height:90px;border-radius:16px"></div>
         </div>
@@ -970,11 +965,11 @@ async function loadMatchings(){
   try{
     const r=await fetch(WH+'/colaborador-matchings?id='+CID);
     const d=await r.json();
-    if(!d.ok) return;
+    // ready
     matchData=d.demandas||[];
-    document.getElementById('m-pending').textContent=d.pending_review||0;
-    document.getElementById('m-reviewed').textContent=(d.demandas||[]).filter(x=>!x.pending_review).length;
-    document.getElementById('m-total').textContent=d.matchings_total||0;
+    
+    
+    
     const alertEl=document.getElementById('matchings-alert');
     if(d.pending_review>0){alertEl.style.display='block';alertEl.innerHTML='<div class="alert-bar">⚠️ '+d.pending_review+' demanda'+(d.pending_review>1?'s':'')+' con matchings nuevos por revisar</div>'}
     renderMatchList();
