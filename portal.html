@@ -414,6 +414,7 @@ body{display:flex;align-items:center;justify-content:center;padding:20px;min-hei
   .err-box{font-size:15px}
 }
 </style>
+<script src="https://accounts.google.com/gsi/client" async></script>
 </head>
 <body>
 <div class="login-card">
@@ -439,5 +440,41 @@ function toggleVer(){const i=document.getElementById('pass');const e=document.qu
 async function login(){const email=document.getElementById('email').value.trim();const pass=document.getElementById('pass').value;const err=document.getElementById('err');err.style.display='none';if(!email||!pass){err.textContent='Completa email y contraseña';err.style.display='block';return}const btn=document.getElementById('btnLogin');btn.disabled=true;btn.textContent='Verificando...';try{const r=await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass})});const d=await r.json();if(d.ok&&d.portal_url){window.location.href=d.portal_url}else{err.textContent=d.error||'Email o contraseña incorrectos';err.style.display='block';btn.disabled=false;btn.textContent='Entrar →'}}catch(e){err.textContent='Error de conexión.';err.style.display='block';btn.disabled=false;btn.textContent='Entrar →'}}
 document.addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 (function(){const em=new URLSearchParams(window.location.search).get('email');if(em){const inp=document.getElementById('email');if(inp){inp.value=decodeURIComponent(em);inp.focus()}}})();
+</script>
+
+<script>
+function googleLogin() {
+  var client = google.accounts.oauth2.initTokenClient({
+    client_id: '975921214393-68lhp4n61mnr385jurrpqvvfvc8e5103.apps.googleusercontent.com',
+    scope: 'email profile',
+    callback: async function(response) {
+      if (!response.access_token) return;
+      try {
+        var r = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+          headers: { Authorization: 'Bearer ' + response.access_token }
+        });
+        var user = await r.json();
+        if (!user.email) return;
+        // Login with google_auth
+        var lr = await fetch('https://onomahomes.app.n8n.cloud/webhook/colaborador-login', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: user.email, google_auth: true })
+        });
+        var ld = await lr.json();
+        if (ld.ok) {
+          localStorage.setItem('onoma_token', ld.token || '');
+          localStorage.setItem('onoma_record_id', ld.record_id);
+          localStorage.setItem('onoma_role', ld.rol || 'Colaborador');
+          localStorage.setItem('onoma_nombre', ld.nombre || '');
+          window.location.href = ld.redirect || ('colaborador-' + ld.record_id + '.html');
+        } else {
+          // No account - go to register
+          window.location.href = 'registro.html';
+        }
+      } catch(e) { alert('Error de conexión'); }
+    }
+  });
+  client.requestAccessToken();
+}
 </script>
 </body></html>
