@@ -3,121 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ONOMA · Contrato de Colaboración</title>
+<title>ONOMA · Acuerdo de Colaboración</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;min-height:100vh;padding:20px 16px}
+body{font-family:'Inter',sans-serif;background:#f0f0f0;min-height:100vh;padding:20px 16px}
 .wrap{max-width:720px;margin:0 auto}
 .logo{text-align:center;margin-bottom:24px;padding-top:10px}
 .logo-txt{font-size:13px;letter-spacing:4px;font-weight:900;color:#e8c97e;background:#1a1a2e;display:inline-block;padding:8px 18px;border-radius:8px}
 .card{background:#fff;border-radius:20px;padding:28px 24px;box-shadow:0 4px 24px rgba(0,0,0,.1);margin-bottom:20px}
 .step-info{background:#f0f4ff;border:1px solid #c5d2f0;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:14px;color:#3a4a7a;line-height:1.5}
 .step-info strong{display:block;margin-bottom:4px;font-size:15px}
-.scroll-box{height:480px;overflow-y:auto;border:2px solid #e0e0e0;border-radius:12px;padding:24px;font-size:13.5px;line-height:1.8;color:#333;background:#fafafa;scroll-behavior:smooth}
-.scroll-box::-webkit-scrollbar{width:6px}
-.scroll-box::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
-.scroll-hint{text-align:center;font-size:13px;color:#aaa;margin-top:10px;padding:8px;transition:all .3s}
-.scroll-done{color:#27ae60;font-weight:700}
-.firma-section{display:none;margin-top:0}
+.scroll-box{height:480px;overflow-y:auto;border:2px solid #e0e0e0;border-radius:12px;padding:24px;font-size:13.5px;line-height:1.8;color:#333;background:#fafafa}
+.scroll-hint{text-align:center;font-size:13px;color:#aaa;margin-top:10px;padding:8px}
+.firma-section{display:none;margin-top:20px}
 .firma-card{background:#fff;border-radius:20px;padding:28px 24px;box-shadow:0 4px 24px rgba(0,0,0,.1)}
 .firma-title{font-size:17px;font-weight:800;color:#1a1a2e;margin-bottom:8px}
 .firma-legal{background:#fffdf0;border:1px solid #e8c97e;border-radius:10px;padding:14px;font-size:13px;color:#666;line-height:1.6;margin-bottom:20px}
 .firma-legal strong{color:#1a1a2e}
 .fld{margin-bottom:16px}
 .fld label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.fld input{width:100%;padding:13px 14px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:15px;outline:none;background:#fafafa;font-family:inherit;transition:border-color .15s}
+.fld input{width:100%;padding:13px 14px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:15px;outline:none;background:#fafafa;font-family:inherit}
 .fld input:focus{border-color:#1a1a2e;background:#fff}
-::placeholder{font-style:italic;color:#bbb}
+.fld .hint{font-size:12px;margin-top:4px}
 .check-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;cursor:pointer;padding:14px;background:#f8f8f8;border-radius:10px;border:1.5px solid #e8e8e8}
 .check-row input[type=checkbox]{width:20px;height:20px;accent-color:#1a1a2e;cursor:pointer;flex-shrink:0;margin-top:1px}
 .check-row label{font-size:14px;color:#444;cursor:pointer;line-height:1.5}
-.btn{width:100%;padding:16px;background:#1a1a2e;color:#e8c97e;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;transition:opacity .2s}
+.btn{width:100%;padding:16px;background:#1a1a2e;color:#e8c97e;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.btn:not(:disabled):hover{opacity:.85}
 .ok-box{text-align:center;padding:20px 0}
-.ok-ico{font-size:56px}
 .ok-box h3{margin-top:14px;font-size:20px;font-weight:800;color:#1a1a2e}
 .ok-box p{color:#666;margin-top:10px;font-size:15px;line-height:1.6}
+.err-box{background:#fff0f0;border:1px solid #ffcccc;border-radius:10px;padding:16px;color:#c0392b;font-size:14px;text-align:center;margin-bottom:20px;display:none}
 .loading{text-align:center;padding:60px 20px}
 .spin{display:inline-block;width:36px;height:36px;border:3px solid #e0e0e0;border-top-color:#1a1a2e;border-radius:50%;animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .loading p{margin-top:16px;color:#888;font-size:15px}
-.err-box{background:#fff0f0;border:1px solid #ffcccc;border-radius:10px;padding:16px;color:#c0392b;font-size:14px;text-align:center}
-
-/* Contrato styles */
 .ct h1{font-size:15px;text-align:center;letter-spacing:2px;text-transform:uppercase;margin-bottom:28px;color:#1a1a2e}
-.ct .section-title{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:#888;font-weight:700;margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid #eee}
+.ct .st{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:#888;font-weight:700;margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid #eee}
 .ct p{margin-bottom:12px;text-align:justify}
-.ct ul{margin:6px 0 12px 20px}
-.ct ul li{margin-bottom:4px}
-.ct .firma-bloque{margin-top:32px;border-top:2px solid #ddd;padding-top:20px}
-.ct .firma-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px}
-.ct .firma-col{padding-top:10px;border-top:1px solid #bbb}
-.ct .firma-col p{margin-bottom:4px;font-size:13px}
+.ct ul{margin:6px 0 12px 20px}.ct ul li{margin-bottom:4px}
 .hi{background:#fffbe6;padding:1px 4px;border-radius:3px;font-weight:700;color:#1a1a2e}
+@media(max-width:768px){.scroll-box{height:380px;padding:16px;font-size:14px}.fld input{font-size:16px}.btn{font-size:17px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="logo"><div class="logo-txt">ONOMA</div></div>
+  <div class="err-box" id="errBox"></div>
 
-  <!-- Loading -->
   <div class="card" id="loadingBox">
-    <div class="loading">
-      <div class="spin"></div>
-      <p>Cargando nuestro acuerdo de colaboración...</p>
-    </div>
+    <div class="loading"><div class="spin"></div><p>Cargando nuestro acuerdo de colaboración...</p></div>
   </div>
 
-  <!-- Error -->
-  <div class="card" id="errBox" style="display:none">
-    <div class="err-box" id="errMsg"></div>
-  </div>
-
-  <!-- Contrato -->
-  <div id="mainBox" style="display:none">
+  <div id="mainContent" style="display:none">
     <div class="card">
-      <div class="step-info">
-        <strong>Paso 2 de 3: Revisa y firma tu contrato</strong>
-        Lee el contrato de colaboración completo y firma digitalmente para continuar con la activación de tu cuenta.
-      </div>
-
+      <div class="step-info"><strong>Revisa y firma tu acuerdo de colaboración</strong>Lee el contrato completo y firma digitalmente para activar tu cuenta.</div>
       <div class="scroll-box" id="scrollBox" onscroll="onScroll()">
         <div class="ct" id="contratoText"></div>
       </div>
       <div class="scroll-hint" id="scrollHint">⬇ Desplázate hasta el final para poder firmar</div>
     </div>
-
-    <!-- Firma section -->
     <div class="firma-section" id="firmaSection">
       <div class="firma-card">
-        <div class="firma-title">✍️ Firma digital del contrato</div>
-        <div class="firma-legal">
-          Al firmar confirmas que eres <strong id="firmaUserName"></strong> y que has leído íntegramente y aceptas todos los términos del contrato.<br>
-          Esta firma electrónica tiene plena validez legal según la <strong>Ley 59/2003 de Firma Electrónica</strong> y el <strong>Reglamento eIDAS (UE) 910/2014</strong>.
-        </div>
-
+        <div class="firma-title">Firma digital</div>
+        <div class="firma-legal">Al firmar confirmas que eres <strong id="firmaUserName"></strong> y aceptas todos los términos. Firma válida según <strong>Ley 59/2003</strong> y <strong>Reglamento eIDAS</strong>.</div>
         <div id="firmaForm">
           <div class="fld">
-            <label>Escribe tu nombre completo para firmar *</label>
-            <input id="firmaNombre" type="text" placeholder="Nombre y apellido exactamente como aparece en el contrato..." oninput="checkFirma()">
+            <label>Escribe tu nombre completo *</label>
+            <input id="firmaNombre" type="text" placeholder="Nombre y apellido como aparece en el contrato" oninput="checkFirma()">
+            <div class="hint" id="firmaHint" style="color:#999"></div>
           </div>
-
-          <div class="check-row" onclick="toggleAcepta()">
+          <div class="check-row" onclick="document.getElementById('acepta').checked=!document.getElementById('acepta').checked;checkFirma()">
             <input type="checkbox" id="acepta" onclick="event.stopPropagation();checkFirma()">
-            <label for="acepta">He leído el contrato de colaboración completo y acepto todos sus términos y condiciones</label>
+            <label>He leído el contrato completo y acepto todos sus términos</label>
           </div>
-
           <div id="firmaErr" style="display:none;background:#fff0f0;border:1px solid #ffcccc;border-radius:8px;padding:11px;font-size:14px;color:#c0392b;margin-bottom:14px"></div>
-
-          <button class="btn" id="btnFirmar" onclick="firmar()" disabled>
-            Firmar contrato y activar cuenta →
-          </button>
+          <button class="btn" id="btnFirmar" onclick="firmarContrato()" disabled>Firmar y activar cuenta →</button>
         </div>
-
-        <!-- OK -->
         <div class="ok-box" id="okBox" style="display:none">
-          <div class="ok-ico">✅</div>
+          <div style="font-size:56px">✅</div>
           <h3>¡Contrato firmado!</h3>
           <p>Bienvenido a ONOMA. Accediendo a tu portal...</p>
         </div>
@@ -127,251 +92,192 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
-const WH = 'https://onomahomes.app.n8n.cloud/webhook';
-const token = new URLSearchParams(location.search).get('token');
-const emailParam = new URLSearchParams(location.search).get('email');
-let userData = {};
-let scrolled = false;
+var emailParam = new URLSearchParams(location.search).get('email') || '';
+var tokenParam = new URLSearchParams(location.search).get('token') || '';
+var userData = {};
+var nombreCompleto = '';
+var scrolledToBottom = false;
 
-const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-
+// ═══ INIT ═══
 async function init() {
-  if (!token && !emailParam) { showErr('Enlace inválido. <a href="registro.html">Regístrate aquí</a>'); return; }
+  if (!emailParam && !tokenParam) {
+    showError('Enlace inválido. <a href="registro.html" style="color:#c0392b;font-weight:700">Regístrate aquí</a>');
+    return;
+  }
+
   try {
-    var email = emailParam || '';
+    var users = [];
     if (emailParam) {
-      // Direct Supabase lookup - fast, no auth needed
-      var sr = await fetch('https://wwaytwudfbwxttyyojjx.supabase.co/rest/v1/colaboradores?email=eq.' + encodeURIComponent(emailParam) + '&select=*', {
+      var r = await fetch('https://wwaytwudfbwxttyyojjx.supabase.co/rest/v1/colaboradores?email=eq.' + encodeURIComponent(emailParam) + '&select=*&limit=1', {
         headers: { apikey: 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b', Authorization: 'Bearer sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b' }
       });
-      var users = await sr.json();
-      if (Array.isArray(users) && users[0]) {
-        userData = users[0]; userData.ok = true; userData.record_id = users[0].id;
-        document.getElementById("loadingBox").style.display = "none"; document.getElementById("mainBox").style.display = "block"; try { renderContrato(userData); } catch(renderErr) { showErr("Error renderizando contrato: " + renderErr.message); console.error("renderContrato error:", renderErr); }
-      } else {
-        showErr('Usuario no encontrado. <a href="registro.html">Regístrate aquí</a>');
-      }
-    } else if (token) {
-      var r = await fetch(WH + '/colaborador-verificar-token?token=' + encodeURIComponent(token));
-      var d = await r.json();
-      if (d.ok) { userData = d; renderContrato(d); }
-      else { showErr('Enlace expirado. <a href="portal.html">Inicia sesión</a>'); }
+      users = await r.json();
     }
-  } catch(e) {
-    showErr('Error de conexión. Recarga la página e inténtalo de nuevo.');
-  }
-}
 
-function showErr(msg) {
-  document.getElementById('loadingBox').style.display = 'none';
-  document.getElementById('errBox').style.display = 'block';
-  document.getElementById('errMsg').innerHTML = msg;
-}
-
-function renderContrato(d) {
-  console.log("renderContrato called with:", JSON.stringify(d).substring(0,200));
-  document.getElementById("loadingBox").style.display = "none";
-  document.getElementById("mainBox").style.display = "block";
-  const nombre = d.nombre || '';
-  const apellido = d.apellido || '';
-  const nif = d.nif_cif || '';
-  const empresa = d.empresa || '';
-  const cif = d.cif_empresa || '';
-  const cargo = d.cargo || '';
-  const esIndep = d.es_independiente;
-  const hoy = new Date();
-
-  const nombreCompleto = (nombre + ' ' + apellido).trim();
-  const parteRep = esIndep
-    ? 'actuando en nombre propio como autónomo'
-    : ('en nombre y representación de <span class="hi">' + empresa + '</span>');
-  const parteCIF = esIndep
-    ? (nif ? ', con NIF <span class="hi">' + nif + '</span>' : '')
-    : (', con CIF <span class="hi">' + cif + '</span>');
-  const parteCargo = esIndep ? 'Agente Autónomo Independiente' : (cargo || 'Colaborador');
-  const parteDir = esIndep ? '' : '';
-
-  document.getElementById('contratoText').innerHTML = `
-<h1>CONTRATO DE COLABORACIÓN INTER-AGENCIA</h1>
-
-<div class="section-title">Reunidos</div>
-
-<p>De una parte, <strong>Don Mohamed El Madani</strong>, mayor de edad con NIE X3126507W, en nombre y representación de <strong>ONOMA REAL ESTATE SL</strong>, CIF B19368547, con dirección fiscal en C/ Velázquez 31 – 6 Der, Madrid, 28001, en calidad de CEO.</p>
-
-<p>De otra parte, <strong>${nombreCompleto}</strong>, mayor de edad${nif ? ' con NIF/CIF <span class=\"hi\">' + nif + '</span>,' : ','} ${parteRep}${parteCIF}, en calidad de <strong>${parteCargo}</strong>.</p>
-
-<div class="section-title">Objeto</div>
-<p>Establecer las bases de colaboración entre las partes para la captación, comercialización y cierre de operaciones inmobiliarias (venta, alquiler, traspaso) sobre viviendas, locales, edificios, suelos, naves, hoteles u otros activos.</p>
-
-<div class="section-title">Puesta en común de activos y clientes (por operación)</div>
-<p>1) Las partes intercambiarán información sobre activos y clientes por email o mensajería.</p>
-<p>2) El reconocimiento de autoría de cliente o activo es estrictamente POR OPERACIÓN concreta, identificada por dirección, referencia catastral o referencia interna. No implica exclusividad general ni prohibición de tratar con el mismo proveedor o comprador en otras operaciones distintas.</p>
-<p>3) Si una parte ya tiene un activo en cartera o un cliente trabajado para esa MISMA operación, lo comunicará en 24 horas para evitar duplicidades.</p>
-<p>4) En caso de conflicto de titularidad sobre un mismo activo o cliente no resuelto en 48 horas desde la comunicación, ambas partes podrán trabajarlo de forma independiente para esa operación concreta, sin que ninguna de ellas tenga derecho a honorarios cruzados derivados de dicha operación.</p>
-
-<div class="section-title">Confidencialidad y no circunvención (por operación)</div>
-<p>1) La información intercambiada se mantendrá confidencial y se usará solo para la operación concreta.</p>
-<p>2) Durante la operación y 12 meses después de su cierre o desistimiento, ninguna parte eludirá a la otra respecto del activo o cliente introducido PARA ESA OPERACIÓN concreta. Esta obligación no restringe trabajar con los mismos proveedores o compradores en otras operaciones no introducidas por la contraparte.</p>
-
-<div class="section-title">Régimen económico</div>
-<p><strong>A) Honorarios por inmuebles de terceros (ajenos a UrbanFlip Capital):</strong></p>
-<p>La distribución de honorarios será bilateral al 50% del total efectivamente cobrado en la operación, considerando conjuntamente los honorarios facturados tanto a la parte compradora como a la parte vendedora.</p>
-<p>Si en una operación concreta solo se perciben honorarios de una de las partes (comprador o vendedor), el reparto al 50% se aplicará únicamente sobre el importe efectivamente cobrado, sin que ninguna de las partes pueda reclamar a la otra la parte no percibida.</p>
-<p><strong>B) Honorarios por inmuebles provenientes de UrbanFlip Capital:</strong></p>
-<p>Los inmuebles gestionados bajo la vertical UrbanFlip Capital —sociedad vinculada a ONOMA REAL ESTATE SL mediante acuerdo marco vigente— se rigen por un régimen económico diferenciado. La Colaboradora percibirá el <strong>2% + IVA</strong> sobre el precio final de compraventa, abonado de la siguiente manera:</p>
-<ul>
-  <li>50% a la firma y recepción del capital en el contrato de arras penitenciales.</li>
-  <li>50% restante en el momento de la firma pública ante notario.</li>
-</ul>
-<p>En caso de que no tuviese lugar el contrato de arras, la totalidad de los honorarios será abonada a la Colaboradora en el momento de la firma pública ante notario.</p>
-
-<div class="section-title">Consolidación de honorarios tras firma de arras</div>
-<p>Una vez firmado el contrato de arras penitenciales, los honorarios devengados en ese momento se considerarán consolidados e irrevocables para ambas partes colaboradoras, con independencia del desistimiento posterior de comprador o vendedor.</p>
-<p>En caso de desistimiento del vendedor, los honorarios ya abonados no serán objeto de restitución. En caso de desistimiento del comprador, cada parte colaboradora conservará igualmente los honorarios percibidos hasta ese momento, sin obligación de devolución, dado que la prestación de intermediación fue íntegramente ejecutada.</p>
-
-<div class="section-title">Facturación y pagos</div>
-<p>Cada parte emitirá factura por su porción de honorarios conforme a lo pactado. El devengo se producirá a la firma de arras penitenciales (si así se acuerda por escrito) o, en su defecto, a la firma de escritura. El pago se efectuará dentro de las 72 horas siguientes al cobro efectivo.</p>
-
-<div class="section-title">Auditoría y trazabilidad de pagos</div>
-<p>Cada parte informará a la otra dentro de las 24 horas siguientes a la recepción de honorarios y transferirá la porción correspondiente dentro de las 72 horas siguientes. A solicitud razonable, aportará justificantes de cobro y liquidación (facturas, extractos o cartas de pago) con fines de trazabilidad.</p>
-
-<div class="section-title">Penalización por incumplimiento y mala fe</div>
-<p>Cualquier conducta que prive a la otra parte de los honorarios que le correspondan —incluyendo cobros no comunicados en el plazo establecido, circunvención del presente acuerdo o exclusión deliberada de una operación compartida— obligará a la parte infractora a abonar a la perjudicada el equivalente exacto a los honorarios que le hubieran correspondido en dicha operación.</p>
-<p>El incumplimiento grave y reiterado facultará a la parte perjudicada a resolver el contrato de forma inmediata y sin preaviso, conservando todos los derechos sobre las operaciones en curso.</p>
-
-<div class="section-title">Entrada en vigor, duración y resolución</div>
-<p>El presente acuerdo entra en vigor en la fecha de su firma y tendrá duración indefinida. Cualquiera de las partes podrá resolverlo mediante preaviso escrito de 30 días, sin que dicho preaviso afecte a operaciones en las que ya se haya presentado una oferta aceptada por escrito o firmado contrato de arras.</p>
-
-<div class="section-title">Restricciones de publicación y comercialización de activos</div>
-<p><strong>A) Inmuebles de terceros:</strong> Ninguna de las partes está autorizada a publicar en ningún medio los activos de terceros compartidos en el marco de este acuerdo. La comercialización se realizará exclusivamente de forma privada.</p>
-<p><strong>B) Inmuebles de UrbanFlip Capital:</strong> La Colaboradora podrá publicar estos activos en sus propios canales y en plataformas habituales del sector (Idealista, Fotocasa, etc.), sin utilizar la marca UrbanFlip Capital sin autorización expresa.</p>
-<p><strong>C) Activos de la Colaboradora:</strong> ONOMA REAL ESTATE SL no está autorizada a publicar activos de la Colaboradora sin autorización expresa y por escrito.</p>
-
-<div class="section-title">Limitación de responsabilidad</div>
-<p>Ambas partes actúan como intermediarias independientes y no garantizan el cierre de operaciones. La responsabilidad total por reclamaciones derivadas del presente acuerdo se limita a la suma de los honorarios efectivamente percibidos en la operación de que se trate.</p>
-
-<div class="section-title">Notificaciones</div>
-<p>Las notificaciones con efectos jurídicos deberán cursarse por correo electrónico con acuse de recibo o burofax. ONOMA: melmadani@urbanflip.io | +34 600 37 97 58</p>
-
-<div class="section-title">Protección de datos (RGPD)</div>
-<p>Cada parte actuará como responsable del tratamiento respecto de los datos personales a los que acceda en el marco de la colaboración, comprometiéndose a tratar dichos datos conforme al Reglamento (UE) 2016/679 y la LOPDGDD.</p>
-
-<div class="section-title">Jurisdicción y ley aplicable</div>
-<p>Este contrato se rige por la legislación española. Las partes se someten a los Juzgados y Tribunales de Madrid, con renuncia expresa a cualquier otro fuero.</p>
-
-<div class="firma-bloque">
-  <p>Así lo firman en <strong>Madrid</strong> a día <strong>${hoy.getDate()}</strong> del mes <strong>${months[hoy.getMonth()]}</strong> del año <strong>${hoy.getFullYear()}</strong></p>
-  <div class="firma-cols">
-    <div class="firma-col">
-      <p><strong>Por ONOMA REAL ESTATE SL</strong></p>
-      <p>Nombre: Mohamed El Madani</p>
-      <p>NIE: X3126507W</p>
-      <p style="margin-top:8px;font-size:12px;color:#888;font-style:italic">[Firma electrónica consolidada]</p>
-    </div>
-    <div class="firma-col">
-      <p><strong>Por AGENCIA COLABORADORA</strong></p>
-      <p>Nombre: <em style="color:#aaa">[pendiente firma digital]</em></p>
-      <p>NIF/CIF: ${nif || '<em style="color:#aaa">[pendiente]</em>'}</p>
-      <p style="margin-top:8px;font-size:12px;color:#888;font-style:italic">[A cumplimentar abajo]</p>
-    </div>
-  </div>
-</div>
-`;
-
-  document.getElementById('firmaUserName').textContent = nombreCompleto;
-  document.getElementById('loadingBox').style.display = 'none';
-  document.getElementById('mainBox').style.display = 'block';
-}
-
-function onScroll() {
-  const box = document.getElementById('scrollBox');
-  if (box.scrollHeight - box.scrollTop <= box.clientHeight + 60 && !scrolled) {
-    scrolled = true;
-    const hint = document.getElementById('scrollHint');
-    hint.textContent = '✅ Has leído el contrato completo. Ahora puedes firmarlo.';
-    hint.className = 'scroll-hint scroll-done';
-    const sec = document.getElementById('firmaSection');
-    sec.style.display = 'block';
-    setTimeout(() => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
-  }
-}
-
-function toggleAcepta() {
-  const cb = document.getElementById('acepta');
-  cb.checked = !cb.checked;
-  checkFirma();
-}
-
-function checkFirma() {
-    var nombre = document.getElementById('firmaNombre').value.trim();
-    var acepta = document.getElementById('acepta')?.checked;
-    var btn = document.getElementById('btnFirmar');
-    var expected = (nombreCompleto || '').trim();
-    var match = nombre.toLowerCase() === expected.toLowerCase();
-    var hint = document.getElementById('firmaNameHint');
-    if (!hint) {
-      hint = document.createElement('div');
-      hint.id = 'firmaNameHint';
-      hint.style.cssText = 'font-size:12px;margin-top:4px;';
-      document.getElementById('firmaNombre').parentNode.appendChild(hint);
-    }
-    if (nombre && !match) {
-      hint.textContent = 'El nombre debe coincidir exactamente: ' + expected;
-      hint.style.color = '#e74c3c';
-    } else if (match) {
-      hint.textContent = '✓ Nombre verificado';
-      hint.style.color = '#2ecc71';
-    } else {
-      hint.textContent = '';
-    }
-    btn.disabled = !(match && acepta);
-  }
-
-async function firmar() {
-    var expected = (nombreCompleto || '').trim().toLowerCase();
-    var typed = document.getElementById('firmaNombre').value.trim().toLowerCase();
-    if (expected && typed !== expected) {
-      var errEl = document.getElementById('firmaErr');
-      errEl.textContent = 'El nombre debe coincidir exactamente con: ' + nombreCompleto;
-      errEl.style.display = 'block';
+    if (!Array.isArray(users) || users.length === 0) {
+      showError('No encontramos tu cuenta. <a href="registro.html" style="color:#c0392b;font-weight:700">Regístrate aquí</a>');
       return;
     }
-  const firma_nombre = document.getElementById('firmaNombre').value.trim();
-  const errEl = document.getElementById('firmaErr');
+
+    userData = users[0];
+    nombreCompleto = (userData.nombre || '').trim();
+
+    // Show contract
+    document.getElementById('loadingBox').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+    renderContrato();
+
+  } catch(e) {
+    showError('Error de conexión. <a href="javascript:location.reload()" style="color:#c0392b;font-weight:700">Reintentar</a>');
+  }
+}
+
+function showError(msg) {
+  document.getElementById('loadingBox').style.display = 'none';
+  var el = document.getElementById('errBox');
+  el.innerHTML = msg;
+  el.style.display = 'block';
+}
+
+// ═══ RENDER CONTRATO ═══
+function renderContrato() {
+  var d = userData;
+  var nombre = d.nombre || '';
+  var nif = d.nif_cif || '';
+  var empresa = d.empresa || '';
+  var cif = d.cif_empresa || '';
+  var cargo = d.cargo || 'Colaborador';
+  var esIndep = d.es_independiente;
+  var hoy = new Date();
+  var months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+  var parteRep = esIndep
+    ? 'actuando en nombre propio como agente autónomo'
+    : ('en nombre y representación de <span class="hi">' + (empresa || 'su empresa') + '</span>');
+  var parteCIF = esIndep
+    ? (nif ? ', con NIF <span class="hi">' + nif + '</span>' : '')
+    : (cif ? ', con CIF <span class="hi">' + cif + '</span>' : '');
+
+  document.getElementById('contratoText').innerHTML =
+    '<h1>CONTRATO DE COLABORACIÓN INTER-AGENCIA</h1>' +
+    '<div class="st">Reunidos</div>' +
+    '<p>De una parte, <strong>Don Mohamed El Madani</strong>, mayor de edad con NIE X3126507W, en nombre y representación de <strong>ONOMA REAL ESTATE SL</strong>, CIF B19368547, con dirección fiscal en C/ Velázquez 31 – 6 Der, Madrid, 28001, en calidad de CEO.</p>' +
+    '<p>De otra parte, <strong><span class="hi">' + nombre + '</span></strong>, mayor de edad' + parteCIF + ', ' + parteRep + ', en calidad de <strong>' + cargo + '</strong>.</p>' +
+
+    '<div class="st">Objeto</div>' +
+    '<p>Establecer las bases de colaboración entre las partes para la captación, comercialización y cierre de operaciones inmobiliarias (venta, alquiler, traspaso) sobre viviendas, locales, edificios, suelos, naves, hoteles u otros activos.</p>' +
+
+    '<div class="st">Puesta en común de activos y clientes</div>' +
+    '<p>1) Las partes intercambiarán información sobre activos y clientes por email o mensajería.</p>' +
+    '<p>2) El reconocimiento de autoría de cliente o activo es estrictamente POR OPERACIÓN concreta, identificada por dirección del inmueble y nombre del cliente.</p>' +
+    '<p>3) Cada parte es responsable de mantener la documentación y verificación de sus propios activos.</p>' +
+
+    '<div class="st">Honorarios — Tipo 1: Inter-Agencia (50/50)</div>' +
+    '<p>Los honorarios totales cobrados de comprador y vendedor se suman y se dividen exactamente al 50% entre ONOMA y el Colaborador. Si solo se cobra de una parte, el 50% se aplica solo sobre lo cobrado.</p>' +
+
+    '<div class="st">Honorarios — Tipo 2: Urban Flip Capital (2% + IVA)</div>' +
+    '<p>Para pisos propiedad de Urban Flip Capital, el Colaborador recibe exactamente el 2% + IVA sobre el precio final de compraventa. Pago en dos tramos: 50% a la firma de arras penitenciales y 50% a la firma de escritura ante notario.</p>' +
+
+    '<div class="st">Honorarios — Tipo 3: Operación Tripartita (33,33%)</div>' +
+    '<p>Cuando intervienen tres partes (broker del piso, broker de la demanda y ONOMA), los honorarios totales se dividen en tres partes iguales (33,33% cada una).</p>' +
+
+    '<div class="st">Consolidación y pago</div>' +
+    '<p>Una vez firmado el contrato de arras penitenciales, los honorarios devengados se consideran consolidados e irrevocables. El pago se realiza en un plazo máximo de 72 horas tras el cobro efectivo.</p>' +
+    '<p>En caso de no existir arras, la totalidad se abona a la firma de escritura pública.</p>' +
+
+    '<div class="st">Confidencialidad y no circunvención</div>' +
+    '<p>Las partes se comprometen a mantener estricta confidencialidad sobre la información intercambiada. La obligación de no circunvención se extiende durante 12 meses tras el cierre de cada operación.</p>' +
+
+    '<div class="st">Duración y resolución</div>' +
+    '<p>El presente acuerdo entra en vigor en la fecha de su firma y tiene duración indefinida. Cualquiera de las partes podrá resolverlo mediante preaviso de 30 días por escrito, sin perjuicio de las operaciones en curso.</p>' +
+
+    '<div class="st">Jurisdicción</div>' +
+    '<p>Este contrato se rige por la legislación española. Las partes se someten a los Juzgados y Tribunales de Madrid.</p>' +
+
+    '<div style="margin-top:32px;border-top:2px solid #ddd;padding-top:20px">' +
+    '<p>Así lo firman en <strong>Madrid</strong> a día <strong>' + hoy.getDate() + '</strong> del mes <strong>' + months[hoy.getMonth()] + '</strong> del año <strong>' + hoy.getFullYear() + '</strong>.</p>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px">' +
+    '<div style="padding-top:10px;border-top:1px solid #bbb"><p style="font-size:13px"><strong>ONOMA REAL ESTATE SL</strong></p><p style="font-size:13px">Mohamed El Madani</p><p style="font-size:13px">CEO</p></div>' +
+    '<div style="padding-top:10px;border-top:1px solid #bbb"><p style="font-size:13px"><strong>' + (empresa || 'Colaborador') + '</strong></p><p style="font-size:13px">' + nombre + '</p><p style="font-size:13px;color:#aaa"><em>[pendiente firma digital]</em></p></div>' +
+    '</div></div>';
+
+  document.getElementById('firmaUserName').textContent = nombre;
+}
+
+// ═══ SCROLL ═══
+function onScroll() {
+  var el = document.getElementById('scrollBox');
+  if (el.scrollTop + el.clientHeight >= el.scrollHeight - 30) {
+    if (!scrolledToBottom) {
+      scrolledToBottom = true;
+      document.getElementById('scrollHint').textContent = '✅ Has leído el contrato completo';
+      document.getElementById('scrollHint').style.color = '#27ae60';
+      document.getElementById('firmaSection').style.display = 'block';
+      document.getElementById('firmaSection').scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+}
+
+// ═══ FIRMA ═══
+function checkFirma() {
+  var typed = document.getElementById('firmaNombre').value.trim();
+  var acepta = document.getElementById('acepta').checked;
+  var expected = nombreCompleto.toLowerCase();
+  var match = typed.toLowerCase() === expected;
+  var hint = document.getElementById('firmaHint');
+
+  if (typed && !match) {
+    hint.textContent = 'Debe coincidir con: ' + nombreCompleto;
+    hint.style.color = '#c0392b';
+  } else if (match) {
+    hint.textContent = '✓ Nombre verificado';
+    hint.style.color = '#27ae60';
+  } else {
+    hint.textContent = '';
+  }
+
+  document.getElementById('btnFirmar').disabled = !(match && acepta);
+}
+
+async function firmarContrato() {
+  var btn = document.getElementById('btnFirmar');
+  var errEl = document.getElementById('firmaErr');
   errEl.style.display = 'none';
-  const btn = document.getElementById('btnFirmar');
   btn.disabled = true;
   btn.textContent = 'Firmando...';
 
   try {
-    const r = await fetch(WH + '/colab-firmar', {
+    var r = await fetch('https://onomahomes.app.n8n.cloud/webhook/colab-firmar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: token || '', firma_nombre, acepta: true, record_id: userData.record_id || '', email: userData.email || emailParam || '' })
+      body: JSON.stringify({
+        email: emailParam || userData.email || '',
+        firma_nombre: document.getElementById('firmaNombre').value.trim(),
+        acepta: true,
+        record_id: userData.id || ''
+      })
     });
-    const d = await r.json();
+    var d = await r.json();
     if (d.ok) {
       document.getElementById('firmaForm').style.display = 'none';
-      // Redirect to portal after 2 seconds
-      setTimeout(function() { window.location.href = 'portal.html'; }, 2500);
-      document.getElementById('emailConf').textContent = userData.email;
       document.getElementById('okBox').style.display = 'block';
+      setTimeout(function() { window.location.href = 'portal.html'; }, 2000);
     } else {
-      errEl.textContent = d.error || 'Error al firmar. Inténtalo de nuevo.';
+      errEl.textContent = d.error || 'Error al firmar';
       errEl.style.display = 'block';
       btn.disabled = false;
-      btn.textContent = 'Firmar contrato y activar cuenta →';
+      btn.textContent = 'Firmar y activar cuenta →';
     }
   } catch(e) {
     errEl.textContent = 'Error de conexión. Inténtalo de nuevo.';
     errEl.style.display = 'block';
     btn.disabled = false;
-    btn.textContent = 'Firmar contrato y activar cuenta →';
+    btn.textContent = 'Firmar y activar cuenta →';
   }
 }
 
+// Start
 init();
 </script>
 </body>
-<!-- v1773839773791 -->
 </html>
