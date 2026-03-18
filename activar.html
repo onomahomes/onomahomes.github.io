@@ -211,7 +211,7 @@ async function setPassword() {
       document.getElementById('okBox').style.display = 'block';
       // Auto-redirect to login with email pre-filled after 1.5s
       setTimeout(() => {
-        document.getElementById("okBox").scrollIntoView(); if (isReset) { window.location.href = 'portal.html?email=' + encodeURIComponent(userEmail); } else { window.location.href = 'firmar.html?email=' + encodeURIComponent(userEmail); }
+        document.getElementById("okBox").scrollIntoView(); if (isReset) { window.location.href = 'firmar.html?email=' + encodeURIComponent(userEmail) + encodeURIComponent(userEmail); } else { window.location.href = 'firmar.html?email=' + encodeURIComponent(userEmail); }
       }, 1500);
     } else {
       err.textContent = d.error || 'Error al guardar. Inténtalo de nuevo.';
