@@ -141,12 +141,12 @@ async function init() {
     var email = emailParam || '';
     if (emailParam) {
       // Direct Supabase lookup - fast, no auth needed
-      var sr = await fetch('https://wwaytwudfbwxttyyojjx.supabase.co/rest/v1/colaboradores?email=eq.' + encodeURIComponent(emailParam) + '&select=id,nombre,email,apellido', {
+      var sr = await fetch('https://wwaytwudfbwxttyyojjx.supabase.co/rest/v1/colaboradores?email=eq.' + encodeURIComponent(emailParam) + '&select=*', {
         headers: { apikey: 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b', Authorization: 'Bearer sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b' }
       });
       var users = await sr.json();
       if (Array.isArray(users) && users[0]) {
-        userData = { ok: true, nombre: users[0].nombre, email: users[0].email, record_id: users[0].id };
+        userData = users[0]; userData.ok = true; userData.record_id = users[0].id;
         renderContrato(userData);
       } else {
         showErr('Usuario no encontrado. <a href="registro.html">Regístrate aquí</a>');
@@ -370,5 +370,5 @@ async function firmar() {
 init();
 </script>
 </body>
-<!-- v1773839321730 -->
+<!-- v1773839486035 -->
 </html>
