@@ -1271,16 +1271,16 @@ function marcarAsesor(nombre) {
 }
 
 var clavesPorAsesor = {
-  'Ramses Michelena': 'Ramses2025',
-  'Erik Olsen': 'Erik2025',
-  'Mohamed Madami': 'Mohamed2025',
-  'Andrea Domínguez': 'Andrea2025',
-  'Laura Oñate': 'Laura2025',
-  'Drisana Gomez': 'Drisana2025'
+  'Ramses Michelena': 'ramses2025',
+  'Erik Olsen': 'erik2025',
+  'Mohamed Madami': 'mohamed2025',
+  'Andrea Domínguez': 'andrea2025',
+  'Laura Oñate': 'laura2025',
+  'Drisana Gomez': 'drisana2025'
 };
 
 function desbloquear() {
-  var clave = document.getElementById('lockInput').value;
+  var clave = document.getElementById('lockInput').value.trim();
   var errAsesor = document.getElementById('lockErrorAsesor');
   var errClave = document.getElementById('lockError');
   errAsesor.style.display = 'none';
