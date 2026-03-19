@@ -728,8 +728,8 @@ header {
         <div class="tipo-card" id="tipo3" onclick="toggleTipo(3)">
           <div class="tipo-check" id="check3">✓</div>
           <div class="tipo-info">
-            <div class="tipo-name">Operación Tripartita <span class="tipo-badge">33.3% c/parte</span></div>
-            <div class="tipo-desc">Piso de broker + demanda de otro broker + ONOMA conecta. Honorarios en tres partes iguales.</div>
+            <div class="tipo-name">Inter-Agencia Ampliado <span class="tipo-badge">3% + IVA</span></div>
+            <div class="tipo-desc">Como el bilateral pero con 3%+IVA para activos UrbanFlip Capital y publicación permitida en portales.</div>
           </div>
         </div>
       </div>
@@ -1243,9 +1243,8 @@ function generarContrato() {
   document.getElementById('firmaColaboradorNif').textContent = 'NIF/NIE: ' + nif + ' · ' + cargo;
   document.getElementById('firmaColaboradorEmpresa').textContent = colabTipo === 'empresa' ? 'Por ' + empresa.toUpperCase() : '';
 
-  var titulo = tiposSeleccionados.length === 1 && tiposSeleccionados[0] === 2
-    ? 'CONTRATO DE COLABORACIÓN — URBAN FLIP CAPITAL'
-    : 'CONTRATO DE COLABORACIÓN INTER-AGENCIA';
+  var soloUF2 = tiposSeleccionados.length === 1 && tiposSeleccionados[0] === 2;
+  var titulo = soloUF2 ? 'CONTRATO DE COLABORACIÓN — ACTIVOS URBANFLIP CAPITAL' : 'CONTRATO DE COLABORACIÓN INTER-AGENCIA';
   document.getElementById('contratoTitulo').textContent = titulo;
   document.getElementById('contratoCuerpo').innerHTML = construirContrato(datosColaborador, fechaStr);
 
@@ -1261,77 +1260,217 @@ function volverFormulario() {
 function construirContrato(d, fecha) {
   var tipos = d.tipos;
   var esIndep = d.tipoColab === 'independiente';
+
+  // Solo UrbanFlip (tipo 2 sin bilaterales) → Contrato UrbanFlip Capital solo
+  var soloUF = tipos.includes(2) && !tipos.includes(1) && !tipos.includes(3);
+
+  // Porcentaje UrbanFlip: tipo 3 = 3%, tipo 1 o tipo 2 = 2%
+  var pctUF = tipos.includes(3) && !tipos.includes(1) ? '3%' : '2%';
+
+  // Nombre + representación de la otra parte
+  var otraParte;
+  if (esIndep) {
+    otraParte = 'Don/Doña <strong>' + d.nombre + ' ' + d.apellido + '</strong>, mayor de edad con NIF <strong>' + d.nif + '</strong>, actuando como profesional autónomo/a, en calidad de <strong>' + (d.cargo || 'Agente Inmobiliario') + '</strong>';
+  } else {
+    otraParte = 'Don/Doña <strong>' + d.nombre + ' ' + d.apellido + '</strong>, mayor de edad con NIF <strong>' + d.nif + '</strong>, en nombre y representación de <strong>' + (d.empresa || '') + '</strong>, con CIF <strong>' + (d.cif || '') + '</strong>, con dirección fiscal en <strong>' + (d.direccion || '') + '</strong>, en calidad de <strong>' + (d.cargo || '') + '</strong>';
+  }
+
   var html = '';
 
-  html += '<h3>Reunidos</h3>';
-  html += '<p>De una parte, <strong>Don Mohamed El Madani</strong>, mayor de edad con NIE X3126507W, en nombre y representación de <strong>ONOMA REAL ESTATE SL</strong>, CIF B19368547, con domicilio en C/ Velázquez 31 – 6 Der, Madrid, 28001, en calidad de CEO (en adelante, "ONOMA").</p>';
-
-  if (esIndep) {
-    html += '<p>De otra parte, <strong>Don/Doña ' + d.nombre + ' ' + d.apellido + '</strong>, mayor de edad con NIF/NIE <strong>' + d.nif + '</strong>, actuando como profesional autónomo/independiente, en calidad de <strong>' + d.cargo.toUpperCase() + '</strong> (en adelante, "el Colaborador").</p>';
+  // ─── TÍTULO ───
+  if (soloUF) {
+    html += '<h2 style="text-align:center;font-size:1.1rem;margin-bottom:4px;">CONTRATO DE COLABORACIÓN</h2>';
+    html += '<h2 style="text-align:center;font-size:1rem;margin-bottom:20px;color:var(--gold);">ACTIVOS URBANFLIP CAPITAL</h2>';
   } else {
-    html += '<p>De otra parte, <strong>Don/Doña ' + d.nombre + ' ' + d.apellido + '</strong>, mayor de edad con NIF/NIE <strong>' + d.nif + '</strong>, en nombre y representación de <strong>' + d.empresa.toUpperCase() + '</strong>, con CIF <strong>' + d.cif + '</strong>, con dirección fiscal en <strong>' + d.direccion + '</strong>, en calidad de <strong>' + d.cargo.toUpperCase() + '</strong> (en adelante, "el Colaborador").</p>';
+    html += '<h2 style="text-align:center;font-size:1.1rem;margin-bottom:20px;">CONTRATO DE COLABORACIÓN INTER-AGENCIA</h2>';
   }
 
-  html += '<h3>Objeto</h3>';
-  html += '<p>Establecer las bases de colaboración entre las partes para la captación, comercialización y cierre de operaciones inmobiliarias sobre viviendas, locales, edificios, suelos, naves y otros activos.</p>';
+  // ─── REUNIDOS ───
+  html += '<h3>REUNIDOS</h3>';
+  html += '<p>De una parte, <strong>Don Mohamed El Madani</strong>, mayor de edad con NIE X3126507W, en nombre y representación de <strong>ONOMA REAL ESTATE SL</strong>, CIF B19368547, con dirección fiscal en C/ Velázquez 31 – 6 Der, Madrid, 28001, en calidad de CEO.</p>';
+  html += '<p>De otra parte, ' + otraParte + '.</p>';
 
-  var modalidades = [];
-  if (tipos.includes(1)) modalidades.push('colaboración inter-agencia (50/50)');
-  if (tipos.includes(2)) modalidades.push('comercialización de activos Urban Flip Capital (2% + IVA)');
-  if (tipos.includes(3)) modalidades.push('operaciones tripartitas (33.33% por parte)');
-  html += '<p>Modalidades acordadas: <strong>' + modalidades.join('; ') + '</strong>.</p>';
-
-  html += '<h3>Puesta en común de activos y clientes</h3>';
-  html += '<ol>';
-  html += '<li>Intercambio de información por email o mensajería. Autoría POR OPERACIÓN concreta identificada por dirección o referencia.</li>';
-  html += '<li>No implica exclusividad general ni prohibición de tratar con el mismo proveedor o comprador en otras operaciones.</li>';
-  html += '<li>Si una parte ya tiene el activo o cliente, lo comunicará en 24h para evitar duplicidades.</li>';
-  html += '<li>En conflicto no resuelto en 48h, ambas partes podrán trabajarlo independientemente sin honorarios cruzados.</li>';
-  html += '</ol>';
-
-  html += '<h3>Régimen económico</h3>';
-  if (tipos.includes(1)) {
-    html += '<div class="highlight"><strong>A) Inter-Agencia — 50/50</strong><br><br>Distribución bilateral al <strong>50% del total efectivamente cobrado</strong>, considerando honorarios de ambas partes (compradora + vendedora).<br><br><em>Ejemplo: ONOMA cobra 6.000€ del vendedor, el Colaborador 3.000€ del comprador → total 9.000€ → 4.500€ c/u → ONOMA transfiere 1.500€.</em></div>';
-  }
-  if (tipos.includes(2)) {
-    html += '<div class="highlight"><strong>B) Urban Flip Capital — 2% + IVA</strong><br><br>El Colaborador percibirá el <strong>2% + IVA sobre el precio final</strong>:<br>— 50% a la firma de arras.<br>— 50% en escritura ante notario.</div>';
-  }
-  if (tipos.includes(3)) {
-    html += '<div class="highlight"><strong>C) Tripartita — 33.33% por parte</strong><br><br>Honorarios totales divididos en <strong>tres partes iguales del 33,33%</strong>: broker del piso, broker de la demanda, y ONOMA.<br><br><em>Ejemplo: 9.000€ cobrados → 3.000€ por parte.</em></div>';
+  // ─── OBJETO ───
+  html += '<h3>OBJETO</h3>';
+  if (soloUF) {
+    html += '<p>Establecer las bases de colaboración entre las partes para la comercialización y cierre de operaciones de compraventa sobre los activos inmobiliarios gestionados bajo la vertical <strong>UrbanFlip Capital</strong>, sociedad vinculada a ONOMA REAL ESTATE SL mediante acuerdo marco vigente.</p>';
+  } else {
+    html += '<p>Establecer las bases de colaboración entre las partes para la captación, comercialización y cierre de operaciones inmobiliarias (venta, alquiler, traspaso) sobre viviendas, locales, edificios, suelos, naves, hoteles u otros activos.</p>';
   }
 
-  html += '<h3>Consolidación de honorarios</h3>';
-  html += '<p>Firmadas las arras penitenciales, los honorarios devengados se considerarán <strong>consolidados e irrevocables</strong> con independencia de desistimientos posteriores.</p>';
+  if (soloUF) {
+    // ─── ACTIVOS OBJETO ───
+    html += '<h3>ACTIVOS OBJETO DEL ACUERDO</h3>';
+    html += '<p>Son objeto del presente contrato exclusivamente los inmuebles gestionados y promovidos por UrbanFlip Capital. Dichos activos serán facilitados por ONOMA REAL ESTATE SL a la Colaboradora a través de email o mensajería, identificados por dirección o referencia interna.</p>';
+    html += '<p>La información facilitada sobre cada activo (precio, estado, condiciones) es confidencial y su uso queda limitado estrictamente a la gestión de la operación para la que fue compartida.</p>';
+  } else {
+    // ─── PUESTA EN COMÚN ───
+    html += '<h3>PUESTA EN COMÚN DE ACTIVOS Y CLIENTES (POR OPERACIÓN)</h3>';
+    html += '<ol>';
+    html += '<li>Las partes intercambiarán información sobre activos y clientes por email o mensajería.</li>';
+    html += '<li>El reconocimiento de autoría de cliente o activo es estrictamente <strong>POR OPERACIÓN concreta</strong>, identificada por dirección, referencia catastral o referencia interna. No implica exclusividad general ni prohibición de tratar con el mismo proveedor o comprador en otras operaciones distintas.</li>';
+    html += '<li>Si una parte ya tiene un activo en cartera o un cliente trabajado para esa MISMA operación, lo comunicará en 24 horas para evitar duplicidades.</li>';
+    if (tipos.includes(1)) {
+      html += '<li>En caso de conflicto de titularidad sobre un mismo activo o cliente no resuelto en 48 horas desde la comunicación, ambas partes podrán trabajarlo de forma independiente para esa operación concreta, sin que ninguna de ellas tenga derecho a honorarios cruzados derivados de dicha operación.</li>';
+    } else {
+      html += '<li>El presente acuerdo no otorga exclusividad sobre ningún activo salvo pacto expreso por escrito para una operación concreta.</li>';
+    }
+    html += '</ol>';
+  }
 
-  html += '<h3>Facturación y pagos</h3>';
-  html += '<p>Cada parte emite factura por su porción. Pago dentro de las <strong>72 horas</strong> siguientes al cobro efectivo.</p>';
+  // ─── CONFIDENCIALIDAD (bilateral) ───
+  if (!soloUF) {
+    html += '<h3>CONFIDENCIALIDAD Y NO CIRCUNVENCIÓN (POR OPERACIÓN)</h3>';
+    html += '<ol>';
+    html += '<li>La información intercambiada se mantendrá confidencial y se usará solo para la operación concreta.</li>';
+    html += '<li>Durante la operación y <strong>12 meses</strong> después de su cierre o desistimiento, ninguna parte eludirá a la otra respecto del activo o cliente introducido para esa operación concreta. Esta obligación no restringe trabajar con los mismos proveedores o compradores en otras operaciones no introducidas por la contraparte.</li>';
+    html += '</ol>';
+  }
 
-  html += '<h3>Restricciones de publicación</h3>';
-  html += '<ol>';
-  if (!tipos.includes(2) || tipos.length > 1) html += '<li><strong>Inmuebles de terceros:</strong> Comercialización exclusivamente privada, sin publicación en portales.</li>';
-  if (tipos.includes(2)) html += '<li><strong>Urban Flip Capital:</strong> El Colaborador puede publicar en sus propios canales. Prohibido usar la marca UrbanFlip sin autorización escrita.</li>';
-  html += '<li><strong>Activos del Colaborador:</strong> ONOMA no publicará los activos del Colaborador sin autorización expresa.</li>';
-  html += '</ol>';
+  // ─── RÉGIMEN ECONÓMICO ───
+  html += '<h3>RÉGIMEN ECONÓMICO</h3>';
 
-  html += '<h3>Confidencialidad y no circunvención</h3>';
-  html += '<p>Información confidencial, uso exclusivo para la operación concreta. No circunvención durante la operación y <strong>12 meses</strong> tras cierre o desistimiento.</p>';
+  if (soloUF) {
+    html += '<p>La Colaboradora percibirá el <strong>2% + IVA</strong> sobre el precio final de compraventa, abonado de la siguiente manera:</p>';
+    html += '<ul>';
+    html += '<li>50% a la firma y recepción del capital en el contrato de arras penitenciales.</li>';
+    html += '<li>50% restante en el momento de la firma pública ante notario.</li>';
+    html += '</ul>';
+    html += '<p>En caso de que no tuviese lugar el contrato de arras, la totalidad de los honorarios será abonada a la Colaboradora en el momento de la firma pública ante notario.</p>';
+  } else {
+    if (tipos.includes(1) || (tipos.includes(1) && tipos.includes(2))) {
+      html += '<p><strong>A) Honorarios por inmuebles de terceros (ajenos a UrbanFlip Capital):</strong></p>';
+      html += '<p>La distribución de honorarios será bilateral al <strong>50% del total efectivamente cobrado</strong> en la operación, considerando conjuntamente los honorarios facturados tanto a la parte compradora como a la parte vendedora.</p>';
+      html += '<p>Si en una operación concreta solo se perciben honorarios de una de las partes (comprador o vendedor), el reparto al 50% se aplicará únicamente sobre el importe efectivamente cobrado, sin que ninguna de las partes pueda reclamar a la otra la parte no percibida.</p>';
+    }
+    if (tipos.includes(3) && !tipos.includes(1)) {
+      html += '<p><strong>A) Honorarios por inmuebles de terceros (ajenos a UrbanFlip Capital):</strong></p>';
+      html += '<p>La distribución de honorarios será bilateral al <strong>50% del total efectivamente cobrado</strong> en la operación, considerando conjuntamente los honorarios facturados tanto a la parte compradora como a la parte vendedora.</p>';
+      html += '<p>Si en una operación concreta solo se perciben honorarios de una de las partes, el reparto al 50% se aplicará únicamente sobre el importe efectivamente cobrado.</p>';
+    }
+    // UrbanFlip section (bilateral: tipo 1 o tipo 3, con o sin tipo 2)
+    var letraUF = (tipos.includes(1) || tipos.includes(3)) ? 'B' : 'A';
+    html += '<p><strong>' + letraUF + ') Honorarios por inmuebles provenientes de UrbanFlip Capital:</strong></p>';
+    html += '<p>Los inmuebles gestionados bajo la vertical UrbanFlip Capital —sociedad vinculada a ONOMA REAL ESTATE SL mediante acuerdo marco vigente— se rigen por un régimen económico diferenciado. La Colaboradora percibirá el <strong>' + pctUF + ' + IVA</strong> sobre el precio final de compraventa, abonado de la siguiente manera:</p>';
+    html += '<ul>';
+    html += '<li>50% a la firma y recepción del capital en el contrato de arras penitenciales.</li>';
+    html += '<li>50% restante en el momento de la firma pública ante notario.</li>';
+    html += '</ul>';
+    html += '<p>En caso de que no tuviese lugar el contrato de arras, la totalidad de los honorarios será abonada a la Colaboradora en el momento de la firma pública ante notario.</p>';
+  }
 
-  html += '<h3>Penalización por incumplimiento</h3>';
-  html += '<p>Conducta que prive a la otra parte de honorarios obliga a abonar el equivalente exacto. Incumplimiento grave y reiterado faculta resolución inmediata.</p>';
+  // ─── CONSOLIDACIÓN DE HONORARIOS ───
+  html += '<h3>CONSOLIDACIÓN DE HONORARIOS TRAS FIRMA DE ARRAS</h3>';
+  html += '<p>Una vez firmado el contrato de arras penitenciales, los honorarios devengados en ese momento se considerarán <strong>consolidados e irrevocables</strong>' + (soloUF ? '' : ' para ambas partes colaboradoras') + ', con independencia del desistimiento posterior de comprador o vendedor.</p>';
+  html += '<p>En caso de desistimiento del vendedor, los honorarios ya abonados no serán objeto de restitución. En caso de desistimiento del comprador, ' + (soloUF ? 'la Colaboradora conservará igualmente los honorarios percibidos hasta ese momento' : 'cada parte colaboradora conservará igualmente los honorarios percibidos hasta ese momento') + ', sin obligación de devolución, dado que la prestación de intermediación fue íntegramente ejecutada.</p>';
 
-  html += '<h3>Duración y resolución</h3>';
-  html += '<p>Vigencia <strong>indefinida</strong> desde la firma. Rescisión con preaviso escrito de 30 días, sin afectar operaciones con oferta aceptada o arras firmadas.</p>';
+  // ─── FACTURACIÓN ───
+  html += '<h3>FACTURACIÓN Y PAGOS</h3>';
+  if (soloUF) {
+    html += '<p>La Colaboradora emitirá factura por sus honorarios conforme a lo pactado. El devengo se producirá a la firma de arras penitenciales (si así se acuerda por escrito) o, en su defecto, a la firma de escritura. El pago se efectuará dentro de las <strong>72 horas</strong> siguientes al cobro efectivo por parte de ONOMA REAL ESTATE SL.</p>';
+  } else {
+    html += '<p>Cada parte emitirá factura por su porción de honorarios conforme a lo pactado. El devengo se producirá a la firma de arras penitenciales (si así se acuerda por escrito) o, en su defecto, a la firma de escritura. El pago se efectuará dentro de las <strong>72 horas</strong> siguientes al cobro efectivo.</p>';
+    html += '<p>En caso de desistimiento imputable a la parte que haya cobrado anticipos, se reintegrarán a quien corresponda según la normativa aplicable y lo pactado con el cliente, sin perjuicio de lo establecido en la cláusula de Consolidación de Honorarios.</p>';
+  }
 
-  html += '<h3>Protección de datos (RGPD)</h3>';
-  html += '<p>Tratamiento conforme al Reglamento (UE) 2016/679 y LOPDGDD, exclusivamente para las operaciones objeto del contrato.</p>';
+  // ─── AUDITORÍA (solo bilateral) ───
+  if (!soloUF) {
+    html += '<h3>AUDITORÍA Y TRAZABILIDAD DE PAGOS</h3>';
+    html += '<p>Cada parte informará a la otra dentro de las 24 horas siguientes a la recepción de honorarios y transferirá la porción correspondiente dentro de las 72 horas siguientes. A solicitud razonable, aportará justificantes de cobro y liquidación (facturas, extractos o cartas de pago) con fines de trazabilidad.</p>';
+  }
 
-  html += '<h3>Notificaciones</h3>';
+  // ─── RESTRICCIONES DE PUBLICACIÓN ───
+  html += '<h3>RESTRICCIONES DE PUBLICACIÓN Y COMERCIALIZACIÓN' + (soloUF ? '' : ' DE ACTIVOS') + '</h3>';
+
+  if (soloUF) {
+    html += '<p>La Colaboradora podrá publicar los activos provenientes de UrbanFlip Capital exclusivamente en sus propias redes sociales y en su página web corporativa.</p>';
+    html += '<p>Queda expresamente prohibida la publicación de dichos activos en portales inmobiliarios, plataformas de terceros o cualquier otro medio externo (incluidos, entre otros, Idealista, Fotocasa o equivalentes).</p>';
+    html += '<p>Queda igualmente prohibido publicar dichos activos bajo la marca, imagen o denominación de UrbanFlip Capital sin autorización previa y por escrito.</p>';
+    html += '<p>El incumplimiento de estas restricciones se considerará falta grave a efectos de la cláusula de penalización del presente contrato.</p>';
+  } else {
+    html += '<p><strong>A) Inmuebles de terceros:</strong><br>Ninguna de las partes está autorizada a publicar en ningún medio, plataforma, portal inmobiliario, red social ni soporte publicitario los activos de terceros compartidos en el marco de este acuerdo. La comercialización de dichos activos se realizará exclusivamente de forma privada, a través de contacto directo con clientes de la propia cartera, sin difusión pública de ninguna clase.</p>';
+
+    if (tipos.includes(3) && !tipos.includes(1)) {
+      // 3% → publicación en portales permitida
+      html += '<p><strong>B) Inmuebles de UrbanFlip Capital:</strong><br>La Colaboradora podrá publicar los activos provenientes de UrbanFlip Capital en sus propios canales y en las plataformas habituales del sector inmobiliario (entre otras, Idealista, Fotocasa o equivalentes), así como en las redes sociales y soportes digitales propios de la Colaboradora. Queda expresamente prohibido publicar dichos activos bajo la marca, imagen o denominación de UrbanFlip Capital sin autorización previa y por escrito.</p>';
+    } else {
+      // 2% → solo canales propios
+      html += '<p><strong>B) Inmuebles de UrbanFlip Capital:</strong><br>La Colaboradora podrá publicar los activos provenientes de UrbanFlip Capital exclusivamente en sus propias redes sociales y en su página web corporativa. Queda expresamente prohibida la publicación de dichos activos en portales inmobiliarios, plataformas de terceros o cualquier otro medio externo (incluidos, entre otros, Idealista, Fotocasa o equivalentes). Queda igualmente prohibido publicar dichos activos bajo la marca, imagen o denominación de UrbanFlip Capital sin autorización previa y por escrito.</p>';
+    }
+
+    html += '<p><strong>C) Activos de la Colaboradora:</strong><br>ONOMA REAL ESTATE SL no está autorizada a publicar en ningún medio ni plataforma los activos de la Colaboradora compartidos en el marco de este acuerdo, salvo autorización expresa y por escrito por parte de esta última para una operación concreta.</p>';
+    html += '<p>El incumplimiento de las restricciones de publicación establecidas en esta cláusula se considerará falta grave a los efectos de la cláusula de Penalización por Incumplimiento del presente contrato.</p>';
+  }
+
+  // ─── CONFIDENCIALIDAD (solo UrbanFlip) ───
+  if (soloUF) {
+    html += '<h3>CONFIDENCIALIDAD Y NO CIRCUNVENCIÓN</h3>';
+    html += '<p>La información intercambiada se mantendrá confidencial y se usará solo para la operación concreta.</p>';
+    html += '<p>Durante la operación y 12 meses después de su cierre o desistimiento, la Colaboradora no eludirá a ONOMA REAL ESTATE SL respecto del activo o cliente introducido para esa operación concreta.</p>';
+  }
+
+  // ─── PENALIZACIÓN ───
+  html += '<h3>PENALIZACIÓN POR INCUMPLIMIENTO Y MALA FE</h3>';
+  if (soloUF) {
+    html += '<p>Cualquier conducta que prive a ONOMA REAL ESTATE SL de los honorarios que le correspondan —incluyendo cobros no comunicados en el plazo establecido, circunvención del presente acuerdo o exclusión deliberada de una operación compartida— obligará a la parte infractora a abonar el equivalente exacto a los honorarios que le hubieran correspondido en dicha operación.</p>';
+    html += '<p>El incumplimiento grave y reiterado facultará a ONOMA REAL ESTATE SL a resolver el contrato de forma inmediata y sin preaviso, conservando todos los derechos sobre las operaciones en curso.</p>';
+  } else {
+    html += '<p>Cualquier conducta que prive a la otra parte de los honorarios que le correspondan —incluyendo cobros no comunicados en el plazo establecido, circunvención del presente acuerdo o exclusión deliberada de una operación compartida— obligará a la parte infractora a abonar a la perjudicada el equivalente exacto a los honorarios que le hubieran correspondido en dicha operación.</p>';
+    html += '<p>El incumplimiento grave y reiterado facultará a la parte perjudicada a resolver el contrato de forma inmediata y sin preaviso, conservando todos los derechos sobre las operaciones en curso.</p>';
+  }
+
+  // ─── LIMITACIÓN DE RESPONSABILIDAD (bilateral) ───
+  if (!soloUF) {
+    html += '<h3>LIMITACIÓN DE RESPONSABILIDAD</h3>';
+    html += '<p>Ambas partes actúan como intermediarias independientes y no garantizan el cierre de operaciones. Ninguna parte será responsable por lucro cesante o daños indirectos. La responsabilidad total por reclamaciones derivadas del presente acuerdo se limita, en conjunto, a la suma de los honorarios efectivamente percibidos por dicha parte en la operación de que se trate.</p>';
+  }
+
+  // ─── ENTRADA EN VIGOR ───
+  html += '<h3>ENTRADA EN VIGOR, DURACIÓN Y RESOLUCIÓN</h3>';
+  html += '<p>El presente acuerdo entra en vigor en la fecha de su firma y tendrá duración indefinida. Cualquiera de las partes podrá resolverlo mediante preaviso escrito de <strong>30 días</strong>, sin que dicho preaviso afecte a operaciones en las que ya se haya presentado una oferta aceptada por escrito o firmado contrato de arras.</p>';
+  if (!soloUF) {
+    html += '<p>En el momento de la resolución, respecto a cada operación activa en curso, la parte que resuelve deberá optar de forma expresa y por escrito por una de las dos siguientes vías:</p>';
+    html += '<ol type="a">';
+    html += '<li>Continuar colaborando en dicha operación hasta su cierre y liquidación de honorarios, manteniéndose vigentes todos los derechos y obligaciones del presente acuerdo para esa operación concreta.</li>';
+    html += '<li>Renunciar formalmente a la operación, perdiendo todo derecho a honorarios derivados de la misma, quedando la otra parte libre para gestionarla de forma autónoma o con un tercero colaborador.</li>';
+    html += '</ol>';
+    html += '<p>La falta de comunicación expresa en el plazo de 5 días desde el preaviso se entenderá como renuncia a la operación. En ningún caso podrá la parte saliente reclamar honorarios de operaciones respecto de las cuales haya renunciado o no se haya pronunciado en dicho plazo.</p>';
+  }
+  html += '<p>Las obligaciones de confidencialidad, no circunvención y trazabilidad de pagos sobreviven a la terminación por un periodo de 12 meses.</p>';
+
+  // ─── NOTIFICACIONES ───
+  html += '<h3>NOTIFICACIONES</h3>';
+  html += '<p>Las notificaciones con efectos jurídicos entre las partes (desistimiento, reclamación de honorarios, resolución del contrato) deberán cursarse por correo electrónico con acuse de recibo o burofax. Las comunicaciones operativas del día a día podrán realizarse por mensajería instantánea, pero no tendrán valor jurídico vinculante a efectos del presente contrato.</p>';
   html += '<p>ONOMA: <strong>melmadani@urbanflip.io</strong> | +34 600 37 97 58</p>';
-  html += '<p>Colaborador: <strong>' + d.email + '</strong>' + (d.telefono ? ' | ' + d.telefono : '') + '</p>';
+  html += '<p>Colaboradora: <strong>' + d.email + '</strong>' + (d.telefono ? ' | ' + d.telefono : '') + '</p>';
 
-  html += '<h3>Jurisdicción</h3>';
-  html += '<p>Legislación española. Juzgados y Tribunales de Madrid.</p>';
-  html += '<p>Así lo firman en Madrid, a <strong>' + fecha + '</strong>.</p>';
+  // ─── RGPD ───
+  html += '<h3>PROTECCIÓN DE DATOS (RGPD)</h3>';
+  html += '<p>Cada parte actuará como responsable del tratamiento respecto de los datos personales a los que acceda en el marco de la colaboración, comprometiéndose a tratar dichos datos conforme al Reglamento (UE) 2016/679 y la LOPDGDD. Los datos se emplearán exclusivamente para la gestión de las operaciones objeto del contrato y se conservarán durante el tiempo imprescindible para su finalidad y posibles responsabilidades. Cada parte garantizará la confidencialidad del personal interviniente y la adopción de medidas técnicas y organizativas adecuadas.</p>';
+
+  // ─── JURISDICCIÓN ───
+  html += '<h3>JURISDICCIÓN Y LEY APLICABLE</h3>';
+  html += '<p>Este contrato se rige por la legislación española. Para la interpretación y cumplimiento, las partes se someten a los Juzgados y Tribunales de Madrid, con renuncia expresa a cualquier otro fuero.</p>';
+
+  // ─── FIRMAS ───
+  html += '<br><p>Así lo firman en _________________________ a <strong>' + fecha + '</strong>.</p>';
+  html += '<table style="width:100%;margin-top:30px;border-collapse:collapse;">';
+  html += '<tr>';
+  html += '<td style="width:50%;vertical-align:top;padding-right:20px;">';
+  html += '<p><strong>Por ONOMA REAL ESTATE SL</strong></p>';
+  html += '<br><br><hr style="border-color:rgba(255,255,255,0.2);">';
+  html += '<p style="margin:4px 0;">Nombre: Mohamed El Madani</p>';
+  html += '<p style="margin:4px 0;">NIE: X3126507W</p>';
+  html += '</td>';
+  html += '<td style="width:50%;vertical-align:top;padding-left:20px;">';
+  html += '<p><strong>Por AGENCIA COLABORADORA</strong></p>';
+  html += '<br><br><hr style="border-color:rgba(255,255,255,0.2);">';
+  html += '<p style="margin:4px 0;">Nombre: ' + d.nombre + ' ' + d.apellido + '</p>';
+  html += '<p style="margin:4px 0;">' + (esIndep ? 'NIF' : 'CIF') + ': ' + (esIndep ? d.nif : d.cif) + '</p>';
+  if (!esIndep && d.empresa) html += '<p style="margin:4px 0;">' + d.empresa + '</p>';
+  html += '</td>';
+  html += '</tr>';
+  html += '</table>';
 
   return html;
 }
