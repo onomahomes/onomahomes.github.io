@@ -14,7 +14,10 @@ body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-hei
 .logo-sub{font-size:0.7rem;letter-spacing:0.4em;color:var(--muted);margin-top:4px}
 .card{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px}
 .card-title{font-size:1rem;font-weight:600;color:var(--gold);margin-bottom:16px;letter-spacing:0.05em;text-transform:uppercase}
-.contrato-body{background:#fff;color:#1a1a1a;padding:32px;border-radius:10px;font-family:Georgia,serif;font-size:0.9rem;line-height:1.7;margin-bottom:24px}
+.contrato-body{background:#fff;color:#1a1a1a;padding:32px;border-radius:10px;font-family:Georgia,serif;font-size:0.9rem;line-height:1.7;margin-bottom:16px;max-height:55vh;overflow-y:auto;scroll-behavior:smooth}
+.scroll-hint{text-align:center;font-size:0.78rem;color:var(--muted);margin-bottom:20px;padding:8px;background:rgba(197,160,89,0.06);border-radius:8px;border:1px solid rgba(197,160,89,0.15);transition:opacity 0.4s}
+.firma-bloqueada{opacity:0.35;pointer-events:none;user-select:none;transition:opacity 0.5s}
+.firma-desbloqueada{opacity:1;pointer-events:auto;transition:opacity 0.5s}
 .contrato-body h2,.contrato-body h3{color:#8A6E3A}
 .field{margin-bottom:16px;position:relative}
 .field label{display:block;font-size:0.82rem;color:var(--muted);margin-bottom:6px}
@@ -51,12 +54,13 @@ body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-hei
       <div class="card-title">Contrato de Colaboracion</div>
       <div class="badge-legal">Firma electronica simple - Valida segun Ley 59/2003 y Reglamento eIDAS</div>
       <p style="font-size:0.85rem;color:var(--muted);margin-bottom:20px;line-height:1.6;">Lee el contrato completo antes de firmar. Al firmar confirmas que has leido y aceptas todos los terminos.</p>
-      <div class="contrato-body" id="contratoBody">
+      <div class="contrato-body" id="contratoBody" onscroll="checkScroll()">
         <p style="color:#888;text-align:center;padding:40px 20px;">Cargando contrato...</p>
       </div>
+      <div class="scroll-hint" id="scrollHint">↓ Desplázate hasta el final del contrato para poder firmarlo</div>
     </div>
 
-    <div class="card">
+    <div class="card firma-bloqueada" id="firmaCard">
       <div class="card-title">Datos de firma</div>
       <div class="meta-info" id="metaInfo">Cargando...</div>
       <div class="field">
@@ -83,7 +87,7 @@ body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-hei
       <button class="btn-firmar" id="btnFirmar" onclick="firmarContrato()">Firmar y aceptar contrato</button>
     </div>
 
-    <div class="footer">
+    <div class="footer" id="footerMain">
       <p>Firma electronica simple valida en Espana conforme a la Ley 59/2003 y Reglamento (UE) 910/2014 (eIDAS).</p>
       <p style="margin-top:6px;">Se registrara: nombre, DNI, email, direccion IP y fecha/hora exacta (Madrid).</p>
       <p style="margin-top:6px;color:rgba(197,160,89,0.4);">ONOMA Real Estate SL - CIF B19368547 - C/ Velazquez 31, 6to Der, Madrid 28001</p>
@@ -118,6 +122,16 @@ if (nombreParam) document.getElementById('nombreFirmante').value = nombreParam;
 if (emailParam) document.getElementById('emailFirmante').value = emailParam;
 
 var contratoBody = document.getElementById('contratoBody');
+
+function checkScroll() {
+  var el = contratoBody;
+  var atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 30;
+  if (atBottom) {
+    document.getElementById('firmaCard').className = 'card firma-desbloqueada';
+    document.getElementById('scrollHint').style.opacity = '0';
+  }
+}
+
 if (firmaId) {
   fetch('https://wwaytwudfbwxttyyojjx.supabase.co/rest/v1/contratos_pendientes?firma_id=eq.' + encodeURIComponent(firmaId) + '&select=contrato_html', {
     headers: {
@@ -127,14 +141,20 @@ if (firmaId) {
   }).then(r=>r.json()).then(data=>{
     if (data && data[0] && data[0].contrato_html) {
       contratoBody.innerHTML = data[0].contrato_html;
+      // Si el contrato es corto y no necesita scroll, desbloquear directamente
+      setTimeout(checkScroll, 300);
     } else {
       contratoBody.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">No se pudo cargar el contrato. Contacta con rmichelena@onomahomes.com</p>';
+      document.getElementById('firmaCard').className = 'card firma-desbloqueada';
     }
   }).catch(()=>{
-    contratoBody.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Error al cargar el contrato. Contacta con rmichelena@onomahomes.com</p>';
+    contratoBody.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Error al cargar. Contacta con rmichelena@onomahomes.com</p>';
+    document.getElementById('firmaCard').className = 'card firma-desbloqueada';
   });
 } else {
   contratoBody.innerHTML = '<p style="color:#888;text-align:center;padding:40px 20px;">Accede desde el enlace del email para ver el contrato.</p>';
+  document.getElementById('firmaCard').className = 'card firma-desbloqueada';
+  document.getElementById('scrollHint').style.display = 'none';
 }
 
 var metaEl = document.getElementById('metaInfo');
