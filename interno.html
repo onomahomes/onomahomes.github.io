@@ -716,7 +716,10 @@ header {
       <option value="Drisana Gomez">Drisana Gomez</option>
     </select>
     <label class="lock-label" for="lockInput">Contraseña de acceso</label>
-    <input type="password" id="lockInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') desbloquear()">
+    <div style="position:relative;margin-bottom:16px;">
+      <input type="password" id="lockInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') desbloquear()" style="margin-bottom:0;padding-right:48px;">
+      <button type="button" onclick="toggleVerClave()" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(240,235,224,0.5);font-size:1.1rem;padding:0;line-height:1;" id="btnVerClave">👁</button>
+    </div>
     <button id="lockBtn" onclick="desbloquear()">Acceder</button>
     <div id="lockError">Contraseña incorrecta. Inténtalo de nuevo.</div>
     <div id="lockErrorAsesor" style="display:none;font-size:0.82rem;color:#ff8080;margin-top:12px;">Selecciona tu perfil antes de continuar.</div>
@@ -1268,6 +1271,11 @@ var asesorPendiente = null;
 function marcarAsesor(nombre) {
   asesorPendiente = nombre || null;
   document.getElementById('lockErrorAsesor').style.display = 'none';
+}
+
+function toggleVerClave() {
+  var inp = document.getElementById('lockInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
 }
 
 var clavesPorAsesor = {
