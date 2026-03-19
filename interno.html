@@ -705,32 +705,16 @@ header {
     <div class="lock-logo">ONOMA</div>
     <div class="lock-sub">Panel Interno</div>
     <p style="font-size:0.82rem;color:rgba(240,235,224,0.5);margin-bottom:20px;text-align:center;">Selecciona quién eres e introduce la clave de acceso</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-bottom:24px;">
-      <button class="asesor-pick-btn" id="asesorBtn_Ramses" onclick="marcarAsesor('Ramses Michelena', this)">
-        <span class="asesor-pick-initial">RM</span>
-        <span>Ramses Michelena</span>
-      </button>
-      <button class="asesor-pick-btn" id="asesorBtn_Erik" onclick="marcarAsesor('Erik Olsen', this)">
-        <span class="asesor-pick-initial">EO</span>
-        <span>Erik Olsen</span>
-      </button>
-      <button class="asesor-pick-btn" id="asesorBtn_Mohamed" onclick="marcarAsesor('Mohamed Madami', this)">
-        <span class="asesor-pick-initial">MM</span>
-        <span>Mohamed Madami</span>
-      </button>
-      <button class="asesor-pick-btn" id="asesorBtn_Andrea" onclick="marcarAsesor('Andrea Domínguez', this)">
-        <span class="asesor-pick-initial">AD</span>
-        <span>Andrea Domínguez</span>
-      </button>
-      <button class="asesor-pick-btn" id="asesorBtn_Laura" onclick="marcarAsesor('Laura Oñate', this)">
-        <span class="asesor-pick-initial">LO</span>
-        <span>Laura Oñate</span>
-      </button>
-      <button class="asesor-pick-btn" id="asesorBtn_Drisana" onclick="marcarAsesor('Drisana Gomez', this)">
-        <span class="asesor-pick-initial">DG</span>
-        <span>Drisana Gomez</span>
-      </button>
-    </div>
+    <label class="lock-label" for="asesorSelect">¿Quién eres?</label>
+    <select id="asesorSelect" onchange="marcarAsesor(this.value)" style="width:100%;background:#0c0c1a;border:1px solid rgba(197,160,89,0.25);border-radius:8px;padding:14px 16px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;margin-bottom:20px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%23C5A059%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>');background-repeat:no-repeat;background-position:right 16px center;">
+      <option value="">— Selecciona tu nombre —</option>
+      <option value="Ramses Michelena">Ramses Michelena</option>
+      <option value="Erik Olsen">Erik Olsen</option>
+      <option value="Mohamed Madami">Mohamed Madami</option>
+      <option value="Andrea Domínguez">Andrea Domínguez</option>
+      <option value="Laura Oñate">Laura Oñate</option>
+      <option value="Drisana Gomez">Drisana Gomez</option>
+    </select>
     <label class="lock-label" for="lockInput">Contraseña de acceso</label>
     <input type="password" id="lockInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') desbloquear()">
     <button id="lockBtn" onclick="desbloquear()">Acceder</button>
@@ -1281,10 +1265,8 @@ header {
 // ────────────────────────────────
 var asesorPendiente = null;
 
-function marcarAsesor(nombre, btn) {
-  asesorPendiente = nombre;
-  document.querySelectorAll('.asesor-pick-btn').forEach(function(b){ b.classList.remove('selected'); });
-  btn.classList.add('selected');
+function marcarAsesor(nombre) {
+  asesorPendiente = nombre || null;
   document.getElementById('lockErrorAsesor').style.display = 'none';
 }
 
@@ -1332,7 +1314,7 @@ function aplicarAsesor(nombre) {
 function cambiarAsesor() {
   sessionStorage.removeItem('asesorActivo');
   asesorPendiente = null;
-  document.querySelectorAll('.asesor-pick-btn').forEach(function(b){ b.classList.remove('selected'); });
+  document.getElementById('asesorSelect').value = '';
   document.getElementById('lockInput').value = '';
   document.getElementById('lockError').style.display = 'none';
   document.getElementById('lockErrorAsesor').style.display = 'none';
