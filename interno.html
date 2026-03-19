@@ -38,8 +38,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  gap: 32px;
 }
 
 .lock-box {
@@ -109,7 +107,6 @@ body {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  letter-spacing: 0.05em;
 }
 
 #lockBtn:hover { background: var(--gold-light); }
@@ -136,46 +133,16 @@ header {
   z-index: 50;
 }
 
-.logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.1rem;
-  letter-spacing: 0.15em;
-  color: var(--gold);
-}
+.logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; letter-spacing: 0.15em; color: var(--gold); }
+.header-tag { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.3em; color: var(--muted); text-transform: uppercase; }
 
-.header-tag {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 0.3em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-
-/* ── MAIN LAYOUT ── */
-.main {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 48px 40px;
-}
-
-.page-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 2rem;
-  margin-bottom: 6px;
-}
-
+/* ── MAIN ── */
+.main { max-width: 1100px; margin: 0 auto; padding: 48px 40px; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 6px; }
 .page-title em { font-style: italic; color: var(--gold); }
+.page-sub { font-size: 0.88rem; color: var(--muted); margin-bottom: 48px; }
 
-.page-sub {
-  font-size: 0.88rem;
-  color: var(--muted);
-  margin-bottom: 48px;
-}
-
-/* ── BUTTONS GRID ── */
-.buttons-section {
-  margin-bottom: 60px;
-}
+.buttons-section { margin-bottom: 60px; }
 
 .section-label {
   font-family: 'DM Mono', monospace;
@@ -188,19 +155,9 @@ header {
   align-items: center;
   gap: 12px;
 }
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-.section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-.btn-grid {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
+.btn-grid { display: flex; gap: 16px; flex-wrap: wrap; }
 
 .btn-action {
   display: inline-flex;
@@ -218,17 +175,9 @@ header {
   transition: all 0.25s;
   letter-spacing: 0.02em;
 }
+.btn-action:hover { background: rgba(197,160,89,0.12); border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(197,160,89,0.15); }
 
-.btn-action:hover {
-  background: rgba(197,160,89,0.12);
-  border-color: var(--gold);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(197,160,89,0.15);
-}
-
-.btn-action .icon { font-size: 1.1rem; }
-
-/* ── MODAL OVERLAY ── */
+/* ── MODAL ── */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -241,7 +190,6 @@ header {
   padding: 40px 20px;
   overflow-y: auto;
 }
-
 .modal-overlay.open { display: flex; }
 
 .modal {
@@ -249,471 +197,408 @@ header {
   border: 1px solid var(--gold-border);
   border-radius: 16px;
   width: 100%;
-  max-width: 680px;
+  max-width: 700px;
   padding: 40px;
   position: relative;
   animation: modalIn 0.3s ease;
 }
-
-@keyframes modalIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+@keyframes modalIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
 .modal-close {
-  position: absolute;
-  top: 20px; right: 20px;
+  position: absolute; top: 20px; right: 20px;
   width: 32px; height: 32px;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1rem;
-  transition: all 0.2s;
+  border: 1px solid var(--border); border-radius: 50%;
+  background: transparent; color: var(--muted);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; transition: all 0.2s;
 }
-
 .modal-close:hover { border-color: var(--gold); color: var(--gold); }
 
-.modal-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.6rem;
-  margin-bottom: 6px;
-}
-
+.modal-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 6px; }
 .modal-title em { font-style: italic; color: var(--gold); }
+.modal-sub { font-size: 0.83rem; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
 
-.modal-sub {
-  font-size: 0.83rem;
-  color: var(--muted);
-  margin-bottom: 32px;
-  line-height: 1.6;
-}
-
-/* ── FORM ── */
-.form-section {
-  margin-bottom: 28px;
-}
-
+/* ── FORM SECTIONS ── */
+.form-section { margin-bottom: 28px; }
 .form-section-title {
   font-family: 'DM Mono', monospace;
   font-size: 0.62rem;
   letter-spacing: 0.3em;
   color: var(--gold);
   text-transform: uppercase;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--border);
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .form-grid.full { grid-template-columns: 1fr; }
+.form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
+.field { display: flex; flex-direction: column; gap: 6px; }
 .field label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; gap: 4px;
 }
-
 .req { color: var(--gold); }
 
 .field input, .field select, .field textarea {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: #0f0f20;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
-  padding: 12px 14px;
+  padding: 11px 13px;
   color: var(--white);
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   outline: none;
   transition: border-color 0.2s;
   width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
 }
-
 .field input:focus, .field select:focus, .field textarea:focus {
   border-color: var(--gold-border);
   background: rgba(197,160,89,0.04);
 }
+.field input::placeholder, .field textarea::placeholder { color: rgba(255,255,255,0.2); }
 
-.field input::placeholder, .field textarea::placeholder {
-  color: rgba(255,255,255,0.18);
+/* Select con flecha custom */
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C5A059' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  cursor: pointer;
 }
-
 .field select option {
-  background: #0c0c1a;
-  color: var(--white);
+  background-color: #0c0c1a;
+  color: #F0EBE0;
 }
 
-/* ── IMPORTANCIA SLIDERS ── */
-.importancia-grid {
+/* ── TIPO TOGGLE (Independiente / Empresa) ── */
+.tipo-toggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.importancia-item {
+.tipo-btn {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.tipo-btn.active {
+  border-color: var(--gold);
+  background: var(--glass);
+  color: var(--gold);
+}
+.tipo-btn:hover:not(.active) { border-color: rgba(197,160,89,0.3); }
+
+/* ── ORIGEN TOGGLE (Propio / Colaborador) ── */
+.origen-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.origen-btn {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.origen-btn.active { border-color: var(--gold); background: var(--glass); color: var(--gold); }
+
+/* ── THERMOMETER SLIDER ── */
+.thermo-wrap {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-
-.importancia-item label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
+.thermo-wrap label {
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
 }
-
-.importancia-item select {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  color: var(--white);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
-  outline: none;
-}
-
-/* ── TIPOS DE COLABORACIÓN ── */
-.tipos-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.tipo-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 16px 18px;
-  border-radius: 10px;
-  border: 1.5px solid var(--border);
-  background: var(--surface);
-  cursor: pointer;
-  transition: all 0.25s;
-  position: relative;
-}
-
-.tipo-card:hover {
-  border-color: rgba(197,160,89,0.3);
-  background: var(--glass);
-}
-
-.tipo-card.selected {
-  border-color: var(--gold);
-  background: var(--glass);
-}
-
-.tipo-check {
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  flex-shrink: 0;
-  margin-top: 2px;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s;
-  font-size: 0.7rem;
-  color: transparent;
-}
-
-.tipo-card.selected .tipo-check {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: #000;
-}
-
-.tipo-info { flex: 1; }
-
-.tipo-name {
-  font-size: 0.92rem;
-  font-weight: 600;
-  margin-bottom: 4px;
+.thermo-row {
   display: flex;
   align-items: center;
   gap: 10px;
 }
+.thermo-row input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(to right, var(--gold) 0%, var(--gold) 0%, rgba(255,255,255,0.1) 0%);
+  border: none;
+  padding: 0;
+}
+.thermo-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 2px 8px rgba(197,160,89,0.5);
+  transition: transform 0.1s;
+}
+.thermo-row input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+.thermo-row input[type="range"]::-moz-range-thumb {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--gold); cursor: pointer; border: 2px solid var(--bg);
+}
 
-.tipo-badge {
+.thermo-val {
   font-family: 'DM Mono', monospace;
-  font-size: 0.65rem;
-  padding: 2px 8px;
-  border-radius: 20px;
-  background: rgba(197,160,89,0.15);
+  font-size: 0.68rem;
   color: var(--gold);
-  letter-spacing: 0.05em;
+  min-width: 90px;
+  text-align: right;
 }
 
-.tipo-desc {
-  font-size: 0.8rem;
-  color: var(--muted);
-  line-height: 1.5;
+.thermo-labels-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  color: rgba(240,235,224,0.25);
+  font-family: 'DM Mono', monospace;
+  padding: 0 2px;
 }
+
+/* ── HONORARIOS TOGGLE ── */
+.honor-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.honor-toggle-row span {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.yes-no-toggle {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.yn-btn {
+  padding: 8px 20px;
+  background: var(--surface);
+  border: none;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.yn-btn.active-si { background: rgba(80,200,80,0.15); color: #80e880; }
+.yn-btn.active-no { background: rgba(200,80,80,0.12); color: #f08080; }
+
+/* ── CUSTOM CARACTERISTICA ITEM ── */
+.custom-car-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.custom-car-item input[type="text"] {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  padding: 6px 0;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  width: 100%;
+  outline: none;
+  margin-bottom: 12px;
+}
+.custom-car-item input[type="text"]::placeholder { color: rgba(255,255,255,0.2); }
+.custom-car-item input[type="text"]:focus { border-bottom-color: var(--gold-border); }
+
+/* ── TIPOS COLABORACIÓN ── */
+.tipos-grid { display: flex; flex-direction: column; gap: 10px; }
+.tipo-card {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 16px; border-radius: 10px;
+  border: 1.5px solid var(--border); background: var(--surface);
+  cursor: pointer; transition: all 0.25s;
+}
+.tipo-card:hover { border-color: rgba(197,160,89,0.3); background: var(--glass); }
+.tipo-card.selected { border-color: var(--gold); background: var(--glass); }
+.tipo-check {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--border); flex-shrink: 0; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; font-size: 0.7rem; color: transparent;
+}
+.tipo-card.selected .tipo-check { background: var(--gold); border-color: var(--gold); color: #000; }
+.tipo-info { flex: 1; }
+.tipo-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
+.tipo-badge { font-family: 'DM Mono', monospace; font-size: 0.63rem; padding: 2px 7px; border-radius: 20px; background: rgba(197,160,89,0.15); color: var(--gold); }
+.tipo-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
 
 /* ── MODAL ACTIONS ── */
 .modal-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
+  display: flex; gap: 12px; margin-top: 28px;
+  padding-top: 20px; border-top: 1px solid var(--border);
 }
-
 .btn-primary {
-  flex: 1;
-  padding: 14px;
-  background: var(--gold);
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.03em;
+  flex: 1; padding: 14px;
+  background: var(--gold); color: #000; border: none;
+  border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; letter-spacing: 0.03em;
 }
-
-.btn-primary:hover {
-  background: var(--gold-light);
-  transform: translateY(-1px);
-}
-
+.btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
 .btn-secondary {
-  padding: 14px 24px;
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s;
+  padding: 14px 20px; background: transparent; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
 }
-
 .btn-secondary:hover { border-color: var(--gold-border); color: var(--white); }
+.btn-nav {
+  padding: 12px 20px; background: var(--glass); color: var(--gold);
+  border: 1px solid var(--gold-border); border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-nav:hover { background: rgba(197,160,89,0.12); }
+
+/* ── STEP INDICATOR ── */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 28px;
+}
+.step-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid var(--border); background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 0.72rem;
+  color: var(--muted); transition: all 0.3s;
+}
+.step-dot.active { border-color: var(--gold); background: var(--gold); color: #000; font-weight: 700; }
+.step-dot.done { border-color: var(--gold); background: transparent; color: var(--gold); }
+.step-line { flex: 1; height: 1px; background: var(--border); max-width: 60px; }
+.step-line.done { background: var(--gold); }
+.step-label {
+  font-size: 0.6rem; color: var(--muted); font-family: 'DM Mono', monospace;
+  letter-spacing: 0.1em; text-align: center; margin-top: 4px;
+  text-transform: uppercase;
+}
+.step-group { display: flex; flex-direction: column; align-items: center; }
 
 /* ── CONTRACT MODAL ── */
-.contract-modal {
-  max-width: 800px;
-}
-
-.contract-header {
-  text-align: center;
-  margin-bottom: 40px;
-  padding-bottom: 24px;
-  border-bottom: 2px solid var(--gold-border);
-}
-
-.contract-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.2rem;
-  letter-spacing: 0.2em;
-  color: var(--gold);
-  margin-bottom: 4px;
-}
-
-.contract-tagline {
-  font-size: 0.75rem;
-  letter-spacing: 0.3em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-
-.contract-meta {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  margin-top: 16px;
-  font-size: 0.75rem;
-  color: var(--muted);
-  font-family: 'DM Mono', monospace;
-}
-
-.contract-body {
-  font-size: 0.88rem;
-  line-height: 1.8;
-  color: rgba(240,235,224,0.85);
-}
-
-.contract-body h3 {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin: 28px 0 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-}
-
-.contract-body p {
-  margin-bottom: 14px;
-  text-align: justify;
-}
-
-.contract-body .highlight {
-  background: var(--glass);
-  border: 1px solid var(--gold-border);
-  border-radius: 8px;
-  padding: 16px 18px;
-  margin: 16px 0;
-  font-size: 0.85rem;
-}
-
+.contract-modal { max-width: 820px; }
+.contract-header { text-align: center; margin-bottom: 36px; padding-bottom: 20px; border-bottom: 2px solid var(--gold-border); }
+.contract-logo { font-family: 'Playfair Display', serif; font-size: 2.2rem; letter-spacing: 0.2em; color: var(--gold); margin-bottom: 4px; }
+.contract-tagline { font-size: 0.75rem; letter-spacing: 0.3em; color: var(--muted); text-transform: uppercase; }
+.contract-meta { display: flex; justify-content: center; gap: 40px; margin-top: 14px; font-size: 0.75rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+.contract-body { font-size: 0.88rem; line-height: 1.8; color: rgba(240,235,224,0.85); }
+.contract-body h3 { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 26px 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.contract-body p { margin-bottom: 12px; text-align: justify; }
+.contract-body .highlight { background: var(--glass); border: 1px solid var(--gold-border); border-radius: 8px; padding: 14px 16px; margin: 14px 0; font-size: 0.84rem; }
 .contract-body .highlight strong { color: var(--gold); }
-
-.contract-body ol { padding-left: 20px; margin-bottom: 14px; }
-.contract-body ol li { margin-bottom: 8px; }
-
-.contract-signatures {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  margin-top: 40px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
-}
-
+.contract-body ol { padding-left: 20px; margin-bottom: 12px; }
+.contract-body ol li { margin-bottom: 7px; }
+.contract-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--border); }
 .signature-block { text-align: center; }
-
-.signature-line {
-  width: 100%;
-  height: 1px;
-  background: var(--border);
-  margin: 40px 0 12px;
-}
-
-.signature-name {
-  font-weight: 600;
-  font-size: 0.88rem;
-  margin-bottom: 4px;
-}
-
-.signature-role {
-  font-size: 0.75rem;
-  color: var(--muted);
-  font-family: 'DM Mono', monospace;
-}
-
-.contract-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 32px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-  flex-wrap: wrap;
-}
-
-.btn-send {
-  flex: 1;
-  min-width: 160px;
-  padding: 14px 20px;
-  background: var(--gold);
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
+.signature-line { width: 100%; height: 1px; background: var(--border); margin: 36px 0 10px; }
+.signature-name { font-weight: 600; font-size: 0.88rem; margin-bottom: 4px; }
+.signature-role { font-size: 0.74rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+.contract-actions { display: flex; gap: 12px; margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.btn-send { flex: 1; min-width: 160px; padding: 14px 20px; background: var(--gold); color: #000; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn-send:hover { background: var(--gold-light); transform: translateY(-1px); }
-
-.btn-print {
-  padding: 14px 20px;
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.88rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
+.btn-print { padding: 14px 20px; background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
 .btn-print:hover { border-color: var(--gold-border); color: var(--white); }
+
+/* ── CHECKLIST DOCS ── */
+.doc-checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.doc-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface);
+  cursor: pointer; transition: all 0.2s;
+}
+.doc-item:hover { border-color: var(--gold-border); }
+.doc-item input[type="checkbox"] { display: none; }
+.doc-checkbox {
+  width: 18px; height: 18px; border-radius: 4px;
+  border: 1.5px solid var(--border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; font-size: 0.7rem; color: transparent;
+}
+.doc-item.checked .doc-checkbox { background: var(--gold); border-color: var(--gold); color: #000; }
+.doc-item.checked { border-color: var(--gold-border); }
+.doc-text { font-size: 0.82rem; color: var(--muted); }
+.doc-item.checked .doc-text { color: var(--white); }
+
+/* ── PISO ID BADGE ── */
+.id-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: 6px;
+  background: var(--glass); border: 1px solid var(--gold-border);
+  font-family: 'DM Mono', monospace; font-size: 0.75rem;
+  color: var(--gold); margin-bottom: 16px;
+}
 
 /* ── TOAST ── */
 .toast {
-  position: fixed;
-  bottom: 32px;
-  right: 32px;
-  background: #0c0c1a;
-  border: 1px solid var(--gold-border);
-  border-radius: 10px;
-  padding: 16px 20px;
-  font-size: 0.88rem;
-  color: var(--white);
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.3s;
-  max-width: 320px;
+  position: fixed; bottom: 32px; right: 32px;
+  background: #0c0c1a; border: 1px solid var(--gold-border); border-radius: 10px;
+  padding: 16px 20px; font-size: 0.88rem; color: var(--white); z-index: 999;
+  display: flex; align-items: center; gap: 10px;
+  opacity: 0; transform: translateY(10px); transition: all 0.3s; max-width: 320px;
 }
-
 .toast.show { opacity: 1; transform: translateY(0); }
-.toast .icon { font-size: 1.2rem; }
 
 /* ── SEND LOADING ── */
-.send-loading {
-  display: none;
-  text-align: center;
-  padding: 32px;
-}
-
+.send-loading { display: none; text-align: center; padding: 28px; }
 .send-loading.on { display: block; }
-
-.spinner {
-  width: 40px; height: 40px;
-  border: 2px solid var(--border);
-  border-top-color: var(--gold);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
-}
-
+.spinner { width: 36px; height: 36px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── ERROR BOX ── */
+.error-box { display: none; padding: 11px 14px; background: rgba(255,80,80,0.08); border: 1px solid rgba(255,80,80,0.2); border-radius: 8px; font-size: 0.82rem; color: #ff8080; margin-top: 6px; }
+
+/* ── SECTION HIDDEN ── */
+.section-hidden { display: none; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 640px) {
-  .main { padding: 32px 20px; }
-  header { padding: 0 20px; }
-  .modal { padding: 28px 20px; }
-  .form-grid { grid-template-columns: 1fr; }
-  .importancia-grid { grid-template-columns: 1fr; }
+  .main { padding: 28px 16px; }
+  header { padding: 0 16px; }
+  .modal { padding: 24px 16px; }
+  .form-grid, .form-grid.three { grid-template-columns: 1fr; }
+  .doc-checklist { grid-template-columns: 1fr; }
   .contract-signatures { grid-template-columns: 1fr; }
   .modal-actions { flex-direction: column; }
 }
@@ -729,9 +614,7 @@ header {
 </head>
 <body>
 
-<!-- ══════════════════════════════════════
-     PANTALLA DE CONTRASEÑA
-══════════════════════════════════════ -->
+<!-- ══ LOCK SCREEN ══ -->
 <div id="lockScreen">
   <div class="lock-box">
     <div class="lock-logo">ONOMA</div>
@@ -754,142 +637,105 @@ header {
   <h1 class="page-title">Herramientas <em>del equipo</em></h1>
   <p class="page-sub">Panel de uso interno para asesores y dirección de ONOMA Homes.</p>
 
-  <!-- SECCIÓN COLABORADORES -->
   <div class="buttons-section">
     <div class="section-label">Gestión de colaboradores</div>
     <div class="btn-grid">
-      <button class="btn-action" onclick="abrirModalColaborador()">
-        <span class="icon">🤝</span>
-        Agregar Colaborador
+      <button class="btn-action" onclick="abrirModal('modalColaborador')">
+        <span>🤝</span> Agregar Colaborador
       </button>
     </div>
   </div>
 
-  <!-- SECCIÓN CARTERA -->
   <div class="buttons-section">
-    <div class="section-label">Cartera de clientes y pisos</div>
+    <div class="section-label">Cartera</div>
     <div class="btn-grid">
       <button class="btn-action" onclick="abrirModal('modalDemanda')">
-        <span class="icon">🔍</span>
-        Nueva Demanda
+        <span>🔍</span> Nueva Demanda
       </button>
-      <button class="btn-action" onclick="abrirModal('modalPiso')">
-        <span class="icon">🏠</span>
-        Nuevo Piso
+      <button class="btn-action" onclick="abrirModalPiso()">
+        <span>🏠</span> Nuevo Piso
       </button>
     </div>
   </div>
-
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- ══════════════════════════
      MODAL: AGREGAR COLABORADOR
-══════════════════════════════════════ -->
+══════════════════════════ -->
 <div class="modal-overlay" id="modalColaborador">
   <div class="modal">
     <button class="modal-close" onclick="cerrarModal('modalColaborador')">✕</button>
-
     <h2 class="modal-title">Nuevo <em>Colaborador</em></h2>
-    <p class="modal-sub">Completa los datos del colaborador. Al generar, se creará el contrato correspondiente según el tipo de colaboración seleccionado.</p>
+    <p class="modal-sub">Completa los datos del colaborador para generar el contrato de colaboración.</p>
 
+    <!-- TIPO -->
+    <div class="form-section">
+      <div class="form-section-title">Tipo de colaborador</div>
+      <div class="tipo-toggle">
+        <button type="button" class="tipo-btn active" id="btnIndependiente" onclick="setTipoColab('independiente')">
+          👤 Profesional independiente
+        </button>
+        <button type="button" class="tipo-btn" id="btnEmpresa" onclick="setTipoColab('empresa')">
+          🏢 Representa a una empresa
+        </button>
+      </div>
+    </div>
+
+    <!-- DATOS PERSONALES -->
     <div class="form-section">
       <div class="form-section-title">Datos personales</div>
       <div class="form-grid">
-        <div class="field">
-          <label>Nombre <span class="req">*</span></label>
-          <input type="text" id="col_nombre" placeholder="Nombre">
-        </div>
-        <div class="field">
-          <label>Apellido <span class="req">*</span></label>
-          <input type="text" id="col_apellido" placeholder="Apellido">
-        </div>
-        <div class="field">
-          <label>NIF / DNI <span class="req">*</span></label>
-          <input type="text" id="col_nif" placeholder="12345678A">
-        </div>
-        <div class="field">
-          <label>Email <span class="req">*</span></label>
-          <input type="email" id="col_email" placeholder="email@empresa.com">
-        </div>
-        <div class="field">
-          <label>Teléfono <span class="req">*</span></label>
-          <input type="tel" id="col_telefono" placeholder="+34 600 000 000">
-        </div>
-        <div class="field">
-          <label>Cargo <span class="req">*</span></label>
-          <input type="text" id="col_cargo" placeholder="CEO / Agente / Administrador...">
-        </div>
+        <div class="field"><label>Nombre <span class="req">*</span></label><input type="text" id="col_nombre" placeholder="Nombre"></div>
+        <div class="field"><label>Apellido <span class="req">*</span></label><input type="text" id="col_apellido" placeholder="Apellido"></div>
+        <div class="field"><label>NIF / DNI <span class="req">*</span></label><input type="text" id="col_nif" placeholder="12345678A"></div>
+        <div class="field"><label>Email <span class="req">*</span></label><input type="email" id="col_email" placeholder="email@ejemplo.com"></div>
+        <div class="field"><label>Teléfono <span class="req">*</span></label><input type="tel" id="col_telefono" placeholder="+34 600 000 000"></div>
+        <div class="field"><label>Cargo <span class="req">*</span></label><input type="text" id="col_cargo" placeholder="CEO / Agente / Autónomo..."></div>
       </div>
     </div>
 
-    <div class="form-section">
+    <!-- DATOS EMPRESA (condicional) -->
+    <div class="form-section" id="seccionEmpresa">
       <div class="form-section-title">Datos de la empresa</div>
       <div class="form-grid">
-        <div class="field">
-          <label>Nombre de empresa <span class="req">*</span></label>
-          <input type="text" id="col_empresa" placeholder="Nombre de la agencia o empresa">
-        </div>
-        <div class="field">
-          <label>CIF de empresa <span class="req">*</span></label>
-          <input type="text" id="col_cif" placeholder="B12345678">
-        </div>
-        <div class="field" style="grid-column: 1 / -1;">
-          <label>Dirección fiscal <span class="req">*</span></label>
-          <input type="text" id="col_direccion" placeholder="Calle, número, piso, ciudad, CP">
-        </div>
-        <div class="field">
-          <label>Email de notificaciones</label>
-          <input type="email" id="col_email_empresa" placeholder="info@empresa.com">
-        </div>
-        <div class="field">
-          <label>Teléfono empresa</label>
-          <input type="tel" id="col_tel_empresa" placeholder="+34 900 000 000">
-        </div>
+        <div class="field"><label>Nombre de empresa <span class="req">*</span></label><input type="text" id="col_empresa" placeholder="Nombre de la agencia o empresa"></div>
+        <div class="field"><label>CIF de empresa <span class="req">*</span></label><input type="text" id="col_cif" placeholder="B12345678"></div>
+        <div class="field" style="grid-column:1/-1"><label>Dirección fiscal <span class="req">*</span></label><input type="text" id="col_direccion" placeholder="Calle, número, piso, ciudad, CP"></div>
+        <div class="field"><label>Email empresa</label><input type="email" id="col_email_empresa" placeholder="info@empresa.com"></div>
+        <div class="field"><label>Teléfono empresa</label><input type="tel" id="col_tel_empresa" placeholder="+34 900 000 000"></div>
       </div>
     </div>
 
+    <!-- TIPO COLABORACIÓN -->
     <div class="form-section">
       <div class="form-section-title">Tipo de colaboración</div>
-      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:16px;">Selecciona el tipo o tipos de colaboración. El contrato se generará según la selección.</p>
-
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px;">Selecciona uno o más tipos. El contrato se generará según la selección.</p>
       <div class="tipos-grid">
         <div class="tipo-card" id="tipo1" onclick="toggleTipo(1)">
           <div class="tipo-check" id="check1">✓</div>
           <div class="tipo-info">
-            <div class="tipo-name">
-              Colaboración Inter-Agencia
-              <span class="tipo-badge">50 / 50</span>
-            </div>
-            <div class="tipo-desc">Pisos de broker + demanda ONOMA o viceversa. Los honorarios totales (compradora + vendedora) se dividen al 50% entre ambas partes.</div>
+            <div class="tipo-name">Colaboración Inter-Agencia <span class="tipo-badge">50 / 50</span></div>
+            <div class="tipo-desc">Pisos de broker + demanda ONOMA o viceversa. Honorarios totales al 50% entre ambas partes.</div>
           </div>
         </div>
-
         <div class="tipo-card" id="tipo2" onclick="toggleTipo(2)">
           <div class="tipo-check" id="check2">✓</div>
           <div class="tipo-info">
-            <div class="tipo-name">
-              Urban Flip Exclusivo
-              <span class="tipo-badge">2% + IVA</span>
-            </div>
-            <div class="tipo-desc">Solo pisos propiedad de Urban Flip Capital. El colaborador recibe el 2% + IVA sobre el precio final de compraventa. 50% en arras, 50% en escritura.</div>
+            <div class="tipo-name">Urban Flip Exclusivo <span class="tipo-badge">2% + IVA</span></div>
+            <div class="tipo-desc">Solo pisos de Urban Flip Capital. 2%+IVA sobre precio final. 50% arras, 50% escritura.</div>
           </div>
         </div>
-
         <div class="tipo-card" id="tipo3" onclick="toggleTipo(3)">
           <div class="tipo-check" id="check3">✓</div>
           <div class="tipo-info">
-            <div class="tipo-name">
-              Operación Tripartita
-              <span class="tipo-badge">33.3% cada parte</span>
-            </div>
-            <div class="tipo-desc">Piso de broker + demanda de otro broker + ONOMA conecta. Los honorarios totales se dividen en tres partes iguales (33.33% cada una).</div>
+            <div class="tipo-name">Operación Tripartita <span class="tipo-badge">33.3% c/parte</span></div>
+            <div class="tipo-desc">Piso de broker + demanda de otro broker + ONOMA conecta. Honorarios en tres partes iguales.</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div id="errorColaborador" style="display:none; padding:12px 16px; background:rgba(255,80,80,0.08); border:1px solid rgba(255,80,80,0.2); border-radius:8px; font-size:0.83rem; color:#ff8080; margin-top:8px;"></div>
-
+    <div class="error-box" id="errorColaborador"></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="cerrarModal('modalColaborador')">Cancelar</button>
       <button class="btn-primary" onclick="generarContrato()">⚡ Generar Contrato</button>
@@ -897,113 +743,94 @@ header {
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     MODAL: CONTRATO GENERADO
-══════════════════════════════════════ -->
+<!-- ══════════════════════════
+     MODAL: CONTRATO
+══════════════════════════ -->
 <div class="modal-overlay" id="modalContrato">
   <div class="modal contract-modal">
     <button class="modal-close" onclick="cerrarModal('modalContrato')">✕</button>
-
     <div class="contract-header">
       <div class="contract-logo">ONOMA</div>
       <div class="contract-tagline">H O M E S</div>
-      <div style="font-size:0.75rem; color:var(--muted); margin-top:8px;">
-        Onoma Real Estate SL &nbsp;·&nbsp; CIF B19368547<br>
-        Calle Velázquez 31, 6to Der Madrid, 28006<br>
-        Tel. +34 652-500-170 &nbsp;·&nbsp; onomahomes.com
+      <div style="font-size:0.74rem;color:var(--muted);margin-top:8px;">
+        Onoma Real Estate SL · CIF B19368547<br>
+        Calle Velázquez 31, 6to Der, Madrid 28006<br>
+        Tel. +34 652-500-170 · onomahomes.com
       </div>
-      <div id="contratoTitulo" style="margin-top:20px; font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700;"></div>
-      <div class="contract-meta">
-        <span id="contratoFecha"></span>
-        <span>Madrid, España</span>
-      </div>
+      <div id="contratoTitulo" style="margin-top:18px;font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;"></div>
+      <div class="contract-meta"><span id="contratoFecha"></span><span>Madrid, España</span></div>
     </div>
-
     <div class="contract-body" id="contratoCuerpo"></div>
-
     <div class="contract-signatures">
       <div class="signature-block">
         <div class="signature-line"></div>
         <div class="signature-name">Mohamed El Madani</div>
         <div class="signature-role">NIE: X3126507W · CEO</div>
-        <div class="signature-role" style="margin-top:4px;">Por ONOMA REAL ESTATE SL</div>
+        <div class="signature-role" style="margin-top:3px;">Por ONOMA REAL ESTATE SL</div>
       </div>
       <div class="signature-block">
         <div class="signature-line"></div>
         <div class="signature-name" id="firmaColaboradorNombre"></div>
         <div class="signature-role" id="firmaColaboradorNif"></div>
-        <div class="signature-role" id="firmaColaboradorEmpresa" style="margin-top:4px;"></div>
+        <div class="signature-role" id="firmaColaboradorEmpresa" style="margin-top:3px;"></div>
       </div>
     </div>
-
     <div class="contract-actions">
-      <button class="btn-send" onclick="enviarContrato()">
-        <span>📧</span> Enviar al colaborador
-      </button>
-      <button class="btn-print" onclick="window.print()">
-        <span>🖨️</span> Imprimir / PDF
-      </button>
-      <button class="btn-print" onclick="volverFormulario()">
-        <span>✏️</span> Editar datos
-      </button>
+      <button class="btn-send" onclick="enviarContrato()"><span>📧</span> Enviar al colaborador</button>
+      <button class="btn-print" onclick="window.print()"><span>🖨️</span> Imprimir / PDF</button>
+      <button class="btn-print" onclick="volverFormulario()"><span>✏️</span> Editar datos</button>
     </div>
-
-    <div class="send-loading" id="sendLoading">
-      <div class="spinner"></div>
-      <div style="font-size:0.88rem; color:var(--muted);">Enviando contrato por email...</div>
-    </div>
-
+    <div class="send-loading" id="sendLoading"><div class="spinner"></div><div style="font-size:0.86rem;color:var(--muted);">Enviando contrato...</div></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- ══════════════════════════
      MODAL: NUEVA DEMANDA
-══════════════════════════════════════ -->
+══════════════════════════ -->
 <div class="modal-overlay" id="modalDemanda">
   <div class="modal">
     <button class="modal-close" onclick="cerrarModal('modalDemanda')">✕</button>
-
     <h2 class="modal-title">Nueva <em>Demanda</em></h2>
     <p class="modal-sub">Registra los datos del cliente y sus preferencias de búsqueda.</p>
 
+    <!-- ORIGEN -->
+    <div class="form-section">
+      <div class="form-section-title">Origen de la demanda</div>
+      <div class="origen-toggle">
+        <button type="button" class="origen-btn active" id="demOrigen_propio" onclick="setOrigenDemanda('propio')">🏢 Propia ONOMA</button>
+        <button type="button" class="origen-btn" id="demOrigen_colab" onclick="setOrigenDemanda('colaborador')">🤝 De colaborador</button>
+      </div>
+      <div id="demColabNombreWrap" style="display:none;margin-top:8px;">
+        <div class="field"><label>Nombre del colaborador</label><input type="text" id="dem_colab_nombre" placeholder="Nombre o empresa del colaborador"></div>
+      </div>
+    </div>
+
+    <!-- DATOS CLIENTE -->
     <div class="form-section">
       <div class="form-section-title">Datos del cliente</div>
       <div class="form-grid">
-        <div class="field">
-          <label>Nombre completo <span class="req">*</span></label>
-          <input type="text" id="dem_nombre" placeholder="Nombre y apellidos">
-        </div>
-        <div class="field">
-          <label>Teléfono <span class="req">*</span></label>
-          <input type="tel" id="dem_telefono" placeholder="+34 600 000 000">
-        </div>
-        <div class="field">
-          <label>Email</label>
-          <input type="email" id="dem_email" placeholder="cliente@email.com">
-        </div>
+        <div class="field"><label>Nombre completo <span class="req">*</span></label><input type="text" id="dem_nombre" placeholder="Nombre y apellidos"></div>
+        <div class="field"><label>Teléfono <span class="req">*</span></label><input type="tel" id="dem_telefono" placeholder="+34 600 000 000"></div>
+        <div class="field"><label>Email</label><input type="email" id="dem_email" placeholder="cliente@email.com"></div>
         <div class="field">
           <label>Asesor asignado <span class="req">*</span></label>
           <select id="dem_asesor">
-            <option value="">Seleccionar asesor</option>
-            <option>Mohamed El Madani</option>
-            <option>Asesor 2</option>
-            <option>Asesor 3</option>
+            <option value="">— Seleccionar asesor —</option>
+            <option value="Andrea Domínguez">Andrea Domínguez</option>
+            <option value="Laura Oñate">Laura Oñate</option>
+            <option value="Ramses Michelena">Ramses Michelena</option>
+            <option value="Drisana Gomez">Drisana Gomez</option>
           </select>
         </div>
       </div>
     </div>
 
+    <!-- PREFERENCIAS -->
     <div class="form-section">
       <div class="form-section-title">Preferencias de búsqueda</div>
       <div class="form-grid">
-        <div class="field">
-          <label>Zona / Barrio <span class="req">*</span></label>
-          <input type="text" id="dem_zona" placeholder="Salamanca, Chamberí, Retiro...">
-        </div>
-        <div class="field">
-          <label>Presupuesto máximo (€)</label>
-          <input type="number" id="dem_presupuesto" placeholder="500000">
-        </div>
+        <div class="field"><label>Zona / Barrio <span class="req">*</span></label><input type="text" id="dem_zona" placeholder="Salamanca, Chamberí, Retiro..."></div>
+        <div class="field"><label>Presupuesto máximo (€)</label><input type="number" id="dem_presupuesto" placeholder="500000"></div>
         <div class="field">
           <label>Habitaciones mínimas</label>
           <select id="dem_habitaciones">
@@ -1015,267 +842,304 @@ header {
             <option value="5">5+</option>
           </select>
         </div>
-        <div class="field">
-          <label>Metros mínimos (m²)</label>
-          <input type="number" id="dem_metros" placeholder="80">
-        </div>
-        <div class="field" style="grid-column: 1 / -1;">
-          <label>Perfil / Notas</label>
-          <textarea id="dem_perfil" rows="3" placeholder="Familia con hijos, busca zona tranquila, necesita patio..."></textarea>
-        </div>
+        <div class="field"><label>Metros mínimos (m²)</label><input type="number" id="dem_metros" placeholder="80"></div>
+        <div class="field" style="grid-column:1/-1"><label>Perfil / Notas</label><textarea id="dem_perfil" rows="2" placeholder="Familia con hijos, busca zona tranquila, necesita patio..."></textarea></div>
       </div>
     </div>
 
+    <!-- IMPORTANCIA (TERMÓMETROS) -->
     <div class="form-section">
       <div class="form-section-title">Importancia de características</div>
-      <div class="importancia-grid">
-        <div class="importancia-item">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <div class="thermo-wrap">
           <label>Terraza</label>
-          <select id="dem_terraza">
-            <option value="0">Sin preferencia</option>
-            <option value="1">Deseable</option>
-            <option value="2">Importante</option>
-            <option value="3">Imprescindible</option>
-          </select>
+          <div class="thermo-row">
+            <input type="range" id="dem_terraza" min="0" max="3" value="0" oninput="updateThermo(this,'dem_terraza_val')">
+            <span class="thermo-val" id="dem_terraza_val">Sin importancia</span>
+          </div>
+          <div class="thermo-labels-row"><span>Sin importancia</span><span>Deseable</span><span>Importante</span><span>Imprescindible</span></div>
         </div>
-        <div class="importancia-item">
+
+        <div class="thermo-wrap">
           <label>Parking</label>
-          <select id="dem_parking">
-            <option value="0">Sin preferencia</option>
-            <option value="1">Deseable</option>
-            <option value="2">Importante</option>
-            <option value="3">Imprescindible</option>
-          </select>
+          <div class="thermo-row">
+            <input type="range" id="dem_parking" min="0" max="3" value="0" oninput="updateThermo(this,'dem_parking_val')">
+            <span class="thermo-val" id="dem_parking_val">Sin importancia</span>
+          </div>
+          <div class="thermo-labels-row"><span>Sin importancia</span><span>Deseable</span><span>Importante</span><span>Imprescindible</span></div>
         </div>
-        <div class="importancia-item">
+
+        <div class="thermo-wrap">
           <label>Reformado</label>
-          <select id="dem_reformado">
-            <option value="0">Sin preferencia</option>
-            <option value="1">Deseable</option>
-            <option value="2">Importante</option>
-            <option value="3">Imprescindible</option>
-          </select>
+          <div class="thermo-row">
+            <input type="range" id="dem_reformado" min="0" max="3" value="0" oninput="updateThermo(this,'dem_reformado_val')">
+            <span class="thermo-val" id="dem_reformado_val">Sin importancia</span>
+          </div>
+          <div class="thermo-labels-row"><span>Sin importancia</span><span>Deseable</span><span>Importante</span><span>Imprescindible</span></div>
         </div>
-        <div class="importancia-item">
+
+        <div class="thermo-wrap">
           <label>Ascensor</label>
-          <select id="dem_ascensor">
-            <option value="0">Sin preferencia</option>
-            <option value="1">Deseable</option>
-            <option value="2">Importante</option>
-            <option value="3">Imprescindible</option>
-          </select>
+          <div class="thermo-row">
+            <input type="range" id="dem_ascensor" min="0" max="3" value="0" oninput="updateThermo(this,'dem_ascensor_val')">
+            <span class="thermo-val" id="dem_ascensor_val">Sin importancia</span>
+          </div>
+          <div class="thermo-labels-row"><span>Sin importancia</span><span>Deseable</span><span>Importante</span><span>Imprescindible</span></div>
         </div>
       </div>
     </div>
 
+    <!-- CARACTERÍSTICAS ADICIONALES LIBRES -->
     <div class="form-section">
-      <div class="form-section-title">Honorarios</div>
-      <div class="form-grid full">
-        <div class="field">
-          <label>Honorarios comprador</label>
-          <select id="dem_honorarios">
-            <option value="">Sin definir</option>
-            <option value="0">Sin honorarios (0%)</option>
-            <option value="1">1% + IVA</option>
-            <option value="2">2% + IVA</option>
-            <option value="3">3% + IVA</option>
-            <option value="fijo">Precio fijo</option>
-          </select>
+      <div class="form-section-title">Características adicionales</div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px;">Escribe características específicas del cliente y su nivel de importancia.</p>
+      <div id="customCarsList">
+        <div class="custom-car-item">
+          <input type="text" placeholder="Ej: Vistas al mar, bajo con jardín, orientación sur...">
+          <div class="thermo-wrap">
+            <div class="thermo-row">
+              <input type="range" class="thermo-custom" min="0" max="3" value="0" oninput="updateThermoEl(this)">
+              <span class="thermo-val thermo-custom-val">Sin importancia</span>
+            </div>
+            <div class="thermo-labels-row"><span>Sin importancia</span><span>Deseable</span><span>Importante</span><span>Imprescindible</span></div>
+          </div>
+        </div>
+        <div class="custom-car-item">
+          <input type="text" placeholder="Ej: Patio privado, ático, planta baja...">
+          <div class="thermo-wrap">
+            <div class="thermo-row">
+              <input type="range" class="thermo-custom" min="0" max="3" value="0" oninput="updateThermoEl(this)">
+              <span class="thermo-val thermo-custom-val">Sin importancia</span>
+            </div>
+            <div class="thermo-labels-row"><span>Sin importancia</span><span>Deseable</span><span>Importante</span><span>Imprescindible</span></div>
+          </div>
+        </div>
+        <div class="custom-car-item">
+          <input type="text" placeholder="Ej: Sin comunidad, luminoso, exterior...">
+          <div class="thermo-wrap">
+            <div class="thermo-row">
+              <input type="range" class="thermo-custom" min="0" max="3" value="0" oninput="updateThermoEl(this)">
+              <span class="thermo-val thermo-custom-val">Sin importancia</span>
+            </div>
+            <div class="thermo-labels-row"><span>Sin importancia</span><span>Deseable</span><span>Importante</span><span>Imprescindible</span></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div id="errorDemanda" style="display:none; padding:12px 16px; background:rgba(255,80,80,0.08); border:1px solid rgba(255,80,80,0.2); border-radius:8px; font-size:0.83rem; color:#ff8080; margin-top:8px;"></div>
+    <!-- HONORARIOS -->
+    <div class="form-section">
+      <div class="form-section-title">Honorarios comprador</div>
+      <div class="honor-toggle-row">
+        <span>¿Cobras al comprador?</span>
+        <div class="yes-no-toggle">
+          <button type="button" class="yn-btn" id="ynSi" onclick="setHonorariosCobra(true)">Sí</button>
+          <button type="button" class="yn-btn" id="ynNo" onclick="setHonorariosCobra(false)">No</button>
+        </div>
+      </div>
+      <div id="honorariosValorWrap" style="display:none;">
+        <div class="field"><label>Importe / porcentaje</label><input type="text" id="dem_honorarios_valor" placeholder="Ej: 2% + IVA  o  3.000€ fijo"></div>
+      </div>
+    </div>
 
+    <div class="error-box" id="errorDemanda"></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="cerrarModal('modalDemanda')">Cancelar</button>
       <button class="btn-primary" onclick="guardarDemanda()">💾 Guardar Demanda</button>
     </div>
-
-    <div class="send-loading" id="loadingDemanda">
-      <div class="spinner"></div>
-      <div style="font-size:0.88rem; color:var(--muted);">Guardando demanda...</div>
-    </div>
+    <div class="send-loading" id="loadingDemanda"><div class="spinner"></div><div style="font-size:0.86rem;color:var(--muted);">Guardando demanda...</div></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     MODAL: NUEVO PISO
-══════════════════════════════════════ -->
+<!-- ══════════════════════════
+     MODAL: NUEVO PISO (3 PASOS)
+══════════════════════════ -->
 <div class="modal-overlay" id="modalPiso">
   <div class="modal">
     <button class="modal-close" onclick="cerrarModal('modalPiso')">✕</button>
-
     <h2 class="modal-title">Nuevo <em>Piso</em></h2>
-    <p class="modal-sub">Registra los datos del inmueble en la cartera de ONOMA.</p>
 
-    <div class="form-section">
-      <div class="form-section-title">Ubicación</div>
-      <div class="form-grid">
-        <div class="field" style="grid-column: 1 / -1;">
-          <label>Calle <span class="req">*</span></label>
-          <input type="text" id="piso_calle" placeholder="Calle Velázquez">
+    <!-- ID Badge -->
+    <div class="id-badge" id="pisoBadge">🏷️ ID: —</div>
+
+    <!-- Step Indicator -->
+    <div style="margin-bottom:24px;">
+      <div class="step-indicator">
+        <div class="step-group">
+          <div class="step-dot active" id="sdot1">1</div>
+          <div class="step-label">Básicas</div>
         </div>
-        <div class="field">
-          <label>Número</label>
-          <input type="text" id="piso_numero" placeholder="31">
+        <div class="step-line" id="sline1"></div>
+        <div class="step-group">
+          <div class="step-dot" id="sdot2">2</div>
+          <div class="step-label">Adicionales</div>
         </div>
-        <div class="field">
-          <label>Puerta / Piso</label>
-          <input type="text" id="piso_puerta" placeholder="6º Der">
-        </div>
-        <div class="field">
-          <label>Barrio</label>
-          <input type="text" id="piso_barrio" placeholder="Salamanca">
-        </div>
-        <div class="field">
-          <label>Ciudad <span class="req">*</span></label>
-          <input type="text" id="piso_ciudad" placeholder="Madrid" value="Madrid">
-        </div>
-        <div class="field">
-          <label>Código Postal</label>
-          <input type="text" id="piso_cp" placeholder="28006">
-        </div>
-        <div class="field">
-          <label>Planta</label>
-          <input type="text" id="piso_planta" placeholder="6">
+        <div class="step-line" id="sline2"></div>
+        <div class="step-group">
+          <div class="step-dot" id="sdot3">3</div>
+          <div class="step-label">Documentación</div>
         </div>
       </div>
     </div>
 
-    <div class="form-section">
-      <div class="form-section-title">Características</div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Precio (€) <span class="req">*</span></label>
-          <input type="number" id="piso_precio" placeholder="450000">
+    <!-- ── PASO 1: BÁSICAS ── -->
+    <div id="pisoStep1">
+      <div class="form-section">
+        <div class="form-section-title">Origen del piso</div>
+        <div class="origen-toggle">
+          <button type="button" class="origen-btn active" id="pisoOrigen_propio" onclick="setOrigenPiso('propio')">🏢 Piso ONOMA</button>
+          <button type="button" class="origen-btn" id="pisoOrigen_colab" onclick="setOrigenPiso('colaborador')">🤝 De colaborador</button>
         </div>
-        <div class="field">
-          <label>Operación <span class="req">*</span></label>
-          <select id="piso_operacion">
-            <option value="">Seleccionar</option>
-            <option value="venta">Venta</option>
-            <option value="alquiler">Alquiler</option>
-            <option value="alquiler_temporal">Alquiler temporal</option>
-          </select>
+        <div id="pisoColabNombreWrap" style="display:none;margin-top:8px;">
+          <div class="field"><label>Nombre del colaborador</label><input type="text" id="piso_colab_nombre" placeholder="Nombre o empresa del colaborador"></div>
         </div>
-        <div class="field">
-          <label>Habitaciones</label>
-          <input type="number" id="piso_habitaciones" placeholder="3">
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Ubicación</div>
+        <div class="form-grid">
+          <div class="field" style="grid-column:1/-1"><label>Calle <span class="req">*</span></label><input type="text" id="piso_calle" placeholder="Calle Velázquez"></div>
+          <div class="field"><label>Número</label><input type="text" id="piso_numero" placeholder="31"></div>
+          <div class="field"><label>Puerta / Piso</label><input type="text" id="piso_puerta" placeholder="6º Dcha"></div>
+          <div class="field"><label>Barrio</label><input type="text" id="piso_barrio" placeholder="Salamanca"></div>
+          <div class="field"><label>Ciudad <span class="req">*</span></label><input type="text" id="piso_ciudad" placeholder="Madrid" value="Madrid"></div>
+          <div class="field"><label>Código Postal</label><input type="text" id="piso_cp" placeholder="28006"></div>
+          <div class="field"><label>Planta</label><input type="text" id="piso_planta" placeholder="6"></div>
         </div>
-        <div class="field">
-          <label>Baños</label>
-          <input type="number" id="piso_banos" placeholder="2">
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Características básicas</div>
+        <div class="form-grid">
+          <div class="field"><label>Precio (€) <span class="req">*</span></label><input type="number" id="piso_precio" placeholder="450000"></div>
+          <div class="field"><label>Metros (m²)</label><input type="number" id="piso_metros" placeholder="120"></div>
+          <div class="field"><label>Habitaciones</label><input type="number" id="piso_habitaciones" placeholder="3"></div>
+          <div class="field"><label>Aseos / Baños</label><input type="number" id="piso_aseos" placeholder="2"></div>
+          <div class="field">
+            <label>Estado del inmueble</label>
+            <select id="piso_estado">
+              <option value="">— Seleccionar —</option>
+              <option value="nuevo">Nuevo / A estrenar</option>
+              <option value="reformado">Reformado</option>
+              <option value="buen_estado">Buen estado</option>
+              <option value="a_reformar">A reformar</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Asesor asignado <span class="req">*</span></label>
+            <select id="piso_asesor">
+              <option value="">— Seleccionar asesor —</option>
+              <option value="Andrea Domínguez">Andrea Domínguez</option>
+              <option value="Laura Oñate">Laura Oñate</option>
+              <option value="Ramses Michelena">Ramses Michelena</option>
+              <option value="Drisana Gomez">Drisana Gomez</option>
+            </select>
+          </div>
         </div>
-        <div class="field">
-          <label>Metros (m²)</label>
-          <input type="number" id="piso_metros" placeholder="120">
-        </div>
-        <div class="field">
-          <label>Estado</label>
-          <select id="piso_estado">
-            <option value="">Seleccionar</option>
-            <option value="nuevo">Nuevo / A estrenar</option>
-            <option value="reformado">Reformado</option>
-            <option value="buen_estado">Buen estado</option>
-            <option value="a_reformar">A reformar</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Asesor asignado <span class="req">*</span></label>
-          <select id="piso_asesor">
-            <option value="">Seleccionar asesor</option>
-            <option>Mohamed El Madani</option>
-            <option>Asesor 2</option>
-            <option>Asesor 3</option>
-          </select>
-        </div>
+      </div>
+
+      <div class="error-box" id="errorPiso1"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="cerrarModal('modalPiso')">Cancelar</button>
+        <button class="btn-primary" onclick="pisoNextStep(2)">Siguiente →</button>
       </div>
     </div>
 
-    <div class="form-section">
-      <div class="form-section-title">Extras</div>
-      <div class="importancia-grid">
-        <div class="importancia-item">
-          <label>Terraza</label>
-          <select id="piso_terraza">
-            <option value="false">No</option>
-            <option value="true">Sí</option>
-          </select>
+    <!-- ── PASO 2: ADICIONALES ── -->
+    <div id="pisoStep2" class="section-hidden">
+      <div class="form-section">
+        <div class="form-section-title">Extras del inmueble</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+          <div class="doc-item" id="extraTerraza" onclick="toggleExtra('extraTerraza')">
+            <div class="doc-checkbox">✓</div><div class="doc-text">🌿 Terraza</div>
+          </div>
+          <div class="doc-item" id="extraParking" onclick="toggleExtra('extraParking')">
+            <div class="doc-checkbox">✓</div><div class="doc-text">🚗 Parking</div>
+          </div>
+          <div class="doc-item" id="extraAscensor" onclick="toggleExtra('extraAscensor')">
+            <div class="doc-checkbox">✓</div><div class="doc-text">🛗 Ascensor</div>
+          </div>
+          <div class="doc-item" id="extraTrastero" onclick="toggleExtra('extraTrastero')">
+            <div class="doc-checkbox">✓</div><div class="doc-text">📦 Trastero</div>
+          </div>
+          <div class="doc-item" id="extraPiscina" onclick="toggleExtra('extraPiscina')">
+            <div class="doc-checkbox">✓</div><div class="doc-text">🏊 Piscina</div>
+          </div>
+          <div class="doc-item" id="extraPortero" onclick="toggleExtra('extraPortero')">
+            <div class="doc-checkbox">✓</div><div class="doc-text">💂 Portero</div>
+          </div>
         </div>
-        <div class="importancia-item">
-          <label>Parking</label>
-          <select id="piso_parking">
-            <option value="false">No</option>
-            <option value="true">Sí</option>
-          </select>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Descripción</div>
+        <div class="form-grid full">
+          <div class="field"><label>Descripción del inmueble</label><textarea id="piso_descripcion" rows="4" placeholder="Descripción detallada para publicación..."></textarea></div>
         </div>
-        <div class="importancia-item">
-          <label>Ascensor</label>
-          <select id="piso_ascensor">
-            <option value="false">No</option>
-            <option value="true">Sí</option>
-          </select>
-        </div>
-        <div class="importancia-item">
-          <label>Trastero</label>
-          <select id="piso_trastero">
-            <option value="false">No</option>
-            <option value="true">Sí</option>
-          </select>
-        </div>
-        <div class="importancia-item">
-          <label>Piscina</label>
-          <select id="piso_piscina">
-            <option value="false">No</option>
-            <option value="true">Sí</option>
-          </select>
-        </div>
-        <div class="importancia-item">
-          <label>Portero</label>
-          <select id="piso_portero">
-            <option value="false">No</option>
-            <option value="true">Sí</option>
-          </select>
-        </div>
+      </div>
+
+      <div class="error-box" id="errorPiso2"></div>
+      <div class="modal-actions">
+        <button class="btn-nav" onclick="pisoNextStep(1)">← Anterior</button>
+        <button class="btn-primary" onclick="pisoNextStep(3)">Siguiente →</button>
       </div>
     </div>
 
-    <div class="form-section">
-      <div class="form-section-title">Descripción</div>
-      <div class="form-grid full">
-        <div class="field">
-          <label>Descripción del inmueble</label>
-          <textarea id="piso_descripcion" rows="4" placeholder="Descripción detallada del inmueble para publicación..."></textarea>
+    <!-- ── PASO 3: DOCUMENTACIÓN ── -->
+    <div id="pisoStep3" class="section-hidden">
+      <div class="form-section">
+        <div class="form-section-title">Documentación disponible</div>
+        <div class="doc-checklist">
+          <div class="doc-item" id="docNotaSimple" onclick="toggleDoc('docNotaSimple')"><div class="doc-checkbox">✓</div><div class="doc-text">📄 Nota simple</div></div>
+          <div class="doc-item" id="docIBI" onclick="toggleDoc('docIBI')"><div class="doc-checkbox">✓</div><div class="doc-text">🧾 IBI al corriente</div></div>
+          <div class="doc-item" id="docComunidad" onclick="toggleDoc('docComunidad')"><div class="doc-checkbox">✓</div><div class="doc-text">🏘 Comunidad al corriente</div></div>
+          <div class="doc-item" id="docCedula" onclick="toggleDoc('docCedula')"><div class="doc-checkbox">✓</div><div class="doc-text">📋 Cédula de habitabilidad</div></div>
+          <div class="doc-item" id="docCertEnergetico" onclick="toggleDoc('docCertEnergetico')"><div class="doc-checkbox">✓</div><div class="doc-text">⚡ Certificado energético</div></div>
+          <div class="doc-item" id="docPlanos" onclick="toggleDoc('docPlanos')"><div class="doc-checkbox">✓</div><div class="doc-text">📐 Planos</div></div>
+          <div class="doc-item" id="docFotos" onclick="toggleDoc('docFotos')"><div class="doc-checkbox">✓</div><div class="doc-text">📷 Fotos realizadas</div></div>
+          <div class="doc-item" id="docVideo" onclick="toggleDoc('docVideo')"><div class="doc-checkbox">✓</div><div class="doc-text">🎥 Vídeo realizado</div></div>
         </div>
       </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Multimedia</div>
+        <div class="form-grid">
+          <div class="field"><label>URL fotos (Drive/Dropbox)</label><input type="url" id="piso_fotos_url" placeholder="https://drive.google.com/..."></div>
+          <div class="field"><label>URL vídeo</label><input type="url" id="piso_video_url" placeholder="https://youtube.com/..."></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Notas internas</div>
+        <div class="form-grid full">
+          <div class="field"><label>Notas (solo equipo interno)</label><textarea id="piso_notas" rows="3" placeholder="Información relevante para el equipo..."></textarea></div>
+        </div>
+      </div>
+
+      <div class="error-box" id="errorPiso3"></div>
+      <div class="modal-actions">
+        <button class="btn-nav" onclick="pisoNextStep(2)">← Anterior</button>
+        <button class="btn-primary" onclick="guardarPiso()">💾 Guardar Piso</button>
+      </div>
+      <div class="send-loading" id="loadingPiso"><div class="spinner"></div><div style="font-size:0.86rem;color:var(--muted);">Guardando piso...</div></div>
     </div>
 
-    <div id="errorPiso" style="display:none; padding:12px 16px; background:rgba(255,80,80,0.08); border:1px solid rgba(255,80,80,0.2); border-radius:8px; font-size:0.83rem; color:#ff8080; margin-top:8px;"></div>
-
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="cerrarModal('modalPiso')">Cancelar</button>
-      <button class="btn-primary" onclick="guardarPiso()">💾 Guardar Piso</button>
-    </div>
-
-    <div class="send-loading" id="loadingPiso">
-      <div class="spinner"></div>
-      <div style="font-size:0.88rem; color:var(--muted);">Guardando piso...</div>
-    </div>
   </div>
 </div>
 
 <!-- TOAST -->
 <div class="toast" id="toast">
-  <span class="icon" id="toastIcon">✅</span>
+  <span id="toastIcon">✅</span>
   <span id="toastMsg"></span>
 </div>
 
 <script>
-// ── CONTRASEÑA ──
+// ────────────────────────────────
+// CONTRASEÑA
+// ────────────────────────────────
 function desbloquear() {
-  var pass = document.getElementById('lockInput').value;
-  if (pass === 'onoma2025') {
+  if (document.getElementById('lockInput').value === 'onoma2025') {
     document.getElementById('lockScreen').style.display = 'none';
   } else {
     document.getElementById('lockError').style.display = 'block';
@@ -1284,31 +1148,12 @@ function desbloquear() {
   }
 }
 
-// ── ESTADO COLABORADOR ──
-var tiposSeleccionados = [];
-var datosColaborador = {};
-
-// ── TOGGLE TIPO ──
-function toggleTipo(n) {
-  var card = document.getElementById('tipo' + n);
-  var idx = tiposSeleccionados.indexOf(n);
-  if (idx === -1) {
-    tiposSeleccionados.push(n);
-    card.classList.add('selected');
-  } else {
-    tiposSeleccionados.splice(idx, 1);
-    card.classList.remove('selected');
-  }
-}
-
-// ── ABRIR / CERRAR MODALES ──
+// ────────────────────────────────
+// MODALES
+// ────────────────────────────────
 function abrirModal(id) {
   document.getElementById(id).classList.add('open');
   document.body.style.overflow = 'hidden';
-}
-
-function abrirModalColaborador() {
-  abrirModal('modalColaborador');
 }
 
 function cerrarModal(id) {
@@ -1316,12 +1161,40 @@ function cerrarModal(id) {
   document.body.style.overflow = '';
 }
 
-function volverFormulario() {
-  cerrarModal('modalContrato');
-  abrirModalColaborador();
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    ['modalColaborador','modalContrato','modalDemanda','modalPiso'].forEach(cerrarModal);
+  }
+});
+
+// ────────────────────────────────
+// COLABORADOR — TIPO (independiente / empresa)
+// ────────────────────────────────
+var colabTipo = 'independiente';
+
+function setTipoColab(tipo) {
+  colabTipo = tipo;
+  document.getElementById('btnIndependiente').classList.toggle('active', tipo === 'independiente');
+  document.getElementById('btnEmpresa').classList.toggle('active', tipo === 'empresa');
+  document.getElementById('seccionEmpresa').style.display = tipo === 'empresa' ? 'block' : 'none';
 }
 
-// ── VALIDAR Y GENERAR CONTRATO ──
+// ────────────────────────────────
+// COLABORADOR — TIPOS COLABORACIÓN
+// ────────────────────────────────
+var tiposSeleccionados = [];
+var datosColaborador = {};
+
+function toggleTipo(n) {
+  var card = document.getElementById('tipo' + n);
+  var idx = tiposSeleccionados.indexOf(n);
+  if (idx === -1) { tiposSeleccionados.push(n); card.classList.add('selected'); }
+  else { tiposSeleccionados.splice(idx, 1); card.classList.remove('selected'); }
+}
+
+// ────────────────────────────────
+// GÉNERAR CONTRATO
+// ────────────────────────────────
 function generarContrato() {
   var err = document.getElementById('errorColaborador');
   err.style.display = 'none';
@@ -1332,206 +1205,228 @@ function generarContrato() {
   var email = document.getElementById('col_email').value.trim();
   var telefono = document.getElementById('col_telefono').value.trim();
   var cargo = document.getElementById('col_cargo').value.trim();
+
+  if (!nombre || !apellido) { mostrarErr('errorColaborador','Nombre y apellido son obligatorios.'); return; }
+  if (!nif) { mostrarErr('errorColaborador','El NIF/DNI es obligatorio.'); return; }
+  if (!email || !email.includes('@')) { mostrarErr('errorColaborador','Introduce un email válido.'); return; }
+  if (!telefono) { mostrarErr('errorColaborador','El teléfono es obligatorio.'); return; }
+  if (!cargo) { mostrarErr('errorColaborador','El cargo es obligatorio.'); return; }
+  if (tiposSeleccionados.length === 0) { mostrarErr('errorColaborador','Selecciona al menos un tipo de colaboración.'); return; }
+
   var empresa = document.getElementById('col_empresa').value.trim();
   var cif = document.getElementById('col_cif').value.trim();
   var direccion = document.getElementById('col_direccion').value.trim();
 
-  if (!nombre || !apellido) { mostrarErrorModal('errorColaborador', 'El nombre y apellido son obligatorios.'); return; }
-  if (!nif) { mostrarErrorModal('errorColaborador', 'El NIF/DNI es obligatorio.'); return; }
-  if (!email || !email.includes('@')) { mostrarErrorModal('errorColaborador', 'Introduce un email válido.'); return; }
-  if (!telefono) { mostrarErrorModal('errorColaborador', 'El teléfono es obligatorio.'); return; }
-  if (!cargo) { mostrarErrorModal('errorColaborador', 'El cargo es obligatorio.'); return; }
-  if (!empresa) { mostrarErrorModal('errorColaborador', 'El nombre de empresa es obligatorio.'); return; }
-  if (!cif) { mostrarErrorModal('errorColaborador', 'El CIF de empresa es obligatorio.'); return; }
-  if (!direccion) { mostrarErrorModal('errorColaborador', 'La dirección fiscal es obligatoria.'); return; }
-  if (tiposSeleccionados.length === 0) { mostrarErrorModal('errorColaborador', 'Selecciona al menos un tipo de colaboración.'); return; }
+  if (colabTipo === 'empresa') {
+    if (!empresa) { mostrarErr('errorColaborador','El nombre de empresa es obligatorio.'); return; }
+    if (!cif) { mostrarErr('errorColaborador','El CIF es obligatorio.'); return; }
+    if (!direccion) { mostrarErr('errorColaborador','La dirección fiscal es obligatoria.'); return; }
+  } else {
+    // Independiente: usar datos personales como empresa
+    empresa = nombre + ' ' + apellido + ' (Autónomo)';
+    cif = nif;
+    direccion = '—';
+  }
 
   datosColaborador = { nombre, apellido, nif, email, telefono, cargo, empresa, cif, direccion,
     emailEmpresa: document.getElementById('col_email_empresa').value.trim(),
     telEmpresa: document.getElementById('col_tel_empresa').value.trim(),
-    tipos: [...tiposSeleccionados]
+    tipos: [...tiposSeleccionados], tipoColab: colabTipo
   };
 
   var hoy = new Date();
-  var fechaStr = hoy.getDate() + ' de ' + ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()] + ' de ' + hoy.getFullYear();
+  var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var fechaStr = hoy.getDate() + ' de ' + meses[hoy.getMonth()] + ' de ' + hoy.getFullYear();
 
   document.getElementById('contratoFecha').textContent = 'Madrid, ' + fechaStr;
   document.getElementById('firmaColaboradorNombre').textContent = nombre + ' ' + apellido;
   document.getElementById('firmaColaboradorNif').textContent = 'NIF/NIE: ' + nif + ' · ' + cargo;
-  document.getElementById('firmaColaboradorEmpresa').textContent = 'Por ' + empresa.toUpperCase();
+  document.getElementById('firmaColaboradorEmpresa').textContent = colabTipo === 'empresa' ? 'Por ' + empresa.toUpperCase() : '';
 
   var titulo = tiposSeleccionados.length === 1 && tiposSeleccionados[0] === 2
     ? 'CONTRATO DE COLABORACIÓN — URBAN FLIP CAPITAL'
     : 'CONTRATO DE COLABORACIÓN INTER-AGENCIA';
   document.getElementById('contratoTitulo').textContent = titulo;
-
   document.getElementById('contratoCuerpo').innerHTML = construirContrato(datosColaborador, fechaStr);
 
   cerrarModal('modalColaborador');
-  document.getElementById('modalContrato').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  abrirModal('modalContrato');
 }
 
-function mostrarErrorModal(id, msg) {
-  var err = document.getElementById(id);
-  err.textContent = '⚠️ ' + msg;
-  err.style.display = 'block';
+function volverFormulario() {
+  cerrarModal('modalContrato');
+  abrirModal('modalColaborador');
 }
 
-// ── CONSTRUIR CONTRATO ──
 function construirContrato(d, fecha) {
   var tipos = d.tipos;
+  var esIndep = d.tipoColab === 'independiente';
   var html = '';
 
   html += '<h3>Reunidos</h3>';
-  html += '<p>De una parte, <strong>Don Mohamed El Madani</strong>, mayor de edad con NIE X3126507W, en nombre y representación de <strong>ONOMA REAL ESTATE SL</strong>, CIF B19368547, con dirección fiscal en C/ Velázquez 31 – 6 Der, Madrid, 28001, en calidad de CEO (en adelante, "ONOMA").</p>';
-  html += '<p>De otra parte, <strong>Don/Doña ' + d.nombre + ' ' + d.apellido + '</strong>, mayor de edad con NIF/NIE <strong>' + d.nif + '</strong>, en nombre y representación de <strong>' + d.empresa.toUpperCase() + '</strong>, con CIF <strong>' + d.cif + '</strong>, con dirección fiscal en <strong>' + d.direccion + '</strong>, en calidad de <strong>' + d.cargo.toUpperCase() + '</strong> (en adelante, "el Colaborador").</p>';
+  html += '<p>De una parte, <strong>Don Mohamed El Madani</strong>, mayor de edad con NIE X3126507W, en nombre y representación de <strong>ONOMA REAL ESTATE SL</strong>, CIF B19368547, con domicilio en C/ Velázquez 31 – 6 Der, Madrid, 28001, en calidad de CEO (en adelante, "ONOMA").</p>';
+
+  if (esIndep) {
+    html += '<p>De otra parte, <strong>Don/Doña ' + d.nombre + ' ' + d.apellido + '</strong>, mayor de edad con NIF/NIE <strong>' + d.nif + '</strong>, actuando como profesional autónomo/independiente, en calidad de <strong>' + d.cargo.toUpperCase() + '</strong> (en adelante, "el Colaborador").</p>';
+  } else {
+    html += '<p>De otra parte, <strong>Don/Doña ' + d.nombre + ' ' + d.apellido + '</strong>, mayor de edad con NIF/NIE <strong>' + d.nif + '</strong>, en nombre y representación de <strong>' + d.empresa.toUpperCase() + '</strong>, con CIF <strong>' + d.cif + '</strong>, con dirección fiscal en <strong>' + d.direccion + '</strong>, en calidad de <strong>' + d.cargo.toUpperCase() + '</strong> (en adelante, "el Colaborador").</p>';
+  }
 
   html += '<h3>Objeto</h3>';
-  html += '<p>Establecer las bases de colaboración entre las partes para la captación, comercialización y cierre de operaciones inmobiliarias (venta, alquiler, traspaso) sobre viviendas, locales, edificios, suelos, naves, hoteles u otros activos.</p>';
+  html += '<p>Establecer las bases de colaboración entre las partes para la captación, comercialización y cierre de operaciones inmobiliarias sobre viviendas, locales, edificios, suelos, naves y otros activos.</p>';
 
   var modalidades = [];
   if (tipos.includes(1)) modalidades.push('colaboración inter-agencia (50/50)');
   if (tipos.includes(2)) modalidades.push('comercialización de activos Urban Flip Capital (2% + IVA)');
   if (tipos.includes(3)) modalidades.push('operaciones tripartitas (33.33% por parte)');
-
-  html += '<p>Las modalidades de colaboración acordadas entre las partes son: <strong>' + modalidades.join('; ') + '</strong>.</p>';
+  html += '<p>Modalidades acordadas: <strong>' + modalidades.join('; ') + '</strong>.</p>';
 
   html += '<h3>Puesta en común de activos y clientes</h3>';
   html += '<ol>';
-  html += '<li>Las partes intercambiarán información sobre activos y clientes por email o mensajería. El reconocimiento de autoría es estrictamente POR OPERACIÓN concreta, identificada por dirección, referencia catastral o referencia interna.</li>';
-  html += '<li>No implica exclusividad general ni prohibición de tratar con el mismo proveedor o comprador en otras operaciones distintas.</li>';
-  html += '<li>Si una parte ya tiene un activo en cartera o un cliente trabajado para esa misma operación, lo comunicará en 24 horas para evitar duplicidades.</li>';
-  html += '<li>En caso de conflicto de titularidad no resuelto en 48 horas, ambas partes podrán trabajarlo de forma independiente para esa operación concreta, sin derecho a honorarios cruzados.</li>';
-  html += '<li>El presente acuerdo no otorga exclusividad sobre ningún activo salvo pacto expreso por escrito para una operación concreta.</li>';
+  html += '<li>Intercambio de información por email o mensajería. Autoría POR OPERACIÓN concreta identificada por dirección o referencia.</li>';
+  html += '<li>No implica exclusividad general ni prohibición de tratar con el mismo proveedor o comprador en otras operaciones.</li>';
+  html += '<li>Si una parte ya tiene el activo o cliente, lo comunicará en 24h para evitar duplicidades.</li>';
+  html += '<li>En conflicto no resuelto en 48h, ambas partes podrán trabajarlo independientemente sin honorarios cruzados.</li>';
   html += '</ol>';
 
   html += '<h3>Régimen económico</h3>';
-
   if (tipos.includes(1)) {
-    html += '<div class="highlight"><strong>A) Colaboración Inter-Agencia — Honorarios 50/50</strong><br><br>';
-    html += 'La distribución de honorarios será bilateral al <strong>50% del total efectivamente cobrado</strong> en la operación, considerando conjuntamente los honorarios facturados tanto a la parte compradora como a la parte vendedora.<br><br>';
-    html += 'Si en una operación concreta solo se perciben honorarios de una de las partes, el reparto al 50% se aplicará únicamente sobre el importe efectivamente cobrado, sin que ninguna de las partes pueda reclamar a la otra la parte no percibida.<br><br>';
-    html += '<em>Ejemplo: si ONOMA cobra 6.000€ del vendedor y el Colaborador cobra 3.000€ del comprador, el total es 9.000€, correspondiendo 4.500€ a cada parte, debiendo ONOMA transferir 1.500€ al Colaborador para equilibrar el reparto.</em></div>';
+    html += '<div class="highlight"><strong>A) Inter-Agencia — 50/50</strong><br><br>Distribución bilateral al <strong>50% del total efectivamente cobrado</strong>, considerando honorarios de ambas partes (compradora + vendedora).<br><br><em>Ejemplo: ONOMA cobra 6.000€ del vendedor, el Colaborador 3.000€ del comprador → total 9.000€ → 4.500€ c/u → ONOMA transfiere 1.500€.</em></div>';
   }
-
   if (tipos.includes(2)) {
-    html += '<div class="highlight"><strong>B) Urban Flip Capital — Honorarios 2% + IVA</strong><br><br>';
-    html += 'Los inmuebles gestionados bajo la vertical <strong>UrbanFlip Capital</strong> —sociedad vinculada a ONOMA REAL ESTATE SL— se rigen por un régimen económico diferenciado. El Colaborador percibirá el <strong>2% + IVA sobre el precio final de compraventa</strong>, abonado de la siguiente manera:<br><br>';
-    html += '— 50% a la firma y recepción del capital en el contrato de arras penitenciales.<br>';
-    html += '— 50% restante en el momento de la firma pública ante notario.<br><br>';
-    html += 'En caso de que no tuviese lugar el contrato de arras, la totalidad de los honorarios será abonada en el momento de la firma pública ante notario.</div>';
+    html += '<div class="highlight"><strong>B) Urban Flip Capital — 2% + IVA</strong><br><br>El Colaborador percibirá el <strong>2% + IVA sobre el precio final</strong>:<br>— 50% a la firma de arras.<br>— 50% en escritura ante notario.</div>';
   }
-
   if (tipos.includes(3)) {
-    html += '<div class="highlight"><strong>C) Operación Tripartita — Honorarios 33.33% por parte</strong><br><br>';
-    html += 'Cuando en una operación participen tres partes —piso aportado por un broker, demanda aportada por otro broker, y ONOMA como plataforma conectora—, los honorarios totales efectivamente cobrados se distribuirán en <strong>tres partes iguales del 33,33% cada una</strong>: una parte para el broker del piso, una parte para el broker de la demanda, y una parte para ONOMA.<br><br>';
-    html += 'Cada parte emitirá factura por su porción correspondiente. La distribución se calculará sobre el total de honorarios cobrados de comprador y vendedor conjuntamente.<br><br>';
-    html += '<em>Ejemplo: si el total cobrado es 9.000€, cada parte recibirá 3.000€.</em></div>';
+    html += '<div class="highlight"><strong>C) Tripartita — 33.33% por parte</strong><br><br>Honorarios totales divididos en <strong>tres partes iguales del 33,33%</strong>: broker del piso, broker de la demanda, y ONOMA.<br><br><em>Ejemplo: 9.000€ cobrados → 3.000€ por parte.</em></div>';
   }
 
-  html += '<h3>Consolidación de honorarios tras firma de arras</h3>';
-  html += '<p>Una vez firmado el contrato de arras penitenciales, los honorarios devengados en ese momento se considerarán <strong>consolidados e irrevocables</strong> para ambas partes colaboradoras, con independencia del desistimiento posterior de comprador o vendedor.</p>';
+  html += '<h3>Consolidación de honorarios</h3>';
+  html += '<p>Firmadas las arras penitenciales, los honorarios devengados se considerarán <strong>consolidados e irrevocables</strong> con independencia de desistimientos posteriores.</p>';
 
   html += '<h3>Facturación y pagos</h3>';
-  html += '<p>Cada parte emitirá factura por su porción de honorarios conforme a lo pactado. El devengo se producirá a la firma de arras penitenciales (si así se acuerda por escrito) o, en su defecto, a la firma de escritura. El pago se efectuará dentro de las <strong>72 horas siguientes al cobro efectivo</strong>.</p>';
+  html += '<p>Cada parte emite factura por su porción. Pago dentro de las <strong>72 horas</strong> siguientes al cobro efectivo.</p>';
 
-  html += '<h3>Restricciones de publicación y comercialización</h3>';
+  html += '<h3>Restricciones de publicación</h3>';
   html += '<ol>';
-  if (!tipos.includes(2) || tipos.length > 1) {
-    html += '<li><strong>Inmuebles de terceros:</strong> Ninguna de las partes está autorizada a publicar en ningún medio, plataforma o portal los activos de terceros compartidos. La comercialización se realizará exclusivamente de forma privada, a través de contacto directo con clientes de la propia cartera.</li>';
-  }
-  if (tipos.includes(2)) {
-    html += '<li><strong>Inmuebles Urban Flip Capital:</strong> El Colaborador podrá publicar los activos de UrbanFlip Capital en sus propios canales y plataformas habituales del sector (Idealista, Fotocasa, etc.), así como en sus redes sociales. Queda expresamente prohibido publicar dichos activos bajo la marca UrbanFlip Capital sin autorización previa por escrito.</li>';
-  }
-  html += '<li><strong>Activos del Colaborador:</strong> ONOMA no está autorizada a publicar en ningún medio los activos del Colaborador compartidos en el marco de este acuerdo, salvo autorización expresa y por escrito para una operación concreta.</li>';
+  if (!tipos.includes(2) || tipos.length > 1) html += '<li><strong>Inmuebles de terceros:</strong> Comercialización exclusivamente privada, sin publicación en portales.</li>';
+  if (tipos.includes(2)) html += '<li><strong>Urban Flip Capital:</strong> El Colaborador puede publicar en sus propios canales. Prohibido usar la marca UrbanFlip sin autorización escrita.</li>';
+  html += '<li><strong>Activos del Colaborador:</strong> ONOMA no publicará los activos del Colaborador sin autorización expresa.</li>';
   html += '</ol>';
 
   html += '<h3>Confidencialidad y no circunvención</h3>';
-  html += '<p>La información intercambiada se mantendrá confidencial y se usará solo para la operación concreta. Durante la operación y <strong>12 meses después</strong> de su cierre o desistimiento, ninguna parte eludirá a la otra respecto del activo o cliente introducido para esa operación concreta.</p>';
+  html += '<p>Información confidencial, uso exclusivo para la operación concreta. No circunvención durante la operación y <strong>12 meses</strong> tras cierre o desistimiento.</p>';
 
   html += '<h3>Penalización por incumplimiento</h3>';
-  html += '<p>Cualquier conducta que prive a la otra parte de los honorarios que le correspondan —incluyendo cobros no comunicados, circunvención del acuerdo o exclusión deliberada de una operación compartida— obligará a la parte infractora a abonar el equivalente exacto a los honorarios que le hubieran correspondido. El incumplimiento grave y reiterado facultará a resolver el contrato de forma inmediata.</p>';
+  html += '<p>Conducta que prive a la otra parte de honorarios obliga a abonar el equivalente exacto. Incumplimiento grave y reiterado faculta resolución inmediata.</p>';
 
-  html += '<h3>Entrada en vigor, duración y resolución</h3>';
-  html += '<p>El presente acuerdo entra en vigor en la fecha de su firma y tendrá <strong>duración indefinida</strong>. Cualquiera de las partes podrá resolverlo mediante preaviso escrito de 30 días, sin que dicho preaviso afecte a operaciones en las que ya se haya presentado una oferta aceptada por escrito o firmado contrato de arras.</p>';
+  html += '<h3>Duración y resolución</h3>';
+  html += '<p>Vigencia <strong>indefinida</strong> desde la firma. Rescisión con preaviso escrito de 30 días, sin afectar operaciones con oferta aceptada o arras firmadas.</p>';
 
   html += '<h3>Protección de datos (RGPD)</h3>';
-  html += '<p>Cada parte actuará como responsable del tratamiento respecto de los datos personales a los que acceda, comprometiéndose a tratarlos conforme al Reglamento (UE) 2016/679 y la LOPDGDD, exclusivamente para la gestión de las operaciones objeto del contrato.</p>';
+  html += '<p>Tratamiento conforme al Reglamento (UE) 2016/679 y LOPDGDD, exclusivamente para las operaciones objeto del contrato.</p>';
 
   html += '<h3>Notificaciones</h3>';
   html += '<p>ONOMA: <strong>melmadani@urbanflip.io</strong> | +34 600 37 97 58</p>';
   html += '<p>Colaborador: <strong>' + d.email + '</strong>' + (d.telefono ? ' | ' + d.telefono : '') + '</p>';
 
-  html += '<h3>Jurisdicción y ley aplicable</h3>';
-  html += '<p>Este contrato se rige por la legislación española. Las partes se someten a los Juzgados y Tribunales de Madrid, con renuncia expresa a cualquier otro fuero.</p>';
-  html += '<p>Así lo firman en Madrid a día <strong>' + fecha + '</strong>.</p>';
+  html += '<h3>Jurisdicción</h3>';
+  html += '<p>Legislación española. Juzgados y Tribunales de Madrid.</p>';
+  html += '<p>Así lo firman en Madrid, a <strong>' + fecha + '</strong>.</p>';
 
   return html;
 }
 
-// ── ENVIAR CONTRATO ──
 async function enviarContrato() {
   var loading = document.getElementById('sendLoading');
   loading.classList.add('on');
-
   try {
-    var response = await fetch('https://onomahomes.app.n8n.cloud/webhook/enviar-contrato-colaborador', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    var resp = await fetch('https://onomahomes.app.n8n.cloud/webhook/enviar-contrato-colaborador', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nombre: datosColaborador.nombre,
-        apellido: datosColaborador.apellido,
-        email: datosColaborador.email,
-        empresa: datosColaborador.empresa,
-        cif: datosColaborador.cif,
-        nif: datosColaborador.nif,
-        cargo: datosColaborador.cargo,
-        direccion: datosColaborador.direccion,
-        telefono: datosColaborador.telefono,
-        asesor_asignado: 'Mohamed El Madani',
+        nombre: datosColaborador.nombre, apellido: datosColaborador.apellido,
+        email: datosColaborador.email, empresa: datosColaborador.empresa,
+        cif: datosColaborador.cif, nif: datosColaborador.nif,
+        cargo: datosColaborador.cargo, direccion: datosColaborador.direccion,
+        telefono: datosColaborador.telefono, asesor_asignado: 'Mohamed El Madani',
         tipos_colaboracion: datosColaborador.tipos,
         contrato_html: document.getElementById('contratoCuerpo').innerHTML,
         fecha: document.getElementById('contratoFecha').textContent
       })
     });
-
     loading.classList.remove('on');
-
-    if (response.ok) {
-      mostrarToast('✅', 'Contrato enviado a ' + datosColaborador.email);
-      cerrarModal('modalContrato');
-      limpiarFormularioColaborador();
-    } else {
-      mostrarToast('⚠️', 'Error al enviar. Usa "Imprimir / PDF" como alternativa.');
-    }
-  } catch(e) {
-    loading.classList.remove('on');
-    mostrarToast('⚠️', 'Sin conexión. Usa "Imprimir / PDF" para enviar manualmente.');
-  }
+    if (resp.ok) { mostrarToast('✅', 'Contrato enviado a ' + datosColaborador.email); cerrarModal('modalContrato'); }
+    else { mostrarToast('⚠️', 'Error al enviar. Usa "Imprimir / PDF".'); }
+  } catch(e) { loading.classList.remove('on'); mostrarToast('⚠️', 'Sin conexión. Usa Imprimir / PDF.'); }
 }
 
-// ── GUARDAR DEMANDA ──
+// ────────────────────────────────
+// DEMANDA
+// ────────────────────────────────
+var demOrigen = 'propio';
+var honorariosCobra = null;
+
+function setOrigenDemanda(v) {
+  demOrigen = v;
+  document.getElementById('demOrigen_propio').classList.toggle('active', v === 'propio');
+  document.getElementById('demOrigen_colab').classList.toggle('active', v === 'colaborador');
+  document.getElementById('demColabNombreWrap').style.display = v === 'colaborador' ? 'block' : 'none';
+}
+
+function setHonorariosCobra(v) {
+  honorariosCobra = v;
+  document.getElementById('ynSi').className = 'yn-btn' + (v ? ' active-si' : '');
+  document.getElementById('ynNo').className = 'yn-btn' + (!v ? ' active-no' : '');
+  document.getElementById('honorariosValorWrap').style.display = v ? 'block' : 'none';
+}
+
+var thermoLabels = ['Sin importancia', 'Deseable', 'Importante', 'Imprescindible'];
+
+function updateThermo(input, valId) {
+  var v = parseInt(input.value);
+  var pct = (v / 3) * 100;
+  input.style.background = 'linear-gradient(to right, #C5A059 0%, #C5A059 ' + pct + '%, rgba(255,255,255,0.1) ' + pct + '%)';
+  document.getElementById(valId).textContent = thermoLabels[v];
+}
+
+function updateThermoEl(input) {
+  var v = parseInt(input.value);
+  var pct = (v / 3) * 100;
+  input.style.background = 'linear-gradient(to right, #C5A059 0%, #C5A059 ' + pct + '%, rgba(255,255,255,0.1) ' + pct + '%)';
+  var valEl = input.closest('.thermo-row').querySelector('.thermo-custom-val');
+  if (valEl) valEl.textContent = thermoLabels[v];
+}
+
 async function guardarDemanda() {
   var nombre = document.getElementById('dem_nombre').value.trim();
   var telefono = document.getElementById('dem_telefono').value.trim();
   var zona = document.getElementById('dem_zona').value.trim();
   var asesor = document.getElementById('dem_asesor').value;
 
-  if (!nombre) { mostrarErrorModal('errorDemanda', 'El nombre del cliente es obligatorio.'); return; }
-  if (!telefono) { mostrarErrorModal('errorDemanda', 'El teléfono es obligatorio.'); return; }
-  if (!zona) { mostrarErrorModal('errorDemanda', 'La zona es obligatoria.'); return; }
-  if (!asesor) { mostrarErrorModal('errorDemanda', 'Selecciona un asesor.'); return; }
+  if (!nombre) { mostrarErr('errorDemanda','El nombre del cliente es obligatorio.'); return; }
+  if (!telefono) { mostrarErr('errorDemanda','El teléfono es obligatorio.'); return; }
+  if (!zona) { mostrarErr('errorDemanda','La zona es obligatoria.'); return; }
+  if (!asesor) { mostrarErr('errorDemanda','Selecciona un asesor.'); return; }
 
   document.getElementById('errorDemanda').style.display = 'none';
   var loading = document.getElementById('loadingDemanda');
   loading.classList.add('on');
 
+  // Recoger características personalizadas
+  var items = document.querySelectorAll('#customCarsList .custom-car-item');
+  var carsExtra = [];
+  items.forEach(function(item) {
+    var txt = item.querySelector('input[type="text"]').value.trim();
+    var imp = parseInt(item.querySelector('input[type="range"]').value);
+    if (txt) carsExtra.push({ caracteristica: txt, importancia: imp, importancia_label: thermoLabels[imp] });
+  });
+
+  var demandaId = generarId('D');
+
   try {
-    var response = await fetch('https://onomahomes.app.n8n.cloud/webhook/nueva-demanda', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    var resp = await fetch('https://onomahomes.app.n8n.cloud/webhook/nueva-demanda', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        demanda_id: demandaId,
         nombre_cliente: nombre,
         telefono: telefono,
         email: document.getElementById('dem_email').value.trim(),
@@ -1541,139 +1436,182 @@ async function guardarDemanda() {
         metros_min: document.getElementById('dem_metros').value || null,
         perfil: document.getElementById('dem_perfil').value.trim(),
         asesor_asignado: asesor,
-        importancia_terraza: document.getElementById('dem_terraza').value,
-        importancia_parking: document.getElementById('dem_parking').value,
-        importancia_reformado: document.getElementById('dem_reformado').value,
-        importancia_ascensor: document.getElementById('dem_ascensor').value,
-        honorarios_comprador: document.getElementById('dem_honorarios').value
+        origen: demOrigen,
+        colaborador_origen: demOrigen === 'colaborador' ? document.getElementById('dem_colab_nombre').value.trim() : null,
+        importancia_terraza: parseInt(document.getElementById('dem_terraza').value),
+        importancia_parking: parseInt(document.getElementById('dem_parking').value),
+        importancia_reformado: parseInt(document.getElementById('dem_reformado').value),
+        importancia_ascensor: parseInt(document.getElementById('dem_ascensor').value),
+        caracteristicas_extra: carsExtra,
+        honorarios_cobra: honorariosCobra,
+        honorarios_valor: honorariosCobra ? document.getElementById('dem_honorarios_valor').value.trim() : null
       })
     });
-
     loading.classList.remove('on');
-
-    if (response.ok) {
-      mostrarToast('✅', 'Demanda guardada correctamente');
-      cerrarModal('modalDemanda');
-      limpiarFormularioDemanda();
-    } else {
-      mostrarToast('⚠️', 'Error al guardar. Inténtalo de nuevo.');
-    }
-  } catch(e) {
-    loading.classList.remove('on');
-    mostrarToast('⚠️', 'Sin conexión con el servidor.');
-  }
+    if (resp.ok) { mostrarToast('✅', 'Demanda ' + demandaId + ' guardada'); cerrarModal('modalDemanda'); }
+    else { mostrarToast('⚠️', 'Error al guardar.'); }
+  } catch(e) { loading.classList.remove('on'); mostrarToast('⚠️', 'Sin conexión con el servidor.'); }
 }
 
-// ── GUARDAR PISO ──
+// ────────────────────────────────
+// PISO — 3 PASOS
+// ────────────────────────────────
+var pisoOrigen = 'propio';
+var pisoCurrentStep = 1;
+var pisoId = '';
+
+function abrirModalPiso() {
+  pisoId = generarId('P');
+  document.getElementById('pisoBadge').textContent = '🏷️ ID: ' + pisoId;
+  pisoCurrentStep = 1;
+  pisoGoStep(1);
+  abrirModal('modalPiso');
+}
+
+function setOrigenPiso(v) {
+  pisoOrigen = v;
+  document.getElementById('pisoOrigen_propio').classList.toggle('active', v === 'propio');
+  document.getElementById('pisoOrigen_colab').classList.toggle('active', v === 'colaborador');
+  document.getElementById('pisoColabNombreWrap').style.display = v === 'colaborador' ? 'block' : 'none';
+}
+
+function pisoGoStep(n) {
+  [1,2,3].forEach(function(i) {
+    document.getElementById('pisoStep' + i).classList.toggle('section-hidden', i !== n);
+    var dot = document.getElementById('sdot' + i);
+    dot.classList.remove('active','done');
+    if (i === n) dot.classList.add('active');
+    else if (i < n) dot.classList.add('done');
+  });
+  // Lines
+  [1,2].forEach(function(i) {
+    var line = document.getElementById('sline' + i);
+    if (line) line.classList.toggle('done', i < n);
+  });
+  pisoCurrentStep = n;
+}
+
+function pisoNextStep(n) {
+  if (n > pisoCurrentStep) {
+    if (pisoCurrentStep === 1) {
+      var calle = document.getElementById('piso_calle').value.trim();
+      var precio = document.getElementById('piso_precio').value;
+      var asesor = document.getElementById('piso_asesor').value;
+      var ciudad = document.getElementById('piso_ciudad').value.trim();
+      if (!calle) { mostrarErr('errorPiso1','La calle es obligatoria.'); return; }
+      if (!precio) { mostrarErr('errorPiso1','El precio es obligatorio.'); return; }
+      if (!asesor) { mostrarErr('errorPiso1','Selecciona un asesor.'); return; }
+      document.getElementById('errorPiso1').style.display = 'none';
+    }
+  }
+  pisoGoStep(n);
+  document.getElementById('modalPiso').scrollTop = 0;
+}
+
+function toggleExtra(id) {
+  var el = document.getElementById(id);
+  el.classList.toggle('checked');
+}
+
+function toggleDoc(id) {
+  var el = document.getElementById(id);
+  el.classList.toggle('checked');
+}
+
 async function guardarPiso() {
-  var calle = document.getElementById('piso_calle').value.trim();
-  var precio = document.getElementById('piso_precio').value;
-  var operacion = document.getElementById('piso_operacion').value;
-  var asesor = document.getElementById('piso_asesor').value;
-  var ciudad = document.getElementById('piso_ciudad').value.trim();
-
-  if (!calle) { mostrarErrorModal('errorPiso', 'La calle es obligatoria.'); return; }
-  if (!precio) { mostrarErrorModal('errorPiso', 'El precio es obligatorio.'); return; }
-  if (!operacion) { mostrarErrorModal('errorPiso', 'Selecciona el tipo de operación.'); return; }
-  if (!asesor) { mostrarErrorModal('errorPiso', 'Selecciona un asesor.'); return; }
-
-  document.getElementById('errorPiso').style.display = 'none';
+  document.getElementById('errorPiso3').style.display = 'none';
   var loading = document.getElementById('loadingPiso');
   loading.classList.add('on');
 
+  var extras = {
+    terraza: document.getElementById('extraTerraza').classList.contains('checked'),
+    parking: document.getElementById('extraParking').classList.contains('checked'),
+    ascensor: document.getElementById('extraAscensor').classList.contains('checked'),
+    trastero: document.getElementById('extraTrastero').classList.contains('checked'),
+    piscina: document.getElementById('extraPiscina').classList.contains('checked'),
+    portero: document.getElementById('extraPortero').classList.contains('checked')
+  };
+
+  var docs = {
+    nota_simple: document.getElementById('docNotaSimple').classList.contains('checked'),
+    ibi: document.getElementById('docIBI').classList.contains('checked'),
+    comunidad: document.getElementById('docComunidad').classList.contains('checked'),
+    cedula: document.getElementById('docCedula').classList.contains('checked'),
+    cert_energetico: document.getElementById('docCertEnergetico').classList.contains('checked'),
+    planos: document.getElementById('docPlanos').classList.contains('checked'),
+    fotos: document.getElementById('docFotos').classList.contains('checked'),
+    video: document.getElementById('docVideo').classList.contains('checked')
+  };
+
+  var calle = document.getElementById('piso_calle').value.trim();
+  var numero = document.getElementById('piso_numero').value.trim();
+  var puerta = document.getElementById('piso_puerta').value.trim();
+  var barrio = document.getElementById('piso_barrio').value.trim();
+  var ciudad = document.getElementById('piso_ciudad').value.trim();
+  var cp = document.getElementById('piso_cp').value.trim();
+
+  var direccion_completa = [calle, numero, puerta].filter(Boolean).join(' ') +
+    (barrio ? ', ' + barrio : '') + ', ' + ciudad + (cp ? ' ' + cp : '');
+
   try {
-    var response = await fetch('https://onomahomes.app.n8n.cloud/webhook/nuevo-piso', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    var resp = await fetch('https://onomahomes.app.n8n.cloud/webhook/nuevo-piso', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        calle: calle,
-        numero: document.getElementById('piso_numero').value.trim(),
-        puerta: document.getElementById('piso_puerta').value.trim(),
-        barrio: document.getElementById('piso_barrio').value.trim(),
-        ciudad: ciudad,
-        cp: document.getElementById('piso_cp').value.trim(),
-        precio: precio,
-        habitaciones: document.getElementById('piso_habitaciones').value || null,
-        banos: document.getElementById('piso_banos').value || null,
-        metros: document.getElementById('piso_metros').value || null,
-        planta: document.getElementById('piso_planta').value.trim(),
+        piso_id: pisoId,
+        origen: pisoOrigen,
+        colaborador_origen: pisoOrigen === 'colaborador' ? document.getElementById('piso_colab_nombre').value.trim() : null,
+        calle: calle, numero: numero, puerta: puerta, barrio: barrio,
+        ciudad: ciudad, cp: cp, planta: document.getElementById('piso_planta').value.trim(),
+        direccion_completa: direccion_completa,
+        precio: parseFloat(document.getElementById('piso_precio').value) || null,
+        habitaciones: parseInt(document.getElementById('piso_habitaciones').value) || null,
+        aseos: parseInt(document.getElementById('piso_aseos').value) || null,
+        metros: parseFloat(document.getElementById('piso_metros').value) || null,
         estado: document.getElementById('piso_estado').value,
-        operacion: operacion,
+        operacion: 'venta',
+        asesor_asignado: document.getElementById('piso_asesor').value,
         descripcion: document.getElementById('piso_descripcion').value.trim(),
-        asesor_asignado: asesor,
-        terraza: document.getElementById('piso_terraza').value === 'true',
-        parking: document.getElementById('piso_parking').value === 'true',
-        ascensor: document.getElementById('piso_ascensor').value === 'true',
-        trastero: document.getElementById('piso_trastero').value === 'true',
-        piscina: document.getElementById('piso_piscina').value === 'true',
-        portero: document.getElementById('piso_portero').value === 'true'
+        fotos_url: document.getElementById('piso_fotos_url').value.trim(),
+        video_url: document.getElementById('piso_video_url').value.trim(),
+        notas_internas: document.getElementById('piso_notas').value.trim(),
+        extras: extras,
+        documentacion: docs
       })
     });
-
     loading.classList.remove('on');
-
-    if (response.ok) {
-      mostrarToast('✅', 'Piso guardado correctamente');
-      cerrarModal('modalPiso');
-      limpiarFormularioPiso();
-    } else {
-      mostrarToast('⚠️', 'Error al guardar. Inténtalo de nuevo.');
-    }
-  } catch(e) {
-    loading.classList.remove('on');
-    mostrarToast('⚠️', 'Sin conexión con el servidor.');
-  }
+    if (resp.ok) { mostrarToast('✅', 'Piso ' + pisoId + ' guardado'); cerrarModal('modalPiso'); }
+    else { mostrarToast('⚠️', 'Error al guardar el piso.'); }
+  } catch(e) { loading.classList.remove('on'); mostrarToast('⚠️', 'Sin conexión con el servidor.'); }
 }
 
-// ── TOAST ──
+// ────────────────────────────────
+// UTILS
+// ────────────────────────────────
+function generarId(prefix) {
+  var now = new Date();
+  var yr = now.getFullYear().toString().slice(-2);
+  var mo = String(now.getMonth()+1).padStart(2,'0');
+  var dy = String(now.getDate()).padStart(2,'0');
+  var rnd = Math.random().toString(36).substr(2,4).toUpperCase();
+  return prefix + yr + mo + dy + '-' + rnd;
+}
+
+function mostrarErr(id, msg) {
+  var el = document.getElementById(id);
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+}
+
 function mostrarToast(icon, msg) {
   var t = document.getElementById('toast');
   document.getElementById('toastIcon').textContent = icon;
   document.getElementById('toastMsg').textContent = msg;
   t.classList.add('show');
-  setTimeout(function() { t.classList.remove('show'); }, 4000);
+  setTimeout(function() { t.classList.remove('show'); }, 4500);
 }
 
-// ── LIMPIAR FORMULARIOS ──
-function limpiarFormularioColaborador() {
-  ['col_nombre','col_apellido','col_nif','col_email','col_telefono','col_cargo',
-   'col_empresa','col_cif','col_direccion','col_email_empresa','col_tel_empresa'].forEach(function(id) {
-    document.getElementById(id).value = '';
-  });
-  tiposSeleccionados = [];
-  [1,2,3].forEach(function(n) {
-    document.getElementById('tipo' + n).classList.remove('selected');
-  });
-}
-
-function limpiarFormularioDemanda() {
-  ['dem_nombre','dem_telefono','dem_email','dem_zona','dem_presupuesto','dem_metros','dem_perfil'].forEach(function(id) {
-    document.getElementById(id).value = '';
-  });
-  ['dem_asesor','dem_habitaciones','dem_terraza','dem_parking','dem_reformado','dem_ascensor','dem_honorarios'].forEach(function(id) {
-    document.getElementById(id).selectedIndex = 0;
-  });
-}
-
-function limpiarFormularioPiso() {
-  ['piso_calle','piso_numero','piso_puerta','piso_barrio','piso_cp',
-   'piso_precio','piso_habitaciones','piso_banos','piso_metros','piso_planta','piso_descripcion'].forEach(function(id) {
-    document.getElementById(id).value = '';
-  });
-  document.getElementById('piso_ciudad').value = 'Madrid';
-  ['piso_operacion','piso_estado','piso_asesor','piso_terraza','piso_parking',
-   'piso_ascensor','piso_trastero','piso_piscina','piso_portero'].forEach(function(id) {
-    document.getElementById(id).selectedIndex = 0;
-  });
-}
-
-// ── CERRAR CON ESC ──
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    ['modalColaborador','modalContrato','modalDemanda','modalPiso'].forEach(cerrarModal);
-  }
-});
+// Inicializar: ocultar sección empresa por defecto
+document.getElementById('seccionEmpresa').style.display = 'none';
 </script>
-
 </body>
 </html>
