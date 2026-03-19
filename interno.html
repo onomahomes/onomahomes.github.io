@@ -592,6 +592,82 @@ header {
 /* ── SECTION HIDDEN ── */
 .section-hidden { display: none; }
 
+/* ── ASESOR SELECTOR ── */
+.asesor-pick-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 12px;
+  background: var(--glass);
+  border: 1px solid rgba(197,160,89,0.2);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.asesor-pick-btn:hover {
+  border-color: var(--gold);
+  background: rgba(197,160,89,0.1);
+}
+.asesor-pick-initial {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(197,160,89,0.2);
+  border: 1.5px solid rgba(197,160,89,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold);
+  font-family: 'DM Mono', monospace;
+}
+#asesorChip {
+  display: none;
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  background: rgba(197,160,89,0.15);
+  border: 1px solid rgba(197,160,89,0.3);
+  border-radius: 20px;
+  padding: 4px 12px 4px 8px;
+  font-size: 0.75rem;
+  color: var(--gold);
+  cursor: pointer;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── AUTOCOMPLETE COLABORADORES ── */
+.colab-suggestions {
+  position: absolute;
+  background: #1a1a2e;
+  border: 1px solid rgba(197,160,89,0.3);
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 500;
+  width: 100%;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  margin-top: 2px;
+}
+.colab-suggestion-item {
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  color: var(--text);
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.colab-suggestion-item:hover { background: rgba(197,160,89,0.12); color: var(--gold); }
+.colab-suggestion-item:last-child { border-bottom: none; }
+.field { position: relative; }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 640px) {
   .main { padding: 28px 16px; }
@@ -626,10 +702,38 @@ header {
   </div>
 </div>
 
+<!-- ══ ASESOR SELECTOR ══ -->
+<div id="asesorScreen" style="display:none;">
+  <div class="lock-box" style="max-width:520px;">
+    <div class="lock-logo">ONOMA</div>
+    <div class="lock-sub">¿Quién eres?</div>
+    <p style="font-size:0.82rem;color:rgba(240,235,224,0.5);margin-bottom:24px;text-align:center;">Selecciona tu perfil para que los registros queden asignados automáticamente.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;">
+      <button class="asesor-pick-btn" onclick="seleccionarAsesor('Andrea Domínguez')">
+        <span class="asesor-pick-initial">AD</span>
+        <span>Andrea Domínguez</span>
+      </button>
+      <button class="asesor-pick-btn" onclick="seleccionarAsesor('Laura Oñate')">
+        <span class="asesor-pick-initial">LO</span>
+        <span>Laura Oñate</span>
+      </button>
+      <button class="asesor-pick-btn" onclick="seleccionarAsesor('Ramses Michelena')">
+        <span class="asesor-pick-initial">RM</span>
+        <span>Ramses Michelena</span>
+      </button>
+      <button class="asesor-pick-btn" onclick="seleccionarAsesor('Drisana Gomez')">
+        <span class="asesor-pick-initial">DG</span>
+        <span>Drisana Gomez</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- HEADER -->
 <header>
   <div class="logo">ONOMA</div>
   <div class="header-tag">Panel Interno — Uso exclusivo del equipo</div>
+  <div id="asesorChip" onclick="cambiarAsesor()" title="Click para cambiar asesor"></div>
 </header>
 
 <!-- MAIN -->
@@ -801,7 +905,10 @@ header {
         <button type="button" class="origen-btn" id="demOrigen_colab" onclick="setOrigenDemanda('colaborador')">🤝 De colaborador</button>
       </div>
       <div id="demColabNombreWrap" style="display:none;margin-top:8px;">
-        <div class="field"><label>Nombre del colaborador</label><input type="text" id="dem_colab_nombre" placeholder="Nombre o empresa del colaborador"></div>
+        <div class="field"><label>Nombre del colaborador</label>
+          <input type="text" id="dem_colab_nombre" placeholder="Nombre o empresa del colaborador" autocomplete="off" oninput="filtrarColabs(this,'dem_colab_suggestions')" onfocus="cargarColabs()">
+          <div id="dem_colab_suggestions" class="colab-suggestions" style="display:none;"></div>
+        </div>
       </div>
     </div>
 
@@ -992,7 +1099,18 @@ header {
           <button type="button" class="origen-btn" id="pisoOrigen_colab" onclick="setOrigenPiso('colaborador')">🤝 De colaborador</button>
         </div>
         <div id="pisoColabNombreWrap" style="display:none;margin-top:8px;">
-          <div class="field"><label>Nombre del colaborador</label><input type="text" id="piso_colab_nombre" placeholder="Nombre o empresa del colaborador"></div>
+          <div class="field"><label>Nombre del colaborador</label>
+            <input type="text" id="piso_colab_nombre" placeholder="Nombre o empresa del colaborador" autocomplete="off" oninput="filtrarColabs(this,'piso_colab_suggestions')" onfocus="cargarColabs()">
+            <div id="piso_colab_suggestions" class="colab-suggestions" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section" style="margin-top:16px;">
+        <div class="form-section-title">Exclusividad</div>
+        <div class="origen-toggle">
+          <button type="button" class="origen-btn active" id="pisoExcl_no" onclick="setExclusiva(false)">Sin exclusiva</button>
+          <button type="button" class="origen-btn" id="pisoExcl_si" onclick="setExclusiva(true)">Con exclusiva</button>
         </div>
       </div>
 
@@ -1073,6 +1191,15 @@ header {
       </div>
 
       <div class="form-section">
+        <div class="form-section-title" style="display:flex;justify-content:space-between;align-items:center;">
+          Características adicionales
+          <button type="button" onclick="addPisoCar()" style="background:rgba(197,160,89,0.15);border:1px solid rgba(197,160,89,0.4);color:var(--gold);border-radius:8px;padding:4px 12px;font-size:0.82rem;cursor:pointer;font-family:inherit;">+ Añadir</button>
+        </div>
+        <p style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;">Añade características específicas del piso.</p>
+        <div id="pisoCarsExtra"></div>
+      </div>
+
+      <div class="form-section">
         <div class="form-section-title">Descripción</div>
         <div class="form-grid full">
           <div class="field"><label>Descripción del inmueble</label><textarea id="piso_descripcion" rows="4" placeholder="Descripción detallada para publicación..."></textarea></div>
@@ -1091,6 +1218,7 @@ header {
       <div class="form-section">
         <div class="form-section-title">Documentación disponible</div>
         <div class="doc-checklist">
+          <div class="doc-item" id="docEncargoVenta" onclick="toggleDoc('docEncargoVenta')"><div class="doc-checkbox">✓</div><div class="doc-text">📝 Encargo de venta</div></div>
           <div class="doc-item" id="docNotaSimple" onclick="toggleDoc('docNotaSimple')"><div class="doc-checkbox">✓</div><div class="doc-text">📄 Nota simple</div></div>
           <div class="doc-item" id="docIBI" onclick="toggleDoc('docIBI')"><div class="doc-checkbox">✓</div><div class="doc-text">🧾 IBI al corriente</div></div>
           <div class="doc-item" id="docComunidad" onclick="toggleDoc('docComunidad')"><div class="doc-checkbox">✓</div><div class="doc-text">🏘 Comunidad al corriente</div></div>
@@ -1105,9 +1233,12 @@ header {
       <div class="form-section">
         <div class="form-section-title">Multimedia</div>
         <div class="form-grid">
-          <div class="field"><label>URL fotos (Drive/Dropbox)</label><input type="url" id="piso_fotos_url" placeholder="https://drive.google.com/..."></div>
-          <div class="field"><label>URL vídeo</label><input type="url" id="piso_video_url" placeholder="https://youtube.com/..."></div>
+          <div class="field" style="grid-column:1/-1"><label>📷 Fotos</label><input type="file" id="piso_fotos_file" multiple accept="image/*" style="background:var(--glass);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);width:100%;"></div>
+          <div class="field" style="grid-column:1/-1"><label>📐 Planos</label><input type="file" id="piso_planos_file" multiple accept="image/*,.pdf" style="background:var(--glass);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);width:100%;"></div>
+          <div class="field"><label>🎥 URL vídeo (YouTube/Drive)</label><input type="url" id="piso_video_url" placeholder="https://youtube.com/..."></div>
+          <div class="field"><label>🔗 Carpeta Drive (opcional)</label><input type="url" id="piso_fotos_url" placeholder="Se generará automáticamente..."></div>
         </div>
+        <p style="font-size:0.75rem;color:var(--muted);margin-top:8px;">Las fotos y planos se subirán a una carpeta de Drive creada automáticamente para este piso.</p>
       </div>
 
       <div class="form-section">
@@ -1141,11 +1272,56 @@ header {
 function desbloquear() {
   if (document.getElementById('lockInput').value === 'onoma2025') {
     document.getElementById('lockScreen').style.display = 'none';
+    var asesorGuardado = sessionStorage.getItem('asesorActivo');
+    if (asesorGuardado) {
+      aplicarAsesor(asesorGuardado);
+    } else {
+      document.getElementById('asesorScreen').style.display = 'flex';
+      document.getElementById('asesorScreen').style.alignItems = 'center';
+      document.getElementById('asesorScreen').style.justifyContent = 'center';
+      document.getElementById('asesorScreen').style.position = 'fixed';
+      document.getElementById('asesorScreen').style.inset = '0';
+      document.getElementById('asesorScreen').style.background = 'var(--bg)';
+      document.getElementById('asesorScreen').style.zIndex = '9999';
+    }
   } else {
     document.getElementById('lockError').style.display = 'block';
     document.getElementById('lockInput').value = '';
     document.getElementById('lockInput').focus();
   }
+}
+
+function seleccionarAsesor(nombre) {
+  sessionStorage.setItem('asesorActivo', nombre);
+  document.getElementById('asesorScreen').style.display = 'none';
+  aplicarAsesor(nombre);
+}
+
+function aplicarAsesor(nombre) {
+  // Pre-fill all asesor selects
+  ['dem_asesor','piso_asesor'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = nombre;
+  });
+  // Show chip in header
+  var chip = document.getElementById('asesorChip');
+  if (chip) {
+    var initials = nombre.split(' ').map(function(p){ return p[0]; }).join('').substring(0,2).toUpperCase();
+    chip.innerHTML = '<span style="width:20px;height:20px;border-radius:50%;background:rgba(197,160,89,0.25);display:inline-flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;">' + initials + '</span> ' + nombre;
+    chip.style.display = 'flex';
+  }
+}
+
+function cambiarAsesor() {
+  sessionStorage.removeItem('asesorActivo');
+  var screen = document.getElementById('asesorScreen');
+  screen.style.display = 'flex';
+  screen.style.alignItems = 'center';
+  screen.style.justifyContent = 'center';
+  screen.style.position = 'fixed';
+  screen.style.inset = '0';
+  screen.style.background = 'var(--bg)';
+  screen.style.zIndex = '9999';
 }
 
 // ────────────────────────────────
@@ -1660,6 +1836,14 @@ function toggleDoc(id) {
 
 async function guardarPiso() {
   document.getElementById('errorPiso3').style.display = 'none';
+
+  // Recoger características personalizadas del piso
+  var pisoCarsExtra = [];
+  document.querySelectorAll('#pisoCarsExtra .custom-car-item').forEach(function(item) {
+    var txt = item.querySelector('input[type="text"]').value.trim();
+    if (txt) pisoCarsExtra.push(txt);
+  });
+
   var loading = document.getElementById('loadingPiso');
   loading.classList.add('on');
 
@@ -1673,6 +1857,7 @@ async function guardarPiso() {
   };
 
   var docs = {
+    encargo_venta: document.getElementById('docEncargoVenta').classList.contains('checked'),
     nota_simple: document.getElementById('docNotaSimple').classList.contains('checked'),
     ibi: document.getElementById('docIBI').classList.contains('checked'),
     comunidad: document.getElementById('docComunidad').classList.contains('checked'),
@@ -1698,6 +1883,7 @@ async function guardarPiso() {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         piso_id: pisoId,
+        exclusiva: pisoExclusiva,
         origen: pisoOrigen,
         colaborador_origen: pisoOrigen === 'colaborador' ? document.getElementById('piso_colab_nombre').value.trim() : null,
         calle: calle, numero: numero, puerta: puerta, barrio: barrio,
@@ -1713,6 +1899,7 @@ async function guardarPiso() {
         descripcion: document.getElementById('piso_descripcion').value.trim(),
         fotos_url: document.getElementById('piso_fotos_url').value.trim(),
         video_url: document.getElementById('piso_video_url').value.trim(),
+        caracteristicas_extra: pisoCarsExtra,
         notas_internas: document.getElementById('piso_notas').value.trim(),
         extras: extras,
         documentacion: docs
@@ -1752,6 +1939,80 @@ function mostrarToast(icon, msg) {
 
 // Inicializar: ocultar sección empresa por defecto
 document.getElementById('seccionEmpresa').style.display = 'none';
+
+// ────────────────────────────────
+// AUTOCOMPLETE COLABORADORES
+// ────────────────────────────────
+var colabsCache = null;
+
+function cargarColabs() {
+  if (colabsCache !== null) return;
+  fetch('https://wwaytwudfbwxttyyojjx.supabase.co/rest/v1/colaboradores?select=nombre,apellido,empresa&limit=200', {
+    headers: {
+      'apikey': 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b',
+      'Authorization': 'Bearer sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b'
+    }
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    colabsCache = (data || []).map(function(c){
+      var label = c.nombre || '';
+      if (c.apellido) label += ' ' + c.apellido;
+      if (c.empresa) label += ' — ' + c.empresa;
+      return label.trim();
+    }).filter(Boolean);
+  })
+  .catch(function(){ colabsCache = []; });
+}
+
+function filtrarColabs(input, suggestionsId) {
+  var val = input.value.trim().toLowerCase();
+  var box = document.getElementById(suggestionsId);
+  if (!box) return;
+  if (!val || !colabsCache) { box.style.display = 'none'; return; }
+  var matches = colabsCache.filter(function(c){ return c.toLowerCase().includes(val); }).slice(0,8);
+  if (!matches.length) { box.style.display = 'none'; return; }
+  box.innerHTML = matches.map(function(m){
+    return '<div class="colab-suggestion-item" onmousedown="elegirColab(\'' + m.replace(/'/g,"&#39;") + '\',\'' + input.id + '\',\'' + suggestionsId + '\')">' + m + '</div>';
+  }).join('');
+  box.style.display = 'block';
+}
+
+function elegirColab(value, inputId, suggestionsId) {
+  document.getElementById(inputId).value = value;
+  document.getElementById(suggestionsId).style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+  ['dem_colab_suggestions','piso_colab_suggestions'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+});
+
+// ────────────────────────────────
+// EXCLUSIVA PISO
+// ────────────────────────────────
+var pisoExclusiva = false;
+
+function setExclusiva(v) {
+  pisoExclusiva = v;
+  document.getElementById('pisoExcl_no').classList.toggle('active', !v);
+  document.getElementById('pisoExcl_si').classList.toggle('active', v);
+}
+
+// ────────────────────────────────
+// CARACTERÍSTICAS EXTRA PISO
+// ────────────────────────────────
+function addPisoCar() {
+  var list = document.getElementById('pisoCarsExtra');
+  var item = document.createElement('div');
+  item.className = 'custom-car-item';
+  item.style.position = 'relative';
+  item.innerHTML = '<input type="text" placeholder="Ej: Orientación sur, vistas despejadas...">' +
+    '<button type="button" onclick="this.closest(\'.custom-car-item\').remove()" style="position:absolute;top:0;right:0;background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:1.1rem;padding:4px;">✕</button>';
+  list.appendChild(item);
+}
 </script>
 </body>
 </html>
