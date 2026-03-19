@@ -612,6 +612,15 @@ header {
   border-color: var(--gold);
   background: rgba(197,160,89,0.1);
 }
+.asesor-pick-btn.selected {
+  border-color: var(--gold);
+  background: rgba(197,160,89,0.18);
+  box-shadow: 0 0 0 2px rgba(197,160,89,0.35);
+}
+.asesor-pick-btn.selected .asesor-pick-initial {
+  background: rgba(197,160,89,0.4);
+  border-color: var(--gold);
+}
 .asesor-pick-initial {
   width: 44px;
   height: 44px;
@@ -692,40 +701,33 @@ header {
 
 <!-- ══ LOCK SCREEN ══ -->
 <div id="lockScreen">
-  <div class="lock-box">
-    <div class="lock-logo">ONOMA</div>
-    <div class="lock-sub">Panel Interno</div>
-    <label class="lock-label" for="lockInput">Contraseña de acceso</label>
-    <input type="password" id="lockInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') desbloquear()">
-    <button id="lockBtn" onclick="desbloquear()">Acceder</button>
-    <div id="lockError">Contraseña incorrecta. Inténtalo de nuevo.</div>
-  </div>
-</div>
-
-<!-- ══ ASESOR SELECTOR ══ -->
-<div id="asesorScreen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center;">
   <div class="lock-box" style="max-width:520px;">
     <div class="lock-logo">ONOMA</div>
-    <div class="lock-sub">¿Quién eres?</div>
-    <p style="font-size:0.82rem;color:rgba(240,235,224,0.5);margin-bottom:24px;text-align:center;">Selecciona tu perfil para que los registros queden asignados automáticamente.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;">
-      <button class="asesor-pick-btn" onclick="seleccionarAsesor('Andrea Domínguez')">
+    <div class="lock-sub">Panel Interno</div>
+    <p style="font-size:0.82rem;color:rgba(240,235,224,0.5);margin-bottom:20px;text-align:center;">Selecciona quién eres e introduce la clave de acceso</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-bottom:24px;">
+      <button class="asesor-pick-btn" id="asesorBtn_Andrea" onclick="marcarAsesor('Andrea Domínguez', this)">
         <span class="asesor-pick-initial">AD</span>
         <span>Andrea Domínguez</span>
       </button>
-      <button class="asesor-pick-btn" onclick="seleccionarAsesor('Laura Oñate')">
+      <button class="asesor-pick-btn" id="asesorBtn_Laura" onclick="marcarAsesor('Laura Oñate', this)">
         <span class="asesor-pick-initial">LO</span>
         <span>Laura Oñate</span>
       </button>
-      <button class="asesor-pick-btn" onclick="seleccionarAsesor('Ramses Michelena')">
+      <button class="asesor-pick-btn" id="asesorBtn_Ramses" onclick="marcarAsesor('Ramses Michelena', this)">
         <span class="asesor-pick-initial">RM</span>
         <span>Ramses Michelena</span>
       </button>
-      <button class="asesor-pick-btn" onclick="seleccionarAsesor('Drisana Gomez')">
+      <button class="asesor-pick-btn" id="asesorBtn_Drisana" onclick="marcarAsesor('Drisana Gomez', this)">
         <span class="asesor-pick-initial">DG</span>
         <span>Drisana Gomez</span>
       </button>
     </div>
+    <label class="lock-label" for="lockInput">Contraseña de acceso</label>
+    <input type="password" id="lockInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') desbloquear()">
+    <button id="lockBtn" onclick="desbloquear()">Acceder</button>
+    <div id="lockError">Contraseña incorrecta. Inténtalo de nuevo.</div>
+    <div id="lockErrorAsesor" style="display:none;font-size:0.82rem;color:#ff8080;margin-top:12px;">Selecciona tu perfil antes de continuar.</div>
   </div>
 </div>
 
@@ -1269,17 +1271,31 @@ header {
 // ────────────────────────────────
 // CONTRASEÑA
 // ────────────────────────────────
+var asesorPendiente = null;
+
+function marcarAsesor(nombre, btn) {
+  asesorPendiente = nombre;
+  document.querySelectorAll('.asesor-pick-btn').forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  document.getElementById('lockErrorAsesor').style.display = 'none';
+}
+
 function desbloquear() {
-  if (document.getElementById('lockInput').value === 'onoma2025') {
+  var clave = document.getElementById('lockInput').value;
+  var errAsesor = document.getElementById('lockErrorAsesor');
+  var errClave = document.getElementById('lockError');
+  errAsesor.style.display = 'none';
+  errClave.style.display = 'none';
+  if (!asesorPendiente) {
+    errAsesor.style.display = 'block';
+    return;
+  }
+  if (clave === 'onoma2025') {
+    sessionStorage.setItem('asesorActivo', asesorPendiente);
     document.getElementById('lockScreen').style.display = 'none';
-    var asesorGuardado = sessionStorage.getItem('asesorActivo');
-    if (asesorGuardado) {
-      aplicarAsesor(asesorGuardado);
-    } else {
-      document.getElementById('asesorScreen').style.display = 'flex';
-    }
+    aplicarAsesor(asesorPendiente);
   } else {
-    document.getElementById('lockError').style.display = 'block';
+    errClave.style.display = 'block';
     document.getElementById('lockInput').value = '';
     document.getElementById('lockInput').focus();
   }
@@ -1287,7 +1303,6 @@ function desbloquear() {
 
 function seleccionarAsesor(nombre) {
   sessionStorage.setItem('asesorActivo', nombre);
-  document.getElementById('asesorScreen').style.display = 'none';
   aplicarAsesor(nombre);
 }
 
@@ -1308,7 +1323,12 @@ function aplicarAsesor(nombre) {
 
 function cambiarAsesor() {
   sessionStorage.removeItem('asesorActivo');
-  document.getElementById('asesorScreen').style.display = 'flex';
+  asesorPendiente = null;
+  document.querySelectorAll('.asesor-pick-btn').forEach(function(b){ b.classList.remove('selected'); });
+  document.getElementById('lockInput').value = '';
+  document.getElementById('lockError').style.display = 'none';
+  document.getElementById('lockErrorAsesor').style.display = 'none';
+  document.getElementById('lockScreen').style.display = 'flex';
 }
 
 // ────────────────────────────────
