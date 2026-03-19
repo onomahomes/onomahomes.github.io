@@ -14,7 +14,7 @@ body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-hei
 .logo-sub{font-size:0.7rem;letter-spacing:0.4em;color:var(--muted);margin-top:4px}
 .card{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px}
 .card-title{font-size:1rem;font-weight:600;color:var(--gold);margin-bottom:16px;letter-spacing:0.05em;text-transform:uppercase}
-.contrato-body{background:#fff;color:#1a1a1a;padding:32px;border-radius:10px;font-family:Georgia,serif;font-size:0.9rem;line-height:1.7;max-height:60vh;overflow-y:auto;margin-bottom:24px}
+.contrato-body{background:#fff;color:#1a1a1a;padding:32px;border-radius:10px;font-family:Georgia,serif;font-size:0.9rem;line-height:1.7;margin-bottom:24px}
 .contrato-body h2,.contrato-body h3{color:#8A6E3A}
 .field{margin-bottom:16px;position:relative}
 .field label{display:block;font-size:0.82rem;color:var(--muted);margin-bottom:6px}
@@ -52,7 +52,7 @@ body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-hei
       <div class="badge-legal">Firma electronica simple - Valida segun Ley 59/2003 y Reglamento eIDAS</div>
       <p style="font-size:0.85rem;color:var(--muted);margin-bottom:20px;line-height:1.6;">Lee el contrato completo antes de firmar. Al firmar confirmas que has leido y aceptas todos los terminos.</p>
       <div class="contrato-body" id="contratoBody">
-        <p style="color:#888;text-align:center;padding:40px 20px;">El contrato ha sido enviado por email. Puedes leerlo en el correo recibido antes de continuar con la firma.</p>
+        <p style="color:#888;text-align:center;padding:40px 20px;">Cargando contrato...</p>
       </div>
     </div>
 
@@ -74,10 +74,10 @@ body{background:var(--bg);color:var(--text);font-family:Arial,sans-serif;min-hei
         <input type="email" id="emailFirmante" placeholder="tu@email.com">
         <div class="error-msg" id="errEmail">Introduce un email valido</div>
       </div>
-      <div class="checkbox-row" onclick="document.getElementById('chkAcepto').click()">
+      <label class="checkbox-row" style="cursor:pointer;">
         <input type="checkbox" id="chkAcepto">
         <span>He leido integramente el contrato y <strong style="color:var(--text);">acepto todos sus terminos y condiciones</strong>. Entiendo que esta firma tiene validez legal equivalente a la firma manuscrita segun la Ley 59/2003.</span>
-      </div>
+      </label>
       <div class="loading" id="loadingFirma"><div class="spinner"></div>Registrando firma...</div>
       <div class="error-msg" id="errGeneral" style="margin-bottom:12px;font-size:0.85rem;"></div>
       <button class="btn-firmar" id="btnFirmar" onclick="firmarContrato()">Firmar y aceptar contrato</button>
@@ -116,6 +116,14 @@ var emailParam = params.get('email') ? decodeURIComponent(params.get('email')) :
 
 if (nombreParam) document.getElementById('nombreFirmante').value = nombreParam;
 if (emailParam) document.getElementById('emailFirmante').value = emailParam;
+
+var contratoParam = params.get('contrato') ? decodeURIComponent(params.get('contrato')) : '';
+var contratoBody = document.getElementById('contratoBody');
+if (contratoParam) {
+  contratoBody.innerHTML = contratoParam;
+} else {
+  contratoBody.innerHTML = '<p style="color:#888;text-align:center;padding:40px 20px;">El contrato estará disponible aquí cuando accedas desde el enlace del email.</p>';
+}
 
 var metaEl = document.getElementById('metaInfo');
 metaEl.innerHTML =
