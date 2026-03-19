@@ -133,7 +133,7 @@ header {
   z-index: 50;
 }
 
-.logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; letter-spacing: 0.15em; color: var(--gold); }
+.logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; letter-spacing: 0.15em; color: var(--gold); }
 .header-tag { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.3em; color: var(--muted); text-transform: uppercase; }
 
 /* ── MAIN ── */
@@ -637,9 +637,6 @@ header {
 }
 #asesorChip {
   display: none;
-  position: fixed;
-  top: 14px;
-  right: 16px;
   background: rgba(197,160,89,0.15);
   border: 1px solid rgba(197,160,89,0.3);
   border-radius: 20px;
@@ -647,10 +644,9 @@ header {
   font-size: 0.75rem;
   color: var(--gold);
   cursor: pointer;
-  z-index: 200;
-  display: flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
 
 /* ── AUTOCOMPLETE COLABORADORES ── */
