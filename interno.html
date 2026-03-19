@@ -1270,6 +1270,15 @@ function marcarAsesor(nombre) {
   document.getElementById('lockErrorAsesor').style.display = 'none';
 }
 
+var clavesPorAsesor = {
+  'Ramses Michelena': 'Ramses2025',
+  'Erik Olsen': 'Erik2025',
+  'Mohamed Madami': 'Mohamed2025',
+  'Andrea Domínguez': 'Andrea2025',
+  'Laura Oñate': 'Laura2025',
+  'Drisana Gomez': 'Drisana2025'
+};
+
 function desbloquear() {
   var clave = document.getElementById('lockInput').value;
   var errAsesor = document.getElementById('lockErrorAsesor');
@@ -1280,7 +1289,7 @@ function desbloquear() {
     errAsesor.style.display = 'block';
     return;
   }
-  if (clave === 'onoma2025') {
+  if (clave === clavesPorAsesor[asesorPendiente]) {
     sessionStorage.setItem('asesorActivo', asesorPendiente);
     document.getElementById('lockScreen').style.display = 'none';
     aplicarAsesor(asesorPendiente);
