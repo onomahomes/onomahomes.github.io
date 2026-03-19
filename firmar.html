@@ -117,12 +117,24 @@ var emailParam = params.get('email') ? decodeURIComponent(params.get('email')) :
 if (nombreParam) document.getElementById('nombreFirmante').value = nombreParam;
 if (emailParam) document.getElementById('emailFirmante').value = emailParam;
 
-var contratoParam = params.get('contrato') ? decodeURIComponent(params.get('contrato')) : '';
 var contratoBody = document.getElementById('contratoBody');
-if (contratoParam) {
-  contratoBody.innerHTML = contratoParam;
+if (firmaId) {
+  fetch('https://wwaytwudfbwxttyyojjx.supabase.co/rest/v1/contratos_pendientes?firma_id=eq.' + encodeURIComponent(firmaId) + '&select=contrato_html', {
+    headers: {
+      'apikey': 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b',
+      'Authorization': 'Bearer sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b'
+    }
+  }).then(r=>r.json()).then(data=>{
+    if (data && data[0] && data[0].contrato_html) {
+      contratoBody.innerHTML = data[0].contrato_html;
+    } else {
+      contratoBody.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">No se pudo cargar el contrato. Contacta con rmichelena@onomahomes.com</p>';
+    }
+  }).catch(()=>{
+    contratoBody.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">Error al cargar el contrato. Contacta con rmichelena@onomahomes.com</p>';
+  });
 } else {
-  contratoBody.innerHTML = '<p style="color:#888;text-align:center;padding:40px 20px;">El contrato estará disponible aquí cuando accedas desde el enlace del email.</p>';
+  contratoBody.innerHTML = '<p style="color:#888;text-align:center;padding:40px 20px;">Accede desde el enlace del email para ver el contrato.</p>';
 }
 
 var metaEl = document.getElementById('metaInfo');
