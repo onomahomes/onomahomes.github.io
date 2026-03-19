@@ -703,7 +703,7 @@ header {
 </div>
 
 <!-- ══ ASESOR SELECTOR ══ -->
-<div id="asesorScreen" style="display:none;">
+<div id="asesorScreen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center;">
   <div class="lock-box" style="max-width:520px;">
     <div class="lock-logo">ONOMA</div>
     <div class="lock-sub">¿Quién eres?</div>
@@ -868,8 +868,8 @@ header {
     <div class="contract-signatures">
       <div class="signature-block">
         <div class="signature-line"></div>
-        <div class="signature-name">Mohamed El Madani</div>
-        <div class="signature-role">NIE: X3126507W · CEO</div>
+        <div class="signature-name">Ramses II Michelena Azocar</div>
+        <div class="signature-role">Director General</div>
         <div class="signature-role" style="margin-top:3px;">Por ONOMA REAL ESTATE SL</div>
       </div>
       <div class="signature-block">
@@ -1277,12 +1277,6 @@ function desbloquear() {
       aplicarAsesor(asesorGuardado);
     } else {
       document.getElementById('asesorScreen').style.display = 'flex';
-      document.getElementById('asesorScreen').style.alignItems = 'center';
-      document.getElementById('asesorScreen').style.justifyContent = 'center';
-      document.getElementById('asesorScreen').style.position = 'fixed';
-      document.getElementById('asesorScreen').style.inset = '0';
-      document.getElementById('asesorScreen').style.background = 'var(--bg)';
-      document.getElementById('asesorScreen').style.zIndex = '9999';
     }
   } else {
     document.getElementById('lockError').style.display = 'block';
@@ -1314,14 +1308,7 @@ function aplicarAsesor(nombre) {
 
 function cambiarAsesor() {
   sessionStorage.removeItem('asesorActivo');
-  var screen = document.getElementById('asesorScreen');
-  screen.style.display = 'flex';
-  screen.style.alignItems = 'center';
-  screen.style.justifyContent = 'center';
-  screen.style.position = 'fixed';
-  screen.style.inset = '0';
-  screen.style.background = 'var(--bg)';
-  screen.style.zIndex = '9999';
+  document.getElementById('asesorScreen').style.display = 'flex';
 }
 
 // ────────────────────────────────
@@ -1618,7 +1605,7 @@ function construirContrato(d, fecha) {
   // ─── NOTIFICACIONES ───
   html += '<h3>NOTIFICACIONES</h3>';
   html += '<p>Las notificaciones con efectos jurídicos entre las partes (desistimiento, reclamación de honorarios, resolución del contrato) deberán cursarse por correo electrónico con acuse de recibo o burofax. Las comunicaciones operativas del día a día podrán realizarse por mensajería instantánea, pero no tendrán valor jurídico vinculante a efectos del presente contrato.</p>';
-  html += '<p>ONOMA: <strong>melmadani@urbanflip.io</strong> | +34 600 37 97 58</p>';
+  html += '<p>ONOMA: <strong>rmichelena@onomahomes.com</strong> | +34 652 50 01 70</p>';
   html += '<p>Colaboradora: <strong>' + d.email + '</strong>' + (d.telefono ? ' | ' + d.telefono : '') + '</p>';
 
   // ─── RGPD ───
@@ -1636,8 +1623,8 @@ function construirContrato(d, fecha) {
   html += '<td style="width:50%;vertical-align:top;padding-right:20px;">';
   html += '<p><strong>Por ONOMA REAL ESTATE SL</strong></p>';
   html += '<br><br><hr style="border-color:rgba(255,255,255,0.2);">';
-  html += '<p style="margin:4px 0;">Nombre: Mohamed El Madani</p>';
-  html += '<p style="margin:4px 0;">NIE: X3126507W</p>';
+  html += '<p style="margin:4px 0;">Nombre: Ramses II Michelena Azocar</p>';
+  html += '<p style="margin:4px 0;">Cargo: Director General</p>';
   html += '</td>';
   html += '<td style="width:50%;vertical-align:top;padding-left:20px;">';
   html += '<p><strong>Por AGENCIA COLABORADORA</strong></p>';
@@ -1663,7 +1650,7 @@ async function enviarContrato() {
         email: datosColaborador.email, empresa: datosColaborador.empresa,
         cif: datosColaborador.cif, nif: datosColaborador.nif,
         cargo: datosColaborador.cargo, direccion: datosColaborador.direccion,
-        telefono: datosColaborador.telefono, asesor_asignado: 'Mohamed El Madani',
+        telefono: datosColaborador.telefono, asesor_asignado: sessionStorage.getItem('asesorActivo') || 'Ramses Michelena',
         tipos_colaboracion: datosColaborador.tipos,
         contrato_html: document.getElementById('contratoCuerpo').innerHTML,
         fecha: document.getElementById('contratoFecha').textContent
