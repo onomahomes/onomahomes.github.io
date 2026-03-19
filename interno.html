@@ -714,22 +714,22 @@ header {
         <div class="tipo-card" id="tipo1" onclick="toggleTipo(1)">
           <div class="tipo-check" id="check1">✓</div>
           <div class="tipo-info">
-            <div class="tipo-name">Colaboración Inter-Agencia <span class="tipo-badge">50 / 50</span></div>
-            <div class="tipo-desc">Pisos de broker + demanda ONOMA o viceversa. Honorarios totales al 50% entre ambas partes.</div>
+            <div class="tipo-name">Urban Flip Exclusivo <span class="tipo-badge">2% + IVA</span></div>
+            <div class="tipo-desc">Solo pisos de Urban Flip Capital. 2%+IVA sobre precio final. 50% arras, 50% escritura.</div>
           </div>
         </div>
         <div class="tipo-card" id="tipo2" onclick="toggleTipo(2)">
           <div class="tipo-check" id="check2">✓</div>
           <div class="tipo-info">
-            <div class="tipo-name">Urban Flip Exclusivo <span class="tipo-badge">2% + IVA</span></div>
-            <div class="tipo-desc">Solo pisos de Urban Flip Capital. 2%+IVA sobre precio final. 50% arras, 50% escritura.</div>
+            <div class="tipo-name">Colaboración Inter-Agencia <span class="tipo-badge">50 / 50</span></div>
+            <div class="tipo-desc">Pisos de broker + demanda ONOMA o viceversa. Honorarios totales al 50% entre ambas partes.</div>
           </div>
         </div>
         <div class="tipo-card" id="tipo3" onclick="toggleTipo(3)">
           <div class="tipo-check" id="check3">✓</div>
           <div class="tipo-info">
-            <div class="tipo-name">Inter-Agencia Ampliado <span class="tipo-badge">3% + IVA</span></div>
-            <div class="tipo-desc">Como el bilateral pero con 3%+IVA para activos UrbanFlip Capital y publicación permitida en portales.</div>
+            <div class="tipo-name">Operación Tripartita <span class="tipo-badge">33.3% c/parte</span></div>
+            <div class="tipo-desc">Piso de broker + demanda de otro broker + ONOMA conecta. Honorarios en tres partes iguales.</div>
           </div>
         </div>
       </div>
@@ -1243,7 +1243,7 @@ function generarContrato() {
   document.getElementById('firmaColaboradorNif').textContent = 'NIF/NIE: ' + nif + ' · ' + cargo;
   document.getElementById('firmaColaboradorEmpresa').textContent = colabTipo === 'empresa' ? 'Por ' + empresa.toUpperCase() : '';
 
-  var soloUF2 = tiposSeleccionados.length === 1 && tiposSeleccionados[0] === 2;
+  var soloUF2 = tiposSeleccionados.length === 1 && tiposSeleccionados[0] === 1;
   var titulo = soloUF2 ? 'CONTRATO DE COLABORACIÓN — ACTIVOS URBANFLIP CAPITAL' : 'CONTRATO DE COLABORACIÓN INTER-AGENCIA';
   document.getElementById('contratoTitulo').textContent = titulo;
   document.getElementById('contratoCuerpo').innerHTML = construirContrato(datosColaborador, fechaStr);
@@ -1261,11 +1261,9 @@ function construirContrato(d, fecha) {
   var tipos = d.tipos;
   var esIndep = d.tipoColab === 'independiente';
 
-  // Solo UrbanFlip (tipo 2 sin bilaterales) → Contrato UrbanFlip Capital solo
-  var soloUF = tipos.includes(2) && !tipos.includes(1) && !tipos.includes(3);
-
-  // Porcentaje UrbanFlip: tipo 3 = 3%, tipo 1 o tipo 2 = 2%
-  var pctUF = tipos.includes(3) && !tipos.includes(1) ? '3%' : '2%';
+  // Tipo 1 = UrbanFlip Solo 2%+IVA | Tipo 2 = Terceros 50/50 | Tipo 3 = Tripartita 33,33%
+  // Solo UrbanFlip → Contrato UrbanFlip Capital solo
+  var soloUF = tipos.includes(1) && !tipos.includes(2) && !tipos.includes(3);
 
   // Nombre + representación de la otra parte
   var otraParte;
@@ -1310,7 +1308,7 @@ function construirContrato(d, fecha) {
     html += '<li>Las partes intercambiarán información sobre activos y clientes por email o mensajería.</li>';
     html += '<li>El reconocimiento de autoría de cliente o activo es estrictamente <strong>POR OPERACIÓN concreta</strong>, identificada por dirección, referencia catastral o referencia interna. No implica exclusividad general ni prohibición de tratar con el mismo proveedor o comprador en otras operaciones distintas.</li>';
     html += '<li>Si una parte ya tiene un activo en cartera o un cliente trabajado para esa MISMA operación, lo comunicará en 24 horas para evitar duplicidades.</li>';
-    if (tipos.includes(1)) {
+    if (tipos.includes(2)) {
       html += '<li>En caso de conflicto de titularidad sobre un mismo activo o cliente no resuelto en 48 horas desde la comunicación, ambas partes podrán trabajarlo de forma independiente para esa operación concreta, sin que ninguna de ellas tenga derecho a honorarios cruzados derivados de dicha operación.</li>';
     } else {
       html += '<li>El presente acuerdo no otorga exclusividad sobre ningún activo salvo pacto expreso por escrito para una operación concreta.</li>';
@@ -1338,25 +1336,32 @@ function construirContrato(d, fecha) {
     html += '</ul>';
     html += '<p>En caso de que no tuviese lugar el contrato de arras, la totalidad de los honorarios será abonada a la Colaboradora en el momento de la firma pública ante notario.</p>';
   } else {
-    if (tipos.includes(1) || (tipos.includes(1) && tipos.includes(2))) {
-      html += '<p><strong>A) Honorarios por inmuebles de terceros (ajenos a UrbanFlip Capital):</strong></p>';
+    // Tipo 2 = Terceros 50/50
+    if (tipos.includes(2)) {
+      var letraTerceros = 'A';
+      html += '<p><strong>' + letraTerceros + ') Honorarios por inmuebles de terceros (ajenos a UrbanFlip Capital):</strong></p>';
       html += '<p>La distribución de honorarios será bilateral al <strong>50% del total efectivamente cobrado</strong> en la operación, considerando conjuntamente los honorarios facturados tanto a la parte compradora como a la parte vendedora.</p>';
       html += '<p>Si en una operación concreta solo se perciben honorarios de una de las partes (comprador o vendedor), el reparto al 50% se aplicará únicamente sobre el importe efectivamente cobrado, sin que ninguna de las partes pueda reclamar a la otra la parte no percibida.</p>';
     }
-    if (tipos.includes(3) && !tipos.includes(1)) {
-      html += '<p><strong>A) Honorarios por inmuebles de terceros (ajenos a UrbanFlip Capital):</strong></p>';
-      html += '<p>La distribución de honorarios será bilateral al <strong>50% del total efectivamente cobrado</strong> en la operación, considerando conjuntamente los honorarios facturados tanto a la parte compradora como a la parte vendedora.</p>';
-      html += '<p>Si en una operación concreta solo se perciben honorarios de una de las partes, el reparto al 50% se aplicará únicamente sobre el importe efectivamente cobrado.</p>';
+    // Tipo 3 = Tripartita 33,33%
+    if (tipos.includes(3)) {
+      var letraTrip = tipos.includes(2) ? 'B' : 'A';
+      html += '<p><strong>' + letraTrip + ') Operación Tripartita — 33,33% por parte:</strong></p>';
+      html += '<p>Cuando intervienen tres partes (broker del piso, broker de la demanda y ONOMA como nexo), los honorarios totales efectivamente cobrados se dividirán en <strong>tres partes iguales del 33,33%</strong> para cada parte interviniente.</p>';
+      html += '<p>El reparto aplica sobre el total cobrado en la operación, considerando conjuntamente los honorarios de comprador y vendedor. Cada parte emitirá factura por su tercio correspondiente.</p>';
     }
-    // UrbanFlip section (bilateral: tipo 1 o tipo 3, con o sin tipo 2)
-    var letraUF = (tipos.includes(1) || tipos.includes(3)) ? 'B' : 'A';
-    html += '<p><strong>' + letraUF + ') Honorarios por inmuebles provenientes de UrbanFlip Capital:</strong></p>';
-    html += '<p>Los inmuebles gestionados bajo la vertical UrbanFlip Capital —sociedad vinculada a ONOMA REAL ESTATE SL mediante acuerdo marco vigente— se rigen por un régimen económico diferenciado. La Colaboradora percibirá el <strong>' + pctUF + ' + IVA</strong> sobre el precio final de compraventa, abonado de la siguiente manera:</p>';
-    html += '<ul>';
-    html += '<li>50% a la firma y recepción del capital en el contrato de arras penitenciales.</li>';
-    html += '<li>50% restante en el momento de la firma pública ante notario.</li>';
-    html += '</ul>';
-    html += '<p>En caso de que no tuviese lugar el contrato de arras, la totalidad de los honorarios será abonada a la Colaboradora en el momento de la firma pública ante notario.</p>';
+    // Tipo 1 = UrbanFlip Capital 2% + IVA (cuando está combinado con otros)
+    if (tipos.includes(1) && !soloUF) {
+      var letrasUsadas = (tipos.includes(2) ? 1 : 0) + (tipos.includes(3) ? 1 : 0);
+      var letraUF = letrasUsadas === 0 ? 'A' : letrasUsadas === 1 ? 'B' : 'C';
+      html += '<p><strong>' + letraUF + ') Honorarios por inmuebles provenientes de UrbanFlip Capital:</strong></p>';
+      html += '<p>Los inmuebles gestionados bajo la vertical UrbanFlip Capital —sociedad vinculada a ONOMA REAL ESTATE SL mediante acuerdo marco vigente— se rigen por un régimen económico diferenciado. La Colaboradora percibirá el <strong>2% + IVA</strong> sobre el precio final de compraventa, abonado de la siguiente manera:</p>';
+      html += '<ul>';
+      html += '<li>50% a la firma y recepción del capital en el contrato de arras penitenciales.</li>';
+      html += '<li>50% restante en el momento de la firma pública ante notario.</li>';
+      html += '</ul>';
+      html += '<p>En caso de que no tuviese lugar el contrato de arras, la totalidad de los honorarios será abonada a la Colaboradora en el momento de la firma pública ante notario.</p>';
+    }
   }
 
   // ─── CONSOLIDACIÓN DE HONORARIOS ───
@@ -1390,11 +1395,7 @@ function construirContrato(d, fecha) {
   } else {
     html += '<p><strong>A) Inmuebles de terceros:</strong><br>Ninguna de las partes está autorizada a publicar en ningún medio, plataforma, portal inmobiliario, red social ni soporte publicitario los activos de terceros compartidos en el marco de este acuerdo. La comercialización de dichos activos se realizará exclusivamente de forma privada, a través de contacto directo con clientes de la propia cartera, sin difusión pública de ninguna clase.</p>';
 
-    if (tipos.includes(3) && !tipos.includes(1)) {
-      // 3% → publicación en portales permitida
-      html += '<p><strong>B) Inmuebles de UrbanFlip Capital:</strong><br>La Colaboradora podrá publicar los activos provenientes de UrbanFlip Capital en sus propios canales y en las plataformas habituales del sector inmobiliario (entre otras, Idealista, Fotocasa o equivalentes), así como en las redes sociales y soportes digitales propios de la Colaboradora. Queda expresamente prohibido publicar dichos activos bajo la marca, imagen o denominación de UrbanFlip Capital sin autorización previa y por escrito.</p>';
-    } else {
-      // 2% → solo canales propios
+    if (tipos.includes(1)) {
       html += '<p><strong>B) Inmuebles de UrbanFlip Capital:</strong><br>La Colaboradora podrá publicar los activos provenientes de UrbanFlip Capital exclusivamente en sus propias redes sociales y en su página web corporativa. Queda expresamente prohibida la publicación de dichos activos en portales inmobiliarios, plataformas de terceros o cualquier otro medio externo (incluidos, entre otros, Idealista, Fotocasa o equivalentes). Queda igualmente prohibido publicar dichos activos bajo la marca, imagen o denominación de UrbanFlip Capital sin autorización previa y por escrito.</p>';
     }
 
