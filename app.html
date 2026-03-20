@@ -290,6 +290,24 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px;
 .horario-opts label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
 .horario-opts input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); flex-shrink: 0; }
 
+/* LIGHTBOX */
+.lightbox-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 500; flex-direction: column; align-items: center; justify-content: center; }
+.lightbox-overlay.open { display: flex; }
+.lightbox-img { max-width: 90vw; max-height: 82vh; object-fit: contain; border-radius: 4px; display: block; }
+.lightbox-video { max-width: 90vw; max-height: 82vh; border-radius: 4px; }
+.lightbox-nav { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 50%; width: 52px; height: 52px; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 501; }
+.lightbox-nav:hover { background: rgba(255,255,255,0.3); }
+.lightbox-nav.lb-prev { left: 16px; }
+.lightbox-nav.lb-next { right: 16px; }
+.lightbox-close { position: fixed; top: 16px; right: 16px; background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 50%; width: 42px; height: 42px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 502; transition: background 0.2s; }
+.lightbox-close:hover { background: rgba(255,255,255,0.3); }
+.lightbox-counter { position: fixed; bottom: 44px; left: 50%; transform: translateX(-50%); color: white; font-size: 14px; font-weight: 600; background: rgba(0,0,0,0.6); padding: 4px 16px; border-radius: 20px; z-index: 501; }
+.lightbox-label { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.7); font-size: 13px; z-index: 501; white-space: nowrap; }
+/* DOC CHIPS in piso detail */
+.doc-chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1.5px solid var(--border); background: white; cursor: pointer; color: var(--accent); text-decoration: none; transition: all 0.15s; }
+.doc-chip:hover { border-color: var(--accent); background: #f0f4ee; }
+.doc-chip.unavailable { color: var(--text-muted); cursor: default; opacity: 0.5; pointer-events: none; }
+
 /* MOBILE */
 @media (max-width: 768px) {
   :root { --sidebar-width: 260px; }
@@ -380,6 +398,16 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px;
 
 <div id="toast-container"></div>
 
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightbox-overlay" onclick="if(event.target===this)closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">×</button>
+  <button class="lightbox-nav lb-prev" id="lb-prev" onclick="lightboxNav(-1)">&#8249;</button>
+  <div id="lightbox-content"></div>
+  <button class="lightbox-nav lb-next" id="lb-next" onclick="lightboxNav(1)">&#8250;</button>
+  <div class="lightbox-label" id="lightbox-label"></div>
+  <div class="lightbox-counter" id="lightbox-counter"></div>
+</div>
+
 <script>
 // ─── SUPABASE ─────────────────────────────────────────
 const SUPABASE_URL = 'https://wwaytwudfbwxttyyojjx.supabase.co';
@@ -404,6 +432,8 @@ let _pisosData = [];
 let _carouselFotos = [];
 let _carouselIdx = 0;
 let _dirColabTipoFilter = 'todos';
+let _lbItems = [];
+let _lbIdx = 0;
 
 // ─── NAV ──────────────────────────────────────────────
 const NAV_ASESOR = [
@@ -549,8 +579,9 @@ function renderPlaceholder(tabId) {
 // ─── PENDING COUNT ─────────────────────────────────────
 async function loadPendingCount() {
   try {
-    const { count } = await sb.from('acciones_pendientes').select('id', { count: 'exact', head: true })
-      .eq('asesor_id', currentUser.id).eq('estado', 'pendiente');
+    let q = sb.from('acciones_pendientes').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente');
+    if (currentUser.rol !== 'director') q = q.eq('asesor_id', currentUser.id);
+    const { count } = await q;
     pendingCount = count || 0; updateBadge();
   } catch {}
 }
@@ -621,7 +652,48 @@ function closeModal() {
   Object.keys(_validTimers).forEach(k => clearTimeout(_validTimers[k]));
 }
 function handleOverlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', e => {
+  if (document.getElementById('lightbox-overlay').classList.contains('open')) {
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') lightboxNav(-1);
+    if (e.key === 'ArrowRight') lightboxNav(1);
+  } else if (e.key === 'Escape') closeModal();
+});
+
+// ─── LIGHTBOX ─────────────────────────────────────────
+function openLightbox(items, idx) {
+  _lbItems = items; _lbIdx = idx;
+  document.getElementById('lightbox-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderLightbox();
+}
+function closeLightbox() {
+  document.getElementById('lightbox-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function lightboxNav(dir) {
+  if (_lbItems.length < 2) return;
+  _lbIdx = (_lbIdx + dir + _lbItems.length) % _lbItems.length;
+  renderLightbox();
+}
+function renderLightbox() {
+  const item = _lbItems[_lbIdx]; if (!item) return;
+  const content = document.getElementById('lightbox-content');
+  const counter = document.getElementById('lightbox-counter');
+  const label = document.getElementById('lightbox-label');
+  const prev = document.getElementById('lb-prev');
+  const next = document.getElementById('lb-next');
+  if (item.type === 'video') {
+    content.innerHTML = `<video class="lightbox-video" src="${item.url}" controls autoplay></video>`;
+  } else {
+    content.innerHTML = `<img class="lightbox-img" src="${item.url}" alt="${item.label||''}">`;
+  }
+  if (counter) counter.textContent = `${_lbIdx + 1} / ${_lbItems.length}`;
+  if (label) label.textContent = item.label || '';
+  const multi = _lbItems.length > 1;
+  if (prev) prev.style.display = multi ? '' : 'none';
+  if (next) next.style.display = multi ? '' : 'none';
+}
 
 // ─── COLLAPSIBLE ─────────────────────────────────────
 function toggleCollapsible(header) {
@@ -644,7 +716,7 @@ function filterChips(btn, attr, val) {
     row.style.display = (val === 'todos' || row.dataset[attr] === val) ? '' : 'none';
   });
 }
-let _pisosFilter = { chip: 'todos', barrio: '', precioMin: null, precioMax: null };
+let _pisosFilter = { chip: 'todos', barrio: '', precioMin: null, precioMax: null, search: '' };
 
 function applyPisosFilters() {
   document.querySelectorAll('#pisos-grid .data-card').forEach(card => {
@@ -657,6 +729,7 @@ function applyPisosFilters() {
     const precio = parseFloat(card.dataset.precio) || 0;
     if (f.precioMin) show = show && precio >= f.precioMin;
     if (f.precioMax) show = show && precio <= f.precioMax;
+    if (f.search) show = show && (card.dataset.search || '').includes(f.search);
     card.style.display = show ? '' : 'none';
   });
 }
@@ -665,6 +738,11 @@ function filterPisosChip(btn, filter) {
   btn.closest('.filters-bar').querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   _pisosFilter.chip = filter;
+  applyPisosFilters();
+}
+
+function filterPisosSearch(q) {
+  _pisosFilter.search = (q || '').toLowerCase().trim();
   applyPisosFilters();
 }
 
@@ -1026,6 +1104,7 @@ TAB_LOADERS.pisos = async function() {
       <div class="tab-toolbar">
         <div><h2>Pisos</h2><p>${(data||[]).length} pisos en cartera</p></div>
         <div class="tab-actions">
+          <div class="search-bar"><span class="search-icon">🔍</span><input type="text" placeholder="Buscar dirección, barrio, descripción..." oninput="filterPisosSearch(this.value)" style="width:260px"></div>
           ${isDir ? `<button class="btn btn-primary" onclick="newPisoModal(false)">🏠 Piso Terceros</button><button class="btn btn-gold" onclick="newPisoModal(true)">⭐ Urban Flip</button>`
                   : `<button class="btn btn-primary" onclick="newPisoModal(false)">➕ Nuevo Piso</button>`}
         </div>
@@ -1044,14 +1123,16 @@ TAB_LOADERS.pisos = async function() {
       ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">🏘️</span><p>Aún no hay pisos registrados.</p><button class="btn btn-primary" onclick="newPisoModal(false)">➕ Añadir primer piso</button></div>` : `
       <div class="cards-grid" id="pisos-grid">${(data||[]).map(p => {
         const foto = p.fotos && p.fotos[0] ? (p.fotos[0].thumbnail || p.fotos[0].url) : null;
-        return `<div class="data-card ${p.urban_flip?'urban-flip':''}" data-uf="${!!p.urban_flip}" data-terraza="${!!p.terraza}" data-ascensor="${!!p.ascensor}" data-barrio="${p.barrio||''}" data-precio="${p.precio||0}" onclick="openPisoDetail('${p.id}')" style="cursor:pointer">
+        const searchStr = ((p.direccion||'') + ' ' + (p.barrio||'') + ' ' + (p.descripcion_ia||'')).toLowerCase().slice(0,300);
+        return `<div class="data-card ${p.urban_flip?'urban-flip':''}" data-uf="${!!p.urban_flip}" data-terraza="${!!p.terraza}" data-ascensor="${!!p.ascensor}" data-barrio="${p.barrio||''}" data-precio="${p.precio||0}" data-search="${searchStr.replace(/"/g,'')}" onclick="openPisoDetail('${p.id}')" style="cursor:pointer">
           ${foto ? `<img class="card-img" src="${foto}" loading="lazy">` : `<div class="card-img">🏠</div>`}
           <div class="card-body">
             ${p.urban_flip?'<div class="uf-badge">⭐ URBAN FLIP</div>':''}
             <div class="card-title">${p.direccion||'Sin dirección'}</div>
             <div class="card-meta">${p.barrio||''} · ${p.habitaciones||'—'} hab · ${p.metros||'—'} m²</div>
             <div class="card-price">${eur(p.precio)}</div>
-            <div class="card-tags">
+            ${p.descripcion_ia ? `<div style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${p.descripcion_ia}</div>` : ''}
+            <div class="card-tags" style="margin-top:8px">
               ${p.ascensor?'<span class="pill pill-green" style="font-size:11px">Ascensor</span>':''}
               ${p.terraza?'<span class="pill pill-blue" style="font-size:11px">Terraza</span>':''}
               <span class="pill ${p.estado_sistema==='activo'?'pill-green':'pill-gray'}" style="font-size:11px">${p.estado_sistema||'activo'}</span>
@@ -1069,18 +1150,30 @@ function openPisoDetail(id) {
   _carouselFotos = fotos;
   _carouselIdx = 0;
 
+  // Build lightbox items: fotos + planos + video
+  const lbItems = [];
+  fotos.forEach((f, i) => {
+    const url = (f && typeof f === 'object') ? (f.url || '') : String(f||'');
+    if (url) lbItems.push({ url, label: `Foto ${i+1} de ${fotos.length}`, type: 'image' });
+  });
+  if (p.planos) lbItems.push({ url: p.planos, label: 'Plano', type: 'image' });
+  if (p.video) lbItems.push({ url: p.video, label: 'Vídeo', type: 'video' });
+  // store globally so onclick strings can reference by index
+  window._lbItemsCache = lbItems;
+
   const carouselHtml = fotos.length === 0
-    ? `<div class="carousel-empty">🏠</div>`
-    : `<div class="carousel-wrap" id="piso-carousel">
+    ? `<div class="carousel-empty" style="cursor:default">🏠</div>`
+    : `<div class="carousel-wrap" id="piso-carousel" style="cursor:zoom-in" title="Clic para abrir galería">
         <div class="carousel-slides" id="carousel-slides">
-          ${fotos.map(f => {
+          ${fotos.map((f, i) => {
             const src = (f && typeof f === 'object') ? (f.url || '') : String(f||'');
-            return `<div class="carousel-slide"><img src="${src}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=height:270px;display:flex;align-items:center;justify-content:center;background:#f3f2ef;font-size:64px>🏠</div>'"></div>`;
+            return `<div class="carousel-slide" onclick="openLightbox(window._lbItemsCache,${i})"><img src="${src}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=height:270px;display:flex;align-items:center;justify-content:center;background:#f3f2ef;font-size:64px>🏠</div>'"></div>`;
           }).join('')}
         </div>
-        ${fotos.length > 1 ? `<button class="carousel-btn carousel-prev" onclick="carouselNav(-1)">&#8249;</button>
-        <button class="carousel-btn carousel-next" onclick="carouselNav(1)">&#8250;</button>
+        ${fotos.length > 1 ? `<button class="carousel-btn carousel-prev" onclick="event.stopPropagation();carouselNav(-1)">&#8249;</button>
+        <button class="carousel-btn carousel-next" onclick="event.stopPropagation();carouselNav(1)">&#8250;</button>
         <div class="carousel-count" id="carousel-count">1 / ${fotos.length}</div>` : ''}
+        ${lbItems.length > fotos.length ? `<div style="position:absolute;bottom:10px;left:12px;background:rgba(0,0,0,0.6);color:white;font-size:11px;padding:2px 8px;border-radius:10px;z-index:2">📐🎬 Planos/Vídeo incluidos</div>` : ''}
       </div>`;
 
   function pill(val, c='gray') { return `<span class="pill pill-${c}" style="font-size:12px">${val}</span>`; }
@@ -1096,14 +1189,21 @@ function openPisoDetail(id) {
     p.trastero && pill('Trastero','gray'),
   ].filter(Boolean).join('');
 
+  // Docs — always shown, greyed out if unavailable
   const docs = p.documentos || {};
-  const docLinks = [
-    ['Encargo', p.encargo_venta],
-    ['IBI', docs.ibi?.url],['ITE', docs.ite?.url],
-    ['Catastro', docs.catastro?.url],['Escritura', docs.escritura?.url],
-    ['Planos', p.planos],['Vídeo', p.video],
-  ].filter(([,url]) => url)
-   .map(([lbl, url]) => `<a href="${url}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:12px">${lbl}</a>`).join('');
+  const docTypes = [
+    ['📋 Encargo venta', p.encargo_venta],
+    ['🏠 IBI', docs.ibi?.url],
+    ['🔬 ITE', docs.ite?.url],
+    ['📍 Catastro', docs.catastro?.url],
+    ['📜 Escritura', docs.escritura?.url],
+    ['📐 Planos', p.planos],
+    ['🎬 Vídeo', p.video],
+  ];
+  const docChips = docTypes.map(([lbl, url]) =>
+    url ? `<a href="${url}" target="_blank" rel="noopener" class="doc-chip">${lbl}</a>`
+        : `<span class="doc-chip unavailable">${lbl}</span>`
+  ).join('');
 
   let horariosHtml = '';
   if (p.horarios_visita) {
@@ -1121,7 +1221,8 @@ function openPisoDetail(id) {
 
   openModal(p.direccion || 'Detalle del piso', `
     ${carouselHtml}
-    <div style="margin-top:14px">
+    ${fotos.length > 0 ? `<p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:4px;margin-bottom:8px">Clic en la foto para abrir galería completa</p>` : ''}
+    <div style="margin-top:4px">
       ${p.urban_flip ? '<div class="uf-badge" style="margin-bottom:8px">⭐ URBAN FLIP</div>' : ''}
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
         <div>
@@ -1131,9 +1232,12 @@ function openPisoDetail(id) {
         <div style="font-size:22px;font-weight:700;color:var(--accent)">${eur(p.precio)}</div>
       </div>
       <div class="card-tags" style="margin-bottom:12px">${pills}</div>
-      ${p.descripcion_ia ? `<div style="margin-bottom:12px"><div class="form-section-title">Descripción</div><p style="font-size:13px;line-height:1.6">${p.descripcion_ia}</p></div>` : ''}
-      ${p.caracteristicas_libres ? `<div style="margin-bottom:12px"><div class="form-section-title">Características adicionales</div><p style="font-size:13px;line-height:1.6;color:var(--text)">${p.caracteristicas_libres}</p></div>` : ''}
-      ${docLinks ? `<div style="margin-bottom:10px"><div class="form-section-title">Documentos</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">${docLinks}</div></div>` : ''}
+      ${p.descripcion_ia ? `<div style="margin-bottom:14px"><div class="form-section-title">Recomendación IA</div><p style="font-size:13px;line-height:1.6;color:var(--text)">${p.descripcion_ia}</p></div>` : ''}
+      ${p.caracteristicas_libres ? `<div style="margin-bottom:14px"><div class="form-section-title">Características adicionales</div><p style="font-size:13px;line-height:1.6;color:var(--text);font-style:italic">${p.caracteristicas_libres}</p></div>` : ''}
+      <div style="margin-bottom:14px">
+        <div class="form-section-title">Documentos</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${docChips}</div>
+      </div>
       ${horariosHtml}
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
         <span class="pill ${p.estado_sistema==='activo'?'pill-green':'pill-gray'}" style="font-size:12px">${p.estado_sistema||'activo'}</span>
@@ -1199,63 +1303,92 @@ TAB_LOADERS.informes = async function() {
       </div>
     </div>
     <div class="filters-bar" style="margin-bottom:20px">
-      <button class="filter-chip active" id="inf-tipo-btn-todo" onclick="setInformeTipo(this,'todo')">🌐 Todo</button>
-      <button class="filter-chip" onclick="setInformeTipo(this,'pisos')">🏘️ Pisos</button>
+      <button class="filter-chip active" onclick="setInformeTipo(this,'pisos')">🏘️ Pisos</button>
       <button class="filter-chip" onclick="setInformeTipo(this,'asesor')">👔 Asesor</button>
       <button class="filter-chip" onclick="setInformeTipo(this,'colaborador')">🤝 Colaborador</button>
       <button class="filter-chip" onclick="setInformeTipo(this,'demanda')">📋 Demanda</button>
     </div>
-    <div id="inf-search-wrap" style="display:none;margin-bottom:16px">
-      <div class="search-bar" style="width:100%;max-width:400px">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="inf-search-input" placeholder="Buscar..." style="width:100%" oninput="searchInformeItem(this.value)">
+    <div id="inf-search-wrap" style="margin-bottom:20px;max-width:480px">
+      <div class="autocomplete-wrap">
+        <input type="text" id="inf-search-input" class="autocomplete-input" placeholder="Buscar piso por dirección o barrio..." autocomplete="off" oninput="searchInformeItem(this.value)">
+        <div id="inf-search-dropdown" class="autocomplete-dropdown" style="display:none"></div>
       </div>
-      <div id="inf-search-results" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"></div>
+      <div id="inf-selected-badge" style="margin-top:8px"></div>
     </div>
     <button class="btn btn-primary" onclick="generarInforme()" style="margin-bottom:24px">📊 Generar Informe</button>
     <div id="inf-result"></div>`;
 };
 
-let _informeTipo = 'todo';
+let _informeTipo = 'pisos';
 let _informeItemId = null;
 let _informeItemLabel = '';
+
+const _infPlaceholders = {
+  pisos: 'Buscar piso por dirección o barrio...',
+  asesor: 'Buscar por nombre del asesor...',
+  colaborador: 'Buscar por nombre o empresa colaboradora...',
+  demanda: 'Buscar por nombre de cliente demandante...'
+};
 
 function setInformeTipo(btn, tipo) {
   btn.closest('.filters-bar').querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   _informeTipo = tipo;
   _informeItemId = null; _informeItemLabel = '';
-  const wrap = document.getElementById('inf-search-wrap');
   const inp = document.getElementById('inf-search-input');
-  if (wrap) wrap.style.display = tipo === 'todo' ? 'none' : 'block';
-  if (inp) { inp.value = ''; inp.placeholder = tipo === 'pisos' ? 'Dirección o barrio...' : tipo === 'asesor' ? 'Nombre asesor...' : tipo === 'colaborador' ? 'Nombre o empresa...' : 'Nombre cliente...'; }
-  const res = document.getElementById('inf-search-results'); if (res) res.innerHTML = '';
+  const dd = document.getElementById('inf-search-dropdown');
+  const badge = document.getElementById('inf-selected-badge');
+  if (inp) { inp.value = ''; inp.placeholder = _infPlaceholders[tipo] || 'Buscar...'; }
+  if (dd) dd.style.display = 'none';
+  if (badge) badge.innerHTML = '';
 }
 
+let _infAcT;
 async function searchInformeItem(q) {
-  const res = document.getElementById('inf-search-results');
-  if (!res || !q || q.length < 2) { if (res) res.innerHTML = ''; return; }
-  let items = [];
-  if (_informeTipo === 'pisos') {
-    const { data } = await sb.from('pisos').select('id,direccion,barrio').or(`direccion.ilike.%${q}%,barrio.ilike.%${q}%`).limit(6);
-    items = (data||[]).map(p => ({ id: p.id, label: p.direccion + (p.barrio ? ' · ' + p.barrio : '') }));
-  } else if (_informeTipo === 'asesor') {
-    const { data } = await sb.from('asesores').select('id,nombre').ilike('nombre', `%${q}%`).limit(6);
-    items = (data||[]).map(a => ({ id: a.id, label: a.nombre }));
-  } else if (_informeTipo === 'colaborador') {
-    const { data } = await sb.from('colaboradores').select('id,nombre,empresa').or(`nombre.ilike.%${q}%,empresa.ilike.%${q}%`).limit(6);
-    items = (data||[]).map(c => ({ id: c.id, label: [c.nombre, c.empresa].filter(Boolean).join(' · ') }));
-  } else if (_informeTipo === 'demanda') {
-    const { data } = await sb.from('demandas').select('id,nombre').ilike('nombre', `%${q}%`).limit(6);
-    items = (data||[]).map(d => ({ id: d.id, label: d.nombre }));
-  }
-  res.innerHTML = items.map(it => `<button class="filter-chip ${_informeItemId===it.id?'active':''}" onclick="selectInformeItem('${it.id}','${it.label.replace(/'/g,"\\'")}',this)">${it.label}</button>`).join('');
+  clearTimeout(_infAcT);
+  const dd = document.getElementById('inf-search-dropdown');
+  if (!dd) return;
+  if (!q || q.length < 1) { dd.style.display = 'none'; return; }
+  _infAcT = setTimeout(async () => {
+    let items = [];
+    if (_informeTipo === 'pisos') {
+      const { data } = await sb.from('pisos').select('id,direccion,barrio').or(`direccion.ilike.%${q}%,barrio.ilike.%${q}%`).limit(8);
+      items = (data||[]).map(p => ({ id: p.id, main: p.direccion||'—', sub: p.barrio||'' }));
+    } else if (_informeTipo === 'asesor') {
+      const { data } = await sb.from('asesores').select('id,nombre,email').ilike('nombre', `%${q}%`).limit(8);
+      items = (data||[]).map(a => ({ id: a.id, main: a.nombre||'—', sub: a.email||'' }));
+    } else if (_informeTipo === 'colaborador') {
+      const { data } = await sb.from('colaboradores').select('id,nombre,empresa').or(`nombre.ilike.%${q}%,empresa.ilike.%${q}%`).limit(8);
+      items = (data||[]).map(c => ({ id: c.id, main: [c.nombre,c.empresa].filter(Boolean).join(' · '), sub: '' }));
+    } else if (_informeTipo === 'demanda') {
+      const { data } = await sb.from('demandas').select('id,nombre,zona_preferida').ilike('nombre', `%${q}%`).limit(8);
+      items = (data||[]).map(d => ({ id: d.id, main: d.nombre||'—', sub: d.zona_preferida||'' }));
+    }
+    if (!items.length) {
+      dd.innerHTML = '<div class="autocomplete-item" style="color:var(--text-muted);cursor:default">Sin resultados para "' + q + '"</div>';
+    } else {
+      dd.innerHTML = items.map(it => `<div class="autocomplete-item" onclick="selectInformeItem('${it.id}','${it.main.replace(/'/g,"&#39;")}',this)"><strong>${it.main}</strong>${it.sub?`<span>${it.sub}</span>`:''}</div>`).join('');
+    }
+    dd.style.display = 'block';
+  }, 250);
 }
 
-function selectInformeItem(id, label, btn) {
+function selectInformeItem(id, label, el) {
   _informeItemId = id; _informeItemLabel = label;
-  document.getElementById('inf-search-results').querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  const dd = document.getElementById('inf-search-dropdown');
+  const inp = document.getElementById('inf-search-input');
+  const badge = document.getElementById('inf-selected-badge');
+  if (dd) dd.style.display = 'none';
+  if (inp) inp.value = label;
+  if (badge) badge.innerHTML = `<div class="colab-badge">✅ ${label}<button type="button" onclick="clearInformeItem()" title="Cambiar">×</button></div>`;
+}
+
+function clearInformeItem() {
+  _informeItemId = null; _informeItemLabel = '';
+  const inp = document.getElementById('inf-search-input');
+  const badge = document.getElementById('inf-selected-badge');
+  if (inp) { inp.value = ''; inp.focus(); }
+  if (badge) badge.innerHTML = '';
 }
 
 async function generarInforme() {
@@ -1351,6 +1484,8 @@ async function generarInforme() {
           <div style="text-align:center;padding:14px;background:#f0fdf4;border-radius:8px;margin-top:12px"><div style="font-size:24px;font-weight:700;color:#22c55e">${realizadas.length}</div><div style="font-size:12px;color:var(--text-muted);margin-top:4px">Visitas realizadas</div></div>
         </div>`;
 
+    } else if (_informeTipo !== 'todo' && !_informeItemId) {
+      result.innerHTML = `<div class="alert alert-warning">⚠️ Selecciona un elemento específico del buscador para generar el informe.</div>`;
     } else {
       // Informe global
       const [pisosR, demandasR, visitasR, matchR, colabsR] = await Promise.all([
