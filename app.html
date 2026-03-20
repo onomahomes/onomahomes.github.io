@@ -275,6 +275,21 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px;
 /* CONTRATO PREVIEW */
 .contrato-preview { border: 1px solid var(--border); border-radius: 8px; max-height: 52vh; overflow-y: auto; padding: 20px; background: #fafaf8; }
 
+/* CAROUSEL */
+.carousel-wrap { position: relative; border-radius: 10px; overflow: hidden; background: #111; }
+.carousel-slides { display: flex; transition: transform 0.32s ease; will-change: transform; }
+.carousel-slide { min-width: 100%; flex-shrink: 0; }
+.carousel-slide img { width: 100%; height: 270px; object-fit: cover; display: block; }
+.carousel-empty { height: 200px; display: flex; align-items: center; justify-content: center; font-size: 64px; background: #f3f2ef; border-radius: 10px; }
+.carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.55); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; transition: background 0.2s; line-height: 1; }
+.carousel-btn:hover { background: rgba(0,0,0,0.85); }
+.carousel-prev { left: 8px; }
+.carousel-next { right: 8px; }
+.carousel-count { position: absolute; bottom: 10px; right: 12px; background: rgba(0,0,0,0.6); color: white; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 12px; z-index: 2; }
+.horario-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.horario-opts label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+.horario-opts input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); flex-shrink: 0; }
+
 /* MOBILE */
 @media (max-width: 768px) {
   :root { --sidebar-width: 260px; }
@@ -385,6 +400,10 @@ let uploadedPhotos = [];
 let uploadedDocs = {};
 let colabsCache = [];
 let _selectedColabId = null;
+let _pisosData = [];
+let _carouselFotos = [];
+let _carouselIdx = 0;
+let _dirColabTipoFilter = 'todos';
 
 // ─── NAV ──────────────────────────────────────────────
 const NAV_ASESOR = [
@@ -404,6 +423,7 @@ const NAV_DIRECTOR = [
   { id: 'equipo',         icon: '👔', label: 'Equipo', section: 'Gestión' },
   { id: 'colaboradores',  icon: '🤝', label: 'Colaboradores' },
   { id: 'pisos',          icon: '🏘️', label: 'Pisos' },
+  { id: 'demandas',       icon: '📋', label: 'Demandas' },
   { id: 'pipeline',       icon: '📊', label: 'Pipeline' },
   { id: 'agenda',         icon: '📅', label: 'Agenda' },
   { id: 'informes',       icon: '📈', label: 'Informes' },
@@ -417,7 +437,7 @@ const TAB_PLACEHOLDERS = {
   notificaciones: { icon: '🔔', title: 'Notificaciones', desc: 'Alertas de escalado 72h, pisos sin actividad, operaciones bloqueadas.' },
   pipeline:       { icon: '📊', title: 'Pipeline', desc: 'Operaciones en curso: fases, fechas clave, comisiones.' },
   agenda:         { icon: '📅', title: 'Agenda', desc: 'Todas las visitas del equipo.' },
-  informes:       { icon: '📈', title: 'Informes', desc: 'Informes comerciales y de rendimiento.' },
+  informes:       { icon: '📈', title: 'Informes', desc: 'Informes comerciales con KPIs por piso, asesor, colaborador y demanda.' },
 };
 
 // ─── AUTH ─────────────────────────────────────────────
@@ -785,55 +805,181 @@ function tabError(pane, e) { pane.innerHTML = `<div class="tab-error">Error carg
 // ─── TAB LOADERS ─────────────────────────────────────
 const TAB_LOADERS = {};
 
-// COLABORADORES
+// COLABORADORES (role-aware)
 TAB_LOADERS.colaboradores = async function() {
   const pane = document.getElementById('tab-colaboradores');
   tabLoad(pane);
+  const isDir = currentUser.rol === 'director';
   try {
-    const { data, error } = await sb.from('colaboradores')
-      .select('id,nombre,apellido,empresa,email,estado,es_independiente,logo_empresa,brand_color')
-      .filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`)
+    let q = sb.from('colaboradores')
+      .select('id,nombre,apellido,empresa,email,estado,es_independiente,logo_empresa,brand_color,contrato_estado,nif_cif,telefono,direccion_fiscal,acepta_broker_broker,acepta_urban_flip,acepta_tripartita,firma_fecha,created_time,asesor_onoma')
       .order('created_time', { ascending: false });
+    if (!isDir) q = q.filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`);
+    const { data, error } = await q;
     if (error) throw error;
-    colabsCache = data || [];
-    pane.innerHTML = `
-      <div class="tab-toolbar">
-        <div><h2>Mis Colaboradores</h2><p>${(data||[]).length} colaboradores en tu cartera</p></div>
-        <div class="tab-actions">
-          <div class="search-bar"><span class="search-icon">🔍</span><input type="text" placeholder="Buscar nombre..." oninput="filterTableSearch(this,'name-cell')"></div>
-          <button class="btn btn-primary" onclick="newColabModal()">➕ Nuevo Colaborador</button>
+    if (!isDir) colabsCache = data || [];
+
+    if (isDir) {
+      pane.innerHTML = `
+        <div class="tab-toolbar">
+          <div><h2>Colaboradores</h2><p>${(data||[]).length} colaboradores registrados</p></div>
+          <div class="tab-actions">
+            <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="dir-colab-search" placeholder="Buscar nombre, empresa..." oninput="filterDirColabs(this.value)"></div>
+          </div>
         </div>
-      </div>
-      ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">👥</span><p>Aún no tienes colaboradores.</p><button class="btn btn-primary" onclick="newColabModal()">➕ Añadir primero</button></div>` : `
-      <div class="data-table"><table>
-        <thead><tr><th>Colaborador</th><th>Tipo</th><th>Estado</th><th>Acciones</th></tr></thead>
-        <tbody>${(data||[]).map(c => `<tr>
-          <td class="name-cell"><div style="display:flex;align-items:center;gap:10px">
-            ${c.logo_empresa ? `<img src="${Array.isArray(c.logo_empresa) ? c.logo_empresa[0].url : c.logo_empresa}" style="width:32px;height:32px;border-radius:6px;object-fit:contain;border:1px solid #eee">`
-              : `<div style="width:32px;height:32px;border-radius:50%;background:${c.brand_color||'var(--accent)'};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">${(c.nombre||'?').charAt(0)}</div>`}
-            <div><div style="font-weight:600">${c.nombre||'—'} ${c.apellido||''}</div><div style="font-size:12px;color:var(--text-muted)">${c.empresa||''} ${c.email?'· '+c.email:''}</div></div>
-          </div></td>
-          <td><span class="pill ${c.es_independiente?'pill-blue':'pill-gray'}">${c.es_independiente?'Independiente':'Empresa'}</span></td>
-          <td><span class="pill ${c.estado==='activo'?'pill-green':c.estado==='pendiente_activacion'?'pill-yellow':'pill-gray'}">${c.estado||'pendiente'}</span></td>
-          <td><button class="btn btn-secondary btn-sm" onclick="toast('Detalle disponible en Fase 3','info')">Ver</button></td>
-        </tr>`).join('')}</tbody>
-      </table></div>`}`;
+        <div class="filters-bar" id="dir-colab-filters">
+          <button class="filter-chip active" onclick="filterDirColabTipo(this,'todos')">Todos</button>
+          <button class="filter-chip" onclick="filterDirColabTipo(this,'empresa')">Empresas</button>
+          <button class="filter-chip" onclick="filterDirColabTipo(this,'independiente')">Independientes</button>
+        </div>
+        ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">🤝</span><p>No hay colaboradores registrados.</p></div>`
+          : `<div class="cards-grid" id="dir-colabs-grid">${(data||[]).map(c => dirColabCard(c)).join('')}</div>`}`;
+    } else {
+      pane.innerHTML = `
+        <div class="tab-toolbar">
+          <div><h2>Mis Colaboradores</h2><p>${(data||[]).length} colaboradores en tu cartera</p></div>
+          <div class="tab-actions">
+            <div class="search-bar"><span class="search-icon">🔍</span><input type="text" placeholder="Buscar nombre..." oninput="filterTableSearch(this,'name-cell')"></div>
+            <button class="btn btn-primary" onclick="newColabModal()">➕ Nuevo Colaborador</button>
+          </div>
+        </div>
+        ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">👥</span><p>Aún no tienes colaboradores.</p><button class="btn btn-primary" onclick="newColabModal()">➕ Añadir primero</button></div>` : `
+        <div class="data-table"><table>
+          <thead><tr><th>Colaborador</th><th>Tipo</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody>${(data||[]).map(c => `<tr>
+            <td class="name-cell"><div style="display:flex;align-items:center;gap:10px">
+              ${c.logo_empresa ? `<img src="${Array.isArray(c.logo_empresa) ? c.logo_empresa[0].url : c.logo_empresa}" style="width:32px;height:32px;border-radius:6px;object-fit:contain;border:1px solid #eee">`
+                : `<div style="width:32px;height:32px;border-radius:50%;background:${c.brand_color||'var(--accent)'};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">${(c.nombre||'?').charAt(0)}</div>`}
+              <div><div style="font-weight:600">${c.nombre||'—'} ${c.apellido||''}</div><div style="font-size:12px;color:var(--text-muted)">${c.empresa||''} ${c.email?'· '+c.email:''}</div></div>
+            </div></td>
+            <td><span class="pill ${c.es_independiente?'pill-blue':'pill-gray'}">${c.es_independiente?'Independiente':'Empresa'}</span></td>
+            <td><span class="pill ${c.estado==='activo'?'pill-green':c.estado==='pendiente_activacion'?'pill-yellow':'pill-gray'}">${c.estado||'pendiente'}</span></td>
+            <td><button class="btn btn-secondary btn-sm" onclick="toast('Detalle disponible en Fase 3','info')">Ver</button></td>
+          </tr>`).join('')}</tbody>
+        </table></div>`}`;
+    }
   } catch(e) { tabError(pane, e); }
 };
 
-// DEMANDAS
+function dirColabCard(c) {
+  const logoSrc = c.logo_empresa ? (Array.isArray(c.logo_empresa) ? c.logo_empresa[0]?.url : c.logo_empresa) : null;
+  const logoHtml = logoSrc
+    ? `<img src="${logoSrc}" style="width:52px;height:52px;border-radius:8px;object-fit:contain;border:1px solid #eee;flex-shrink:0">`
+    : `<div style="width:52px;height:52px;border-radius:50%;background:${c.brand_color||'var(--accent)'};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;flex-shrink:0">${(c.nombre||'?').charAt(0)}</div>`;
+  const tipoBadge = c.es_independiente
+    ? `<span class="pill pill-blue" style="font-size:11px">Independiente</span>`
+    : `<span class="pill pill-gray" style="font-size:11px">Empresa</span>`;
+  const estadoBadge = c.contrato_estado === 'firmado'
+    ? `<span class="pill pill-green" style="font-size:11px">✅ Firmado</span>`
+    : c.contrato_estado === 'enviado' ? `<span class="pill pill-yellow" style="font-size:11px">Enviado</span>`
+    : `<span class="pill pill-gray" style="font-size:11px">${c.estado||'pendiente'}</span>`;
+  return `<div class="data-card" data-tipo="${c.es_independiente?'independiente':'empresa'}" data-nombre="${((c.nombre||'')+' '+(c.empresa||'')).toLowerCase()}" style="cursor:pointer" onclick="openDirColabDetail('${c.id}')">
+    <div class="card-body">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        ${logoHtml}
+        <div style="min-width:0;flex:1">
+          <div style="font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.nombre||'—'} ${c.apellido||''}</div>
+          ${c.empresa ? `<div style="font-size:13px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.empresa}</div>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${tipoBadge}${estadoBadge}</div>
+      <div style="font-size:12px;color:var(--text-muted)">📧 ${c.email||'—'}</div>
+    </div>
+  </div>`;
+}
+
+function filterDirColabs(q) {
+  q = (q||'').toLowerCase();
+  document.querySelectorAll('#dir-colabs-grid .data-card').forEach(card => {
+    const matchTipo = _dirColabTipoFilter === 'todos' || card.dataset.tipo === _dirColabTipoFilter;
+    const matchQ = !q || (card.dataset.nombre||'').includes(q);
+    card.style.display = matchTipo && matchQ ? '' : 'none';
+  });
+}
+
+function filterDirColabTipo(btn, tipo) {
+  btn.closest('.filters-bar').querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _dirColabTipoFilter = tipo;
+  filterDirColabs(document.getElementById('dir-colab-search')?.value||'');
+}
+
+async function openDirColabDetail(id) {
+  const { data } = await sb.from('colaboradores').select('*').eq('id', id).limit(1);
+  const c = data?.[0]; if (!c) return;
+  const [pR, dR, vR] = await Promise.all([
+    sb.from('pisos').select('id',{count:'exact',head:true}).filter('colaborador','cs',`{"${id}"}`),
+    sb.from('demandas').select('id',{count:'exact',head:true}).filter('colaborador','cs',`{"${id}"}`),
+    sb.from('visitas').select('id',{count:'exact',head:true}).eq('colaborador_id',id),
+  ]);
+  const logoSrc = c.logo_empresa ? (Array.isArray(c.logo_empresa) ? c.logo_empresa[0]?.url : c.logo_empresa) : null;
+  const logoHtml = logoSrc
+    ? `<img src="${logoSrc}" style="max-height:72px;max-width:140px;object-fit:contain;border-radius:8px;border:1px solid #eee">`
+    : `<div style="width:56px;height:56px;border-radius:50%;background:${c.brand_color||'var(--accent)'};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:24px">${(c.nombre||'?').charAt(0)}</div>`;
+  const acuerdos = [c.acepta_broker_broker&&'Inter-Agencia 50/50',c.acepta_urban_flip&&'Urban Flip 2%+IVA',c.acepta_tripartita&&'Tripartita 33.33%'].filter(Boolean);
+  openModal(`Ficha: ${c.nombre||''} ${c.apellido||''}`,`
+    <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:18px">
+      ${logoHtml}
+      <div>
+        <div style="font-size:18px;font-weight:700">${c.nombre||'—'} ${c.apellido||''}</div>
+        ${c.empresa?`<div style="font-size:14px;color:var(--text-muted)">${c.empresa}</div>`:''}
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+          <span class="pill ${c.es_independiente?'pill-blue':'pill-gray'}">${c.es_independiente?'Independiente':'Empresa'}</span>
+          <span class="pill ${c.contrato_estado==='firmado'?'pill-green':c.contrato_estado==='enviado'?'pill-yellow':'pill-gray'}">${c.contrato_estado||'pendiente'}</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+      ${[['Pisos',pR.count||0],['Demandas',dR.count||0],['Visitas',vR.count||0]].map(([l,n])=>`<div style="text-align:center;padding:12px;background:#f9f8f6;border-radius:8px"><div style="font-size:22px;font-weight:700;color:var(--accent)">${n}</div><div style="font-size:12px;color:var(--text-muted)">${l}</div></div>`).join('')}
+    </div>
+    <div class="form-section-title">Datos de contacto</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;font-size:13px">
+      <div><span style="color:var(--text-muted)">Email</span><br><strong>${c.email||'—'}</strong></div>
+      <div><span style="color:var(--text-muted)">Teléfono</span><br><strong>${c.telefono||'—'}</strong></div>
+      <div><span style="color:var(--text-muted)">NIF/CIF</span><br><strong>${c.nif_cif||'—'}</strong></div>
+      <div><span style="color:var(--text-muted)">Dirección fiscal</span><br><strong>${c.direccion_fiscal||'—'}</strong></div>
+    </div>
+    ${acuerdos.length?`<div class="form-section-title">Tipos de acuerdo</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">${acuerdos.map(a=>`<span class="pill pill-green">${a}</span>`).join('')}</div>`:''}
+    <div style="font-size:12px;color:var(--text-muted)">Registrado: ${fdate(c.created_time)} ${c.firma_fecha?'· Firmado: '+fdate(c.firma_fecha):''}</div>
+  `,'lg');
+}
+
+// DEMANDAS (role-aware)
 TAB_LOADERS.demandas = async function() {
   const pane = document.getElementById('tab-demandas');
   tabLoad(pane);
+  const isDir = currentUser.rol === 'director';
   try {
-    const { data, error } = await sb.from('demandas')
-      .select('id,nombre,zona_preferida,presupuesto_max,habitaciones_min,tipo_origen,estado_matching,ultimo_matching_enviado,estado')
-      .eq('asesor_id', currentUser.id)
+    let q = sb.from('demandas')
+      .select('id,nombre,zona_preferida,presupuesto_max,habitaciones_min,tipo_origen,estado_matching,ultimo_matching_enviado,estado,asesor_id')
       .order('created_time', { ascending: false });
+    if (!isDir) q = q.eq('asesor_id', currentUser.id);
+    const { data, error } = await q;
     if (error) throw error;
+
+    // Director: fetch asesor names for filter
+    let asesoresMap = {};
+    let asesoresOpts = '';
+    if (isDir) {
+      const { data: ases } = await sb.from('asesores').select('id,nombre').eq('rol','asesor').order('nombre');
+      (ases||[]).forEach(a => { asesoresMap[a.id] = a.nombre; });
+      asesoresOpts = '<option value="">Todos los asesores</option>' + (ases||[]).map(a=>`<option value="${a.id}">${a.nombre}</option>`).join('');
+    }
+
+    const demandasRows = (data||[]).map(d => `<tr data-tipo_origen="${d.tipo_origen||''}" data-asesor_id="${d.asesor_id||''}">
+      <td class="name-cell" style="font-weight:600">${d.nombre||'—'}</td>
+      ${isDir ? `<td style="font-size:13px;color:var(--text-muted)">${asesoresMap[d.asesor_id]||'—'}</td>` : ''}
+      <td style="color:var(--text-muted)">${d.zona_preferida||'—'}</td>
+      <td style="font-weight:600;color:var(--accent)">${eur(d.presupuesto_max)}</td>
+      <td style="text-align:center">${d.habitaciones_min||'—'}</td>
+      <td><span class="pill ${d.tipo_origen==='colaborador'?'pill-blue':'pill-green'}">${d.tipo_origen==='colaborador'?'Colab.':'Directo'}</span></td>
+      <td><span class="pill ${d.estado_matching==='enviado'?'pill-green':d.estado_matching==='pendiente'?'pill-yellow':'pill-gray'}">${d.estado_matching||'pendiente'}</span></td>
+      <td style="font-size:13px;color:var(--text-muted)">${fdate(d.ultimo_matching_enviado)}</td>
+    </tr>`).join('');
+
     pane.innerHTML = `
       <div class="tab-toolbar">
-        <div><h2>Demandas</h2><p>${(data||[]).length} demandas registradas</p></div>
+        <div><h2>Demandas</h2><p>${(data||[]).length} demandas${isDir?' en total':' registradas'}</p></div>
         <div class="tab-actions">
           <div class="search-bar"><span class="search-icon">🔍</span><input type="text" placeholder="Buscar cliente..." oninput="filterTableSearch(this,'name-cell')"></div>
           <button class="btn btn-primary" onclick="newDemandaModal()">➕ Nueva Demanda</button>
@@ -843,22 +989,22 @@ TAB_LOADERS.demandas = async function() {
         <button class="filter-chip active" onclick="filterChips(this,'tipo_origen','todos')">Todos</button>
         <button class="filter-chip" onclick="filterChips(this,'tipo_origen','colaborador')">Colaborador</button>
         <button class="filter-chip" onclick="filterChips(this,'tipo_origen','comprador_directo')">Comprador directo</button>
+        ${isDir && asesoresOpts ? `<select class="filter-select" onchange="filterDemandasAsesor(this.value)">${asesoresOpts}</select>` : ''}
       </div>
       ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">📋</span><p>Aún no hay demandas registradas.</p><button class="btn btn-primary" onclick="newDemandaModal()">➕ Crear primera demanda</button></div>` : `
       <div class="data-table"><table>
-        <thead><tr><th>Cliente</th><th>Zona</th><th>Presupuesto</th><th>Hab.</th><th>Origen</th><th>Matching</th><th>Último envío</th></tr></thead>
-        <tbody>${(data||[]).map(d => `<tr data-tipo_origen="${d.tipo_origen||''}">
-          <td class="name-cell" style="font-weight:600">${d.nombre||'—'}</td>
-          <td style="color:var(--text-muted)">${d.zona_preferida||'—'}</td>
-          <td style="font-weight:600;color:var(--accent)">${eur(d.presupuesto_max)}</td>
-          <td style="text-align:center">${d.habitaciones_min||'—'}</td>
-          <td><span class="pill ${d.tipo_origen==='colaborador'?'pill-blue':'pill-green'}">${d.tipo_origen==='colaborador'?'Colab.':'Directo'}</span></td>
-          <td><span class="pill ${d.estado_matching==='enviado'?'pill-green':d.estado_matching==='pendiente'?'pill-yellow':'pill-gray'}">${d.estado_matching||'pendiente'}</span></td>
-          <td style="font-size:13px;color:var(--text-muted)">${fdate(d.ultimo_matching_enviado)}</td>
-        </tr>`).join('')}</tbody>
+        <thead><tr><th>Cliente</th>${isDir?'<th>Asesor</th>':''}<th>Zona</th><th>Presupuesto</th><th>Hab.</th><th>Origen</th><th>Matching</th><th>Último envío</th></tr></thead>
+        <tbody>${demandasRows}</tbody>
       </table></div>`}`;
   } catch(e) { tabError(pane, e); }
 };
+
+function filterDemandasAsesor(asesId) {
+  document.querySelectorAll('#tab-demandas tbody tr').forEach(row => {
+    const match = !asesId || row.dataset.asesor_id === asesId;
+    row.style.display = match ? '' : 'none';
+  });
+}
 
 // PISOS
 TAB_LOADERS.pisos = async function() {
@@ -866,11 +1012,12 @@ TAB_LOADERS.pisos = async function() {
   tabLoad(pane);
   try {
     let query = sb.from('pisos')
-      .select('id,nombre,direccion,precio,barrio,habitaciones,metros,fotos,estado_sistema,urban_flip,ascensor,terraza')
+      .select('id,nombre,direccion,precio,barrio,habitaciones,metros,banos,planta,anio_construccion,estado_inmueble,orientacion,fotos,documentos,encargo_venta,planos,video,descripcion_ia,caracteristicas_libres,horarios_visita,referencia_catastral,estado_sistema,urban_flip,ascensor,terraza,garaje,trastero')
       .order('created_time', { ascending: false });
     if (currentUser.rol !== 'director') query = query.filter('asesor_piso', 'cs', `{"${currentUser.id}"}`);
     const { data, error } = await query;
     if (error) throw error;
+    _pisosData = data || [];
     const isDir = currentUser.rol === 'director';
     _pisosFilter = { chip: 'todos', barrio: '', precioMin: null, precioMax: null };
     const barrios = [...new Set((data||[]).map(p => p.barrio).filter(Boolean))].sort();
@@ -897,7 +1044,7 @@ TAB_LOADERS.pisos = async function() {
       ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">🏘️</span><p>Aún no hay pisos registrados.</p><button class="btn btn-primary" onclick="newPisoModal(false)">➕ Añadir primer piso</button></div>` : `
       <div class="cards-grid" id="pisos-grid">${(data||[]).map(p => {
         const foto = p.fotos && p.fotos[0] ? (p.fotos[0].thumbnail || p.fotos[0].url) : null;
-        return `<div class="data-card ${p.urban_flip?'urban-flip':''}" data-uf="${!!p.urban_flip}" data-terraza="${!!p.terraza}" data-ascensor="${!!p.ascensor}" data-barrio="${p.barrio||''}" data-precio="${p.precio||0}">
+        return `<div class="data-card ${p.urban_flip?'urban-flip':''}" data-uf="${!!p.urban_flip}" data-terraza="${!!p.terraza}" data-ascensor="${!!p.ascensor}" data-barrio="${p.barrio||''}" data-precio="${p.precio||0}" onclick="openPisoDetail('${p.id}')" style="cursor:pointer">
           ${foto ? `<img class="card-img" src="${foto}" loading="lazy">` : `<div class="card-img">🏠</div>`}
           <div class="card-body">
             ${p.urban_flip?'<div class="uf-badge">⭐ URBAN FLIP</div>':''}
@@ -913,6 +1060,98 @@ TAB_LOADERS.pisos = async function() {
       }).join('')}</div>`}`;
   } catch(e) { tabError(pane, e); }
 };
+
+// ─── PISO DETAIL ─────────────────────────────────────
+function openPisoDetail(id) {
+  const p = _pisosData.find(x => x.id === id);
+  if (!p) return;
+  const fotos = Array.isArray(p.fotos) ? p.fotos : [];
+  _carouselFotos = fotos;
+  _carouselIdx = 0;
+
+  const carouselHtml = fotos.length === 0
+    ? `<div class="carousel-empty">🏠</div>`
+    : `<div class="carousel-wrap" id="piso-carousel">
+        <div class="carousel-slides" id="carousel-slides">
+          ${fotos.map(f => {
+            const src = (f && typeof f === 'object') ? (f.url || '') : String(f||'');
+            return `<div class="carousel-slide"><img src="${src}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=height:270px;display:flex;align-items:center;justify-content:center;background:#f3f2ef;font-size:64px>🏠</div>'"></div>`;
+          }).join('')}
+        </div>
+        ${fotos.length > 1 ? `<button class="carousel-btn carousel-prev" onclick="carouselNav(-1)">&#8249;</button>
+        <button class="carousel-btn carousel-next" onclick="carouselNav(1)">&#8250;</button>
+        <div class="carousel-count" id="carousel-count">1 / ${fotos.length}</div>` : ''}
+      </div>`;
+
+  function pill(val, c='gray') { return `<span class="pill pill-${c}" style="font-size:12px">${val}</span>`; }
+  const pills = [
+    p.habitaciones && pill(`${p.habitaciones} hab`),
+    p.metros && pill(`${p.metros} m²`),
+    p.banos && pill(`${p.banos} baños`),
+    p.planta && pill(`Planta ${p.planta}`),
+    p.anio_construccion && pill(`Año ${p.anio_construccion}`),
+    p.ascensor && pill('Ascensor','green'),
+    p.terraza && pill('Terraza','blue'),
+    p.garaje && pill('Garaje','blue'),
+    p.trastero && pill('Trastero','gray'),
+  ].filter(Boolean).join('');
+
+  const docs = p.documentos || {};
+  const docLinks = [
+    ['Encargo', p.encargo_venta],
+    ['IBI', docs.ibi?.url],['ITE', docs.ite?.url],
+    ['Catastro', docs.catastro?.url],['Escritura', docs.escritura?.url],
+    ['Planos', p.planos],['Vídeo', p.video],
+  ].filter(([,url]) => url)
+   .map(([lbl, url]) => `<a href="${url}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:12px">${lbl}</a>`).join('');
+
+  let horariosHtml = '';
+  if (p.horarios_visita) {
+    const h = p.horarios_visita;
+    const items = [];
+    if (h.cualquier) items.push('Sin horario específico');
+    if (h.mananas) items.push('Solo mañanas (9:00-14:00)');
+    if (h.tardes) items.push('Solo tardes (16:00-20:00)');
+    if (h.antelacion_dias === 1) items.push('Mín. 1 día de antelación');
+    if (h.antelacion_dias === 2) items.push('Mín. 2 días de antelación');
+    if (h.fines_de_semana) items.push('Solo fines de semana');
+    if (h.personalizado) items.push(h.personalizado);
+    if (items.length) horariosHtml = `<div style="margin-top:14px"><div class="form-section-title">Horarios preferentes de visita</div><p style="font-size:13px;color:var(--text-muted)">${items.join(' · ')}</p></div>`;
+  }
+
+  openModal(p.direccion || 'Detalle del piso', `
+    ${carouselHtml}
+    <div style="margin-top:14px">
+      ${p.urban_flip ? '<div class="uf-badge" style="margin-bottom:8px">⭐ URBAN FLIP</div>' : ''}
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div>
+          <div style="font-size:13px;color:var(--text-muted)">${p.barrio||''}</div>
+          ${p.referencia_catastral ? `<div style="font-size:11px;color:var(--text-muted);font-family:monospace">Ref: ${p.referencia_catastral}</div>` : ''}
+        </div>
+        <div style="font-size:22px;font-weight:700;color:var(--accent)">${eur(p.precio)}</div>
+      </div>
+      <div class="card-tags" style="margin-bottom:12px">${pills}</div>
+      ${p.descripcion_ia ? `<div style="margin-bottom:12px"><div class="form-section-title">Descripción</div><p style="font-size:13px;line-height:1.6">${p.descripcion_ia}</p></div>` : ''}
+      ${p.caracteristicas_libres ? `<div style="margin-bottom:12px"><div class="form-section-title">Características adicionales</div><p style="font-size:13px;line-height:1.6;color:var(--text)">${p.caracteristicas_libres}</p></div>` : ''}
+      ${docLinks ? `<div style="margin-bottom:10px"><div class="form-section-title">Documentos</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">${docLinks}</div></div>` : ''}
+      ${horariosHtml}
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
+        <span class="pill ${p.estado_sistema==='activo'?'pill-green':'pill-gray'}" style="font-size:12px">${p.estado_sistema||'activo'}</span>
+        ${p.orientacion ? `<span class="pill pill-gray" style="font-size:12px">${p.orientacion}</span>` : ''}
+        ${p.estado_inmueble ? `<span class="pill pill-gray" style="font-size:12px">${p.estado_inmueble}</span>` : ''}
+      </div>
+    </div>
+  `, 'lg');
+}
+
+function carouselNav(dir) {
+  if (_carouselFotos.length < 2) return;
+  const slides = document.getElementById('carousel-slides');
+  const count = document.getElementById('carousel-count');
+  _carouselIdx = (_carouselIdx + dir + _carouselFotos.length) % _carouselFotos.length;
+  if (slides) slides.style.transform = `translateX(-${_carouselIdx * 100}%)`;
+  if (count) count.textContent = `${_carouselIdx + 1} / ${_carouselFotos.length}`;
+}
 
 // EQUIPO (director)
 TAB_LOADERS.equipo = async function() {
@@ -942,8 +1181,202 @@ TAB_LOADERS.equipo = async function() {
   } catch(e) { tabError(pane, e); }
 };
 
-// Director colaboradores = todos
-TAB_LOADERS.colaboradores_dir = TAB_LOADERS.colaboradores;
+// INFORMES (director)
+TAB_LOADERS.informes = async function() {
+  const pane = document.getElementById('tab-informes');
+  pane.innerHTML = `
+    <div class="tab-toolbar">
+      <div><h2>📈 Informes Comerciales</h2><p>Busca por período, piso, demanda, colaborador o asesor para obtener un informe KPI detallado.</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+      <div class="form-col">
+        <label>Desde</label>
+        <input type="date" id="inf-desde" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:white;outline:none">
+      </div>
+      <div class="form-col">
+        <label>Hasta</label>
+        <input type="date" id="inf-hasta" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:white;outline:none">
+      </div>
+    </div>
+    <div class="filters-bar" style="margin-bottom:20px">
+      <button class="filter-chip active" id="inf-tipo-btn-todo" onclick="setInformeTipo(this,'todo')">🌐 Todo</button>
+      <button class="filter-chip" onclick="setInformeTipo(this,'pisos')">🏘️ Pisos</button>
+      <button class="filter-chip" onclick="setInformeTipo(this,'asesor')">👔 Asesor</button>
+      <button class="filter-chip" onclick="setInformeTipo(this,'colaborador')">🤝 Colaborador</button>
+      <button class="filter-chip" onclick="setInformeTipo(this,'demanda')">📋 Demanda</button>
+    </div>
+    <div id="inf-search-wrap" style="display:none;margin-bottom:16px">
+      <div class="search-bar" style="width:100%;max-width:400px">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="inf-search-input" placeholder="Buscar..." style="width:100%" oninput="searchInformeItem(this.value)">
+      </div>
+      <div id="inf-search-results" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+    <button class="btn btn-primary" onclick="generarInforme()" style="margin-bottom:24px">📊 Generar Informe</button>
+    <div id="inf-result"></div>`;
+};
+
+let _informeTipo = 'todo';
+let _informeItemId = null;
+let _informeItemLabel = '';
+
+function setInformeTipo(btn, tipo) {
+  btn.closest('.filters-bar').querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _informeTipo = tipo;
+  _informeItemId = null; _informeItemLabel = '';
+  const wrap = document.getElementById('inf-search-wrap');
+  const inp = document.getElementById('inf-search-input');
+  if (wrap) wrap.style.display = tipo === 'todo' ? 'none' : 'block';
+  if (inp) { inp.value = ''; inp.placeholder = tipo === 'pisos' ? 'Dirección o barrio...' : tipo === 'asesor' ? 'Nombre asesor...' : tipo === 'colaborador' ? 'Nombre o empresa...' : 'Nombre cliente...'; }
+  const res = document.getElementById('inf-search-results'); if (res) res.innerHTML = '';
+}
+
+async function searchInformeItem(q) {
+  const res = document.getElementById('inf-search-results');
+  if (!res || !q || q.length < 2) { if (res) res.innerHTML = ''; return; }
+  let items = [];
+  if (_informeTipo === 'pisos') {
+    const { data } = await sb.from('pisos').select('id,direccion,barrio').or(`direccion.ilike.%${q}%,barrio.ilike.%${q}%`).limit(6);
+    items = (data||[]).map(p => ({ id: p.id, label: p.direccion + (p.barrio ? ' · ' + p.barrio : '') }));
+  } else if (_informeTipo === 'asesor') {
+    const { data } = await sb.from('asesores').select('id,nombre').ilike('nombre', `%${q}%`).limit(6);
+    items = (data||[]).map(a => ({ id: a.id, label: a.nombre }));
+  } else if (_informeTipo === 'colaborador') {
+    const { data } = await sb.from('colaboradores').select('id,nombre,empresa').or(`nombre.ilike.%${q}%,empresa.ilike.%${q}%`).limit(6);
+    items = (data||[]).map(c => ({ id: c.id, label: [c.nombre, c.empresa].filter(Boolean).join(' · ') }));
+  } else if (_informeTipo === 'demanda') {
+    const { data } = await sb.from('demandas').select('id,nombre').ilike('nombre', `%${q}%`).limit(6);
+    items = (data||[]).map(d => ({ id: d.id, label: d.nombre }));
+  }
+  res.innerHTML = items.map(it => `<button class="filter-chip ${_informeItemId===it.id?'active':''}" onclick="selectInformeItem('${it.id}','${it.label.replace(/'/g,"\\'")}',this)">${it.label}</button>`).join('');
+}
+
+function selectInformeItem(id, label, btn) {
+  _informeItemId = id; _informeItemLabel = label;
+  document.getElementById('inf-search-results').querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function generarInforme() {
+  const result = document.getElementById('inf-result');
+  if (!result) return;
+  result.innerHTML = '<div class="tab-loading"><div class="spinner"></div></div>';
+  const desde = document.getElementById('inf-desde')?.value || null;
+  const hasta = document.getElementById('inf-hasta')?.value || null;
+
+  try {
+    // Build date filter helper
+    function addDateFilter(q) {
+      if (desde) q = q.gte('created_time', desde);
+      if (hasta) q = q.lte('created_time', hasta + 'T23:59:59');
+      return q;
+    }
+
+    if (_informeTipo === 'pisos' && _informeItemId) {
+      // Informe de un piso específico
+      const pisoId = _informeItemId;
+      const [{ data: p }, visitasRes, matchingsRes] = await Promise.all([
+        sb.from('pisos').select('*').eq('id', pisoId).limit(1),
+        sb.from('visitas').select('id,estado,fecha_hora,cliente_nombre,colaborador_id,valoracion_asesor,decision_cliente,notas_feedback').eq('piso_id', pisoId),
+        sb.from('matchings').select('id,estado,created_time').filter('piso', 'cs', `{"${pisoId}"}`),
+      ]);
+      const piso = p?.[0] || {};
+      const visitas = visitasRes.data || [];
+      const matchings = matchingsRes.data || [];
+
+      const vConfirmadas = visitas.filter(v => v.estado === 'confirmada' || v.estado === 'realizada').length;
+      const vCompletadas = visitas.filter(v => v.estado === 'realizada').length;
+      const feedbacks = visitas.filter(v => v.notas_feedback);
+      const decisiones = {};
+      visitas.forEach(v => { if (v.decision_cliente) decisiones[v.decision_cliente] = (decisiones[v.decision_cliente]||0)+1; });
+
+      result.innerHTML = `
+        <div style="background:white;border:1px solid var(--border);border-radius:12px;padding:24px">
+          <div style="font-size:18px;font-weight:700;margin-bottom:4px">🏘️ ${piso.direccion||'Piso'}</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px">${piso.barrio||''} · ${eur(piso.precio)}</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+            ${[['Matchings',matchings.length,'pill-blue'],['Visitas solicitadas',visitas.length,'pill-gray'],['Visitas realizadas',vCompletadas,'pill-green'],['Feedbacks',feedbacks.length,'pill-gold']].map(([l,n,c])=>`<div style="text-align:center;padding:14px;background:#f9f8f6;border-radius:8px"><div style="font-size:24px;font-weight:700;color:var(--accent)">${n}</div><div style="font-size:12px;color:var(--text-muted);margin-top:4px">${l}</div></div>`).join('')}
+          </div>
+          ${Object.keys(decisiones).length ? `<div style="margin-bottom:16px"><div class="form-section-title">Decisiones del cliente</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">${Object.entries(decisiones).map(([d,n])=>`<span class="pill pill-gray">${d}: <strong>${n}</strong></span>`).join('')}</div></div>` : ''}
+          ${visitas.length ? `<div><div class="form-section-title">Historial de visitas (${visitas.length})</div>
+          <div class="data-table" style="margin-top:8px"><table><thead><tr><th>Cliente</th><th>Fecha</th><th>Estado</th><th>Valoración</th><th>Decisión</th></tr></thead>
+          <tbody>${visitas.map(v=>`<tr>
+            <td style="font-weight:600">${v.cliente_nombre||'—'}</td>
+            <td style="font-size:13px;color:var(--text-muted)">${fdate(v.fecha_hora)}</td>
+            <td><span class="pill ${v.estado==='realizada'?'pill-green':v.estado==='confirmada'?'pill-blue':'pill-gray'}" style="font-size:11px">${v.estado||'—'}</span></td>
+            <td style="text-align:center">${v.valoracion_asesor ? '⭐'.repeat(v.valoracion_asesor) : '—'}</td>
+            <td style="font-size:13px">${v.decision_cliente||'—'}</td>
+          </tr>`).join('')}</tbody></table></div></div>` : ''}
+        </div>`;
+
+    } else if (_informeTipo === 'asesor' && _informeItemId) {
+      const asesId = _informeItemId;
+      const [pisosRes, demandasRes, visitasRes, matchRes] = await Promise.all([
+        sb.from('pisos').select('id,direccion,precio,estado_sistema',{count:'exact'}).filter('asesor_piso','cs',`{"${asesId}"}`),
+        sb.from('demandas').select('id',{count:'exact',head:true}).eq('asesor_id', asesId),
+        sb.from('visitas').select('id,estado,decision_cliente',{count:'exact'}).eq('asesor_id', asesId),
+        sb.from('matchings').select('id',{count:'exact',head:true}).eq('asesor_id', asesId),
+      ]);
+      const visitas = visitasRes.data || [];
+      const realizadas = visitas.filter(v => v.estado === 'realizada');
+      const ofertas = visitas.filter(v => v.decision_cliente === 'Hará oferta');
+      result.innerHTML = `
+        <div style="background:white;border:1px solid var(--border);border-radius:12px;padding:24px">
+          <div style="font-size:18px;font-weight:700;margin-bottom:20px">👔 KPIs: ${_informeItemLabel}</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+            ${[['Pisos',pisosRes.count||0],['Demandas',demandasRes.count||0],['Visitas',visitasRes.count||0],['Matchings',matchRes.count||0]].map(([l,n])=>`<div style="text-align:center;padding:14px;background:#f9f8f6;border-radius:8px"><div style="font-size:24px;font-weight:700;color:var(--accent)">${n}</div><div style="font-size:12px;color:var(--text-muted);margin-top:4px">${l}</div></div>`).join('')}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+            <div style="text-align:center;padding:14px;background:#f0fdf4;border-radius:8px"><div style="font-size:24px;font-weight:700;color:#22c55e">${realizadas.length}</div><div style="font-size:12px;color:var(--text-muted);margin-top:4px">Visitas realizadas</div></div>
+            <div style="text-align:center;padding:14px;background:#fef3c7;border-radius:8px"><div style="font-size:24px;font-weight:700;color:#d97706">${ofertas.length}</div><div style="font-size:12px;color:var(--text-muted);margin-top:4px">Ofertas generadas</div></div>
+          </div>
+        </div>`;
+
+    } else if (_informeTipo === 'colaborador' && _informeItemId) {
+      const colId = _informeItemId;
+      const [pR, dR, vR] = await Promise.all([
+        sb.from('pisos').select('id',{count:'exact',head:true}).filter('colaborador','cs',`{"${colId}"}`),
+        sb.from('demandas').select('id',{count:'exact',head:true}).filter('colaborador','cs',`{"${colId}"}`),
+        sb.from('visitas').select('id,estado,decision_cliente',{count:'exact'}).eq('colaborador_id', colId),
+      ]);
+      const visitas = vR.data || [];
+      const realizadas = visitas.filter(v => v.estado === 'realizada');
+      result.innerHTML = `
+        <div style="background:white;border:1px solid var(--border);border-radius:12px;padding:24px">
+          <div style="font-size:18px;font-weight:700;margin-bottom:20px">🤝 KPIs: ${_informeItemLabel}</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            ${[['Pisos aportados',pR.count||0],['Demandas aportadas',dR.count||0],['Visitas generadas',vR.count||0]].map(([l,n])=>`<div style="text-align:center;padding:14px;background:#f9f8f6;border-radius:8px"><div style="font-size:24px;font-weight:700;color:var(--accent)">${n}</div><div style="font-size:12px;color:var(--text-muted);margin-top:4px">${l}</div></div>`).join('')}
+          </div>
+          <div style="text-align:center;padding:14px;background:#f0fdf4;border-radius:8px;margin-top:12px"><div style="font-size:24px;font-weight:700;color:#22c55e">${realizadas.length}</div><div style="font-size:12px;color:var(--text-muted);margin-top:4px">Visitas realizadas</div></div>
+        </div>`;
+
+    } else {
+      // Informe global
+      const [pisosR, demandasR, visitasR, matchR, colabsR] = await Promise.all([
+        addDateFilter(sb.from('pisos').select('id',{count:'exact',head:true})),
+        addDateFilter(sb.from('demandas').select('id',{count:'exact',head:true})),
+        addDateFilter(sb.from('visitas').select('id,estado,decision_cliente',{count:'exact'})),
+        addDateFilter(sb.from('matchings').select('id',{count:'exact',head:true})),
+        sb.from('colaboradores').select('id',{count:'exact',head:true}).eq('contrato_estado','firmado'),
+      ]);
+      const visitas = visitasR.data || [];
+      const realizadas = visitas.filter(v => v.estado === 'realizada');
+      const ofertas = visitas.filter(v => v.decision_cliente === 'Hará oferta');
+      result.innerHTML = `
+        <div style="background:white;border:1px solid var(--border);border-radius:12px;padding:24px">
+          <div style="font-size:18px;font-weight:700;margin-bottom:4px">🌐 Informe Global ONOMA</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px">${desde||'Inicio'} → ${hasta||'Hoy'}</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px">
+            ${[['Pisos en cartera',pisosR.count||0],['Demandas activas',demandasR.count||0],['Matchings enviados',matchR.count||0]].map(([l,n])=>`<div style="text-align:center;padding:14px;background:#f9f8f6;border-radius:8px"><div style="font-size:24px;font-weight:700;color:var(--accent)">${n}</div><div style="font-size:12px;color:var(--text-muted);margin-top:4px">${l}</div></div>`).join('')}
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+            ${[['Visitas',visitasR.count||0,'#f9f8f6','var(--accent)'],['Realizadas',realizadas.length,'#f0fdf4','#22c55e'],['Ofertas',ofertas.length,'#fef3c7','#d97706'],['Colabs firmados',colabsR.count||0,'#f0f4ee','var(--accent)']].map(([l,n,bg,col])=>`<div style="text-align:center;padding:14px;background:${bg};border-radius:8px"><div style="font-size:24px;font-weight:700;color:${col}">${n}</div><div style="font-size:12px;color:var(--text-muted);margin-top:4px">${l}</div></div>`).join('')}
+          </div>
+        </div>`;
+    }
+  } catch(e) { result.innerHTML = `<div class="tab-error">Error generando informe: ${e.message}</div>`; }
+}
 
 // VISITAS
 function countdown(dt) {
@@ -1491,8 +1924,9 @@ function openDemandaLink() {
 
 // ─── MODAL: PISO ────────────────────────────────────
 function newPisoModal(urbanFlip) {
+  if (urbanFlip) { openPisoForm(true, null); return; } // Urban Flip siempre directo ONOMA
   _selectedColabId = null;
-  openModal(urbanFlip ? '⭐ Nuevo Piso Urban Flip' : 'Nuevo Piso', `<div class="choice-cards">
+  openModal('Nuevo Piso', `<div class="choice-cards">
     <div class="choice-card" onclick="openPisoForm(${urbanFlip}, null)">
       <div class="choice-icon">🏠</div>
       <div class="choice-title">Piso Directo ONOMA</div>
@@ -1585,6 +2019,10 @@ function openPisoForm(urbanFlip, colaboradorId) {
           <label class="checkbox-item"><input type="checkbox" name="garaje"><span class="cb-label">Garaje</span></label>
           <label class="checkbox-item"><input type="checkbox" name="trastero"><span class="cb-label">Trastero</span></label>
         </div>
+        <div class="form-col" style="margin-top:14px">
+          <label>Características adicionales</label>
+          <textarea name="caracteristicas_libres" rows="4" style="font-style:italic" placeholder="Describe el piso con todas sus bondades para una mejor experiencia..."></textarea>
+        </div>
       </div>
     </div>
     <div class="collapsible">
@@ -1634,6 +2072,24 @@ function openPisoForm(urbanFlip, colaboradorId) {
           <label>Descripción</label>
           <textarea name="descripcion_ia" id="piso-descripcion" rows="5" placeholder="Escribe una descripción o genera una con IA…"></textarea>
           <button type="button" class="btn btn-secondary btn-sm" style="margin-top:6px;align-self:flex-start" onclick="generarDescripcionIA()">✨ Generar con IA</button>
+        </div>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)"><span>5. Horarios preferentes de visita</span><span class="caret">▼</span></div>
+      <div class="collapsible-body">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Indica cuándo se puede visitar este piso. El cliente verá esta información al solicitar visita.</p>
+        <div class="horario-opts">
+          <label><input type="checkbox" name="hor_cualquier"> Sin horario específico</label>
+          <label><input type="checkbox" name="hor_mananas"> Solo mañanas (9:00 - 14:00)</label>
+          <label><input type="checkbox" name="hor_tardes"> Solo tardes (16:00 - 20:00)</label>
+          <label><input type="checkbox" name="hor_1dia"> Con 1 día de antelación mínimo</label>
+          <label><input type="checkbox" name="hor_2dias"> Con 2 días de antelación mínimo</label>
+          <label><input type="checkbox" name="hor_finde"> Solo fines de semana</label>
+        </div>
+        <div class="form-col" style="margin-top:12px">
+          <label>Horario personalizado (opcional)</label>
+          <input type="text" name="hor_personalizado" placeholder="Ej: Lunes y miércoles de 10:00 a 13:00">
         </div>
       </div>
     </div>
@@ -1747,6 +2203,18 @@ async function submitPiso(urbanFlip) {
       comparte: form.querySelector('[name=comparte]')?.checked ? 'sí' : 'no',
       honorarios_vendedor_pct: parseFloat(fd.get('honorarios_vendedor_pct'))||null,
       urban_flip: !!urbanFlip, info_veraz: true, estado_sistema: 'activo',
+      caracteristicas_libres: fd.get('caracteristicas_libres')||null,
+      horarios_visita: (() => {
+        const h = {};
+        if (form.querySelector('[name=hor_cualquier]')?.checked) h.cualquier = true;
+        if (form.querySelector('[name=hor_mananas]')?.checked) h.mananas = true;
+        if (form.querySelector('[name=hor_tardes]')?.checked) h.tardes = true;
+        if (form.querySelector('[name=hor_1dia]')?.checked) h.antelacion_dias = 1;
+        if (form.querySelector('[name=hor_2dias]')?.checked) h.antelacion_dias = Math.max(h.antelacion_dias||0, 2);
+        if (form.querySelector('[name=hor_finde]')?.checked) h.fines_de_semana = true;
+        const cp = fd.get('hor_personalizado'); if (cp) h.personalizado = cp;
+        return Object.keys(h).length ? h : null;
+      })(),
     });
     if (error) throw error;
     callN8n('embeddings-run', { piso_id: pisoId }).catch(() => {});
