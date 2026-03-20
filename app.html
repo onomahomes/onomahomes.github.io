@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ONOMA CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg: #F8F7F4;
+  --sidebar: #1a1a2e;
+  --sidebar-hover: #16213e;
+  --accent: #6B7F5E;
+  --accent-light: #8fa880;
+  --gold: #C9A84C;
+  --text: #2D2D2D;
+  --text-muted: #8a8a9a;
+  --border: #e5e3df;
+  --card: #ffffff;
+  --danger: #e05252;
+  --sidebar-width: 240px;
+  --header-h: 60px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── LOGIN SCREEN ─────────────────────────────── */
+#login-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+  min-height: 100vh;
+}
+
+.login-card {
+  background: white;
+  border-radius: 16px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-logo .logo-text {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: var(--text);
+}
+
+.login-logo .logo-sub {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.login-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: var(--accent);
+}
+
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s, transform 0.1s;
+  letter-spacing: 0.5px;
+}
+
+.btn-login:hover { background: var(--accent-light); }
+.btn-login:active { transform: scale(0.99); }
+.btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.login-error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  margin-top: 12px;
+  display: none;
+}
+
+/* ─── APP SHELL ─────────────────────────────────── */
+#app-shell {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-h);
+  background: var(--sidebar);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 100;
+  gap: 16px;
+}
+
+.header-logo {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.header-logo span {
+  color: var(--accent-light);
+  font-size: 10px;
+  letter-spacing: 2px;
+  display: block;
+  font-weight: 400;
+}
+
+.header-spacer { flex: 1; }
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.user-info {
+  text-align: right;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+}
+
+.user-rol {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.7);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  border-color: rgba(255,255,255,0.5);
+  color: white;
+}
+
+/* HAMBURGER (mobile) */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: white;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+/* LAYOUT */
+.app-body {
+  display: flex;
+  margin-top: var(--header-h);
+  min-height: calc(100vh - var(--header-h));
+}
+
+/* SIDEBAR */
+.app-sidebar {
+  width: var(--sidebar-width);
+  background: var(--sidebar);
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 90;
+  transition: transform 0.3s ease;
+  padding: 12px 0;
+}
+
+.sidebar-section {
+  padding: 0 12px;
+  margin-bottom: 4px;
+}
+
+.sidebar-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.3);
+  padding: 12px 8px 6px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: rgba(255,255,255,0.65);
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+  user-select: none;
+}
+
+.sidebar-item:hover {
+  background: rgba(255,255,255,0.07);
+  color: white;
+}
+
+.sidebar-item.active {
+  background: var(--accent);
+  color: white;
+}
+
+.sidebar-item .icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sidebar-item .label { flex: 1; }
+
+.badge {
+  background: var(--danger);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* MAIN CONTENT */
+.app-main {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  padding: 32px;
+  min-height: calc(100vh - var(--header-h));
+}
+
+/* TAB CONTENT */
+.tab-pane {
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+
+.tab-pane.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* PLACEHOLDER */
+.tab-placeholder {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 60px 40px;
+  text-align: center;
+  border: 2px dashed var(--border);
+}
+
+.tab-placeholder .ph-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.tab-placeholder h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.tab-placeholder p {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 360px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.ph-badge {
+  display: inline-block;
+  background: var(--accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-top: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ─── MOBILE ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root { --sidebar-width: 260px; }
+
+  .hamburger { display: flex; }
+  .header-user .user-info { display: none; }
+
+  .app-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .app-sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 85;
+  }
+
+  .sidebar-overlay.visible { display: block; }
+
+  .app-main {
+    margin-left: 0;
+    padding: 20px 16px;
+  }
+
+  .login-card {
+    padding: 32px 24px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── LOGIN SCREEN ──────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-text">ONOMA</div>
+      <div class="logo-sub">Real Estate</div>
+    </div>
+    <div class="login-title">Acceso al CRM</div>
+    <form id="login-form" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="tu@email.com" autocomplete="email" required />
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn-login" id="btn-login">Entrar</button>
+      <div class="login-error" id="login-error"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ─── SIDEBAR OVERLAY (mobile) ─────────────────── -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- ─── APP SHELL ────────────────────────────────── -->
+<div id="app-shell">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <button class="hamburger" onclick="toggleSidebar()" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="header-logo">
+      ONOMA
+      <span>Real Estate CRM</span>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="header-user">
+      <div class="user-info">
+        <div class="user-name" id="user-name-display">—</div>
+        <div class="user-rol" id="user-rol-display">—</div>
+      </div>
+      <div class="user-avatar" id="user-avatar">?</div>
+      <button class="btn-logout" onclick="handleLogout()">Salir</button>
+    </div>
+  </header>
+
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <nav class="app-sidebar" id="app-sidebar">
+      <!-- contenido dinámico según rol -->
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="app-main" id="app-main">
+      <!-- tabs se renderizan aquí -->
+    </main>
+
+  </div>
+</div>
+
+<script>
+// ─── SUPABASE CLIENT ─────────────────────────────────
+const SUPABASE_URL = 'https://wwaytwudfbwxttyyojjx.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ─── STATE ───────────────────────────────────────────
+let currentUser = null;  // { id, nombre, rol, supabase_auth_id, email }
+let activeTab = null;
+let pendingCount = 0;
+
+// ─── NAV CONFIG ──────────────────────────────────────
+const NAV_ASESOR = [
+  { id: 'dashboard',    icon: '🏠', label: 'Dashboard',           section: null },
+  { id: 'pendientes',   icon: '🔔', label: 'Acciones Pendientes', section: null, badge: true },
+  { id: 'matchings',    icon: '🤝', label: 'Matchings',           section: null },
+  { id: 'colaboradores',icon: '👥', label: 'Mis Colaboradores',   section: 'Gestión' },
+  { id: 'pisos',        icon: '🏘️', label: 'Pisos',              section: null },
+  { id: 'demandas',     icon: '📋', label: 'Demandas',            section: null },
+  { id: 'calendario',   icon: '📅', label: 'Calendario',          section: null },
+  { id: 'kpis',         icon: '📊', label: 'Mis KPIs',           section: null },
+];
+
+const NAV_DIRECTOR = [
+  { id: 'dashboard',      icon: '🏠', label: 'Dashboard KPIs',    section: null },
+  { id: 'notificaciones', icon: '🔔', label: 'Notificaciones',    section: null, badge: true },
+  { id: 'equipo',         icon: '👔', label: 'Equipo',            section: 'Gestión' },
+  { id: 'colaboradores',  icon: '🤝', label: 'Colaboradores',     section: null },
+  { id: 'pipeline',       icon: '📊', label: 'Pipeline',          section: null },
+  { id: 'agenda',         icon: '📅', label: 'Agenda',            section: null },
+  { id: 'informes',       icon: '📈', label: 'Informes',          section: null },
+];
+
+// Tab placeholder content
+const TAB_CONTENT = {
+  // Asesor
+  dashboard:      { icon: '🏠', title: 'Dashboard', desc: 'Resumen del día: actividad, próximas visitas, alertas y métricas personales.' },
+  pendientes:     { icon: '🔔', title: 'Acciones Pendientes', desc: 'Lista de tareas asignadas: seguimientos, feedbacks pendientes, matchings por revisar.' },
+  matchings:      { icon: '🤝', title: 'Matchings', desc: 'Gestión completa de matching: demandas activas → top pisos → selección → envío al cliente.' },
+  colaboradores:  { icon: '👥', title: 'Mis Colaboradores', desc: 'Lista de colaboradores a tu cargo. Añadir nuevos, ver estado de contratos y actividad.' },
+  pisos:          { icon: '🏘️', title: 'Pisos', desc: 'Cartera de pisos: búsqueda, filtros, fichas completas con fotos, documentos y valoración.' },
+  demandas:       { icon: '📋', title: 'Demandas', desc: 'Demandas activas de clientes: perfiles, presupuesto, preferencias y estado de búsqueda.' },
+  calendario:     { icon: '📅', title: 'Calendario', desc: 'Visitas programadas, disponibilidad y agenda personal y de equipo.' },
+  kpis:           { icon: '📊', title: 'Mis KPIs', desc: 'Rendimiento personal: matchings enviados, conversión, visitas, operaciones y comisiones.' },
+  // Director
+  notificaciones: { icon: '🔔', title: 'Notificaciones', desc: 'Alertas de escalado (72h sin respuesta), pisos sin actividad, operaciones bloqueadas.' },
+  equipo:         { icon: '👔', title: 'Equipo', desc: 'Gestión de asesores: crear nuevos, ver actividad, asignar colaboradores, rendimiento.' },
+  pipeline:       { icon: '📊', title: 'Pipeline', desc: 'Operaciones en curso: fases, fechas clave, comisiones esperadas y estado de cierre.' },
+  agenda:         { icon: '📅', title: 'Agenda', desc: 'Todas las visitas del día/semana de todo el equipo. Vista global coordinación.' },
+  informes:       { icon: '📈', title: 'Informes', desc: 'Informes comerciales, de actividad y rendimiento por asesor, periodo y tipo de operación.' },
+};
+
+// ─── AUTH FLOW ───────────────────────────────────────
+async function handleLogin(e) {
+  e.preventDefault();
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn      = document.getElementById('btn-login');
+  const errEl    = document.getElementById('login-error');
+
+  btn.disabled = true;
+  btn.textContent = 'Entrando…';
+  errEl.style.display = 'none';
+
+  try {
+    // 1. Auth con Supabase
+    const { data: authData, error: authErr } = await sb.auth.signInWithPassword({ email, password });
+    if (authErr) throw new Error(authErr.message);
+
+    // 2. Buscar perfil en tabla asesores
+    const { data: rows, error: dbErr } = await sb
+      .from('asesores')
+      .select('id, nombre, email, rol, supabase_auth_id')
+      .eq('supabase_auth_id', authData.user.id)
+      .limit(1);
+
+    if (dbErr) throw new Error(dbErr.message);
+    if (!rows || rows.length === 0) throw new Error('No se encontró el perfil de asesor. Contacta con administración.');
+
+    const profile = rows[0];
+    currentUser = {
+      id: profile.id,
+      nombre: profile.nombre || email.split('@')[0],
+      email: profile.email || email,
+      rol: profile.rol || 'asesor',
+      supabase_auth_id: profile.supabase_auth_id,
+    };
+
+    sessionStorage.setItem('crm_user', JSON.stringify(currentUser));
+    showApp();
+
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
+  }
+}
+
+async function handleLogout() {
+  await sb.auth.signOut();
+  sessionStorage.removeItem('crm_user');
+  currentUser = null;
+  document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+}
+
+async function checkSession() {
+  // Check sessionStorage first (fast)
+  const cached = sessionStorage.getItem('crm_user');
+  if (cached) {
+    // Verify Supabase session is still alive
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      currentUser = JSON.parse(cached);
+      showApp();
+      return;
+    }
+    sessionStorage.removeItem('crm_user');
+  }
+  // No session — show login
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ─── APP RENDER ──────────────────────────────────────
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  const shell = document.getElementById('app-shell');
+  shell.style.display = 'flex';
+
+  // Header
+  document.getElementById('user-name-display').textContent = currentUser.nombre;
+  document.getElementById('user-rol-display').textContent = currentUser.rol === 'director' ? 'Director' : 'Asesor';
+  document.getElementById('user-avatar').textContent = currentUser.nombre.charAt(0).toUpperCase();
+
+  // Build sidebar + content based on rol
+  const nav = currentUser.rol === 'director' ? NAV_DIRECTOR : NAV_ASESOR;
+  renderSidebar(nav);
+  renderContent(nav);
+
+  // Load pending count async
+  loadPendingCount();
+
+  // Activate first tab
+  const firstTab = nav[0].id;
+  switchTab(firstTab);
+}
+
+function renderSidebar(nav) {
+  const sidebar = document.getElementById('app-sidebar');
+  let html = '';
+  let lastSection = undefined;
+
+  nav.forEach(item => {
+    if (item.section !== lastSection) {
+      if (item.section) {
+        html += `<div class="sidebar-section-title">${item.section}</div>`;
+      }
+      lastSection = item.section;
+    }
+    const badgeHtml = item.badge ? `<span class="badge" id="badge-${item.id}" style="display:none">0</span>` : '';
+    html += `
+      <div class="sidebar-section">
+        <div class="sidebar-item" id="nav-${item.id}" onclick="switchTab('${item.id}')">
+          <span class="icon">${item.icon}</span>
+          <span class="label">${item.label}</span>
+          ${badgeHtml}
+        </div>
+      </div>
+    `;
+  });
+
+  sidebar.innerHTML = html;
+}
+
+function renderContent(nav) {
+  const main = document.getElementById('app-main');
+  let html = '';
+
+  nav.forEach(item => {
+    const c = TAB_CONTENT[item.id] || { icon: item.icon, title: item.label, desc: 'Contenido disponible próximamente.' };
+    html += `
+      <div class="tab-pane" id="tab-${item.id}">
+        <div class="tab-placeholder">
+          <span class="ph-icon">${c.icon}</span>
+          <h2>${c.title}</h2>
+          <p>${c.desc}</p>
+          <span class="ph-badge">Fase siguiente</span>
+        </div>
+      </div>
+    `;
+  });
+
+  main.innerHTML = html;
+}
+
+function switchTab(tabId) {
+  if (activeTab === tabId) return;
+
+  // Sidebar
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById(`nav-${tabId}`);
+  if (navEl) navEl.classList.add('active');
+
+  // Content
+  document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+  const pane = document.getElementById(`tab-${tabId}`);
+  if (pane) pane.classList.add('active');
+
+  activeTab = tabId;
+  closeSidebar();  // auto-close on mobile
+}
+
+// ─── PENDING COUNT ───────────────────────────────────
+async function loadPendingCount() {
+  try {
+    const { count } = await sb
+      .from('acciones_pendientes')
+      .select('id', { count: 'exact', head: true })
+      .eq('asesor_id', currentUser.id)
+      .eq('completada', false);
+
+    pendingCount = count || 0;
+    updateBadge();
+  } catch {
+    // silently fail — pending count is non-critical
+  }
+}
+
+function updateBadge() {
+  // Find whichever badge exists (asesor has 'pendientes', director has 'notificaciones')
+  ['pendientes', 'notificaciones'].forEach(id => {
+    const badge = document.getElementById(`badge-${id}`);
+    if (!badge) return;
+    if (pendingCount > 0) {
+      badge.textContent = pendingCount > 99 ? '99+' : pendingCount;
+      badge.style.display = 'block';
+    } else {
+      badge.style.display = 'none';
+    }
+  });
+}
+
+// ─── MOBILE SIDEBAR ──────────────────────────────────
+function toggleSidebar() {
+  const sidebar = document.getElementById('app-sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('visible');
+}
+
+function closeSidebar() {
+  document.getElementById('app-sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('visible');
+}
+
+// ─── INIT ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('login-screen').style.display = 'none';
+  checkSession();
+});
+</script>
+</body>
+</html>
