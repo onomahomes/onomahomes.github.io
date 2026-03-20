@@ -10,463 +10,268 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg: #F8F7F4;
-  --sidebar: #1a1a2e;
-  --sidebar-hover: #16213e;
-  --accent: #6B7F5E;
-  --accent-light: #8fa880;
-  --gold: #C9A84C;
-  --text: #2D2D2D;
-  --text-muted: #8a8a9a;
-  --border: #e5e3df;
-  --card: #ffffff;
-  --danger: #e05252;
-  --sidebar-width: 240px;
-  --header-h: 60px;
+  --bg: #F8F7F4; --sidebar: #1a1a2e; --sidebar-hover: #16213e;
+  --accent: #6B7F5E; --accent-light: #8fa880; --gold: #C9A84C;
+  --text: #2D2D2D; --text-muted: #8a8a9a; --border: #e5e3df;
+  --card: #ffffff; --danger: #e05252; --sidebar-width: 240px; --header-h: 60px;
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
 
-body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+/* LOGIN */
+#login-screen { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%); min-height: 100vh; }
+.login-card { background: white; border-radius: 16px; padding: 48px 40px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.login-logo { text-align: center; margin-bottom: 32px; }
+.login-logo .logo-text { font-size: 28px; font-weight: 700; letter-spacing: 6px; color: var(--text); }
+.login-logo .logo-sub { font-size: 11px; letter-spacing: 3px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; }
+.login-title { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 24px; text-align: center; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 15px; font-family: inherit; color: var(--text); background: var(--bg); transition: border-color 0.2s; outline: none; }
+.form-group input:focus { border-color: var(--accent); }
+.btn-login { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; margin-top: 8px; transition: background 0.2s, transform 0.1s; letter-spacing: 0.5px; }
+.btn-login:hover { background: var(--accent-light); } .btn-login:active { transform: scale(0.99); } .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+.login-error { background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 8px; padding: 12px 16px; font-size: 13px; margin-top: 12px; display: none; }
 
-/* ─── LOGIN SCREEN ─────────────────────────────── */
-#login-screen {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
-  min-height: 100vh;
-}
-
-.login-card {
-  background: white;
-  border-radius: 16px;
-  padding: 48px 40px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-}
-
-.login-logo {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.login-logo .logo-text {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 6px;
-  color: var(--text);
-}
-
-.login-logo .logo-sub {
-  font-size: 11px;
-  letter-spacing: 3px;
-  color: var(--text-muted);
-  margin-top: 4px;
-  text-transform: uppercase;
-}
-
-.login-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 24px;
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  font-size: 15px;
-  font-family: inherit;
-  color: var(--text);
-  background: var(--bg);
-  transition: border-color 0.2s;
-  outline: none;
-}
-
-.form-group input:focus {
-  border-color: var(--accent);
-}
-
-.btn-login {
-  width: 100%;
-  padding: 14px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: background 0.2s, transform 0.1s;
-  letter-spacing: 0.5px;
-}
-
-.btn-login:hover { background: var(--accent-light); }
-.btn-login:active { transform: scale(0.99); }
-.btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
-
-.login-error {
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
-  color: #b91c1c;
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-size: 13px;
-  margin-top: 12px;
-  display: none;
-}
-
-/* ─── APP SHELL ─────────────────────────────────── */
-#app-shell {
-  display: none;
-  flex: 1;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* HEADER */
-.app-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--header-h);
-  background: var(--sidebar);
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
-  z-index: 100;
-  gap: 16px;
-}
-
-.header-logo {
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 4px;
-  color: white;
-  flex-shrink: 0;
-}
-
-.header-logo span {
-  color: var(--accent-light);
-  font-size: 10px;
-  letter-spacing: 2px;
-  display: block;
-  font-weight: 400;
-}
-
+/* APP SHELL */
+#app-shell { display: none; flex: 1; flex-direction: column; min-height: 100vh; }
+.app-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); background: var(--sidebar); display: flex; align-items: center; padding: 0 20px; z-index: 100; gap: 16px; }
+.header-logo { font-size: 16px; font-weight: 700; letter-spacing: 4px; color: white; flex-shrink: 0; }
+.header-logo span { color: var(--accent-light); font-size: 10px; letter-spacing: 2px; display: block; font-weight: 400; }
 .header-spacer { flex: 1; }
+.header-user { display: flex; align-items: center; gap: 12px; }
+.user-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+.user-info { text-align: right; }
+.user-name { font-size: 13px; font-weight: 600; color: white; }
+.user-rol { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.btn-logout { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); padding: 6px 14px; border-radius: 6px; font-size: 12px; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+.btn-logout:hover { border-color: rgba(255,255,255,0.5); color: white; }
 
-.header-user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: white;
-  flex-shrink: 0;
-}
-
-.user-info {
-  text-align: right;
-}
-
-.user-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: white;
-}
-
-.user-rol {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.btn-logout {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.7);
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-logout:hover {
-  border-color: rgba(255,255,255,0.5);
-  color: white;
-}
-
-/* HAMBURGER (mobile) */
-.hamburger {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  flex-direction: column;
-  gap: 5px;
-  position: relative;
-}
-
-.hamburger span {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: white;
-  border-radius: 2px;
-  transition: all 0.3s;
-}
-
-.hamburger-dot {
-  display: none;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  width: 10px;
-  height: 10px;
-  background: var(--danger);
-  border-radius: 50%;
-  border: 2px solid var(--sidebar);
-  box-shadow: 0 0 6px rgba(224,82,82,0.8);
-  animation: pulse-dot 1.8s ease-in-out infinite;
-}
-
+/* HAMBURGER */
+.hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; flex-direction: column; gap: 5px; position: relative; }
+.hamburger span { display: block; width: 22px; height: 2px; background: white; border-radius: 2px; transition: all 0.3s; }
+.hamburger-dot { display: none; position: absolute; top: 0px; right: 0px; width: 10px; height: 10px; background: var(--danger); border-radius: 50%; border: 2px solid var(--sidebar); box-shadow: 0 0 6px rgba(224,82,82,0.8); animation: pulse-dot 1.8s ease-in-out infinite; }
 .hamburger-dot.visible { display: block; }
-
-@keyframes pulse-dot {
-  0%, 100% { box-shadow: 0 0 4px rgba(224,82,82,0.7); }
-  50%       { box-shadow: 0 0 10px rgba(224,82,82,1); }
-}
+@keyframes pulse-dot { 0%, 100% { box-shadow: 0 0 4px rgba(224,82,82,0.7); } 50% { box-shadow: 0 0 10px rgba(224,82,82,1); } }
 
 /* LAYOUT */
-.app-body {
-  display: flex;
-  margin-top: var(--header-h);
-  min-height: calc(100vh - var(--header-h));
-}
-
-/* SIDEBAR */
-.app-sidebar {
-  width: var(--sidebar-width);
-  background: var(--sidebar);
-  position: fixed;
-  top: var(--header-h);
-  left: 0;
-  bottom: 0;
-  overflow-y: auto;
-  z-index: 90;
-  transition: transform 0.3s ease;
-  padding: 12px 0;
-}
-
-.sidebar-section {
-  padding: 0 12px;
-  margin-bottom: 4px;
-}
-
-.sidebar-section-title {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: rgba(255,255,255,0.3);
-  padding: 12px 8px 6px;
-}
-
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s;
-  color: rgba(255,255,255,0.65);
-  font-size: 14px;
-  font-weight: 500;
-  position: relative;
-  user-select: none;
-}
-
-.sidebar-item:hover {
-  background: rgba(255,255,255,0.07);
-  color: white;
-}
-
-.sidebar-item.active {
-  background: var(--accent);
-  color: white;
-}
-
-.sidebar-item .icon {
-  font-size: 16px;
-  width: 20px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
+.app-body { display: flex; margin-top: var(--header-h); min-height: calc(100vh - var(--header-h)); }
+.app-sidebar { width: var(--sidebar-width); background: var(--sidebar); position: fixed; top: var(--header-h); left: 0; bottom: 0; overflow-y: auto; z-index: 90; transition: transform 0.3s ease; padding: 12px 0; }
+.sidebar-section { padding: 0 12px; margin-bottom: 4px; }
+.sidebar-section-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.3); padding: 12px 8px 6px; }
+.sidebar-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: all 0.15s; color: rgba(255,255,255,0.65); font-size: 14px; font-weight: 500; position: relative; user-select: none; }
+.sidebar-item:hover { background: rgba(255,255,255,0.07); color: white; }
+.sidebar-item.active { background: var(--accent); color: white; }
+.sidebar-item .icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
 .sidebar-item .label { flex: 1; }
+.badge { background: var(--danger); color: white; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 20px; min-width: 20px; text-align: center; }
 
-.badge {
-  background: var(--danger);
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 20px;
-  min-width: 20px;
-  text-align: center;
-}
-
-/* MAIN CONTENT */
-.app-main {
-  margin-left: var(--sidebar-width);
-  flex: 1;
-  padding: 32px;
-  min-height: calc(100vh - var(--header-h));
-}
-
-/* TAB CONTENT */
-.tab-pane {
-  display: none;
-  animation: fadeIn 0.2s ease;
-}
-
+/* MAIN */
+.app-main { margin-left: var(--sidebar-width); flex: 1; padding: 32px; min-height: calc(100vh - var(--header-h)); }
+.tab-pane { display: none; animation: fadeIn 0.2s ease; }
 .tab-pane.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+/* PHASE 2 — BUTTONS */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; border: none; transition: all 0.2s; white-space: nowrap; }
+.btn-primary { background: var(--accent); color: white; } .btn-primary:hover { background: var(--accent-light); }
+.btn-gold { background: var(--gold); color: white; } .btn-gold:hover { filter: brightness(1.1); }
+.btn-secondary { background: white; color: var(--text); border: 1.5px solid var(--border); } .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm { padding: 6px 12px; font-size: 12px; } .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* TAB TOOLBAR */
+.tab-toolbar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+.tab-toolbar h2 { font-size: 22px; font-weight: 700; }
+.tab-toolbar p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+.tab-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.search-bar { position: relative; }
+.search-bar input { padding: 9px 12px 9px 34px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; background: white; transition: border-color 0.2s; width: 220px; }
+.search-bar input:focus { border-color: var(--accent); }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; pointer-events: none; }
+
+/* TABLE */
+.data-table { background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+.data-table table { width: 100%; border-collapse: collapse; }
+.data-table th { text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); background: #f9f8f6; border-bottom: 1px solid var(--border); }
+.data-table td { padding: 13px 16px; font-size: 14px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: #fafaf8; }
+
+/* PILLS */
+.pill { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.pill-green { background: #dcfce7; color: #166534; } .pill-yellow { background: #fef9c3; color: #854d0e; }
+.pill-gray { background: #f3f4f6; color: #6b7280; } .pill-red { background: #fee2e2; color: #991b1b; }
+.pill-blue { background: #dbeafe; color: #1e40af; } .pill-gold { background: #fef3c7; color: #92400e; }
+
+/* CARDS GRID */
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.data-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; transition: box-shadow 0.2s, transform 0.15s; }
+.data-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.card-img { width: 100%; height: 160px; object-fit: cover; background: #f3f2ef; display: flex; align-items: center; justify-content: center; font-size: 40px; color: #ccc; }
+.data-card img.card-img { display: block; font-size: unset; }
+.card-body { padding: 14px; }
+.card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-meta { font-size: 13px; color: var(--text-muted); }
+.card-price { font-size: 16px; font-weight: 700; color: var(--accent); margin-top: 8px; }
+.card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
+.data-card.urban-flip { border-color: var(--gold); }
+.uf-badge { background: var(--gold); color: white; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 4px; }
+
+/* FILTERS */
+.filters-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+.filter-chip { padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; border: 1.5px solid var(--border); background: white; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
+.filter-chip.active { border-color: var(--accent); background: var(--accent); color: white; }
+
+/* EMPTY / LOADING / ERROR */
+.empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; display: block; }
+.empty-state p { font-size: 15px; margin-bottom: 16px; }
+.tab-loading { display: flex; align-items: center; justify-content: center; padding: 80px; }
+.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.tab-error { background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 8px; padding: 16px; font-size: 14px; }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: 200; align-items: center; justify-content: center; padding: 24px; }
+.modal-overlay.open { display: flex; }
+.modal-card { background: white; border-radius: 16px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalIn 0.2s ease; }
+.modal-card.modal-sm { max-width: 440px; } .modal-card.modal-md { max-width: 600px; } .modal-card.modal-lg { max-width: 800px; }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.modal-header h3 { font-size: 18px; font-weight: 700; }
+.modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); line-height: 1; padding: 0 4px; transition: color 0.2s; }
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+.modal-footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--border); flex-shrink: 0; }
+
+/* CHOICE CARDS */
+.choice-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+.choice-card { border: 2px solid var(--border); border-radius: 12px; padding: 24px 16px; text-align: center; cursor: pointer; transition: all 0.2s; }
+.choice-card:hover { border-color: var(--accent); background: #f0f4ee; }
+.choice-icon { font-size: 32px; margin-bottom: 8px; }
+.choice-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.choice-desc { font-size: 13px; color: var(--text-muted); }
+
+/* FORM STYLES */
+.form-section { margin-bottom: 24px; }
+.form-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+.form-col { display: flex; flex-direction: column; gap: 6px; }
+.form-col.full { grid-column: 1 / -1; }
+.form-col label, .fc-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); }
+.form-col input, .form-col select, .form-col textarea {
+  padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px;
+  font-family: inherit; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.2s; width: 100%;
 }
+.form-col input:focus, .form-col select:focus, .form-col textarea:focus { border-color: var(--accent); }
+.form-col input.valid { border-color: #22c55e; background: #f0fdf4; }
+.form-col input.invalid { border-color: var(--danger); background: #fef2f2; }
+.form-col textarea { resize: vertical; min-height: 80px; }
 
-/* PLACEHOLDER */
-.tab-placeholder {
-  background: var(--card);
-  border-radius: 12px;
-  padding: 60px 40px;
-  text-align: center;
-  border: 2px dashed var(--border);
-}
+/* TOGGLE */
+.toggle-group { display: flex; background: #f3f2ef; border-radius: 8px; padding: 3px; gap: 2px; }
+.toggle-group button { flex: 1; padding: 8px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; color: var(--text-muted); background: transparent; transition: all 0.2s; }
+.toggle-group button.active { background: white; color: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
 
-.tab-placeholder .ph-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-  display: block;
-}
+/* CHECKBOXES */
+.checkbox-group { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.checkbox-item { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+.checkbox-item input[type=checkbox] { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; accent-color: var(--accent); }
+.cb-label { font-size: 14px; font-weight: 500; } .cb-desc { font-size: 12px; color: var(--text-muted); }
 
-.tab-placeholder h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 8px;
-}
+/* SLIDERS */
+.slider-group { display: flex; flex-direction: column; gap: 14px; }
+.slider-item { display: flex; flex-direction: column; gap: 6px; }
+.slider-header { display: flex; justify-content: space-between; align-items: center; }
+.slider-label { font-size: 13px; font-weight: 600; }
+.slider-value { font-size: 13px; font-weight: 700; min-width: 32px; text-align: right; }
+input[type=range] { width: 100%; height: 6px; border-radius: 3px; outline: none; appearance: none; -webkit-appearance: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: white; border: 2px solid var(--accent); cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+.slider-hint { font-size: 11px; color: var(--text-muted); }
 
-.tab-placeholder p {
-  font-size: 14px;
-  color: var(--text-muted);
-  max-width: 360px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
+/* DROPZONE */
+.dropzone { border: 2px dashed var(--border); border-radius: 10px; padding: 28px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafaf8; }
+.dropzone:hover, .dropzone.drag-over { border-color: var(--accent); background: #f0f4ee; }
+.dropzone .dz-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+.dropzone p { font-size: 14px; color: var(--text-muted); }
+.dropzone p strong { color: var(--accent); }
+.photo-previews { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; margin-top: 12px; }
+.photo-preview { position: relative; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: #f3f2ef; }
+.photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+.remove-photo { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.upload-progress { height: 4px; background: #e5e3df; border-radius: 2px; margin-top: 8px; overflow: hidden; display: none; }
+.upload-progress-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
 
-.ph-badge {
-  display: inline-block;
-  background: var(--accent);
-  color: white;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 20px;
-  margin-top: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+/* DOCS */
+.doc-rows { display: flex; flex-direction: column; gap: 10px; }
+.doc-row { display: flex; align-items: center; gap: 10px; }
+.doc-row label { font-size: 13px; font-weight: 500; width: 160px; flex-shrink: 0; }
+.doc-status { font-size: 12px; color: var(--text-muted); flex: 1; }
+.doc-status.uploaded { color: #22c55e; font-weight: 500; }
 
-/* ─── MOBILE ─────────────────────────────────────── */
+/* ALERTS */
+.alert { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 8px; font-size: 13px; margin-top: 8px; line-height: 1.5; }
+.alert-warning { background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; }
+.alert-danger { background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; }
+.alert-success { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+.alert-info { background: #eff6ff; border: 1px solid #93c5fd; color: #1e40af; }
+
+/* LINK BOX */
+.link-box { display: flex; gap: 8px; align-items: center; background: #f3f2ef; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-top: 12px; }
+.link-text { flex: 1; font-size: 12px; color: var(--accent); word-break: break-all; font-family: monospace; }
+
+/* LOGO PREVIEW */
+.logo-preview-area { width: 72px; height: 72px; border-radius: 8px; border: 1.5px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; background: #f9f8f6; flex-shrink: 0; font-size: 24px; }
+.logo-preview-area img { width: 100%; height: 100%; object-fit: contain; }
+
+/* COLLAPSIBLE */
+.collapsible { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+.collapsible-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: #f9f8f6; cursor: pointer; font-size: 14px; font-weight: 600; user-select: none; }
+.collapsible-header:hover { background: #f3f2ef; }
+.collapsible-header .caret { transition: transform 0.2s; }
+.collapsible-header.open .caret { transform: rotate(180deg); }
+.collapsible-body { padding: 18px; display: none; border-top: 1px solid var(--border); }
+.collapsible-body.open { display: block; }
+
+/* TOAST */
+#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 500; color: white; box-shadow: 0 4px 16px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; max-width: 320px; pointer-events: all; }
+.toast-success { background: #22c55e; } .toast-error { background: var(--danger); } .toast-info { background: #3b82f6; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* PLACEHOLDER (tabs sin loader) */
+.tab-placeholder { background: var(--card); border-radius: 12px; padding: 60px 40px; text-align: center; border: 2px dashed var(--border); }
+.tab-placeholder .ph-icon { font-size: 48px; margin-bottom: 16px; display: block; }
+.tab-placeholder h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+.tab-placeholder p { font-size: 14px; color: var(--text-muted); max-width: 360px; margin: 0 auto; line-height: 1.6; }
+.ph-badge { display: inline-block; background: var(--accent); color: white; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-top: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* MOBILE */
 @media (max-width: 768px) {
   :root { --sidebar-width: 260px; }
-
   .hamburger { display: flex; }
   .header-user .user-info { display: none; }
-
-  .app-sidebar {
-    transform: translateX(-100%);
-  }
-
-  .app-sidebar.open {
-    transform: translateX(0);
-    box-shadow: 4px 0 20px rgba(0,0,0,0.4);
-  }
-
-  .sidebar-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 85;
-  }
-
+  .app-sidebar { transform: translateX(-100%); }
+  .app-sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,0.4); }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 85; }
   .sidebar-overlay.visible { display: block; }
-
-  .app-main {
-    margin-left: 0;
-    padding: 20px 16px;
-  }
-
-  .login-card {
-    padding: 32px 24px;
-  }
+  .app-main { margin-left: 0; padding: 20px 16px; }
+  .login-card { padding: 32px 24px; }
+  .form-row, .form-row.three { grid-template-columns: 1fr; }
+  .choice-cards { grid-template-columns: 1fr; }
+  .modal-overlay.open { align-items: flex-end; padding: 0; }
+  .modal-card { border-radius: 16px 16px 0 0; max-height: 88vh; }
+  .tab-toolbar { flex-direction: column; align-items: stretch; }
+  .tab-actions { flex-wrap: wrap; }
+  .search-bar input { width: 100%; }
+  .data-table { overflow-x: auto; }
 }
 </style>
 </head>
 <body>
 
-<!-- ─── LOGIN SCREEN ──────────────────────────────── -->
+<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">
@@ -483,7 +288,7 @@ body {
         <label>Contraseña</label>
         <div style="position:relative;">
           <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required style="padding-right:44px;" />
-          <button type="button" onclick="togglePasswordVisibility()" id="btn-toggle-pw" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:#8a8a9a;font-size:18px;line-height:1;" title="Mostrar contraseña">👁</button>
+          <button type="button" onclick="togglePwVisibility()" id="btn-toggle-pw" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:#8a8a9a;font-size:18px;line-height:1;">👁</button>
         </div>
       </div>
       <button type="submit" class="btn-login" id="btn-login">Entrar</button>
@@ -492,22 +297,16 @@ body {
   </div>
 </div>
 
-<!-- ─── SIDEBAR OVERLAY (mobile) ─────────────────── -->
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
-<!-- ─── APP SHELL ────────────────────────────────── -->
+<!-- APP SHELL -->
 <div id="app-shell">
-
-  <!-- HEADER -->
   <header class="app-header">
     <button class="hamburger" onclick="toggleSidebar()" aria-label="Menú">
       <span></span><span></span><span></span>
       <span class="hamburger-dot" id="hamburger-dot"></span>
     </button>
-    <div class="header-logo">
-      ONOMA
-      <span>Real Estate CRM</span>
-    </div>
+    <div class="header-logo">ONOMA<span>Real Estate CRM</span></div>
     <div class="header-spacer"></div>
     <div class="header-user">
       <div class="user-info">
@@ -518,306 +317,1029 @@ body {
       <button class="btn-logout" onclick="handleLogout()">Salir</button>
     </div>
   </header>
-
   <div class="app-body">
-
-    <!-- SIDEBAR -->
-    <nav class="app-sidebar" id="app-sidebar">
-      <!-- contenido dinámico según rol -->
-    </nav>
-
-    <!-- MAIN CONTENT -->
-    <main class="app-main" id="app-main">
-      <!-- tabs se renderizan aquí -->
-    </main>
-
+    <nav class="app-sidebar" id="app-sidebar"></nav>
+    <main class="app-main" id="app-main"></main>
   </div>
 </div>
 
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal-card modal-md" id="modal-card">
+    <div class="modal-header">
+      <h3 id="modal-title">—</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
 <script>
-// ─── SUPABASE CLIENT ─────────────────────────────────
+// ─── SUPABASE ─────────────────────────────────────────
 const SUPABASE_URL = 'https://wwaytwudfbwxttyyojjx.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const N8N = 'https://onomahomes.app.n8n.cloud/webhook';
+const CLD_CLOUD = 'duy8wxcrq';
+const CLD_PRESET = 'onoma_pisos';
+const GH_PAGES = 'https://onomahomes.github.io';
 
 // ─── STATE ───────────────────────────────────────────
-let currentUser = null;  // { id, nombre, rol, supabase_auth_id, email }
+let currentUser = null;
 let activeTab = null;
 let pendingCount = 0;
+const loadedTabs = new Set();
+let uploadedPhotos = [];
+let uploadedDocs = {};
+let colabsCache = [];
 
-// ─── NAV CONFIG ──────────────────────────────────────
+// ─── NAV ──────────────────────────────────────────────
 const NAV_ASESOR = [
-  { id: 'dashboard',    icon: '🏠', label: 'Dashboard',           section: null },
-  { id: 'pendientes',   icon: '🔔', label: 'Acciones Pendientes', section: null, badge: true },
-  { id: 'matchings',    icon: '🤝', label: 'Matchings',           section: null },
-  { id: 'colaboradores',icon: '👥', label: 'Mis Colaboradores',   section: 'Gestión' },
-  { id: 'pisos',        icon: '🏘️', label: 'Pisos',              section: null },
-  { id: 'demandas',     icon: '📋', label: 'Demandas',            section: null },
-  { id: 'calendario',   icon: '📅', label: 'Calendario',          section: null },
-  { id: 'kpis',         icon: '📊', label: 'Mis KPIs',           section: null },
+  { id: 'dashboard',     icon: '🏠', label: 'Dashboard' },
+  { id: 'pendientes',    icon: '🔔', label: 'Acciones Pendientes', badge: true },
+  { id: 'matchings',     icon: '🤝', label: 'Matchings' },
+  { id: 'colaboradores', icon: '👥', label: 'Mis Colaboradores', section: 'Gestión' },
+  { id: 'pisos',         icon: '🏘️', label: 'Pisos' },
+  { id: 'demandas',      icon: '📋', label: 'Demandas' },
+  { id: 'calendario',    icon: '📅', label: 'Calendario' },
+  { id: 'kpis',          icon: '📊', label: 'Mis KPIs' },
 ];
-
 const NAV_DIRECTOR = [
-  { id: 'dashboard',      icon: '🏠', label: 'Dashboard KPIs',    section: null },
-  { id: 'notificaciones', icon: '🔔', label: 'Notificaciones',    section: null, badge: true },
-  { id: 'equipo',         icon: '👔', label: 'Equipo',            section: 'Gestión' },
-  { id: 'colaboradores',  icon: '🤝', label: 'Colaboradores',     section: null },
-  { id: 'pipeline',       icon: '📊', label: 'Pipeline',          section: null },
-  { id: 'agenda',         icon: '📅', label: 'Agenda',            section: null },
-  { id: 'informes',       icon: '📈', label: 'Informes',          section: null },
+  { id: 'dashboard',      icon: '🏠', label: 'Dashboard KPIs' },
+  { id: 'notificaciones', icon: '🔔', label: 'Notificaciones', badge: true },
+  { id: 'equipo',         icon: '👔', label: 'Equipo', section: 'Gestión' },
+  { id: 'colaboradores',  icon: '🤝', label: 'Colaboradores' },
+  { id: 'pisos',          icon: '🏘️', label: 'Pisos' },
+  { id: 'pipeline',       icon: '📊', label: 'Pipeline' },
+  { id: 'agenda',         icon: '📅', label: 'Agenda' },
+  { id: 'informes',       icon: '📈', label: 'Informes' },
 ];
-
-// Tab placeholder content
-const TAB_CONTENT = {
-  // Asesor
+const TAB_PLACEHOLDERS = {
   dashboard:      { icon: '🏠', title: 'Dashboard', desc: 'Resumen del día: actividad, próximas visitas, alertas y métricas personales.' },
-  pendientes:     { icon: '🔔', title: 'Acciones Pendientes', desc: 'Lista de tareas asignadas: seguimientos, feedbacks pendientes, matchings por revisar.' },
-  matchings:      { icon: '🤝', title: 'Matchings', desc: 'Gestión completa de matching: demandas activas → top pisos → selección → envío al cliente.' },
-  colaboradores:  { icon: '👥', title: 'Mis Colaboradores', desc: 'Lista de colaboradores a tu cargo. Añadir nuevos, ver estado de contratos y actividad.' },
-  pisos:          { icon: '🏘️', title: 'Pisos', desc: 'Cartera de pisos: búsqueda, filtros, fichas completas con fotos, documentos y valoración.' },
-  demandas:       { icon: '📋', title: 'Demandas', desc: 'Demandas activas de clientes: perfiles, presupuesto, preferencias y estado de búsqueda.' },
-  calendario:     { icon: '📅', title: 'Calendario', desc: 'Visitas programadas, disponibilidad y agenda personal y de equipo.' },
-  kpis:           { icon: '📊', title: 'Mis KPIs', desc: 'Rendimiento personal: matchings enviados, conversión, visitas, operaciones y comisiones.' },
-  // Director
-  notificaciones: { icon: '🔔', title: 'Notificaciones', desc: 'Alertas de escalado (72h sin respuesta), pisos sin actividad, operaciones bloqueadas.' },
-  equipo:         { icon: '👔', title: 'Equipo', desc: 'Gestión de asesores: crear nuevos, ver actividad, asignar colaboradores, rendimiento.' },
-  pipeline:       { icon: '📊', title: 'Pipeline', desc: 'Operaciones en curso: fases, fechas clave, comisiones esperadas y estado de cierre.' },
-  agenda:         { icon: '📅', title: 'Agenda', desc: 'Todas las visitas del día/semana de todo el equipo. Vista global coordinación.' },
-  informes:       { icon: '📈', title: 'Informes', desc: 'Informes comerciales, de actividad y rendimiento por asesor, periodo y tipo de operación.' },
+  pendientes:     { icon: '🔔', title: 'Acciones Pendientes', desc: 'Lista de tareas pendientes: seguimientos, feedbacks, matchings por revisar.' },
+  matchings:      { icon: '🤝', title: 'Matchings', desc: 'Gestión de matchings: demandas activas → top pisos → envío al cliente.' },
+  calendario:     { icon: '📅', title: 'Calendario', desc: 'Visitas programadas y agenda.' },
+  kpis:           { icon: '📊', title: 'Mis KPIs', desc: 'Rendimiento personal: matchings, conversión, visitas, comisiones.' },
+  notificaciones: { icon: '🔔', title: 'Notificaciones', desc: 'Alertas de escalado 72h, pisos sin actividad, operaciones bloqueadas.' },
+  pipeline:       { icon: '📊', title: 'Pipeline', desc: 'Operaciones en curso: fases, fechas clave, comisiones.' },
+  agenda:         { icon: '📅', title: 'Agenda', desc: 'Todas las visitas del equipo.' },
+  informes:       { icon: '📈', title: 'Informes', desc: 'Informes comerciales y de rendimiento.' },
 };
 
-// ─── AUTH FLOW ───────────────────────────────────────
+// ─── AUTH ─────────────────────────────────────────────
 async function handleLogin(e) {
   e.preventDefault();
-  const email    = document.getElementById('login-email').value.trim();
+  const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
-  const btn      = document.getElementById('btn-login');
-  const errEl    = document.getElementById('login-error');
-
-  btn.disabled = true;
-  btn.textContent = 'Entrando…';
-  errEl.style.display = 'none';
-
+  const btn = document.getElementById('btn-login');
+  const errEl = document.getElementById('login-error');
+  btn.disabled = true; btn.textContent = 'Entrando…'; errEl.style.display = 'none';
   try {
-    // 1. Auth con Supabase
     const { data: authData, error: authErr } = await sb.auth.signInWithPassword({ email, password });
     if (authErr) throw new Error(authErr.message);
-
-    // 2. Buscar perfil en tabla asesores
-    const { data: rows, error: dbErr } = await sb
-      .from('asesores')
+    const { data: rows, error: dbErr } = await sb.from('asesores')
       .select('id, nombre, email, rol, supabase_auth_id')
-      .eq('supabase_auth_id', authData.user.id)
-      .limit(1);
-
+      .eq('supabase_auth_id', authData.user.id).limit(1);
     if (dbErr) throw new Error(dbErr.message);
-    if (!rows || rows.length === 0) throw new Error('No se encontró el perfil de asesor. Contacta con administración.');
-
-    const profile = rows[0];
-    currentUser = {
-      id: profile.id,
-      nombre: profile.nombre || email.split('@')[0],
-      email: profile.email || email,
-      rol: profile.rol || 'asesor',
-      supabase_auth_id: profile.supabase_auth_id,
-    };
-
+    if (!rows || rows.length === 0) throw new Error('Perfil de asesor no encontrado. Contacta con administración.');
+    const p = rows[0];
+    currentUser = { id: p.id, nombre: p.nombre || email.split('@')[0], email: p.email || email, rol: p.rol || 'asesor', supabase_auth_id: p.supabase_auth_id };
     sessionStorage.setItem('crm_user', JSON.stringify(currentUser));
     showApp();
-
   } catch (err) {
-    errEl.textContent = err.message;
-    errEl.style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = 'Entrar';
+    errEl.textContent = err.message; errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Entrar';
   }
 }
 
 async function handleLogout() {
   await sb.auth.signOut();
   sessionStorage.removeItem('crm_user');
-  currentUser = null;
-  activeTab = null;
+  currentUser = null; activeTab = null; loadedTabs.clear(); colabsCache = [];
   document.getElementById('app-shell').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-email').value = '';
   document.getElementById('login-password').value = '';
   document.getElementById('login-error').style.display = 'none';
   const btn = document.getElementById('btn-login');
-  btn.disabled = false;
-  btn.textContent = 'Entrar';
+  btn.disabled = false; btn.textContent = 'Entrar';
 }
 
 async function checkSession() {
-  // Check sessionStorage first (fast)
   const cached = sessionStorage.getItem('crm_user');
   if (cached) {
-    // Verify Supabase session is still alive
     const { data: { session } } = await sb.auth.getSession();
-    if (session) {
-      currentUser = JSON.parse(cached);
-      showApp();
-      return;
-    }
+    if (session) { currentUser = JSON.parse(cached); showApp(); return; }
     sessionStorage.removeItem('crm_user');
   }
-  // No session — show login
   document.getElementById('login-screen').style.display = 'flex';
+}
+
+function togglePwVisibility() {
+  const input = document.getElementById('login-password');
+  const btn = document.getElementById('btn-toggle-pw');
+  input.type = input.type === 'password' ? 'text' : 'password';
+  btn.textContent = input.type === 'password' ? '👁' : '🙈';
 }
 
 // ─── APP RENDER ──────────────────────────────────────
 function showApp() {
   document.getElementById('login-screen').style.display = 'none';
-  const shell = document.getElementById('app-shell');
-  shell.style.display = 'flex';
-
-  // Header
+  document.getElementById('app-shell').style.display = 'flex';
   document.getElementById('user-name-display').textContent = currentUser.nombre;
   document.getElementById('user-rol-display').textContent = currentUser.rol === 'director' ? 'Director' : 'Asesor';
   document.getElementById('user-avatar').textContent = currentUser.nombre.charAt(0).toUpperCase();
-
-  // Build sidebar + content based on rol
   const nav = currentUser.rol === 'director' ? NAV_DIRECTOR : NAV_ASESOR;
-  renderSidebar(nav);
-  renderContent(nav);
-
-  // Load pending count async
+  renderSidebar(nav); renderContent(nav);
   loadPendingCount();
-
-  // Activate first tab
-  const firstTab = nav[0].id;
-  switchTab(firstTab);
+  switchTab(nav[0].id);
 }
 
 function renderSidebar(nav) {
-  const sidebar = document.getElementById('app-sidebar');
-  let html = '';
-  let lastSection = undefined;
-
+  let html = ''; let lastSection = undefined;
   nav.forEach(item => {
-    if (item.section !== lastSection) {
-      if (item.section) {
-        html += `<div class="sidebar-section-title">${item.section}</div>`;
-      }
-      lastSection = item.section;
-    }
+    if (item.section !== lastSection) { if (item.section) html += `<div class="sidebar-section-title">${item.section}</div>`; lastSection = item.section; }
     const badgeHtml = item.badge ? `<span class="badge" id="badge-${item.id}" style="display:none">0</span>` : '';
-    html += `
-      <div class="sidebar-section">
-        <div class="sidebar-item" id="nav-${item.id}" onclick="switchTab('${item.id}')">
-          <span class="icon">${item.icon}</span>
-          <span class="label">${item.label}</span>
-          ${badgeHtml}
-        </div>
-      </div>
-    `;
+    html += `<div class="sidebar-section"><div class="sidebar-item" id="nav-${item.id}" onclick="switchTab('${item.id}')"><span class="icon">${item.icon}</span><span class="label">${item.label}</span>${badgeHtml}</div></div>`;
   });
-
-  sidebar.innerHTML = html;
+  document.getElementById('app-sidebar').innerHTML = html;
 }
 
 function renderContent(nav) {
-  const main = document.getElementById('app-main');
-  let html = '';
-
-  nav.forEach(item => {
-    const c = TAB_CONTENT[item.id] || { icon: item.icon, title: item.label, desc: 'Contenido disponible próximamente.' };
-    html += `
-      <div class="tab-pane" id="tab-${item.id}">
-        <div class="tab-placeholder">
-          <span class="ph-icon">${c.icon}</span>
-          <h2>${c.title}</h2>
-          <p>${c.desc}</p>
-          <span class="ph-badge">Fase siguiente</span>
-        </div>
-      </div>
-    `;
-  });
-
-  main.innerHTML = html;
+  document.getElementById('app-main').innerHTML = nav.map(item => `<div class="tab-pane" id="tab-${item.id}"></div>`).join('');
 }
 
 function switchTab(tabId) {
   if (activeTab === tabId) return;
-
-  // Sidebar
   document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
   const navEl = document.getElementById(`nav-${tabId}`);
   if (navEl) navEl.classList.add('active');
-
-  // Content
   document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
   const pane = document.getElementById(`tab-${tabId}`);
   if (pane) pane.classList.add('active');
-
-  activeTab = tabId;
-  closeSidebar();  // auto-close on mobile
+  activeTab = tabId; closeSidebar();
+  if (!loadedTabs.has(tabId)) {
+    loadedTabs.add(tabId);
+    const loader = TAB_LOADERS[tabId];
+    if (loader) loader();
+    else renderPlaceholder(tabId);
+  }
 }
 
-// ─── PENDING COUNT ───────────────────────────────────
+function renderPlaceholder(tabId) {
+  const p = TAB_PLACEHOLDERS[tabId] || { icon: '🏗️', title: tabId, desc: 'Disponible próximamente.' };
+  const pane = document.getElementById(`tab-${tabId}`);
+  if (pane) pane.innerHTML = `<div class="tab-placeholder"><span class="ph-icon">${p.icon}</span><h2>${p.title}</h2><p>${p.desc}</p><span class="ph-badge">Próximamente</span></div>`;
+}
+
+// ─── PENDING COUNT ─────────────────────────────────────
 async function loadPendingCount() {
   try {
-    const { count } = await sb
-      .from('acciones_pendientes')
-      .select('id', { count: 'exact', head: true })
-      .eq('asesor_id', currentUser.id)
-      .eq('completada', false);
-
-    pendingCount = count || 0;
-    updateBadge();
-  } catch {
-    // silently fail — pending count is non-critical
-  }
+    const { count } = await sb.from('acciones_pendientes').select('id', { count: 'exact', head: true })
+      .eq('asesor_id', currentUser.id).eq('completada', false);
+    pendingCount = count || 0; updateBadge();
+  } catch {}
 }
 
 function updateBadge() {
   const hasPending = pendingCount > 0;
-  const countText = pendingCount > 99 ? '99+' : pendingCount;
-
-  // Badge dentro del sidebar (asesor → pendientes, director → notificaciones)
+  const countText = pendingCount > 99 ? '99+' : String(pendingCount);
   ['pendientes', 'notificaciones'].forEach(id => {
     const badge = document.getElementById(`badge-${id}`);
     if (!badge) return;
-    if (hasPending) {
-      badge.textContent = countText;
-      badge.style.display = 'block';
-    } else {
-      badge.style.display = 'none';
-    }
+    badge.textContent = countText; badge.style.display = hasPending ? 'block' : 'none';
   });
-
-  // Punto rojo sobre el hamburger (solo visible en móvil vía CSS display:none en desktop)
   const dot = document.getElementById('hamburger-dot');
   if (dot) dot.classList.toggle('visible', hasPending);
 }
 
-// ─── MOBILE SIDEBAR ──────────────────────────────────
+// ─── SIDEBAR MOBILE ───────────────────────────────────
 function toggleSidebar() {
-  const sidebar = document.getElementById('app-sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('visible');
+  document.getElementById('app-sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('visible');
 }
-
 function closeSidebar() {
   document.getElementById('app-sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('visible');
 }
 
-function togglePasswordVisibility() {
-  const input = document.getElementById('login-password');
-  const btn = document.getElementById('btn-toggle-pw');
-  if (input.type === 'password') {
-    input.type = 'text';
-    btn.textContent = '🙈';
-    btn.title = 'Ocultar contraseña';
-  } else {
-    input.type = 'password';
-    btn.textContent = '👁';
-    btn.title = 'Mostrar contraseña';
-  }
+// ─── UTILITIES ────────────────────────────────────────
+function genId() { return 'rec' + Math.random().toString(36).substring(2, 14); }
+function eur(n) { return n ? '€' + Number(n).toLocaleString('es-ES') : '—'; }
+function fdate(d) { return d ? new Date(d).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—'; }
+
+async function uploadToCloudinary(file, folder) {
+  const fd = new FormData();
+  fd.append('file', file); fd.append('upload_preset', CLD_PRESET); fd.append('folder', folder);
+  const r = await fetch(`https://api.cloudinary.com/v1_1/${CLD_CLOUD}/auto/upload`, { method: 'POST', body: fd });
+  if (!r.ok) throw new Error('Error subiendo a Cloudinary');
+  return await r.json();
 }
+
+async function callN8n(endpoint, body) {
+  const r = await fetch(`${N8N}/${endpoint}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  return await r.json();
+}
+
+// ─── TOAST ────────────────────────────────────────────
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`; el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ─── MODAL ────────────────────────────────────────────
+function openModal(title, bodyHtml, size = 'md', footerHtml = '') {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = bodyHtml;
+  document.getElementById('modal-footer').innerHTML = footerHtml || '<button class="btn btn-secondary" onclick="closeModal()">Cerrar</button>';
+  document.getElementById('modal-card').className = `modal-card modal-${size}`;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  uploadedPhotos = []; uploadedDocs = {};
+}
+function handleOverlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ─── COLLAPSIBLE ─────────────────────────────────────
+function toggleCollapsible(header) {
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+// ─── FILTER HELPERS ──────────────────────────────────
+function filterTableSearch(input, cellClass) {
+  const q = input.value.toLowerCase();
+  input.closest('.tab-pane').querySelectorAll('tbody tr').forEach(row => {
+    const cell = row.querySelector('.' + cellClass);
+    row.style.display = (!q || (cell && cell.textContent.toLowerCase().includes(q))) ? '' : 'none';
+  });
+}
+function filterChips(btn, attr, val) {
+  btn.closest('.filters-bar').querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  btn.closest('.tab-pane').querySelectorAll('tbody tr').forEach(row => {
+    row.style.display = (val === 'todos' || row.dataset[attr] === val) ? '' : 'none';
+  });
+}
+function filterPisos(btn, filter) {
+  btn.closest('.filters-bar').querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#pisos-grid .data-card').forEach(card => {
+    let show = filter === 'todos' || (filter === 'urban_flip' && card.dataset.uf === 'true')
+      || (filter === 'terraza' && card.dataset.terraza === 'true')
+      || (filter === 'ascensor' && card.dataset.ascensor === 'true');
+    card.style.display = show ? '' : 'none';
+  });
+}
+
+// ─── SLIDER ──────────────────────────────────────────
+function updateSlider(input) {
+  const val = parseInt(input.value);
+  const pct = val + '%';
+  input.style.background = `linear-gradient(to right,var(--accent) 0%,var(--accent) ${pct},#e5e3df ${pct})`;
+  const disp = input.closest('.slider-item').querySelector('.slider-value');
+  if (disp) { disp.textContent = val; disp.style.color = val >= 90 ? '#ef4444' : val >= 50 ? '#f59e0b' : '#22c55e'; }
+}
+function sliderHtml(name, label, def = 50) {
+  return `<div class="slider-item"><div class="slider-header"><span class="slider-label">${label}</span><span class="slider-value" style="color:#f59e0b">${def}</span></div><input type="range" name="${name}" min="0" max="100" value="${def}" style="background:linear-gradient(to right,var(--accent) 0%,var(--accent) ${def}%,#e5e3df ${def}%)" oninput="updateSlider(this)"><div class="slider-hint">≥90 obligatorio · 50-89 importante · &lt;50 deseable</div></div>`;
+}
+
+// ─── VALIDATORS ─────────────────────────────────────
+let _nifT, _catT;
+function validateNif(val) {
+  clearTimeout(_nifT);
+  const input = document.getElementById('colab-nif');
+  const alertEl = document.getElementById('nif-alert');
+  const saveBtn = document.getElementById('btn-save-colab');
+  if (!input) return;
+  if (!val || val.length < 7) { input.className = ''; if (alertEl) alertEl.style.display = 'none'; return; }
+  _nifT = setTimeout(async () => {
+    const { data } = await sb.from('colaboradores').select('id,nombre,empresa').eq('nif_cif', val).limit(1);
+    if (data && data.length > 0) {
+      input.className = 'invalid';
+      if (alertEl) { alertEl.innerHTML = `⚠️ Ya registrado: <strong>${data[0].nombre||''} ${data[0].empresa?'('+data[0].empresa+')':''}</strong>. No se puede duplicar.`; alertEl.style.display = 'flex'; }
+      if (saveBtn) saveBtn.disabled = true;
+    } else {
+      input.className = 'valid'; if (alertEl) alertEl.style.display = 'none';
+      if (saveBtn) saveBtn.disabled = false;
+    }
+  }, 600);
+}
+function validateCatastral(val) {
+  clearTimeout(_catT);
+  const input = document.getElementById('piso-refcat');
+  const alertEl = document.getElementById('refcat-alert');
+  const saveBtn = document.getElementById('btn-save-piso');
+  if (!input) return;
+  if (!val || val.length < 10) { input.className = ''; if (alertEl) alertEl.style.display = 'none'; return; }
+  _catT = setTimeout(async () => {
+    const { data } = await sb.from('pisos').select('id,direccion').eq('referencia_catastral', val.toUpperCase()).limit(1);
+    if (data && data.length > 0) {
+      input.className = 'invalid';
+      if (alertEl) { alertEl.innerHTML = `⚠️ Piso ya registrado: <strong>${data[0].direccion||data[0].id}</strong>.`; alertEl.style.display = 'flex'; }
+      if (saveBtn) saveBtn.disabled = true;
+    } else {
+      input.className = 'valid'; if (alertEl) alertEl.style.display = 'none';
+      if (saveBtn) saveBtn.disabled = false;
+    }
+  }, 600);
+}
+
+// ─── TAB LOADERS ─────────────────────────────────────
+const TAB_LOADERS = {};
+
+// COLABORADORES
+TAB_LOADERS.colaboradores = async function() {
+  const pane = document.getElementById('tab-colaboradores');
+  pane.innerHTML = '<div class="tab-loading"><div class="spinner"></div></div>';
+  try {
+    const { data, error } = await sb.from('colaboradores')
+      .select('id,nombre,apellido,empresa,email,estado,es_independiente,logo_empresa,brand_color')
+      .filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`)
+      .order('created_time', { ascending: false });
+    if (error) throw error;
+    colabsCache = data || [];
+    pane.innerHTML = `
+      <div class="tab-toolbar">
+        <div><h2>Mis Colaboradores</h2><p>${(data||[]).length} colaboradores en tu cartera</p></div>
+        <div class="tab-actions">
+          <div class="search-bar"><span class="search-icon">🔍</span><input type="text" placeholder="Buscar nombre..." oninput="filterTableSearch(this,'name-cell')"></div>
+          <button class="btn btn-primary" onclick="newColabModal()">➕ Nuevo Colaborador</button>
+        </div>
+      </div>
+      ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">👥</span><p>Aún no tienes colaboradores.</p><button class="btn btn-primary" onclick="newColabModal()">➕ Añadir primero</button></div>` : `
+      <div class="data-table"><table>
+        <thead><tr><th>Colaborador</th><th>Tipo</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>${(data||[]).map(c => `<tr>
+          <td class="name-cell"><div style="display:flex;align-items:center;gap:10px">
+            ${c.logo_empresa ? `<img src="${c.logo_empresa}" style="width:32px;height:32px;border-radius:6px;object-fit:contain;border:1px solid #eee">`
+              : `<div style="width:32px;height:32px;border-radius:50%;background:${c.brand_color||'var(--accent)'};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">${(c.nombre||'?').charAt(0)}</div>`}
+            <div><div style="font-weight:600">${c.nombre||'—'} ${c.apellido||''}</div><div style="font-size:12px;color:var(--text-muted)">${c.empresa||''} ${c.email?'· '+c.email:''}</div></div>
+          </div></td>
+          <td><span class="pill ${c.es_independiente?'pill-blue':'pill-gray'}">${c.es_independiente?'Independiente':'Empresa'}</span></td>
+          <td><span class="pill ${c.estado==='activo'?'pill-green':c.estado==='pendiente_activacion'?'pill-yellow':'pill-gray'}">${c.estado||'pendiente'}</span></td>
+          <td><button class="btn btn-secondary btn-sm" onclick="toast('Detalle disponible en Fase 3','info')">Ver</button></td>
+        </tr>`).join('')}</tbody>
+      </table></div>`}`;
+  } catch(e) { pane.innerHTML = `<div class="tab-error">Error: ${e.message}</div>`; }
+};
+
+// DEMANDAS
+TAB_LOADERS.demandas = async function() {
+  const pane = document.getElementById('tab-demandas');
+  pane.innerHTML = '<div class="tab-loading"><div class="spinner"></div></div>';
+  try {
+    const { data, error } = await sb.from('demandas')
+      .select('id,nombre,zona_preferida,presupuesto_max,habitaciones_min,tipo_origen,estado_matching,ultimo_matching_enviado,estado')
+      .eq('asesor_id', currentUser.id)
+      .order('created_time', { ascending: false });
+    if (error) throw error;
+    pane.innerHTML = `
+      <div class="tab-toolbar">
+        <div><h2>Demandas</h2><p>${(data||[]).length} demandas registradas</p></div>
+        <div class="tab-actions">
+          <div class="search-bar"><span class="search-icon">🔍</span><input type="text" placeholder="Buscar cliente..." oninput="filterTableSearch(this,'name-cell')"></div>
+          <button class="btn btn-primary" onclick="newDemandaModal()">➕ Nueva Demanda</button>
+        </div>
+      </div>
+      <div class="filters-bar">
+        <button class="filter-chip active" onclick="filterChips(this,'tipo_origen','todos')">Todos</button>
+        <button class="filter-chip" onclick="filterChips(this,'tipo_origen','colaborador')">Colaborador</button>
+        <button class="filter-chip" onclick="filterChips(this,'tipo_origen','comprador_directo')">Comprador directo</button>
+      </div>
+      ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">📋</span><p>Aún no hay demandas registradas.</p><button class="btn btn-primary" onclick="newDemandaModal()">➕ Crear primera demanda</button></div>` : `
+      <div class="data-table"><table>
+        <thead><tr><th>Cliente</th><th>Zona</th><th>Presupuesto</th><th>Hab.</th><th>Origen</th><th>Matching</th><th>Último envío</th></tr></thead>
+        <tbody>${(data||[]).map(d => `<tr data-tipo_origen="${d.tipo_origen||''}">
+          <td class="name-cell" style="font-weight:600">${d.nombre||'—'}</td>
+          <td style="color:var(--text-muted)">${d.zona_preferida||'—'}</td>
+          <td style="font-weight:600;color:var(--accent)">${eur(d.presupuesto_max)}</td>
+          <td style="text-align:center">${d.habitaciones_min||'—'}</td>
+          <td><span class="pill ${d.tipo_origen==='colaborador'?'pill-blue':'pill-green'}">${d.tipo_origen==='colaborador'?'Colab.':'Directo'}</span></td>
+          <td><span class="pill ${d.estado_matching==='enviado'?'pill-green':d.estado_matching==='pendiente'?'pill-yellow':'pill-gray'}">${d.estado_matching||'pendiente'}</span></td>
+          <td style="font-size:13px;color:var(--text-muted)">${fdate(d.ultimo_matching_enviado)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`}`;
+  } catch(e) { pane.innerHTML = `<div class="tab-error">Error: ${e.message}</div>`; }
+};
+
+// PISOS
+TAB_LOADERS.pisos = async function() {
+  const pane = document.getElementById('tab-pisos');
+  pane.innerHTML = '<div class="tab-loading"><div class="spinner"></div></div>';
+  try {
+    let query = sb.from('pisos')
+      .select('id,nombre,direccion,precio,barrio,habitaciones,metros,fotos,estado_sistema,urban_flip,ascensor,terraza')
+      .order('created_time', { ascending: false });
+    if (currentUser.rol !== 'director') query = query.filter('asesor_piso', 'cs', `{"${currentUser.id}"}`);
+    const { data, error } = await query;
+    if (error) throw error;
+    const isDir = currentUser.rol === 'director';
+    pane.innerHTML = `
+      <div class="tab-toolbar">
+        <div><h2>Pisos</h2><p>${(data||[]).length} pisos en cartera</p></div>
+        <div class="tab-actions">
+          ${isDir ? `<button class="btn btn-primary" onclick="newPisoModal(false)">🏠 Piso Terceros</button><button class="btn btn-gold" onclick="newPisoModal(true)">⭐ Urban Flip</button>`
+                  : `<button class="btn btn-primary" onclick="newPisoModal(false)">➕ Nuevo Piso</button>`}
+        </div>
+      </div>
+      <div class="filters-bar">
+        <button class="filter-chip active" onclick="filterPisos(this,'todos')">Todos</button>
+        <button class="filter-chip" onclick="filterPisos(this,'urban_flip')">⭐ Urban Flip</button>
+        <button class="filter-chip" onclick="filterPisos(this,'terraza')">Terraza</button>
+        <button class="filter-chip" onclick="filterPisos(this,'ascensor')">Ascensor</button>
+      </div>
+      ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">🏘️</span><p>Aún no hay pisos registrados.</p><button class="btn btn-primary" onclick="newPisoModal(false)">➕ Añadir primer piso</button></div>` : `
+      <div class="cards-grid" id="pisos-grid">${(data||[]).map(p => {
+        const foto = p.fotos && p.fotos[0] ? (p.fotos[0].thumbnail || p.fotos[0].url) : null;
+        return `<div class="data-card ${p.urban_flip?'urban-flip':''}" data-uf="${!!p.urban_flip}" data-terraza="${!!p.terraza}" data-ascensor="${!!p.ascensor}">
+          ${foto ? `<img class="card-img" src="${foto}" loading="lazy">` : `<div class="card-img">🏠</div>`}
+          <div class="card-body">
+            ${p.urban_flip?'<div class="uf-badge">⭐ URBAN FLIP</div>':''}
+            <div class="card-title">${p.direccion||'Sin dirección'}</div>
+            <div class="card-meta">${p.barrio||''} · ${p.habitaciones||'—'} hab · ${p.metros||'—'} m²</div>
+            <div class="card-price">${eur(p.precio)}</div>
+            <div class="card-tags">
+              ${p.ascensor?'<span class="pill pill-green" style="font-size:11px">Ascensor</span>':''}
+              ${p.terraza?'<span class="pill pill-blue" style="font-size:11px">Terraza</span>':''}
+              <span class="pill ${p.estado_sistema==='activo'?'pill-green':'pill-gray'}" style="font-size:11px">${p.estado_sistema||'activo'}</span>
+            </div>
+          </div></div>`;
+      }).join('')}</div>`}`;
+  } catch(e) { pane.innerHTML = `<div class="tab-error">Error: ${e.message}</div>`; }
+};
+
+// EQUIPO (director)
+TAB_LOADERS.equipo = async function() {
+  const pane = document.getElementById('tab-equipo');
+  pane.innerHTML = '<div class="tab-loading"><div class="spinner"></div></div>';
+  try {
+    const { data, error } = await sb.from('asesores').select('id,nombre,email,telefono,activo,rol').eq('rol','asesor').order('nombre');
+    if (error) throw error;
+    pane.innerHTML = `
+      <div class="tab-toolbar">
+        <div><h2>Equipo</h2><p>${(data||[]).length} asesores</p></div>
+        <div class="tab-actions"><button class="btn btn-primary" onclick="newAsesorModal()">➕ Crear Asesor</button></div>
+      </div>
+      ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">👔</span><p>No hay asesores.</p><button class="btn btn-primary" onclick="newAsesorModal()">➕ Crear asesor</button></div>` : `
+      <div class="data-table"><table>
+        <thead><tr><th>Asesor</th><th>Email</th><th>Teléfono</th><th>Estado</th><th>Acción</th></tr></thead>
+        <tbody>${(data||[]).map(a => `<tr>
+          <td class="name-cell"><div style="display:flex;align-items:center;gap:10px">
+            <div style="width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700">${(a.nombre||'?').charAt(0)}</div>
+            <span style="font-weight:600">${a.nombre||'—'}</span></div></td>
+          <td style="color:var(--text-muted)">${a.email||'—'}</td>
+          <td style="color:var(--text-muted)">${a.telefono||'—'}</td>
+          <td><span class="pill ${a.activo?'pill-green':'pill-gray'}">${a.activo?'Activo':'Inactivo'}</span></td>
+          <td><button class="btn btn-secondary btn-sm" onclick="toast('Stats disponibles en Fase 8','info')">Ver actividad</button></td>
+        </tr>`).join('')}</tbody>
+      </table></div>`}`;
+  } catch(e) { pane.innerHTML = `<div class="tab-error">Error: ${e.message}</div>`; }
+};
+
+// Director colaboradores = todos
+TAB_LOADERS.colaboradores_dir = TAB_LOADERS.colaboradores;
+
+// ─── MODAL: COLABORADOR ──────────────────────────────
+function newColabModal() {
+  openModal('Nuevo Colaborador', `<div class="choice-cards">
+    <div class="choice-card" onclick="openColabForm()"><div class="choice-icon">✍️</div><div class="choice-title">Introducir yo mismo</div><div class="choice-desc">Rellenas el formulario aquí</div></div>
+    <div class="choice-card" onclick="openColabLink()"><div class="choice-icon">🔗</div><div class="choice-title">Generar link de registro</div><div class="choice-desc">El colaborador rellena sus datos</div></div>
+  </div>`, 'sm');
+}
+
+function openColabForm() {
+  openModal('Nuevo Colaborador — Formulario', `<form id="colab-form">
+    <div class="form-section">
+      <div class="form-section-title">Tipo de colaborador</div>
+      <div class="toggle-group">
+        <button type="button" class="active" onclick="setColabTipo(this,'independiente')">Independiente</button>
+        <button type="button" onclick="setColabTipo(this,'empresa')">Empresa / Agencia</button>
+      </div>
+      <input type="hidden" name="es_independiente" id="colab-tipo" value="true">
+    </div>
+    <div id="empresa-section" style="display:none">
+      <div class="form-section">
+        <div class="form-section-title">Datos de empresa</div>
+        <div class="form-row">
+          <div class="form-col"><label>Nombre empresa</label><input type="text" name="empresa" placeholder="Inmobiliaria XYZ"></div>
+          <div class="form-col"><label>CIF empresa</label><input type="text" name="cif_empresa" placeholder="B12345678"></div>
+        </div>
+        <div class="form-row" style="margin-top:12px">
+          <div class="form-col"><label>Landing / Web</label><input type="url" name="landing_web" placeholder="https://..."></div>
+          <div class="form-col"><label>Color de marca</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" name="brand_color" value="#6B7F5E" style="width:44px;height:40px;border:1.5px solid var(--border);border-radius:6px;padding:2px;cursor:pointer" oninput="document.querySelector('[name=brand_color_txt]').value=this.value">
+              <input type="text" name="brand_color_txt" placeholder="#6B7F5E" value="#6B7F5E" style="flex:1" oninput="document.querySelector('[name=brand_color]').value=this.value">
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="fc-label" style="display:block;margin-bottom:8px">Logo empresa</div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <div class="logo-preview-area" id="logo-preview">🏢</div>
+            <div>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('logo-input').click()">Subir logo</button>
+              <input type="file" id="logo-input" accept="image/*" style="display:none" onchange="uploadLogo(this)">
+              <p style="font-size:12px;color:var(--text-muted);margin-top:4px">PNG, JPG · máx 2MB<br>Aparecerá en páginas de matching</p>
+            </div>
+          </div>
+          <input type="hidden" name="logo_empresa" id="logo-url">
+        </div>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Datos personales</div>
+      <div class="form-row">
+        <div class="form-col"><label>Nombre *</label><input type="text" name="nombre" required placeholder="Carmen"></div>
+        <div class="form-col"><label>Apellido</label><input type="text" name="apellido" placeholder="García López"></div>
+      </div>
+      <div class="form-row" style="margin-top:12px">
+        <div class="form-col"><label>Email *</label><input type="email" name="email" required placeholder="carmen@ejemplo.com"></div>
+        <div class="form-col"><label>Teléfono</label><input type="tel" name="telefono" placeholder="+34 600 000 000"></div>
+      </div>
+      <div class="form-row" style="margin-top:12px">
+        <div class="form-col"><label>NIF / CIF *</label>
+          <input type="text" name="nif_cif" id="colab-nif" required placeholder="12345678A" oninput="validateNif(this.value)">
+          <div class="alert alert-danger" id="nif-alert" style="display:none"></div>
+        </div>
+        <div class="form-col"><label>Cargo</label><input type="text" name="cargo" placeholder="Agente, director..."></div>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Tipo de acuerdo</div>
+      <div class="checkbox-group">
+        <label class="checkbox-item"><input type="checkbox" name="acuerdo_inter"><div><div class="cb-label">Inter-Agencia 50/50</div><div class="cb-desc">Comisión compartida broker + ONOMA a partes iguales</div></div></label>
+        <label class="checkbox-item"><input type="checkbox" name="acuerdo_uf"><div><div class="cb-label">Urban Flip 2% + IVA</div><div class="cb-desc">Comisión fija en pisos Urban Flip</div></div></label>
+        <label class="checkbox-item"><input type="checkbox" name="acuerdo_trip"><div><div class="cb-label">Tripartita 33.33%</div><div class="cb-desc">Broker piso + broker demanda + ONOMA</div></div></label>
+      </div>
+    </div>
+  </form>`, 'lg', `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-primary" id="btn-save-colab" onclick="submitColaborador()">Guardar colaborador</button>`);
+}
+
+function setColabTipo(btn, tipo) {
+  btn.closest('.toggle-group').querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('colab-tipo').value = tipo === 'independiente' ? 'true' : 'false';
+  document.getElementById('empresa-section').style.display = tipo === 'empresa' ? 'block' : 'none';
+}
+
+async function uploadLogo(input) {
+  const file = input.files[0]; if (!file) return;
+  const preview = document.getElementById('logo-preview');
+  preview.innerHTML = '<div class="spinner" style="width:24px;height:24px;border-width:2px"></div>';
+  try {
+    const r = await uploadToCloudinary(file, 'onoma/logos');
+    document.getElementById('logo-url').value = r.secure_url;
+    preview.innerHTML = `<img src="${r.secure_url}" alt="Logo">`;
+    toast('Logo subido');
+  } catch(e) { preview.innerHTML = '❌'; toast('Error: ' + e.message, 'error'); }
+}
+
+async function submitColaborador() {
+  const form = document.getElementById('colab-form');
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  const btn = document.getElementById('btn-save-colab');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    const fd = new FormData(form);
+    const { error } = await sb.from('colaboradores').insert({
+      id: genId(), nombre: fd.get('nombre'), apellido: fd.get('apellido')||null,
+      empresa: fd.get('empresa')||null, cif_empresa: fd.get('cif_empresa')||null,
+      email: fd.get('email'), telefono: fd.get('telefono')||null, nif_cif: fd.get('nif_cif'),
+      cargo: fd.get('cargo')||null, logo_empresa: fd.get('logo_empresa')||null,
+      brand_color: fd.get('brand_color')||'#6B7F5E', landing_web: fd.get('landing_web')||null,
+      es_independiente: fd.get('es_independiente') === 'true',
+      asesor_onoma: [currentUser.id], estado: 'pendiente_activacion',
+      acepta_broker_broker: !!fd.get('acuerdo_inter'), contrato_estado: 'pendiente',
+    });
+    if (error) throw error;
+    toast('✅ Colaborador creado'); closeModal();
+    loadedTabs.delete('colaboradores'); TAB_LOADERS.colaboradores();
+  } catch(e) { toast('Error: ' + e.message, 'error'); btn.disabled = false; btn.textContent = 'Guardar colaborador'; }
+}
+
+function openColabLink() {
+  const link = `${GH_PAGES}/registro-colaborador.html?asesor=${currentUser.id}`;
+  openModal('Link de registro', `<p style="color:var(--text-muted);margin-bottom:8px">Comparte este link con el colaborador para que se registre directamente.</p>
+    <div class="link-box"><span class="link-text">${link}</span><button class="btn btn-secondary btn-sm" onclick="copyLink('${link}')">Copiar</button></div>
+    <button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="window.open('mailto:?subject=Registro ONOMA&body=${encodeURIComponent('Regístrate como colaborador: '+link)}')">📧 Enviar por email</button>
+    <div class="alert alert-info" style="margin-top:14px">ℹ️ La página <strong>registro-colaborador.html</strong> se desplegará en Fase 9.</div>`, 'md');
+}
+
+// ─── MODAL: DEMANDA ──────────────────────────────────
+function newDemandaModal() {
+  openModal('Nueva Demanda', `<div class="choice-cards">
+    <div class="choice-card" onclick="openDemandaForm()"><div class="choice-icon">✍️</div><div class="choice-title">Introducir yo mismo</div><div class="choice-desc">Rellenas los datos del cliente</div></div>
+    <div class="choice-card" onclick="openDemandaLink()"><div class="choice-icon">🔗</div><div class="choice-title">Generar link</div><div class="choice-desc">El cliente rellena el formulario</div></div>
+  </div>`, 'sm');
+}
+
+function openDemandaForm() {
+  const opts = colabsCache.length ? colabsCache.map(c => `<option value="${c.id}">${c.nombre} ${c.apellido||''} ${c.empresa?'('+c.empresa+')':''}</option>`).join('') : '<option value="">Sin colaboradores (carga el tab primero)</option>';
+  openModal('Nueva Demanda — Formulario', `<form id="demanda-form">
+    <div class="form-section">
+      <div class="form-section-title">Origen</div>
+      <div class="toggle-group">
+        <button type="button" class="active" onclick="setOrigenDemanda(this,'colaborador')">De colaborador</button>
+        <button type="button" onclick="setOrigenDemanda(this,'comprador_directo')">Comprador directo</button>
+      </div>
+      <input type="hidden" name="tipo_origen" id="d-origen" value="colaborador">
+      <div id="d-colab" style="margin-top:12px">
+        <div class="form-col"><label>Colaborador</label><select name="colaborador_id"><option value="">Selecciona...</option>${opts}</select></div>
+        <div class="form-col" style="margin-top:10px"><label>Nombre del cliente</label><input type="text" name="nombre" placeholder="Carlos Rodríguez"></div>
+      </div>
+      <div id="d-directo" style="display:none;margin-top:12px">
+        <div class="form-row">
+          <div class="form-col"><label>Nombre del comprador *</label><input type="text" name="nombre_dir" placeholder="María López"></div>
+          <div class="form-col"><label>Email</label><input type="email" name="email_dir" placeholder="maria@gmail.com"></div>
+        </div>
+        <div class="form-col" style="margin-top:10px"><label>Teléfono</label><input type="tel" name="tel_dir" placeholder="+34 600 000 000"></div>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Datos de búsqueda</div>
+      <div class="form-row">
+        <div class="form-col"><label>Zona preferida</label><input type="text" name="zona_preferida" placeholder="Salamanca, Retiro..."></div>
+        <div class="form-col"><label>Presupuesto máximo €</label><input type="number" name="presupuesto_max" placeholder="500000"></div>
+      </div>
+      <div class="form-row" style="margin-top:12px">
+        <div class="form-col"><label>Habitaciones mínimas</label><input type="number" name="habitaciones_min" min="1" max="10" placeholder="3"></div>
+        <div class="form-col"><label>Metros mínimos</label><input type="number" name="metros_min" placeholder="80"></div>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Preferencias (Termómetros)</div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">≥90 = obligatorio · 50-89 = importante · &lt;50 = deseable</p>
+      <div class="slider-group">
+        ${sliderHtml('peso_zona','📍 Zona / Ubicación',80)}
+        ${sliderHtml('peso_habitaciones','🛏️ Habitaciones',70)}
+        ${sliderHtml('peso_metros','📐 Metros cuadrados',60)}
+        ${sliderHtml('peso_ascensor','🛗 Ascensor',40)}
+        ${sliderHtml('peso_terraza','🌿 Terraza',30)}
+        ${sliderHtml('peso_parking','🚗 Parking',30)}
+        ${sliderHtml('peso_estado','✨ Estado del inmueble',50)}
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Honorarios y documentos</div>
+      <div class="form-row">
+        <div class="form-col"><label>Honorarios comprador %</label><input type="number" name="honorarios_comprador_pct" min="0" max="10" step="0.1" placeholder="3"></div>
+        <div class="form-col" style="justify-content:flex-end;padding-bottom:6px">
+          <label class="checkbox-item"><input type="checkbox" name="no_cobra_comprador"><span class="cb-label">No cobro al comprador</span></label>
+        </div>
+      </div>
+      <div class="form-col" style="margin-top:12px">
+        <label>Mandato de compra (PDF)</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('mandato-input').click()">Subir PDF</button>
+          <span id="mandato-status" style="font-size:13px;color:var(--text-muted)">Sin documento</span>
+        </div>
+        <input type="file" id="mandato-input" accept=".pdf" style="display:none" onchange="uploadMandato(this)">
+        <input type="hidden" name="mandato_compra" id="mandato-url">
+      </div>
+    </div>
+  </form>`, 'lg', `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-primary" id="btn-save-demanda" onclick="submitDemanda()">Guardar demanda</button>`);
+}
+
+function setOrigenDemanda(btn, tipo) {
+  btn.closest('.toggle-group').querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); document.getElementById('d-origen').value = tipo;
+  document.getElementById('d-colab').style.display = tipo === 'colaborador' ? 'block' : 'none';
+  document.getElementById('d-directo').style.display = tipo === 'comprador_directo' ? 'block' : 'none';
+}
+
+async function uploadMandato(input) {
+  const file = input.files[0]; if (!file) return;
+  const status = document.getElementById('mandato-status');
+  status.textContent = 'Subiendo…';
+  try {
+    const r = await uploadToCloudinary(file, 'onoma/mandatos');
+    document.getElementById('mandato-url').value = r.secure_url;
+    status.textContent = '✅ ' + file.name; status.style.color = '#22c55e';
+  } catch(e) { status.textContent = '❌ Error'; toast('Error: ' + e.message, 'error'); }
+}
+
+async function submitDemanda() {
+  const form = document.getElementById('demanda-form');
+  const btn = document.getElementById('btn-save-demanda');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    const fd = new FormData(form);
+    const tipoOrigen = fd.get('tipo_origen') || 'colaborador';
+    let clienteId = null, nombre = '';
+    if (tipoOrigen === 'comprador_directo') {
+      nombre = fd.get('nombre_dir') || '';
+      if (!nombre) throw new Error('El nombre del comprador es obligatorio');
+      const cId = genId();
+      const { error: cErr } = await sb.from('clientes').insert({ id: cId, nombre, email: fd.get('email_dir')||null, telefono: fd.get('tel_dir')||null, tipo: 'comprador', estado: 'activo', fecha_alta: new Date().toISOString(), asesor_asignado: currentUser.id });
+      if (cErr) throw cErr;
+      clienteId = cId;
+    } else { nombre = fd.get('nombre') || 'Sin nombre'; }
+    const colaboradorId = fd.get('colaborador_id') || null;
+    const dId = genId();
+    const { error } = await sb.from('demandas').insert({
+      id: dId, nombre, zona_preferida: fd.get('zona_preferida')||null,
+      presupuesto_max: parseFloat(fd.get('presupuesto_max'))||null,
+      habitaciones_min: parseInt(fd.get('habitaciones_min'))||null,
+      metros_min: parseInt(fd.get('metros_min'))||null,
+      tipo_origen: tipoOrigen, asesor_id: currentUser.id,
+      cliente_id: clienteId, colaborador: colaboradorId ? [colaboradorId] : null,
+      estado: 'activa', estado_matching: 'pendiente', fecha_alta: new Date().toISOString(),
+      peso_zona: parseInt(fd.get('peso_zona'))||80,
+      peso_habitaciones: parseInt(fd.get('peso_habitaciones'))||70,
+      peso_metros: parseInt(fd.get('peso_metros'))||60,
+      peso_ascensor: parseInt(fd.get('peso_ascensor'))||40,
+      peso_terraza: parseInt(fd.get('peso_terraza'))||30,
+      peso_parking: parseInt(fd.get('peso_parking'))||30,
+      peso_estado: parseInt(fd.get('peso_estado'))||50,
+      honorarios_comprador_pct: parseFloat(fd.get('honorarios_comprador_pct'))||null,
+      no_cobra_comprador: !!fd.get('no_cobra_comprador'),
+      mandato_compra: fd.get('mandato_compra')||null,
+    });
+    if (error) throw error;
+    callN8n('embeddings-run', { demanda_id: dId }).catch(() => {});
+    toast('✅ Demanda creada. Generando embeddings…'); closeModal();
+    loadedTabs.delete('demandas'); TAB_LOADERS.demandas();
+  } catch(e) { toast('Error: ' + e.message, 'error'); btn.disabled = false; btn.textContent = 'Guardar demanda'; }
+}
+
+function openDemandaLink() {
+  const link = `${GH_PAGES}/demanda.html?asesor=${currentUser.id}`;
+  openModal('Link de formulario demanda', `<div class="link-box"><span class="link-text">${link}</span><button class="btn btn-secondary btn-sm" onclick="copyLink('${link}')">Copiar</button></div>
+    <button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="window.open('mailto:?subject=Formulario demanda ONOMA&body=${encodeURIComponent('Rellena tus preferencias: '+link)}')">📧 Enviar por email</button>
+    <div class="alert alert-info" style="margin-top:14px">ℹ️ La página <strong>demanda.html</strong> se desplegará en Fase 9.</div>`, 'md');
+}
+
+// ─── MODAL: PISO ────────────────────────────────────
+function newPisoModal(urbanFlip) {
+  openModal(urbanFlip ? '⭐ Nuevo Piso Urban Flip' : 'Nuevo Piso', `<div class="choice-cards">
+    <div class="choice-card" onclick="openPisoForm(${urbanFlip})"><div class="choice-icon">✍️</div><div class="choice-title">Introducir yo mismo</div><div class="choice-desc">Rellenas el formulario aquí</div></div>
+    <div class="choice-card" onclick="openPisoLink()"><div class="choice-icon">🔗</div><div class="choice-title">Generar link</div><div class="choice-desc">El colaborador sube el piso</div></div>
+  </div>`, 'sm');
+}
+
+function openPisoForm(urbanFlip) {
+  const opts = '<option value="">Sin colaborador</option>' + colabsCache.map(c => `<option value="${c.id}">${c.nombre} ${c.apellido||''} ${c.empresa?'('+c.empresa+')':''}</option>`).join('');
+  openModal((urbanFlip ? '⭐ Urban Flip' : 'Nuevo Piso') + ' — Formulario', `<form id="piso-form">
+    <input type="hidden" name="urban_flip" value="${urbanFlip}">
+    <div class="collapsible">
+      <div class="collapsible-header open" onclick="toggleCollapsible(this)"><span>1. Datos básicos</span><span class="caret">▼</span></div>
+      <div class="collapsible-body open">
+        <div class="form-col" style="margin-bottom:12px">
+          <label>Referencia catastral * <span style="font-weight:400;text-transform:none">(validación automática)</span></label>
+          <input type="text" name="referencia_catastral" id="piso-refcat" required placeholder="7837298VK4773F0001ZA" oninput="validateCatastral(this.value)" style="text-transform:uppercase;font-family:monospace">
+          <div class="alert alert-danger" id="refcat-alert" style="display:none"></div>
+        </div>
+        <div class="form-col" style="margin-bottom:12px">
+          <label>Dirección *</label>
+          <input type="text" name="direccion" required placeholder="Calle Velázquez 31, 3ºD, Madrid">
+        </div>
+        <div class="form-row">
+          <div class="form-col"><label>Precio € *</label><input type="number" name="precio" required placeholder="450000"></div>
+          <div class="form-col"><label>Barrio</label><input type="text" name="barrio" placeholder="Salamanca"></div>
+        </div>
+        <div class="form-row three" style="margin-top:12px">
+          <div class="form-col"><label>Habitaciones</label><input type="number" name="habitaciones" min="0" max="20" placeholder="3"></div>
+          <div class="form-col"><label>Baños</label><input type="number" name="banos" min="0" max="10" placeholder="2"></div>
+          <div class="form-col"><label>Metros m²</label><input type="number" name="metros" placeholder="120"></div>
+        </div>
+        <div class="form-row" style="margin-top:12px">
+          <div class="form-col"><label>Planta</label><input type="text" name="planta" placeholder="3ª, bajo, ático..."></div>
+          <div class="form-col"><label>Año construcción</label><input type="number" name="anio_construccion" min="1900" max="2025" placeholder="1985"></div>
+        </div>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)"><span>2. Características</span><span class="caret">▼</span></div>
+      <div class="collapsible-body">
+        <div class="form-row">
+          <div class="form-col"><label>Estado inmueble</label><select name="estado_inmueble"><option value="">Seleccionar</option><option>A estrenar</option><option>Muy bueno</option><option>Bueno</option><option>A reformar</option></select></div>
+          <div class="form-col"><label>Orientación</label><select name="orientacion"><option value="">Seleccionar</option><option>Norte</option><option>Sur</option><option>Este</option><option>Oeste</option><option>Norte-Sur</option><option>Este-Oeste</option></select></div>
+        </div>
+        <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <label class="checkbox-item"><input type="checkbox" name="ascensor"><span class="cb-label">Ascensor</span></label>
+          <label class="checkbox-item"><input type="checkbox" name="terraza"><span class="cb-label">Terraza</span></label>
+          <label class="checkbox-item"><input type="checkbox" name="garaje"><span class="cb-label">Garaje</span></label>
+          <label class="checkbox-item"><input type="checkbox" name="trastero"><span class="cb-label">Trastero</span></label>
+        </div>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)"><span>3. Colaboración y comisión</span><span class="caret">▼</span></div>
+      <div class="collapsible-body">
+        <div class="form-row">
+          <div class="form-col"><label>Colaborador</label><select name="colaborador_id">${opts}</select></div>
+          <div class="form-col"><label>% Honorarios vendedor</label><input type="number" name="honorarios_vendedor_pct" min="0" max="10" step="0.1" placeholder="5"></div>
+        </div>
+        <div class="checkbox-group" style="margin-top:12px">
+          <label class="checkbox-item"><input type="checkbox" name="comparte"><span><div class="cb-label">Comparte comisión</div><div class="cb-desc">ONOMA comparte honorarios con colaborador</div></span></label>
+          <label class="checkbox-item"><input type="checkbox" name="info_veraz" required><span><div class="cb-label">Confirmo que la información es veraz *</div></span></label>
+        </div>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapsible(this)"><span>4. Fotos, documentos y descripción</span><span class="caret">▼</span></div>
+      <div class="collapsible-body">
+        <div style="margin-bottom:16px">
+          <div class="fc-label" style="display:block;margin-bottom:8px">Fotos (hasta 20)</div>
+          <div class="dropzone" id="photo-dropzone" onclick="document.getElementById('photos-input').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handlePhotoDrop(event)">
+            <span class="dz-icon">📷</span>
+            <p>Arrastra fotos aquí o <strong>haz click</strong></p><p style="font-size:12px">JPG, PNG, WEBP · máx 20</p>
+          </div>
+          <input type="file" id="photos-input" accept="image/*" multiple style="display:none" onchange="handlePhotosSelect(this)">
+          <div class="upload-progress" id="photo-progress"><div class="upload-progress-bar" id="photo-progress-bar" style="width:0%"></div></div>
+          <div class="photo-previews" id="photo-previews"></div>
+        </div>
+        <div style="margin-bottom:16px">
+          <div class="fc-label" style="display:block;margin-bottom:8px">Documentos</div>
+          <div class="doc-rows">
+            ${[['encargo','Encargo de venta'],['ibi','Último recibo IBI'],['ite','ITE'],['catastro','Ficha catastral'],['escritura','Escritura'],['planos','Planos']].map(([k,l]) => `
+            <div class="doc-row">
+              <label>${l}</label>
+              <span class="doc-status" id="doc-status-${k}">Sin documento</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('doc-${k}').click()">Subir</button>
+              <input type="file" id="doc-${k}" accept=".pdf,image/*" style="display:none" onchange="uploadDoc(this,'${k}')">
+            </div>`).join('')}
+          </div>
+        </div>
+        <div class="form-col" style="margin-bottom:12px">
+          <label>URL de vídeo</label>
+          <input type="url" name="video" placeholder="https://youtube.com/...">
+        </div>
+        <div class="form-col">
+          <label>Descripción</label>
+          <textarea name="descripcion_ia" id="piso-descripcion" rows="5" placeholder="Escribe una descripción o genera una con IA…"></textarea>
+          <button type="button" class="btn btn-secondary btn-sm" style="margin-top:6px;align-self:flex-start" onclick="generarDescripcionIA()">✨ Generar con IA</button>
+        </div>
+      </div>
+    </div>
+  </form>`, 'lg', `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+    <button class="btn ${urbanFlip?'btn-gold':'btn-primary'}" id="btn-save-piso" onclick="submitPiso(${urbanFlip})">${urbanFlip?'⭐ Guardar Urban Flip':'Guardar piso'}</button>`);
+}
+
+function openPisoLink() {
+  const link = `${GH_PAGES}/subir-piso.html?asesor=${currentUser.id}`;
+  openModal('Link de subida de piso', `<div class="link-box"><span class="link-text">${link}</span><button class="btn btn-secondary btn-sm" onclick="copyLink('${link}')">Copiar</button></div>
+    <div class="alert alert-info" style="margin-top:14px">ℹ️ La página <strong>subir-piso.html</strong> se desplegará en Fase 9.</div>`, 'md');
+}
+
+// Photos
+function handlePhotoDrop(e) { e.preventDefault(); document.getElementById('photo-dropzone').classList.remove('drag-over'); handlePhotosUpload(Array.from(e.dataTransfer.files)); }
+function handlePhotosSelect(input) { handlePhotosUpload(Array.from(input.files)); input.value = ''; }
+async function handlePhotosUpload(files) {
+  const remaining = 20 - uploadedPhotos.length;
+  if (remaining <= 0) { toast('Máximo 20 fotos', 'error'); return; }
+  files = files.slice(0, remaining);
+  const prog = document.getElementById('photo-progress'); const bar = document.getElementById('photo-progress-bar');
+  if (prog) prog.style.display = 'block';
+  for (let i = 0; i < files.length; i++) {
+    try {
+      if (bar) bar.style.width = ((i / files.length) * 100) + '%';
+      const r = await uploadToCloudinary(files[i], 'onoma/pisos');
+      uploadedPhotos.push({ url: r.secure_url, thumbnail: r.secure_url.replace('/upload/', '/upload/c_fill,w_200,h_150/'), public_id: r.public_id });
+      renderPhotoPreviews();
+    } catch(e) { toast('Error foto: ' + e.message, 'error'); }
+  }
+  if (bar) bar.style.width = '100%';
+  setTimeout(() => { if (prog) { prog.style.display = 'none'; if (bar) bar.style.width = '0%'; } }, 500);
+}
+function renderPhotoPreviews() {
+  const c = document.getElementById('photo-previews'); if (!c) return;
+  c.innerHTML = uploadedPhotos.map((p, i) => `<div class="photo-preview"><img src="${p.thumbnail}" alt="Foto"><button class="remove-photo" onclick="removePhoto(${i})">×</button></div>`).join('');
+}
+function removePhoto(idx) { uploadedPhotos.splice(idx, 1); renderPhotoPreviews(); }
+
+async function uploadDoc(input, key) {
+  const file = input.files[0]; if (!file) return;
+  const st = document.getElementById(`doc-status-${key}`); st.textContent = 'Subiendo…';
+  try {
+    const r = await uploadToCloudinary(file, 'onoma/documentos');
+    uploadedDocs[key] = { url: r.secure_url, public_id: r.public_id, nombre: file.name };
+    st.textContent = '✅ ' + file.name; st.className = 'doc-status uploaded';
+    if (key === 'encargo') triggerValidacionEncargo(r.secure_url);
+  } catch(e) { st.textContent = '❌ Error'; toast('Error: ' + e.message, 'error'); }
+}
+
+async function triggerValidacionEncargo(url) {
+  const form = document.getElementById('piso-form'); if (!form) return;
+  const fd = new FormData(form);
+  toast('🔍 Validando encargo con IA…', 'info');
+  try {
+    const result = await callN8n('validar-encargo', { encargo_url: url, precio: parseFloat(fd.get('precio'))||null, direccion: fd.get('direccion')||null });
+    if (result.discrepancias && result.discrepancias.length > 0) {
+      const existing = document.getElementById('encargo-alert'); if (existing) existing.remove();
+      const el = document.createElement('div'); el.id = 'encargo-alert'; el.className = 'alert alert-warning';
+      el.innerHTML = `⚠️ <strong>Discrepancias:</strong> ${result.discrepancias.map(d => `${d.campo}: encargo dice ${d.valor_encargo}, formulario tiene ${d.valor_formulario}`).join(' · ')}<br><small>Puedes guardar igualmente. Dirección será notificada.</small>`;
+      document.getElementById(`doc-status-encargo`).closest('.doc-row').after(el);
+    } else { toast('✅ Encargo validado — sin discrepancias'); }
+  } catch {}
+}
+
+async function generarDescripcionIA() {
+  const form = document.getElementById('piso-form'); if (!form) return;
+  const fd = new FormData(form);
+  const btn = document.querySelector('[onclick="generarDescripcionIA()"]');
+  btn.disabled = true; btn.textContent = '⌛ Generando…';
+  try {
+    const result = await callN8n('generar-descripcion-piso', { caracteristicas: { direccion: fd.get('direccion'), barrio: fd.get('barrio'), precio: fd.get('precio'), habitaciones: fd.get('habitaciones'), metros: fd.get('metros'), banos: fd.get('banos'), ascensor: form.querySelector('[name=ascensor]')?.checked, terraza: form.querySelector('[name=terraza]')?.checked, estado_inmueble: fd.get('estado_inmueble'), orientacion: fd.get('orientacion'), anio_construccion: fd.get('anio_construccion') } });
+    const desc = result.descripcion || result.text || (result[0] && result[0].descripcion) || '';
+    if (desc) { document.getElementById('piso-descripcion').value = desc; toast('✅ Descripción generada'); }
+    else throw new Error('Respuesta vacía');
+  } catch(e) { toast('Error IA: ' + e.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = '✨ Generar con IA'; }
+}
+
+async function submitPiso(urbanFlip) {
+  const form = document.getElementById('piso-form');
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  const btn = document.getElementById('btn-save-piso');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    const fd = new FormData(form);
+    const colaboradorId = fd.get('colaborador_id') || null;
+    const pisoId = genId();
+    const docsObj = { ...(uploadedDocs.ibi && { ibi: uploadedDocs.ibi }), ...(uploadedDocs.ite && { ite: uploadedDocs.ite }), ...(uploadedDocs.catastro && { catastro: uploadedDocs.catastro }), ...(uploadedDocs.escritura && { escritura: uploadedDocs.escritura }) };
+    const { error } = await sb.from('pisos').insert({
+      id: pisoId, nombre: fd.get('direccion'), direccion: fd.get('direccion'),
+      precio: parseFloat(fd.get('precio'))||null, barrio: fd.get('barrio')||null,
+      habitaciones: parseInt(fd.get('habitaciones'))||null, banos: parseInt(fd.get('banos'))||null,
+      metros: parseFloat(fd.get('metros'))||null, planta: fd.get('planta')||null,
+      anio_construccion: parseInt(fd.get('anio_construccion'))||null,
+      referencia_catastral: fd.get('referencia_catastral')?.toUpperCase()||null,
+      estado_inmueble: fd.get('estado_inmueble')||null, orientacion: fd.get('orientacion')||null,
+      ascensor: form.querySelector('[name=ascensor]')?.checked||false,
+      terraza: form.querySelector('[name=terraza]')?.checked||false,
+      garaje: form.querySelector('[name=garaje]')?.checked||false,
+      trastero: form.querySelector('[name=trastero]')?.checked||false,
+      fotos: uploadedPhotos.length ? uploadedPhotos : null,
+      documentos: Object.keys(docsObj).length ? docsObj : null,
+      encargo_venta: uploadedDocs.encargo?.url || null,
+      planos: uploadedDocs.planos?.url || null,
+      video: fd.get('video')||null, descripcion_ia: fd.get('descripcion_ia')||null,
+      asesor_piso: [currentUser.id], colaborador: colaboradorId ? [colaboradorId] : null,
+      comparte: form.querySelector('[name=comparte]')?.checked ? 'sí' : 'no',
+      honorarios_vendedor_pct: parseFloat(fd.get('honorarios_vendedor_pct'))||null,
+      urban_flip: !!urbanFlip, info_veraz: true, estado_sistema: 'activo',
+    });
+    if (error) throw error;
+    callN8n('embeddings-run', { piso_id: pisoId }).catch(() => {});
+    toast(`✅ Piso${urbanFlip?' Urban Flip':''} guardado`); closeModal();
+    loadedTabs.delete('pisos'); TAB_LOADERS.pisos();
+  } catch(e) { toast('Error: ' + e.message, 'error'); btn.disabled = false; btn.textContent = urbanFlip ? '⭐ Guardar Urban Flip' : 'Guardar piso'; }
+}
+
+// ─── MODAL: ASESOR (DIRECTOR) ─────────────────────────
+function newAsesorModal() {
+  openModal('Crear nuevo asesor', `<form id="asesor-form">
+    <div class="form-section">
+      <div class="form-section-title">Datos del asesor</div>
+      <div class="form-row">
+        <div class="form-col"><label>Nombre *</label><input type="text" name="nombre" required placeholder="Ana García"></div>
+        <div class="form-col"><label>Email *</label><input type="email" name="email" required placeholder="ana@onomahomes.com"></div>
+      </div>
+      <div class="form-row" style="margin-top:12px">
+        <div class="form-col"><label>Teléfono</label><input type="tel" name="telefono" placeholder="+34 600 000 000"></div>
+        <div class="form-col"><label>Contraseña temporal</label><input type="text" name="password" placeholder="onoma2024" value="onoma${new Date().getFullYear()}"></div>
+      </div>
+    </div>
+    <div class="alert alert-info">ℹ️ Se enviará un email con las credenciales de acceso al CRM.</div>
+  </form>`, 'md', `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-primary" id="btn-save-asesor" onclick="submitAsesor()">Crear asesor</button>`);
+}
+
+async function submitAsesor() {
+  const form = document.getElementById('asesor-form');
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  const btn = document.getElementById('btn-save-asesor');
+  btn.disabled = true; btn.textContent = 'Creando…';
+  try {
+    const fd = new FormData(form);
+    const result = await callN8n('crear-asesor', { nombre: fd.get('nombre'), email: fd.get('email'), telefono: fd.get('telefono')||null, password: fd.get('password') });
+    if (result.error) throw new Error(result.error);
+    toast('✅ Asesor creado. Email enviado.'); closeModal();
+    loadedTabs.delete('equipo'); TAB_LOADERS.equipo();
+  } catch(e) { toast('Error: ' + e.message, 'error'); btn.disabled = false; btn.textContent = 'Crear asesor'; }
+}
+
+// ─── HELPERS ─────────────────────────────────────────
+function copyLink(url) { navigator.clipboard.writeText(url).then(() => toast('✅ Link copiado')); }
 
 // ─── INIT ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
