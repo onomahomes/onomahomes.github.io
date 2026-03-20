@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Firmar contrato — ONOMA Real Estate</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -517,10 +518,9 @@
 <script>
   // ── Constants ────────────────────────────────────────────────────────────
   const SUPABASE_URL      = 'https://wwaytwudfbwxttyyojjx.supabase.co';
-  // service key split to avoid scanner — needed to bypass RLS on public signing page
-  const _k = ['sb_se','cret_3Lzc10','IhFsLoSDU5ow','ZcBw_L-fhyxUm'];
-  const SUPABASE_ANON_KEY = _k.join('');
+  const SUPABASE_ANON_KEY = 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
   const N8N               = 'https://onomahomes.app.n8n.cloud/webhook';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ── State ────────────────────────────────────────────────────────────────
   let colab = null;
@@ -554,21 +554,17 @@
   // ── Load colaborador ──────────────────────────────────────────────────────
   async function loadColab(id) {
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/colaboradores?id=eq.${encodeURIComponent(id)}&select=id,nombre,apellido,empresa,email,nif_cif,cif_empresa,es_independiente,direccion_fiscal,acepta_broker_broker,acepta_urban_flip,acepta_tripartita,contrato_estado`,
-        {
-          headers: {
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: 'Bearer ' + SUPABASE_ANON_KEY,
-          }
-        }
-      );
+      const { data, error } = await sb.from('colaboradores')
+        .select('id,nombre,apellido,empresa,email,nif_cif,cif_empresa,es_independiente,direccion_fiscal,acepta_broker_broker,acepta_urban_flip,acepta_tripartita,contrato_estado')
+        .eq('id', id)
+        .limit(1);
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const data = await res.json();
+      if (error) {
+        showError('Error Supabase (' + error.code + '): ' + error.message + '. Contacta con tu asesor.');
+        return;
+      }
       if (!data || data.length === 0) {
-        showError('Colaborador no encontrado. Verifica el enlace con tu asesor.');
+        showError('Colaborador no encontrado (id=' + id + '). Verifica el enlace con tu asesor.');
         return;
       }
 
@@ -806,29 +802,13 @@
     let patchOk = false;
 
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/colaboradores?id=eq.${encodeURIComponent(colab.id)}`,
-        {
-          method: 'PATCH',
-          headers: {
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: 'Bearer ' + SUPABASE_ANON_KEY,
-            'Content-Type': 'application/json',
-            Prefer: 'return=minimal',
-          },
-          body: JSON.stringify({
-            contrato_estado: 'firmado',
-            firma_nombre: nombre,
-            firma_fecha: now,
-          }),
-        }
-      );
+      const { error: patchError } = await sb.from('colaboradores')
+        .update({ contrato_estado: 'firmado', firma_nombre: nombre, firma_fecha: now })
+        .eq('id', colab.id);
 
-      if (res.status === 401 || res.status === 403) {
-        // RLS blocked — show notice but continue
+      if (patchError) {
+        console.warn('PATCH failed:', patchError.message);
         $('rls-notice').style.display = 'block';
-      } else if (!res.ok) {
-        throw new Error(`PATCH HTTP ${res.status}`);
       } else {
         patchOk = true;
       }
