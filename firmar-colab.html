@@ -769,6 +769,26 @@
       return;
     }
 
+    // Validate name matches collaborator
+    const colabFullName = [colab.nombre, colab.apellido].filter(Boolean).join(' ');
+    const normName = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+    if (normName(nombre) !== normName(colabFullName)) {
+      inputName.style.borderColor = 'red';
+      const errHint = document.createElement('div');
+      errHint.style.cssText = 'color:#e53e3e;font-size:12px;margin-top:4px;';
+      errHint.textContent = 'El nombre debe coincidir con tu nombre registrado: ' + colabFullName;
+      const existing = inputName.parentElement.querySelector('.name-err');
+      if (existing) existing.remove();
+      errHint.className = 'name-err';
+      inputName.parentElement.appendChild(errHint);
+      inputName.focus();
+      return;
+    }
+    // Remove previous error
+    const prevErr = inputName.parentElement.querySelector('.name-err');
+    if (prevErr) prevErr.remove();
+    inputName.style.borderColor = '';
+
     btn.disabled = true;
     btn.classList.add('loading');
 
