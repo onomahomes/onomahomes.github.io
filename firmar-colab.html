@@ -405,6 +405,21 @@
       margin-top: 16px;
       display: none;
     }
+
+    /* ── CONTRACT CONTENT ── */
+    .ct h1 { font-size: 15px; text-align: center; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 28px; color: var(--dark); }
+    .ct .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-weight: 700; margin: 22px 0 10px; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+    .ct p { margin-bottom: 10px; text-align: justify; font-size: 13px; line-height: 1.75; }
+    .ct ul { margin: 6px 0 12px 22px; }
+    .ct ul li { margin-bottom: 4px; font-size: 13px; line-height: 1.7; }
+    .ct strong { color: var(--dark); }
+    .ct em { color: var(--muted); }
+    .hi { background: #fffbe6; padding: 1px 5px; border-radius: 3px; font-weight: 700; color: var(--dark); }
+    .ct .firma-bloque { margin-top: 32px; border-top: 2px solid #ddd; padding-top: 20px; }
+    .ct .firma-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px; }
+    @media (max-width: 540px) { .ct .firma-cols { grid-template-columns: 1fr; } }
+    .ct .firma-col { padding-top: 10px; border-top: 1px solid #bbb; }
+    .ct .firma-col p { margin-bottom: 4px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -586,157 +601,116 @@
   }
 
   // ── Render contract ───────────────────────────────────────────────────────
+  const _months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
   function renderContract() {
     // Colab strip
     const initials = ((colab.nombre || '?')[0] + (colab.apellido || '')[0]).toUpperCase();
-    $('colab-avatar').textContent       = initials;
-    $('colab-full-name').textContent    = [colab.nombre, colab.apellido].filter(Boolean).join(' ');
+    $('colab-avatar').textContent        = initials;
+    $('colab-full-name').textContent     = [colab.nombre, colab.apellido].filter(Boolean).join(' ');
     $('colab-email-display').textContent = colab.email || '';
 
-    // Date
-    const today = new Date();
-    const dateStr = today.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-
-    // Clauses
-    const clauses = buildClauses();
-
-    // Full name of colab
+    const hoy = new Date();
     const colabFullName = [colab.nombre, colab.apellido].filter(Boolean).join(' ');
-    const colabNifLabel  = colab.es_independiente ? (colab.nif_cif || '—') : (colab.cif_empresa || colab.nif_cif || '—');
+    const nif = colab.nif_cif || '';
+    const esIndep = colab.es_independiente;
+    const empresa = colab.empresa || '';
+    const cif = colab.cif_empresa || '';
 
-    $('contract-box').innerHTML = `
-      <!-- HEADER -->
-      <div class="ct-header">
-        <div class="ct-logo">ONOMA REAL ESTATE</div>
-        <div class="ct-title">Contrato de Colaboración Inmobiliaria</div>
-        <div class="ct-date">Madrid, ${dateStr}</div>
-      </div>
+    const parteRep = esIndep
+      ? 'actuando en nombre propio como autónomo'
+      : ('en nombre y representación de <span class="hi">' + empresa + '</span>');
+    const parteCIF = esIndep
+      ? (nif ? ', con NIF <span class="hi">' + nif + '</span>' : '')
+      : (', con CIF <span class="hi">' + cif + '</span>');
+    const parteCargo = esIndep ? 'Agente Autónomo Independiente' : (colab.cargo || 'Colaborador');
 
-      <!-- INTRO -->
-      <div class="ct-section">
-        <h3>Reunidas las partes</h3>
-        <p>De una parte, <strong>ONOMA REAL ESTATE SL</strong> (en adelante, "ONOMA"), y de otra parte, el colaborador identificado a continuación (en adelante, "el Colaborador"), acuerdan celebrar el presente contrato de colaboración comercial de conformidad con lo establecido en el Código Civil y demás normativa de aplicación.</p>
-      </div>
+    $('contract-box').innerHTML = `<div class="ct">
+<h1>CONTRATO DE COLABORACIÓN INTER-AGENCIA</h1>
 
-      <!-- PARTES -->
-      <div class="ct-partes">
-        <div class="ct-parte-box">
-          <div class="label">Parte A — ONOMA</div>
-          <strong>ONOMA REAL ESTATE SL</strong>
-          <span>
-            Mohamed El Madani<br>
-            NIE: X3126507W<br>
-            CIF: B19368547<br>
-            C/ Velázquez 31–6 Der<br>
-            28001 Madrid<br>
-            melmadani@urbanflip.io
-          </span>
-        </div>
-        <div class="ct-parte-box">
-          <div class="label">Parte B — Colaborador</div>
-          <strong>${colabFullName}</strong>
-          <span>
-            ${colab.empresa ? `${colab.empresa}<br>` : ''}
-            NIF/CIF: ${colabNifLabel}<br>
-            ${colab.direccion_fiscal ? `${colab.direccion_fiscal}<br>` : ''}
-            ${colab.email || ''}
-          </span>
-        </div>
-      </div>
+<div class="section-title">Reunidos</div>
 
-      <!-- OBJECT -->
-      <div class="ct-section">
-        <h3>Objeto del contrato</h3>
-        <p>El presente contrato tiene por objeto regular la relación de colaboración comercial entre ONOMA y el Colaborador en el ámbito de la intermediación inmobiliaria, en los términos y modalidades que se detallan en las siguientes cláusulas.</p>
-      </div>
+<p>De una parte, <strong>Don Mohamed El Madani</strong>, mayor de edad con NIE X3126507W, en nombre y representación de <strong>ONOMA REAL ESTATE SL</strong>, CIF B19368547, con dirección fiscal en C/ Velázquez 31 – 6 Der, Madrid, 28001, en calidad de CEO.</p>
 
-      <!-- CLAUSES -->
-      <div class="ct-section">
-        <h3>Cláusulas de colaboración</h3>
-        ${clauses}
-      </div>
+<p>De otra parte, <strong>${colabFullName}</strong>, mayor de edad${nif ? ', con NIF/CIF <span class="hi">' + nif + '</span>,' : ','} ${parteRep}${parteCIF}, en calidad de <strong>${parteCargo}</strong>.</p>
 
-      <!-- GENERAL PROVISIONS -->
-      <div class="ct-section">
-        <h3>Disposiciones generales</h3>
+<div class="section-title">Objeto</div>
+<p>Establecer las bases de colaboración entre las partes para la captación, comercialización y cierre de operaciones inmobiliarias (venta, alquiler, traspaso) sobre viviendas, locales, edificios, suelos, naves, hoteles u otros activos.</p>
 
-        <p><strong>Confidencialidad.</strong> Ambas partes se comprometen a mantener la más estricta confidencialidad respecto a la información de clientes, operaciones, precios y condiciones comerciales que conozcan con motivo de la presente relación de colaboración. Esta obligación subsistirá una vez extinguido el presente contrato.</p>
+<div class="section-title">Puesta en común de activos y clientes (por operación)</div>
+<p>1) Las partes intercambiarán información sobre activos y clientes por email o mensajería.</p>
+<p>2) El reconocimiento de autoría de cliente o activo es estrictamente POR OPERACIÓN concreta, identificada por dirección, referencia catastral o referencia interna. No implica exclusividad general ni prohibición de tratar con el mismo proveedor o comprador en otras operaciones distintas.</p>
+<p>3) Si una parte ya tiene un activo en cartera o un cliente trabajado para esa MISMA operación, lo comunicará en 24 horas para evitar duplicidades.</p>
+<p>4) En caso de conflicto de titularidad sobre un mismo activo o cliente no resuelto en 48 horas desde la comunicación, ambas partes podrán trabajarlo de forma independiente para esa operación concreta, sin que ninguna de ellas tenga derecho a honorarios cruzados derivados de dicha operación.</p>
 
-        <p><strong>Duración.</strong> El presente contrato tendrá carácter indefinido y entrará en vigor en la fecha de su firma. Cualquiera de las partes podrá resolverlo mediante comunicación escrita con un preaviso mínimo de treinta (30) días naturales.</p>
+<div class="section-title">Confidencialidad y no circunvención (por operación)</div>
+<p>1) La información intercambiada se mantendrá confidencial y se usará solo para la operación concreta.</p>
+<p>2) Durante la operación y 12 meses después de su cierre o desistimiento, ninguna parte eludirá a la otra respecto del activo o cliente introducido PARA ESA OPERACIÓN concreta. Esta obligación no restringe trabajar con los mismos proveedores o compradores en otras operaciones no introducidas por la contraparte.</p>
 
-        <p><strong>Exclusividad.</strong> La presente colaboración no tiene carácter de exclusividad para ninguna de las partes, salvo pacto expreso en contrario formalizado por escrito.</p>
+<div class="section-title">Régimen económico</div>
+<p><strong>A) Honorarios por inmuebles de terceros (ajenos a UrbanFlip Capital):</strong></p>
+<p>La distribución de honorarios será bilateral al 50% del total efectivamente cobrado en la operación, considerando conjuntamente los honorarios facturados tanto a la parte compradora como a la parte vendedora.</p>
+<p>Si en una operación concreta solo se perciben honorarios de una de las partes (comprador o vendedor), el reparto al 50% se aplicará únicamente sobre el importe efectivamente cobrado, sin que ninguna de las partes pueda reclamar a la otra la parte no percibida.</p>
+<p><strong>B) Honorarios por inmuebles provenientes de UrbanFlip Capital:</strong></p>
+<p>Los inmuebles gestionados bajo la vertical UrbanFlip Capital —sociedad vinculada a ONOMA REAL ESTATE SL mediante acuerdo marco vigente— se rigen por un régimen económico diferenciado. La Colaboradora percibirá el <strong>2% + IVA</strong> sobre el precio final de compraventa, abonado de la siguiente manera:</p>
+<ul>
+  <li>50% a la firma y recepción del capital en el contrato de arras penitenciales.</li>
+  <li>50% restante en el momento de la firma pública ante notario.</li>
+</ul>
+<p>En caso de que no tuviese lugar el contrato de arras, la totalidad de los honorarios será abonada a la Colaboradora en el momento de la firma pública ante notario.</p>
 
-        <p><strong>Independencia.</strong> El Colaborador actúa como profesional independiente, sin que exista entre las partes relación laboral, mercantil de agencia o de cualquier otra naturaleza que implique dependencia orgánica o funcional. El Colaborador será responsable del cumplimiento de sus obligaciones fiscales y de Seguridad Social.</p>
+<div class="section-title">Consolidación de honorarios tras firma de arras</div>
+<p>Una vez firmado el contrato de arras penitenciales, los honorarios devengados en ese momento se considerarán consolidados e irrevocables para ambas partes colaboradoras, con independencia del desistimiento posterior de comprador o vendedor.</p>
+<p>En caso de desistimiento del vendedor, los honorarios ya abonados no serán objeto de restitución. En caso de desistimiento del comprador, cada parte colaboradora conservará igualmente los honorarios percibidos hasta ese momento, sin obligación de devolución, dado que la prestación de intermediación fue íntegramente ejecutada.</p>
 
-        <p><strong>Protección de datos.</strong> Los datos personales facilitados serán tratados conforme al Reglamento (UE) 2016/679 (RGPD) y la Ley Orgánica 3/2018 (LOPDGDD), únicamente para la gestión de la relación de colaboración y nunca serán cedidos a terceros sin consentimiento previo.</p>
+<div class="section-title">Facturación y pagos</div>
+<p>Cada parte emitirá factura por su porción de honorarios conforme a lo pactado. El devengo se producirá a la firma de arras penitenciales (si así se acuerda por escrito) o, en su defecto, a la firma de escritura. El pago se efectuará dentro de las 72 horas siguientes al cobro efectivo.</p>
 
-        <p><strong>Legislación aplicable.</strong> El presente contrato se rige por la legislación española. Para la resolución de cualquier controversia que pudiera surgir de su interpretación o ejecución, ambas partes, con renuncia a cualquier otro fuero que pudiera corresponderles, se someten expresamente a la jurisdicción de los Juzgados y Tribunales de la ciudad de Madrid.</p>
-      </div>
+<div class="section-title">Auditoría y trazabilidad de pagos</div>
+<p>Cada parte informará a la otra dentro de las 24 horas siguientes a la recepción de honorarios y transferirá la porción correspondiente dentro de las 72 horas siguientes. A solicitud razonable, aportará justificantes de cobro y liquidación (facturas, extractos o cartas de pago) con fines de trazabilidad.</p>
 
-      <!-- SIGNATURES -->
-      <div class="ct-firma-area">
-        <div class="ct-firma-box">
-          <div class="firma-line"></div>
-          <div class="firma-label">ONOMA REAL ESTATE SL<br>Mohamed El Madani</div>
-          <div class="signed-badge" style="margin-top:6px;">✓ Firmado por ONOMA</div>
-        </div>
-        <div class="ct-firma-box">
-          <div class="firma-line"></div>
-          <div class="firma-label">${colabFullName}<br>El Colaborador</div>
-          <div style="margin-top:6px;font-size:12px;color:#aaa;">Pendiente de firma</div>
-        </div>
-      </div>
-    `;
-  }
+<div class="section-title">Penalización por incumplimiento y mala fe</div>
+<p>Cualquier conducta que prive a la otra parte de los honorarios que le correspondan —incluyendo cobros no comunicados en el plazo establecido, circunvención del presente acuerdo o exclusión deliberada de una operación compartida— obligará a la parte infractora a abonar a la perjudicada el equivalente exacto a los honorarios que le hubieran correspondido en dicha operación.</p>
+<p>El incumplimiento grave y reiterado facultará a la parte perjudicada a resolver el contrato de forma inmediata y sin preaviso, conservando todos los derechos sobre las operaciones en curso.</p>
 
-  function buildClauses() {
-    const hasAny = colab.acepta_broker_broker || colab.acepta_urban_flip || colab.acepta_tripartita;
+<div class="section-title">Entrada en vigor, duración y resolución</div>
+<p>El presente acuerdo entra en vigor en la fecha de su firma y tendrá duración indefinida. Cualquiera de las partes podrá resolverlo mediante preaviso escrito de 30 días, sin que dicho preaviso afecte a operaciones en las que ya se haya presentado una oferta aceptada por escrito o firmado contrato de arras.</p>
 
-    if (!hasAny) {
-      return `
-        <div class="ct-clausula">
-          <h4>Cláusula General — Colaboración Comercial</h4>
-          <p>El Colaborador y ONOMA acuerdan colaborar en la captación y tramitación de operaciones inmobiliarias. Las condiciones económicas de cada operación se pactarán individualmente por escrito entre las partes, respetando siempre la normativa vigente y los principios de buena fe comercial.</p>
-        </div>
-      `;
-    }
+<div class="section-title">Restricciones de publicación y comercialización de activos</div>
+<p><strong>A) Inmuebles de terceros:</strong> Ninguna de las partes está autorizada a publicar en ningún medio los activos de terceros compartidos en el marco de este acuerdo. La comercialización se realizará exclusivamente de forma privada.</p>
+<p><strong>B) Inmuebles de UrbanFlip Capital:</strong> La Colaboradora podrá publicar estos activos en sus propios canales y en plataformas habituales del sector (Idealista, Fotocasa, etc.), sin utilizar la marca UrbanFlip Capital sin autorización expresa.</p>
+<p><strong>C) Activos de la Colaboradora:</strong> ONOMA REAL ESTATE SL no está autorizada a publicar activos de la Colaboradora sin autorización expresa y por escrito.</p>
 
-    let html = '';
+<div class="section-title">Limitación de responsabilidad</div>
+<p>Ambas partes actúan como intermediarias independientes y no garantizan el cierre de operaciones. La responsabilidad total por reclamaciones derivadas del presente acuerdo se limita a la suma de los honorarios efectivamente percibidos en la operación de que se trate.</p>
 
-    if (colab.acepta_broker_broker) {
-      html += `
-        <div class="ct-clausula">
-          <h4>Cláusula A — Inter-Agencia 50/50</h4>
-          <p>Cuando el Colaborador aporte un comprador o arrendatario para un inmueble gestionado por ONOMA, o viceversa, los honorarios netos de intermediación percibidos se repartirán al <strong>50% entre ambas partes</strong>.</p>
-          <p style="margin-top:8px;">El reparto se realizará dentro de los cinco (5) días hábiles siguientes a la recepción efectiva de los honorarios por parte de la parte receptora. Cada parte será responsable de emitir la factura correspondiente a su porcentaje conforme a la normativa fiscal vigente.</p>
-          <p style="margin-top:8px;">Se entenderá por "honorarios netos" el importe final percibido, excluido el IVA y cualquier gasto directamente imputable a la operación que haya sido acordado previamente por escrito.</p>
-        </div>
-      `;
-    }
+<div class="section-title">Notificaciones</div>
+<p>Las notificaciones con efectos jurídicos deberán cursarse por correo electrónico con acuse de recibo o burofax. ONOMA: melmadani@urbanflip.io | +34 600 37 97 58</p>
 
-    if (colab.acepta_urban_flip) {
-      html += `
-        <div class="ct-clausula">
-          <h4>Cláusula B — Urban Flip Capital</h4>
-          <p>Cuando el Colaborador refiera a ONOMA un inmueble susceptible de operación <em>Urban Flip</em> (adquisición, reforma integral y posterior venta), y dicha operación llegue a buen término, el Colaborador percibirá una comisión de referral del <strong>2% del precio de compra del inmueble, más IVA al tipo vigente</strong>.</p>
-          <p style="margin-top:8px;">Esta comisión se devengará en el momento de la firma de la escritura pública de compraventa del inmueble reformado. El Colaborador deberá emitir la correspondiente factura a ONOMA REAL ESTATE SL.</p>
-          <p style="margin-top:8px;">No se generará derecho a comisión si la operación no llega a completarse por cualquier causa ajena a ONOMA, o si el inmueble referido ya constaba en cartera de ONOMA con anterioridad a la referencia del Colaborador.</p>
-        </div>
-      `;
-    }
+<div class="section-title">Protección de datos (RGPD)</div>
+<p>Cada parte actuará como responsable del tratamiento respecto de los datos personales a los que acceda en el marco de la colaboración, comprometiéndose a tratar dichos datos conforme al Reglamento (UE) 2016/679 y la LOPDGDD.</p>
 
-    if (colab.acepta_tripartita) {
-      html += `
-        <div class="ct-clausula">
-          <h4>Cláusula C — Operación Tripartita</h4>
-          <p>En las operaciones en las que intervengan simultáneamente ONOMA, el Colaborador y un tercer agente, los honorarios totales percibidos de la operación se distribuirán en <strong>tres partes iguales (33,33% cada una)</strong>, salvo acuerdo expreso distinto firmado por los tres intervinientes antes del inicio de la operación.</p>
-          <p style="margin-top:8px;">Para que sea de aplicación esta cláusula, la participación de cada parte deberá estar acreditada documentalmente (email, contrato u otro soporte escrito) con anterioridad a la firma del contrato de arras o reserva del inmueble en cuestión.</p>
-          <p style="margin-top:8px;">Cada parte facturará directamente al cliente o agente pagador su porcentaje correspondiente, siendo responsable de sus obligaciones fiscales individuales.</p>
-        </div>
-      `;
-    }
+<div class="section-title">Jurisdicción y ley aplicable</div>
+<p>Este contrato se rige por la legislación española. Las partes se someten a los Juzgados y Tribunales de Madrid, con renuncia expresa a cualquier otro fuero.</p>
 
-    return html;
+<div class="firma-bloque">
+  <p>Así lo firman en <strong>Madrid</strong> a día <strong>${hoy.getDate()}</strong> del mes <strong>${_months[hoy.getMonth()]}</strong> del año <strong>${hoy.getFullYear()}</strong></p>
+  <div class="firma-cols">
+    <div class="firma-col">
+      <p><strong>Por ONOMA REAL ESTATE SL</strong></p>
+      <p>Nombre: Mohamed El Madani</p>
+      <p>NIE: X3126507W</p>
+      <p style="margin-top:6px;font-size:11px;color:#888;font-style:italic">[Firma electrónica consolidada]</p>
+    </div>
+    <div class="firma-col">
+      <p><strong>Por AGENCIA COLABORADORA</strong></p>
+      <p>Nombre: <em>[pendiente firma digital]</em></p>
+      <p>NIF/CIF: ${nif || '<em>[pendiente]</em>'}</p>
+      <p style="margin-top:6px;font-size:11px;color:#888;font-style:italic">[A cumplimentar abajo]</p>
+    </div>
+  </div>
+</div>
+</div>`;
   }
 
   // ── Scroll tracking ───────────────────────────────────────────────────────
