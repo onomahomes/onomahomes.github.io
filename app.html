@@ -586,6 +586,9 @@ function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   document.body.style.overflow = '';
   uploadedPhotos = []; uploadedDocs = {};
+  // Clear any pending debounce timers so callbacks don't update unmounted DOM
+  clearTimeout(_acT);
+  Object.keys(_validTimers).forEach(k => clearTimeout(_validTimers[k]));
 }
 function handleOverlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
@@ -648,19 +651,20 @@ function sliderHtml(name, label, def = 50) {
 }
 
 // ─── VALIDATORS ─────────────────────────────────────
-let _nifT, _catT;
-function validateNif(val) {
-  clearTimeout(_nifT);
-  const input = document.getElementById('colab-nif');
-  const alertEl = document.getElementById('nif-alert');
-  const saveBtn = document.getElementById('btn-save-colab');
+const _validTimers = {};
+function validateUnique({ table, field, value, minLen, inputId, alertId, saveBtnId, errorMsg, transform }) {
+  clearTimeout(_validTimers[inputId]);
+  const input = document.getElementById(inputId);
+  const alertEl = document.getElementById(alertId);
+  const saveBtn = document.getElementById(saveBtnId);
   if (!input) return;
-  if (!val || val.length < 7) { input.className = ''; if (alertEl) alertEl.style.display = 'none'; return; }
-  _nifT = setTimeout(async () => {
-    const { data } = await sb.from('colaboradores').select('id,nombre,empresa').eq('nif_cif', val).limit(1);
+  const v = transform ? transform(value) : value;
+  if (!v || v.length < minLen) { input.className = ''; if (alertEl) alertEl.style.display = 'none'; return; }
+  _validTimers[inputId] = setTimeout(async () => {
+    const { data } = await sb.from(table).select('id,nombre,empresa,direccion').eq(field, v).limit(1);
     if (data && data.length > 0) {
       input.className = 'invalid';
-      if (alertEl) { alertEl.innerHTML = `⚠️ Ya registrado: <strong>${data[0].nombre||''} ${data[0].empresa?'('+data[0].empresa+')':''}</strong>. No se puede duplicar.`; alertEl.style.display = 'flex'; }
+      if (alertEl) { alertEl.innerHTML = errorMsg(data[0]); alertEl.style.display = 'flex'; }
       if (saveBtn) saveBtn.disabled = true;
     } else {
       input.className = 'valid'; if (alertEl) alertEl.style.display = 'none';
@@ -668,33 +672,49 @@ function validateNif(val) {
     }
   }, 600);
 }
+function validateNif(val) {
+  validateUnique({ table: 'colaboradores', field: 'nif_cif', value: val, minLen: 7,
+    inputId: 'colab-nif', alertId: 'nif-alert', saveBtnId: 'btn-save-colab',
+    errorMsg: d => `⚠️ Ya registrado: <strong>${d.nombre||''} ${d.empresa?'('+d.empresa+')':''}</strong>. No se puede duplicar.` });
+}
 function validateCatastral(val) {
-  clearTimeout(_catT);
-  const input = document.getElementById('piso-refcat');
-  const alertEl = document.getElementById('refcat-alert');
-  const saveBtn = document.getElementById('btn-save-piso');
-  if (!input) return;
-  if (!val || val.length < 10) { input.className = ''; if (alertEl) alertEl.style.display = 'none'; return; }
-  _catT = setTimeout(async () => {
-    const { data } = await sb.from('pisos').select('id,direccion').eq('referencia_catastral', val.toUpperCase()).limit(1);
-    if (data && data.length > 0) {
-      input.className = 'invalid';
-      if (alertEl) { alertEl.innerHTML = `⚠️ Piso ya registrado: <strong>${data[0].direccion||data[0].id}</strong>.`; alertEl.style.display = 'flex'; }
-      if (saveBtn) saveBtn.disabled = true;
-    } else {
-      input.className = 'valid'; if (alertEl) alertEl.style.display = 'none';
-      if (saveBtn) saveBtn.disabled = false;
-    }
-  }, 600);
+  validateUnique({ table: 'pisos', field: 'referencia_catastral', value: val, minLen: 10,
+    inputId: 'piso-refcat', alertId: 'refcat-alert', saveBtnId: 'btn-save-piso',
+    transform: v => v.toUpperCase(),
+    errorMsg: d => `⚠️ Piso ya registrado: <strong>${d.direccion||d.id}</strong>.` });
 }
 
 // ─── AUTOCOMPLETE COLABORADOR ─────────────────────────
 let _acT;
+function renderColabDropdown(dropdown, data, text) {
+  if (!data || data.length === 0) {
+    dropdown.innerHTML = `<div class="autocomplete-item" style="color:var(--text-muted);cursor:default">Sin resultados para "${text}"</div>`;
+  } else {
+    dropdown.innerHTML = data.map(c => {
+      const nombre = [c.nombre||'', c.apellido||''].filter(Boolean).join(' ');
+      return `<div class="autocomplete-item" data-id="${c.id}" data-nombre="${nombre}" data-empresa="${c.empresa||''}" onclick="selectColabFromDropdown(this)">
+        <strong>${nombre || '—'}</strong>
+        ${c.empresa ? `<span>${c.empresa}</span>` : ''}
+      </div>`;
+    }).join('');
+  }
+  dropdown.style.display = 'block';
+}
 async function searchColabs(text) {
   clearTimeout(_acT);
   const dropdown = document.getElementById('colab-dropdown');
   if (!dropdown) return;
   if (!text || text.length < 1) { dropdown.style.display = 'none'; return; }
+  // Use cache when available — avoids a Supabase hit per keystroke
+  if (colabsCache.length > 0) {
+    const q = text.toLowerCase();
+    const results = colabsCache.filter(c =>
+      (c.nombre||'').toLowerCase().includes(q) || (c.empresa||'').toLowerCase().includes(q)
+    ).slice(0, 8);
+    renderColabDropdown(dropdown, results, text);
+    return;
+  }
+  // Cache not populated → query Supabase
   _acT = setTimeout(async () => {
     try {
       const { data } = await sb.from('colaboradores')
@@ -702,18 +722,7 @@ async function searchColabs(text) {
         .filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`)
         .or(`nombre.ilike.%${text}%,empresa.ilike.%${text}%`)
         .limit(8);
-      if (!data || data.length === 0) {
-        dropdown.innerHTML = '<div class="autocomplete-item" style="color:var(--text-muted);cursor:default">Sin resultados para "' + text + '"</div>';
-      } else {
-        dropdown.innerHTML = data.map(c => {
-          const nombre = [c.nombre||'', c.apellido||''].filter(Boolean).join(' ');
-          return `<div class="autocomplete-item" data-id="${c.id}" data-nombre="${nombre}" data-empresa="${c.empresa||''}" onclick="selectColabFromDropdown(this)">
-            <strong>${nombre || '—'}</strong>
-            ${c.empresa ? `<span>${c.empresa}</span>` : ''}
-          </div>`;
-        }).join('');
-      }
-      dropdown.style.display = 'block';
+      renderColabDropdown(dropdown, data || [], text);
     } catch {}
   }, 250);
 }
@@ -759,13 +768,17 @@ async function checkNoColabs() {
   } catch {}
 }
 
+// ─── TAB LOADER HELPERS ──────────────────────────────
+function tabLoad(pane) { pane.innerHTML = '<div class="tab-loading"><div class="spinner"></div></div>'; }
+function tabError(pane, e) { pane.innerHTML = `<div class="tab-error">Error cargando datos: ${e.message}</div>`; }
+
 // ─── TAB LOADERS ─────────────────────────────────────
 const TAB_LOADERS = {};
 
 // COLABORADORES
 TAB_LOADERS.colaboradores = async function() {
   const pane = document.getElementById('tab-colaboradores');
-  pane.innerHTML = '<div class="tab-loading"><div class="spinner"></div></div>';
+  tabLoad(pane);
   try {
     const { data, error } = await sb.from('colaboradores')
       .select('id,nombre,apellido,empresa,email,estado,es_independiente,logo_empresa,brand_color')
@@ -795,13 +808,13 @@ TAB_LOADERS.colaboradores = async function() {
           <td><button class="btn btn-secondary btn-sm" onclick="toast('Detalle disponible en Fase 3','info')">Ver</button></td>
         </tr>`).join('')}</tbody>
       </table></div>`}`;
-  } catch(e) { pane.innerHTML = `<div class="tab-error">Error: ${e.message}</div>`; }
+  } catch(e) { tabError(pane, e); }
 };
 
 // DEMANDAS
 TAB_LOADERS.demandas = async function() {
   const pane = document.getElementById('tab-demandas');
-  pane.innerHTML = '<div class="tab-loading"><div class="spinner"></div></div>';
+  tabLoad(pane);
   try {
     const { data, error } = await sb.from('demandas')
       .select('id,nombre,zona_preferida,presupuesto_max,habitaciones_min,tipo_origen,estado_matching,ultimo_matching_enviado,estado')
@@ -834,13 +847,13 @@ TAB_LOADERS.demandas = async function() {
           <td style="font-size:13px;color:var(--text-muted)">${fdate(d.ultimo_matching_enviado)}</td>
         </tr>`).join('')}</tbody>
       </table></div>`}`;
-  } catch(e) { pane.innerHTML = `<div class="tab-error">Error: ${e.message}</div>`; }
+  } catch(e) { tabError(pane, e); }
 };
 
 // PISOS
 TAB_LOADERS.pisos = async function() {
   const pane = document.getElementById('tab-pisos');
-  pane.innerHTML = '<div class="tab-loading"><div class="spinner"></div></div>';
+  tabLoad(pane);
   try {
     let query = sb.from('pisos')
       .select('id,nombre,direccion,precio,barrio,habitaciones,metros,fotos,estado_sistema,urban_flip,ascensor,terraza')
@@ -888,13 +901,13 @@ TAB_LOADERS.pisos = async function() {
             </div>
           </div></div>`;
       }).join('')}</div>`}`;
-  } catch(e) { pane.innerHTML = `<div class="tab-error">Error: ${e.message}</div>`; }
+  } catch(e) { tabError(pane, e); }
 };
 
 // EQUIPO (director)
 TAB_LOADERS.equipo = async function() {
   const pane = document.getElementById('tab-equipo');
-  pane.innerHTML = '<div class="tab-loading"><div class="spinner"></div></div>';
+  tabLoad(pane);
   try {
     const { data, error } = await sb.from('asesores').select('id,nombre,email,telefono,activo,rol').eq('rol','asesor').order('nombre');
     if (error) throw error;
@@ -916,7 +929,7 @@ TAB_LOADERS.equipo = async function() {
           <td><button class="btn btn-secondary btn-sm" onclick="toast('Stats disponibles en Fase 8','info')">Ver actividad</button></td>
         </tr>`).join('')}</tbody>
       </table></div>`}`;
-  } catch(e) { pane.innerHTML = `<div class="tab-error">Error: ${e.message}</div>`; }
+  } catch(e) { tabError(pane, e); }
 };
 
 // Director colaboradores = todos
@@ -1069,23 +1082,12 @@ function newDemandaModal() {
 }
 
 function openDemandaColabSearch() {
-  openModal('Nueva Demanda — Seleccionar Colaborador', `
-    <p style="color:var(--text-muted);margin-bottom:16px">Busca el colaborador que aporta esta demanda. Solo se pueden añadir demandas de colaboradores registrados contigo.</p>
-    <div class="autocomplete-wrap">
-      <input type="text" id="colab-search-input" class="autocomplete-input" placeholder="Escribe nombre o empresa…" autocomplete="off"
-        oninput="searchColabs(this.value)"
-        onblur="setTimeout(()=>{const d=document.getElementById('colab-dropdown');if(d)d.style.display='none';},200)">
-      <div class="autocomplete-dropdown" id="colab-dropdown" style="display:none"></div>
-    </div>
-    <div id="colab-badge-area"></div>
-    <div id="no-colabs-msg" class="alert alert-warning" style="display:none;margin-top:14px">
-      ⚠️ No tienes colaboradores registrados. Añade uno primero desde la tab <strong>Mis Colaboradores</strong>.
-    </div>
-  `, 'md', `
-    <button class="btn btn-secondary" onclick="newDemandaModal()">← Volver</button>
-    <button class="btn btn-primary" id="btn-continue-colab" disabled onclick="openDemandaForm('colaborador', _selectedColabId)">Continuar →</button>
-  `);
-  checkNoColabs();
+  openColabSearchStep({
+    title: 'Nueva Demanda — Seleccionar Colaborador',
+    btnClass: 'btn-primary',
+    onBack: 'newDemandaModal()',
+    onContinue: colabId => openDemandaForm('colaborador', colabId),
+  });
 }
 
 function openDemandaForm(tipo, colaboradorId) {
@@ -1238,9 +1240,11 @@ function newPisoModal(urbanFlip) {
   </div>`, 'sm');
 }
 
-function openPisoColabSearch(urbanFlip) {
-  openModal((urbanFlip ? '⭐ Urban Flip' : 'Nuevo Piso') + ' — Seleccionar Colaborador', `
-    <p style="color:var(--text-muted);margin-bottom:16px">Busca el colaborador que aporta este piso. Solo se pueden seleccionar colaboradores registrados contigo.</p>
+let _colabSearchContinue = null;
+function openColabSearchStep({ title, btnClass, onBack, onContinue }) {
+  _colabSearchContinue = onContinue;
+  openModal(title, `
+    <p style="color:var(--text-muted);margin-bottom:16px">Busca y selecciona un colaborador registrado contigo.</p>
     <div class="autocomplete-wrap">
       <input type="text" id="colab-search-input" class="autocomplete-input" placeholder="Escribe nombre o empresa…" autocomplete="off"
         oninput="searchColabs(this.value)"
@@ -1252,10 +1256,19 @@ function openPisoColabSearch(urbanFlip) {
       ⚠️ No tienes colaboradores registrados. Añade uno primero desde la tab <strong>Mis Colaboradores</strong>.
     </div>
   `, 'md', `
-    <button class="btn btn-secondary" onclick="newPisoModal(${urbanFlip})">← Volver</button>
-    <button class="btn ${urbanFlip ? 'btn-gold' : 'btn-primary'}" id="btn-continue-colab" disabled onclick="openPisoForm(${urbanFlip}, _selectedColabId)">Continuar →</button>
+    <button class="btn btn-secondary" onclick="${onBack}">← Volver</button>
+    <button class="btn ${btnClass}" id="btn-continue-colab" disabled onclick="_colabSearchContinue(_selectedColabId)">Continuar →</button>
   `);
   checkNoColabs();
+}
+
+function openPisoColabSearch(urbanFlip) {
+  openColabSearchStep({
+    title: (urbanFlip ? '⭐ Urban Flip' : 'Nuevo Piso') + ' — Seleccionar Colaborador',
+    btnClass: urbanFlip ? 'btn-gold' : 'btn-primary',
+    onBack: `newPisoModal(${urbanFlip})`,
+    onContinue: colabId => openPisoForm(urbanFlip, colabId),
+  });
 }
 
 function openPisoForm(urbanFlip, colaboradorId) {
@@ -1378,15 +1391,17 @@ async function handlePhotosUpload(files) {
   files = files.slice(0, remaining);
   const prog = document.getElementById('photo-progress'); const bar = document.getElementById('photo-progress-bar');
   if (prog) prog.style.display = 'block';
-  for (let i = 0; i < files.length; i++) {
-    try {
-      if (bar) bar.style.width = ((i / files.length) * 100) + '%';
-      const r = await uploadToCloudinary(files[i], 'onoma/pisos');
-      uploadedPhotos.push({ url: r.secure_url, thumbnail: r.secure_url.replace('/upload/', '/upload/c_fill,w_200,h_150/'), public_id: r.public_id });
-      renderPhotoPreviews();
-    } catch(e) { toast('Error foto: ' + e.message, 'error'); }
-  }
+  if (bar) bar.style.width = '30%';
+  // Upload all in parallel — 10x faster than sequential
+  const results = await Promise.allSettled(files.map(f => uploadToCloudinary(f, 'onoma/pisos')));
+  results.forEach(r => {
+    if (r.status === 'fulfilled') {
+      const res = r.value;
+      uploadedPhotos.push({ url: res.secure_url, thumbnail: res.secure_url.replace('/upload/', '/upload/c_fill,w_200,h_150/'), public_id: res.public_id });
+    } else { toast('Error foto: ' + r.reason.message, 'error'); }
+  });
   if (bar) bar.style.width = '100%';
+  renderPhotoPreviews();
   setTimeout(() => { if (prog) { prog.style.display = 'none'; if (bar) bar.style.width = '0%'; } }, 500);
 }
 function renderPhotoPreviews() {
