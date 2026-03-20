@@ -121,6 +121,11 @@ body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color
 .filters-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
 .filter-chip { padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; border: 1.5px solid var(--border); background: white; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
 .filter-chip.active { border-color: var(--accent); background: var(--accent); color: white; }
+.filter-select { padding: 5px 28px 5px 10px; border-radius: 20px; font-size: 13px; font-weight: 500; border: 1.5px solid var(--border); background: white; cursor: pointer; color: var(--text-muted); font-family: inherit; outline: none; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a8a9a'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; transition: border-color 0.2s; }
+.filter-select:focus, .filter-select:not([value=""]) { border-color: var(--accent); color: var(--text); }
+.filter-input-num { padding: 5px 10px; border-radius: 20px; font-size: 13px; border: 1.5px solid var(--border); background: white; color: var(--text-muted); font-family: inherit; outline: none; width: 110px; transition: border-color 0.2s; }
+.filter-input-num:focus { border-color: var(--accent); color: var(--text); }
+.filter-input-num::placeholder { color: var(--text-muted); }
 
 /* EMPTY / LOADING / ERROR */
 .empty-state { text-align: center; padding: 60px 24px; color: var(--text-muted); }
@@ -606,15 +611,28 @@ function filterChips(btn, attr, val) {
     row.style.display = (val === 'todos' || row.dataset[attr] === val) ? '' : 'none';
   });
 }
-function filterPisos(btn, filter) {
-  btn.closest('.filters-bar').querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+let _pisosFilter = { chip: 'todos', barrio: '', precioMin: null, precioMax: null };
+
+function applyPisosFilters() {
   document.querySelectorAll('#pisos-grid .data-card').forEach(card => {
-    let show = filter === 'todos' || (filter === 'urban_flip' && card.dataset.uf === 'true')
-      || (filter === 'terraza' && card.dataset.terraza === 'true')
-      || (filter === 'ascensor' && card.dataset.ascensor === 'true');
+    let show = true;
+    const f = _pisosFilter;
+    if (f.chip === 'urban_flip') show = show && card.dataset.uf === 'true';
+    else if (f.chip === 'terraza') show = show && card.dataset.terraza === 'true';
+    else if (f.chip === 'ascensor') show = show && card.dataset.ascensor === 'true';
+    if (f.barrio) show = show && card.dataset.barrio === f.barrio;
+    const precio = parseFloat(card.dataset.precio) || 0;
+    if (f.precioMin) show = show && precio >= f.precioMin;
+    if (f.precioMax) show = show && precio <= f.precioMax;
     card.style.display = show ? '' : 'none';
   });
+}
+
+function filterPisosChip(btn, filter) {
+  btn.closest('.filters-bar').querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _pisosFilter.chip = filter;
+  applyPisosFilters();
 }
 
 // ─── SLIDER ──────────────────────────────────────────
@@ -831,6 +849,9 @@ TAB_LOADERS.pisos = async function() {
     const { data, error } = await query;
     if (error) throw error;
     const isDir = currentUser.rol === 'director';
+    _pisosFilter = { chip: 'todos', barrio: '', precioMin: null, precioMax: null };
+    const barrios = [...new Set((data||[]).map(p => p.barrio).filter(Boolean))].sort();
+    const barrioOpts = '<option value="">Todos los barrios</option>' + barrios.map(b => `<option value="${b}">${b}</option>`).join('');
     pane.innerHTML = `
       <div class="tab-toolbar">
         <div><h2>Pisos</h2><p>${(data||[]).length} pisos en cartera</p></div>
@@ -840,15 +861,20 @@ TAB_LOADERS.pisos = async function() {
         </div>
       </div>
       <div class="filters-bar">
-        <button class="filter-chip active" onclick="filterPisos(this,'todos')">Todos</button>
-        <button class="filter-chip" onclick="filterPisos(this,'urban_flip')">⭐ Urban Flip</button>
-        <button class="filter-chip" onclick="filterPisos(this,'terraza')">Terraza</button>
-        <button class="filter-chip" onclick="filterPisos(this,'ascensor')">Ascensor</button>
+        <button class="filter-chip active" onclick="filterPisosChip(this,'todos')">Todos</button>
+        <button class="filter-chip" onclick="filterPisosChip(this,'urban_flip')">⭐ Urban Flip</button>
+        <button class="filter-chip" onclick="filterPisosChip(this,'terraza')">Terraza</button>
+        <button class="filter-chip" onclick="filterPisosChip(this,'ascensor')">Ascensor</button>
+        ${barrios.length ? `<select class="filter-select" onchange="_pisosFilter.barrio=this.value;applyPisosFilters()">${barrioOpts}</select>` : ''}
+        <input type="number" class="filter-input-num" placeholder="€ mínimo" min="0" step="10000"
+          oninput="_pisosFilter.precioMin=parseFloat(this.value)||null;applyPisosFilters()">
+        <input type="number" class="filter-input-num" placeholder="€ máximo" min="0" step="10000"
+          oninput="_pisosFilter.precioMax=parseFloat(this.value)||null;applyPisosFilters()">
       </div>
       ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">🏘️</span><p>Aún no hay pisos registrados.</p><button class="btn btn-primary" onclick="newPisoModal(false)">➕ Añadir primer piso</button></div>` : `
       <div class="cards-grid" id="pisos-grid">${(data||[]).map(p => {
         const foto = p.fotos && p.fotos[0] ? (p.fotos[0].thumbnail || p.fotos[0].url) : null;
-        return `<div class="data-card ${p.urban_flip?'urban-flip':''}" data-uf="${!!p.urban_flip}" data-terraza="${!!p.terraza}" data-ascensor="${!!p.ascensor}">
+        return `<div class="data-card ${p.urban_flip?'urban-flip':''}" data-uf="${!!p.urban_flip}" data-terraza="${!!p.terraza}" data-ascensor="${!!p.ascensor}" data-barrio="${p.barrio||''}" data-precio="${p.precio||0}">
           ${foto ? `<img class="card-img" src="${foto}" loading="lazy">` : `<div class="card-img">🏠</div>`}
           <div class="card-body">
             ${p.urban_flip?'<div class="uf-badge">⭐ URBAN FLIP</div>':''}
