@@ -250,6 +250,7 @@ body {
   padding: 4px;
   flex-direction: column;
   gap: 5px;
+  position: relative;
 }
 
 .hamburger span {
@@ -259,6 +260,27 @@ body {
   background: white;
   border-radius: 2px;
   transition: all 0.3s;
+}
+
+.hamburger-dot {
+  display: none;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 10px;
+  height: 10px;
+  background: var(--danger);
+  border-radius: 50%;
+  border: 2px solid var(--sidebar);
+  box-shadow: 0 0 6px rgba(224,82,82,0.8);
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+
+.hamburger-dot.visible { display: block; }
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 4px rgba(224,82,82,0.7); }
+  50%       { box-shadow: 0 0 10px rgba(224,82,82,1); }
 }
 
 /* LAYOUT */
@@ -480,6 +502,7 @@ body {
   <header class="app-header">
     <button class="hamburger" onclick="toggleSidebar()" aria-label="Menú">
       <span></span><span></span><span></span>
+      <span class="hamburger-dot" id="hamburger-dot"></span>
     </button>
     <div class="header-logo">
       ONOMA
@@ -749,17 +772,24 @@ async function loadPendingCount() {
 }
 
 function updateBadge() {
-  // Find whichever badge exists (asesor has 'pendientes', director has 'notificaciones')
+  const hasPending = pendingCount > 0;
+  const countText = pendingCount > 99 ? '99+' : pendingCount;
+
+  // Badge dentro del sidebar (asesor → pendientes, director → notificaciones)
   ['pendientes', 'notificaciones'].forEach(id => {
     const badge = document.getElementById(`badge-${id}`);
     if (!badge) return;
-    if (pendingCount > 0) {
-      badge.textContent = pendingCount > 99 ? '99+' : pendingCount;
+    if (hasPending) {
+      badge.textContent = countText;
       badge.style.display = 'block';
     } else {
       badge.style.display = 'none';
     }
   });
+
+  // Punto rojo sobre el hamburger (solo visible en móvil vía CSS display:none en desktop)
+  const dot = document.getElementById('hamburger-dot');
+  if (dot) dot.classList.toggle('visible', hasPending);
 }
 
 // ─── MOBILE SIDEBAR ──────────────────────────────────
