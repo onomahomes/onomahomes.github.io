@@ -240,6 +240,20 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px;
 .toast-success { background: #22c55e; } .toast-error { background: var(--danger); } .toast-info { background: #3b82f6; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+/* AUTOCOMPLETE */
+.autocomplete-wrap { position: relative; }
+.autocomplete-input { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.2s; }
+.autocomplete-input:focus { border-color: var(--accent); }
+.autocomplete-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1.5px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; max-height: 220px; overflow-y: auto; z-index: 50; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+.autocomplete-item { padding: 10px 14px; cursor: pointer; font-size: 14px; border-bottom: 1px solid var(--border); }
+.autocomplete-item:last-child { border-bottom: none; }
+.autocomplete-item:hover { background: #f0f4ee; }
+.autocomplete-item strong { display: block; color: var(--text); }
+.autocomplete-item span { font-size: 12px; color: var(--text-muted); }
+.colab-badge { display: inline-flex; align-items: center; gap: 10px; background: #dcfce7; border: 1.5px solid #86efac; color: #166534; padding: 9px 16px; border-radius: 24px; font-size: 14px; font-weight: 600; margin-top: 10px; }
+.colab-badge button { background: none; border: none; cursor: pointer; font-size: 18px; color: #166534; line-height: 1; padding: 0 2px; opacity: 0.7; }
+.colab-badge button:hover { opacity: 1; }
+
 /* PLACEHOLDER (tabs sin loader) */
 .tab-placeholder { background: var(--card); border-radius: 12px; padding: 60px 40px; text-align: center; border: 2px dashed var(--border); }
 .tab-placeholder .ph-icon { font-size: 48px; margin-bottom: 16px; display: block; }
@@ -356,6 +370,7 @@ const loadedTabs = new Set();
 let uploadedPhotos = [];
 let uploadedDocs = {};
 let colabsCache = [];
+let _selectedColabId = null;
 
 // ─── NAV ──────────────────────────────────────────────
 const NAV_ASESOR = [
@@ -655,6 +670,77 @@ function validateCatastral(val) {
   }, 600);
 }
 
+// ─── AUTOCOMPLETE COLABORADOR ─────────────────────────
+let _acT;
+async function searchColabs(text) {
+  clearTimeout(_acT);
+  const dropdown = document.getElementById('colab-dropdown');
+  if (!dropdown) return;
+  if (!text || text.length < 1) { dropdown.style.display = 'none'; return; }
+  _acT = setTimeout(async () => {
+    try {
+      const { data } = await sb.from('colaboradores')
+        .select('id,nombre,apellido,empresa')
+        .filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`)
+        .or(`nombre.ilike.%${text}%,empresa.ilike.%${text}%`)
+        .limit(8);
+      if (!data || data.length === 0) {
+        dropdown.innerHTML = '<div class="autocomplete-item" style="color:var(--text-muted);cursor:default">Sin resultados para "' + text + '"</div>';
+      } else {
+        dropdown.innerHTML = data.map(c => {
+          const nombre = [c.nombre||'', c.apellido||''].filter(Boolean).join(' ');
+          return `<div class="autocomplete-item" data-id="${c.id}" data-nombre="${nombre}" data-empresa="${c.empresa||''}" onclick="selectColabFromDropdown(this)">
+            <strong>${nombre || '—'}</strong>
+            ${c.empresa ? `<span>${c.empresa}</span>` : ''}
+          </div>`;
+        }).join('');
+      }
+      dropdown.style.display = 'block';
+    } catch {}
+  }, 250);
+}
+
+function selectColabFromDropdown(el) {
+  _selectedColabId = el.dataset.id;
+  const nombre = el.dataset.nombre;
+  const empresa = el.dataset.empresa;
+  const label = nombre + (empresa ? ' · ' + empresa : '');
+  const input = document.getElementById('colab-search-input');
+  const dropdown = document.getElementById('colab-dropdown');
+  const badgeArea = document.getElementById('colab-badge-area');
+  const continueBtn = document.getElementById('btn-continue-colab');
+  if (input) input.value = label;
+  if (dropdown) dropdown.style.display = 'none';
+  if (badgeArea) badgeArea.innerHTML = `<div class="colab-badge">✅ ${label}<button type="button" onclick="clearColabSelection()" title="Cambiar">×</button></div>`;
+  if (continueBtn) continueBtn.disabled = false;
+}
+
+function clearColabSelection() {
+  _selectedColabId = null;
+  const input = document.getElementById('colab-search-input');
+  const badgeArea = document.getElementById('colab-badge-area');
+  const continueBtn = document.getElementById('btn-continue-colab');
+  if (input) { input.value = ''; input.focus(); }
+  if (badgeArea) badgeArea.innerHTML = '';
+  if (continueBtn) continueBtn.disabled = true;
+}
+
+async function checkNoColabs() {
+  try {
+    let hasColabs = colabsCache.length > 0;
+    if (!hasColabs) {
+      const { data } = await sb.from('colaboradores').select('id').filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`).limit(1);
+      hasColabs = !!(data && data.length > 0);
+    }
+    if (!hasColabs) {
+      const msg = document.getElementById('no-colabs-msg');
+      const inp = document.getElementById('colab-search-input');
+      if (msg) msg.style.display = 'flex';
+      if (inp) inp.disabled = true;
+    }
+  } catch {}
+}
+
 // ─── TAB LOADERS ─────────────────────────────────────
 const TAB_LOADERS = {};
 
@@ -941,34 +1027,64 @@ function openColabLink() {
 
 // ─── MODAL: DEMANDA ──────────────────────────────────
 function newDemandaModal() {
+  _selectedColabId = null;
   openModal('Nueva Demanda', `<div class="choice-cards">
-    <div class="choice-card" onclick="openDemandaForm()"><div class="choice-icon">✍️</div><div class="choice-title">Introducir yo mismo</div><div class="choice-desc">Rellenas los datos del cliente</div></div>
-    <div class="choice-card" onclick="openDemandaLink()"><div class="choice-icon">🔗</div><div class="choice-title">Generar link</div><div class="choice-desc">El cliente rellena el formulario</div></div>
+    <div class="choice-card" onclick="openDemandaForm('comprador_directo', null)">
+      <div class="choice-icon">👤</div>
+      <div class="choice-title">Comprador Directo ONOMA</div>
+      <div class="choice-desc">Cliente captado directamente por ONOMA</div>
+    </div>
+    <div class="choice-card" onclick="openDemandaColabSearch()">
+      <div class="choice-icon">🤝</div>
+      <div class="choice-title">Demanda Colaborador</div>
+      <div class="choice-desc">Cliente de un colaborador registrado</div>
+    </div>
   </div>`, 'sm');
 }
 
-function openDemandaForm() {
-  const opts = colabsCache.length ? colabsCache.map(c => `<option value="${c.id}">${c.nombre} ${c.apellido||''} ${c.empresa?'('+c.empresa+')':''}</option>`).join('') : '<option value="">Sin colaboradores (carga el tab primero)</option>';
-  openModal('Nueva Demanda — Formulario', `<form id="demanda-form">
-    <div class="form-section">
-      <div class="form-section-title">Origen</div>
-      <div class="toggle-group">
-        <button type="button" class="active" onclick="setOrigenDemanda(this,'colaborador')">De colaborador</button>
-        <button type="button" onclick="setOrigenDemanda(this,'comprador_directo')">Comprador directo</button>
-      </div>
-      <input type="hidden" name="tipo_origen" id="d-origen" value="colaborador">
-      <div id="d-colab" style="margin-top:12px">
-        <div class="form-col"><label>Colaborador</label><select name="colaborador_id"><option value="">Selecciona...</option>${opts}</select></div>
-        <div class="form-col" style="margin-top:10px"><label>Nombre del cliente</label><input type="text" name="nombre" placeholder="Carlos Rodríguez"></div>
-      </div>
-      <div id="d-directo" style="display:none;margin-top:12px">
+function openDemandaColabSearch() {
+  openModal('Nueva Demanda — Seleccionar Colaborador', `
+    <p style="color:var(--text-muted);margin-bottom:16px">Busca el colaborador que aporta esta demanda. Solo se pueden añadir demandas de colaboradores registrados contigo.</p>
+    <div class="autocomplete-wrap">
+      <input type="text" id="colab-search-input" class="autocomplete-input" placeholder="Escribe nombre o empresa…" autocomplete="off"
+        oninput="searchColabs(this.value)"
+        onblur="setTimeout(()=>{const d=document.getElementById('colab-dropdown');if(d)d.style.display='none';},200)">
+      <div class="autocomplete-dropdown" id="colab-dropdown" style="display:none"></div>
+    </div>
+    <div id="colab-badge-area"></div>
+    <div id="no-colabs-msg" class="alert alert-warning" style="display:none;margin-top:14px">
+      ⚠️ No tienes colaboradores registrados. Añade uno primero desde la tab <strong>Mis Colaboradores</strong>.
+    </div>
+  `, 'md', `
+    <button class="btn btn-secondary" onclick="newDemandaModal()">← Volver</button>
+    <button class="btn btn-primary" id="btn-continue-colab" disabled onclick="openDemandaForm('colaborador', _selectedColabId)">Continuar →</button>
+  `);
+  checkNoColabs();
+}
+
+function openDemandaForm(tipo, colaboradorId) {
+  const colab = colaboradorId ? (colabsCache.find(c => c.id === colaboradorId) || {}) : null;
+  const colabNombre = colab ? [[colab.nombre||'', colab.apellido||''].filter(Boolean).join(' '), colab.empresa].filter(Boolean).join(' · ') : '';
+  const origenSection = tipo === 'colaborador'
+    ? `<div class="form-section">
+        <div class="form-section-title">Colaborador</div>
+        <div class="colab-badge" style="margin-bottom:14px">🤝 ${colabNombre || 'Colaborador seleccionado'}</div>
+        <input type="hidden" name="tipo_origen" value="colaborador">
+        <input type="hidden" name="colaborador_id" value="${colaboradorId}">
+        <div class="form-col"><label>Nombre del cliente *</label><input type="text" name="nombre" required placeholder="Carlos Rodríguez"></div>
+      </div>`
+    : `<div class="form-section">
+        <div class="form-section-title">Datos del comprador</div>
+        <input type="hidden" name="tipo_origen" value="comprador_directo">
+        <input type="hidden" name="colaborador_id" value="">
         <div class="form-row">
-          <div class="form-col"><label>Nombre del comprador *</label><input type="text" name="nombre_dir" placeholder="María López"></div>
+          <div class="form-col"><label>Nombre *</label><input type="text" name="nombre" required placeholder="María López"></div>
           <div class="form-col"><label>Email</label><input type="email" name="email_dir" placeholder="maria@gmail.com"></div>
         </div>
         <div class="form-col" style="margin-top:10px"><label>Teléfono</label><input type="tel" name="tel_dir" placeholder="+34 600 000 000"></div>
-      </div>
-    </div>
+      </div>`;
+  openModal('Nueva Demanda — Formulario', `<form id="demanda-form">
+    ${origenSection}
     <div class="form-section">
       <div class="form-section-title">Datos de búsqueda</div>
       <div class="form-row">
@@ -1016,12 +1132,6 @@ function openDemandaForm() {
     <button class="btn btn-primary" id="btn-save-demanda" onclick="submitDemanda()">Guardar demanda</button>`);
 }
 
-function setOrigenDemanda(btn, tipo) {
-  btn.closest('.toggle-group').querySelectorAll('button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active'); document.getElementById('d-origen').value = tipo;
-  document.getElementById('d-colab').style.display = tipo === 'colaborador' ? 'block' : 'none';
-  document.getElementById('d-directo').style.display = tipo === 'comprador_directo' ? 'block' : 'none';
-}
 
 async function uploadMandato(input) {
   const file = input.files[0]; if (!file) return;
@@ -1042,14 +1152,14 @@ async function submitDemanda() {
     const fd = new FormData(form);
     const tipoOrigen = fd.get('tipo_origen') || 'colaborador';
     let clienteId = null, nombre = '';
+    nombre = fd.get('nombre') || '';
+    if (!nombre) throw new Error('El nombre es obligatorio');
     if (tipoOrigen === 'comprador_directo') {
-      nombre = fd.get('nombre_dir') || '';
-      if (!nombre) throw new Error('El nombre del comprador es obligatorio');
       const cId = genId();
       const { error: cErr } = await sb.from('clientes').insert({ id: cId, nombre, email: fd.get('email_dir')||null, telefono: fd.get('tel_dir')||null, tipo: 'comprador', estado: 'activo', fecha_alta: new Date().toISOString(), asesor_asignado: currentUser.id });
       if (cErr) throw cErr;
       clienteId = cId;
-    } else { nombre = fd.get('nombre') || 'Sin nombre'; }
+    }
     const colaboradorId = fd.get('colaborador_id') || null;
     const dId = genId();
     const { error } = await sb.from('demandas').insert({
@@ -1087,14 +1197,47 @@ function openDemandaLink() {
 
 // ─── MODAL: PISO ────────────────────────────────────
 function newPisoModal(urbanFlip) {
+  _selectedColabId = null;
   openModal(urbanFlip ? '⭐ Nuevo Piso Urban Flip' : 'Nuevo Piso', `<div class="choice-cards">
-    <div class="choice-card" onclick="openPisoForm(${urbanFlip})"><div class="choice-icon">✍️</div><div class="choice-title">Introducir yo mismo</div><div class="choice-desc">Rellenas el formulario aquí</div></div>
-    <div class="choice-card" onclick="openPisoLink()"><div class="choice-icon">🔗</div><div class="choice-title">Generar link</div><div class="choice-desc">El colaborador sube el piso</div></div>
+    <div class="choice-card" onclick="openPisoForm(${urbanFlip}, null)">
+      <div class="choice-icon">🏠</div>
+      <div class="choice-title">Piso Directo ONOMA</div>
+      <div class="choice-desc">Captado directamente por ONOMA, sin colaborador</div>
+    </div>
+    <div class="choice-card" onclick="openPisoColabSearch(${urbanFlip})">
+      <div class="choice-icon">🤝</div>
+      <div class="choice-title">Piso Colaborador</div>
+      <div class="choice-desc">Aportado por un colaborador registrado</div>
+    </div>
   </div>`, 'sm');
 }
 
-function openPisoForm(urbanFlip) {
-  const opts = '<option value="">Sin colaborador</option>' + colabsCache.map(c => `<option value="${c.id}">${c.nombre} ${c.apellido||''} ${c.empresa?'('+c.empresa+')':''}</option>`).join('');
+function openPisoColabSearch(urbanFlip) {
+  openModal((urbanFlip ? '⭐ Urban Flip' : 'Nuevo Piso') + ' — Seleccionar Colaborador', `
+    <p style="color:var(--text-muted);margin-bottom:16px">Busca el colaborador que aporta este piso. Solo se pueden seleccionar colaboradores registrados contigo.</p>
+    <div class="autocomplete-wrap">
+      <input type="text" id="colab-search-input" class="autocomplete-input" placeholder="Escribe nombre o empresa…" autocomplete="off"
+        oninput="searchColabs(this.value)"
+        onblur="setTimeout(()=>{const d=document.getElementById('colab-dropdown');if(d)d.style.display='none';},200)">
+      <div class="autocomplete-dropdown" id="colab-dropdown" style="display:none"></div>
+    </div>
+    <div id="colab-badge-area"></div>
+    <div id="no-colabs-msg" class="alert alert-warning" style="display:none;margin-top:14px">
+      ⚠️ No tienes colaboradores registrados. Añade uno primero desde la tab <strong>Mis Colaboradores</strong>.
+    </div>
+  `, 'md', `
+    <button class="btn btn-secondary" onclick="newPisoModal(${urbanFlip})">← Volver</button>
+    <button class="btn ${urbanFlip ? 'btn-gold' : 'btn-primary'}" id="btn-continue-colab" disabled onclick="openPisoForm(${urbanFlip}, _selectedColabId)">Continuar →</button>
+  `);
+  checkNoColabs();
+}
+
+function openPisoForm(urbanFlip, colaboradorId) {
+  const colab = colaboradorId ? (colabsCache.find(c => c.id === colaboradorId) || {}) : null;
+  const colabNombre = colab ? [[colab.nombre||'', colab.apellido||''].filter(Boolean).join(' '), colab.empresa].filter(Boolean).join(' · ') : '';
+  const colabSection = colaboradorId
+    ? `<div style="margin-bottom:14px"><div class="fc-label" style="display:block;margin-bottom:6px">Colaborador</div><div class="colab-badge">🤝 ${colabNombre || 'Colaborador seleccionado'}</div><input type="hidden" name="colaborador_id" value="${colaboradorId}"></div>`
+    : `<input type="hidden" name="colaborador_id" value="">`;
   openModal((urbanFlip ? '⭐ Urban Flip' : 'Nuevo Piso') + ' — Formulario', `<form id="piso-form">
     <input type="hidden" name="urban_flip" value="${urbanFlip}">
     <div class="collapsible">
@@ -1142,9 +1285,10 @@ function openPisoForm(urbanFlip) {
     <div class="collapsible">
       <div class="collapsible-header" onclick="toggleCollapsible(this)"><span>3. Colaboración y comisión</span><span class="caret">▼</span></div>
       <div class="collapsible-body">
+        ${colabSection}
         <div class="form-row">
-          <div class="form-col"><label>Colaborador</label><select name="colaborador_id">${opts}</select></div>
           <div class="form-col"><label>% Honorarios vendedor</label><input type="number" name="honorarios_vendedor_pct" min="0" max="10" step="0.1" placeholder="5"></div>
+          <div class="form-col"></div>
         </div>
         <div class="checkbox-group" style="margin-top:12px">
           <label class="checkbox-item"><input type="checkbox" name="comparte"><span><div class="cb-label">Comparte comisión</div><div class="cb-desc">ONOMA comparte honorarios con colaborador</div></span></label>
