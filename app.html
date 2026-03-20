@@ -612,10 +612,15 @@ async function handleLogout() {
   await sb.auth.signOut();
   sessionStorage.removeItem('crm_user');
   currentUser = null;
+  activeTab = null;
   document.getElementById('app-shell').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-email').value = '';
   document.getElementById('login-password').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  const btn = document.getElementById('btn-login');
+  btn.disabled = false;
+  btn.textContent = 'Entrar';
 }
 
 async function checkSession() {
