@@ -1716,7 +1716,7 @@ TAB_LOADERS.matchings = async function() {
     syncMatchingAcciones(demandas, matchByDem);
 
     const totalMatch = matchings.length;
-    const pendReview = matchings.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
+    const pendReview = Object.values(matchByDem).filter(dMatches => dMatches.some(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor' && m.estado !== 'enviado')).length;
     const activas = (demandas||[]).filter(d => (d.estado_matching||d.estado||'').trim().toLowerCase() !== 'eliminada').length;
 
     pane.innerHTML = `<div id="matchings-header"></div><div id="matchings-list"></div>`;
