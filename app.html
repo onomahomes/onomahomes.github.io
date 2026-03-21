@@ -1702,11 +1702,10 @@ TAB_LOADERS.matchings = async function() {
         if (dem.habitaciones_min && p.habitaciones && p.habitaciones < dem.habitaciones_min * 0.5) return false;
         return true;
       });
-      // Sort by score descending, take top 5 pending + keep all user-acted
+      // Sort by score descending — keep ALL pending (not just 5) so counter works
       const acted = filtered.filter(m => m.estado === 'aprobado' || m.estado === 'descartado_asesor');
       const pending = filtered.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor')
-        .sort((a,b) => (b.score_matching||0)-(a.score_matching||0))
-        .slice(0, 5);
+        .sort((a,b) => (b.score_matching||0)-(a.score_matching||0));
       matchByDem[demId] = [...acted, ...pending];
     }
 
