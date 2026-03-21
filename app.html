@@ -1675,27 +1675,35 @@ TAB_LOADERS.matchings = async function() {
     const demLookup = {};
     (demandas||[]).forEach(d => { demLookup[d.id] = d; });
 
-    const matchByDem = {};
+    // Group matchings by demanda — STRICT MAX 5 per demanda
+    const matchByDemAll = {};
     matchings.forEach(m => {
       const did = Array.isArray(m.demanda) ? m.demanda[0] : m.demanda;
       const key = did ? String(did).replace(/[{}]/g,'') : '';
-      if (!matchByDem[key]) matchByDem[key] = [];
-
-      // BUG3 fix: filter out clearly irrelevant matchings
-      const pid = Array.isArray(m.piso) ? m.piso[0] : m.piso;
-      const pisoId = pid ? String(pid).replace(/[{}]/g,'') : '';
-      const p = pisosMap[pisoId] || {};
-      const dem = demLookup[key] || {};
-      let dominated = false;
-      // Price: piso > 2x demanda budget → irrelevant
-      if (dem.presupuesto_max && p.precio && p.precio > dem.presupuesto_max * 2) dominated = true;
-      // Habitaciones: piso has less than half required → irrelevant
-      if (dem.habitaciones_min && p.habitaciones && p.habitaciones < dem.habitaciones_min * 0.5) dominated = true;
-      // Skip irrelevant unless already approved/discarded (preserve user decisions)
-      if (dominated && m.estado !== 'aprobado' && m.estado !== 'descartado_asesor') return;
-
-      matchByDem[key].push(m);
+      if (!matchByDemAll[key]) matchByDemAll[key] = [];
+      matchByDemAll[key].push(m);
     });
+
+    // For each demanda: keep top 5 by score, filter irrelevant
+    const matchByDem = {};
+    for (const [demId, mList] of Object.entries(matchByDemAll)) {
+      const dem = demLookup[demId] || {};
+      // Filter irrelevant (price >2x or hab <50%) unless already user-acted
+      const filtered = mList.filter(m => {
+        if (m.estado === 'aprobado' || m.estado === 'descartado_asesor') return true;
+        const pid = Array.isArray(m.piso) ? m.piso[0] : m.piso;
+        const p = pisosMap[pid ? String(pid).replace(/[{}]/g,'') : ''] || {};
+        if (dem.presupuesto_max && p.precio && p.precio > dem.presupuesto_max * 2) return false;
+        if (dem.habitaciones_min && p.habitaciones && p.habitaciones < dem.habitaciones_min * 0.5) return false;
+        return true;
+      });
+      // Sort by score descending, take top 5 pending + keep all user-acted
+      const acted = filtered.filter(m => m.estado === 'aprobado' || m.estado === 'descartado_asesor');
+      const pending = filtered.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor')
+        .sort((a,b) => (b.score_matching||0)-(a.score_matching||0))
+        .slice(0, 5);
+      matchByDem[demId] = [...acted, ...pending];
+    }
 
     _matchReviewData = { demandas: demandas||[], matchings, pisosMap, matchByDem };
     _matchApproved = {};
@@ -1743,14 +1751,22 @@ function renderMatchingsList() {
   const activeDemandas = demandas.filter(d => (d.estado_matching||d.estado||'').trim().toLowerCase() !== 'eliminada');
   if (!activeDemandas.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">🤝</span><p>No hay demandas activas.</p></div>'; return; }
 
-  el.innerHTML = activeDemandas.map(d => {
+  // Separate demandas with matchings vs without
+  const demandasConMatch = [];
+  const demandasSinMatch = [];
+  activeDemandas.forEach(d => {
+    const allM = (matchByDem[d.id] || []);
+    const pendCount = allM.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
+    const approvedCount = allM.filter(m => m.estado === 'aprobado').length;
+    if (pendCount === 0 && approvedCount === 0 && allM.length === 0) demandasSinMatch.push(d);
+    else if (pendCount === 0 && approvedCount === 0) {} // all discarded, hide from matchings
+    else demandasConMatch.push(d);
+  });
+
+  let html = demandasConMatch.map(d => {
     const allM = (matchByDem[d.id] || []).sort((a,b) => (b.score_matching||0)-(a.score_matching||0));
     const pendCount = allM.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
     const approvedCount = allM.filter(m => m.estado === 'aprobado').length;
-    const discardedCount = allM.filter(m => m.estado === 'descartado_asesor').length;
-    // Hide demandas where ALL matchings are discarded (nothing to do)
-    if (pendCount === 0 && approvedCount === 0) return '';
-    const visibleCount = approvedCount + Math.min(pendCount, Math.max(0, 5 - approvedCount));
     const statusColor = pendCount > 0 ? 'gold' : 'green';
     const statusText = pendCount > 0 ? `${Math.min(pendCount, 5)} por revisar` : `${approvedCount} aprobados`;
 
@@ -1762,12 +1778,27 @@ function renderMatchingsList() {
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span class="pill pill-${statusColor}" style="font-size:11px">${statusText}</span>
-          <span class="badge">${dMatches.length}</span>
+          <span class="badge">${Math.min(pendCount + approvedCount, 5)}</span>
           <button class="btn btn-secondary btn-sm" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();eliminarDemanda('${d.id}','${(d.nombre||'').replace(/'/g,"\\'")}')" title="Eliminar demanda">🗑️</button>
         </div>
       </div>
     </div>`;
   }).join('');
+
+  // Show demandas sin matchings
+  if (demandasSinMatch.length) {
+    html += `<div style="margin-top:24px"><div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text-muted)">📋 Demandas sin matchings — buscad pisos en estas zonas</div>`;
+    html += demandasSinMatch.map(d => `<div style="background:white;border:1.5px dashed var(--color-gris);border-radius:12px;margin-bottom:10px;padding:16px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-weight:600;font-size:14px">${d.nombre||'Sin nombre'}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${d.zona_preferida||'—'} · ${eur(d.presupuesto_max)} · ${d.habitaciones_min||'—'} hab</div>
+      </div>
+      <span class="pill pill-gray" style="font-size:11px">Sin pisos disponibles</span>
+    </div>`).join('');
+    html += `</div>`;
+  }
+
+  el.innerHTML = html;
 }
 
 function openMatchReview(demandaId) {
