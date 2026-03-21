@@ -76,7 +76,7 @@ body { font-family: var(--font-body); font-size: 14px; background: var(--bg); co
 .badge { background: white; color: #000; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 100px; min-width: 20px; text-align: center; }
 
 /* MAIN */
-.app-main { margin-left: var(--sidebar-width); flex: 1; padding: 32px; min-height: calc(100vh - var(--header-h)); }
+.app-main { margin-left: var(--sidebar-width); flex: 1; padding: 32px; min-height: calc(100vh - var(--header-h)); overflow-x: hidden; }
 .tab-pane { display: none; animation: fadeIn 0.2s ease; }
 .tab-pane.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -1310,6 +1310,7 @@ TAB_LOADERS.pisos = async function() {
         <button class="filter-chip" onclick="filterPisosChip(this,'urban_flip')">⭐ Urban Flip</button>
         <button class="filter-chip" onclick="filterPisosChip(this,'terraza')">Terraza</button>
         <button class="filter-chip" onclick="filterPisosChip(this,'ascensor')">Ascensor</button>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;margin-left:auto"><input type="checkbox" onchange="_pisosFilter.chip=this.checked?'expirados':'todos';applyPisosFilters()" style="accent-color:var(--sidebar)"> Mostrar expirados</label>
       </div>
       ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">🏘️</span><p>Aún no hay pisos registrados.</p><button class="btn btn-primary" onclick="newPisoModal(false)">➕ Añadir primer piso</button></div>` : `
       <div class="cards-grid" id="pisos-grid">${(data||[]).map(p => {
@@ -1624,7 +1625,7 @@ function openMatchReview(demandaId) {
     return `<div style="background:var(--bg);border:${isUF?'2px solid var(--gold)':'1px solid var(--border)'};border-radius:12px;overflow:hidden;${isDiscarded?'opacity:0.5':''}">
       <div style="display:flex;gap:14px;padding:14px">
         <div style="flex-shrink:0">
-          ${foto ? `<img src="${foto}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="openPisoDetail('${pisoId}')" onerror="this.outerHTML='<div style=\\'width:100px;height:80px;display:flex;align-items:center;justify-content:center;background:#f3f2ef;border-radius:8px;font-size:32px\\'>🏠</div>'">` : `<div style="width:100px;height:80px;display:flex;align-items:center;justify-content:center;background:#f3f2ef;border-radius:8px;font-size:32px">🏠</div>`}
+          ${foto ? `<img src="${foto}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="openPisoDetail('${pisoId}')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:100px;height:80px;display:none;align-items:center;justify-content:center;background:#f3f2ef;border-radius:8px;font-size:32px">🏠</div>` : `<div style="width:100px;height:80px;display:flex;align-items:center;justify-content:center;background:#f3f2ef;border-radius:8px;font-size:32px">🏠</div>`}
           <div style="text-align:center;margin-top:6px">${scoreRing(score)}</div>
         </div>
         <div style="flex:1;min-width:0">
