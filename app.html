@@ -1712,13 +1712,8 @@ TAB_LOADERS.matchings = async function() {
     _matchReviewData = { demandas: demandas||[], matchings, pisosMap, matchByDem };
     _matchApproved = {};
 
-    // BUG1 fix: auto-complete matching_revisar actions where all matchings are reviewed
-    for (const [demId, dMatches] of Object.entries(matchByDem)) {
-      const pending = dMatches.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor');
-      if (pending.length === 0) {
-        sb.from('acciones_pendientes').update({ estado: 'completada' }).eq('referencia_id', demId).eq('tipo', 'matching_revisar').eq('estado', 'pendiente').then(() => loadPendingCount()).catch(() => {});
-      }
-    }
+    // Sync acciones pendientes with real matching state
+    syncMatchingAcciones(demandas, matchByDem);
 
     const totalMatch = matchings.length;
     const pendReview = matchings.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
@@ -1919,6 +1914,52 @@ async function checkMatchingReviewDone(demandaId) {
     await sb.from('acciones_pendientes').update({ estado: 'completada' }).eq('referencia_id', demandaId).eq('tipo', 'matching_revisar');
     loadPendingCount();
   }
+}
+
+// Sync: for each demanda with pending matchings, ensure an accion exists
+async function syncMatchingAcciones(demandas, matchByDem) {
+  try {
+    // Get existing matching_revisar acciones for this asesor
+    const { data: existingAcciones } = await sb.from('acciones_pendientes')
+      .select('id,referencia_id,estado')
+      .eq('asesor_id', currentUser.id)
+      .eq('tipo', 'matching_revisar');
+    const accionMap = {};
+    (existingAcciones||[]).forEach(a => { accionMap[a.referencia_id] = a; });
+
+    const activeDemandas = demandas.filter(d => (d.estado_matching||d.estado||'').trim().toLowerCase() !== 'eliminada');
+    let created = 0;
+
+    for (const d of activeDemandas) {
+      const dMatches = matchByDem[d.id] || [];
+      const pendingCount = dMatches.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
+
+      if (pendingCount > 0) {
+        const existing = accionMap[d.id];
+        if (!existing || existing.estado === 'completada') {
+          // Create or re-create accion
+          if (existing) await sb.from('acciones_pendientes').delete().eq('id', existing.id);
+          await sb.from('acciones_pendientes').insert({
+            asesor_id: currentUser.id,
+            tipo: 'matching_revisar',
+            titulo: 'Revisar matchings: ' + (d.nombre || 'Demanda'),
+            descripcion: pendingCount + ' pisos por revisar',
+            referencia_id: d.id,
+            estado: 'pendiente',
+            prioridad: 'normal'
+          });
+          created++;
+        }
+      } else {
+        // All reviewed — complete the accion if exists
+        const existing = accionMap[d.id];
+        if (existing && existing.estado === 'pendiente') {
+          await sb.from('acciones_pendientes').update({ estado: 'completada' }).eq('id', existing.id);
+        }
+      }
+    }
+    if (created > 0) loadPendingCount();
+  } catch(e) { /* silent — don't break matchings tab */ }
 }
 
 function showDiscardPopup(matchId, pisoDir) {
