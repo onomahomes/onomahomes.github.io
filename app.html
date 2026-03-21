@@ -1671,16 +1671,42 @@ TAB_LOADERS.matchings = async function() {
       (pd||[]).forEach(p => { pisosMap[p.id] = p; });
     }
 
+    // Build demanda lookup for relevance filtering
+    const demLookup = {};
+    (demandas||[]).forEach(d => { demLookup[d.id] = d; });
+
     const matchByDem = {};
     matchings.forEach(m => {
       const did = Array.isArray(m.demanda) ? m.demanda[0] : m.demanda;
       const key = did ? String(did).replace(/[{}]/g,'') : '';
       if (!matchByDem[key]) matchByDem[key] = [];
+
+      // BUG3 fix: filter out clearly irrelevant matchings
+      const pid = Array.isArray(m.piso) ? m.piso[0] : m.piso;
+      const pisoId = pid ? String(pid).replace(/[{}]/g,'') : '';
+      const p = pisosMap[pisoId] || {};
+      const dem = demLookup[key] || {};
+      let dominated = false;
+      // Price: piso > 2x demanda budget → irrelevant
+      if (dem.presupuesto_max && p.precio && p.precio > dem.presupuesto_max * 2) dominated = true;
+      // Habitaciones: piso has less than half required → irrelevant
+      if (dem.habitaciones_min && p.habitaciones && p.habitaciones < dem.habitaciones_min * 0.5) dominated = true;
+      // Skip irrelevant unless already approved/discarded (preserve user decisions)
+      if (dominated && m.estado !== 'aprobado' && m.estado !== 'descartado_asesor') return;
+
       matchByDem[key].push(m);
     });
 
     _matchReviewData = { demandas: demandas||[], matchings, pisosMap, matchByDem };
     _matchApproved = {};
+
+    // BUG1 fix: auto-complete matching_revisar actions where all matchings are reviewed
+    for (const [demId, dMatches] of Object.entries(matchByDem)) {
+      const pending = dMatches.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor');
+      if (pending.length === 0) {
+        sb.from('acciones_pendientes').update({ estado: 'completada' }).eq('referencia_id', demId).eq('tipo', 'matching_revisar').eq('estado', 'pendiente').then(() => loadPendingCount()).catch(() => {});
+      }
+    }
 
     const totalMatch = matchings.length;
     const pendReview = matchings.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
@@ -1718,12 +1744,15 @@ function renderMatchingsList() {
   if (!activeDemandas.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">🤝</span><p>No hay demandas activas.</p></div>'; return; }
 
   el.innerHTML = activeDemandas.map(d => {
-    // Limit to top 7 by score
-    const dMatches = (matchByDem[d.id] || []).sort((a,b) => (b.score_matching||0)-(a.score_matching||0)).slice(0, 7);
-    const pendCount = dMatches.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
-    const approvedCount = dMatches.filter(m => m.estado === 'aprobado').length;
+    const allM = (matchByDem[d.id] || []).sort((a,b) => (b.score_matching||0)-(a.score_matching||0));
+    const pendCount = allM.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
+    const approvedCount = allM.filter(m => m.estado === 'aprobado').length;
+    const discardedCount = allM.filter(m => m.estado === 'descartado_asesor').length;
+    // Hide demandas where ALL matchings are discarded (nothing to do)
+    if (pendCount === 0 && approvedCount === 0) return '';
+    const visibleCount = approvedCount + Math.min(pendCount, Math.max(0, 5 - approvedCount));
     const statusColor = pendCount > 0 ? 'gold' : 'green';
-    const statusText = pendCount > 0 ? `${pendCount} por revisar` : `${approvedCount} aprobados`;
+    const statusText = pendCount > 0 ? `${Math.min(pendCount, 5)} por revisar` : `${approvedCount} aprobados`;
 
     return `<div style="background:white;border:1.5px solid var(--color-gris);border-radius:12px;margin-bottom:16px;overflow:hidden">
       <div style="padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="openMatchReview('${d.id}')">
@@ -1745,7 +1774,12 @@ function openMatchReview(demandaId) {
   const { demandas, matchByDem, pisosMap } = _matchReviewData;
   const d = demandas.find(x => x.id === demandaId);
   if (!d) return;
-  const dMatches = (matchByDem[demandaId]||[]).sort((a,b) => (b.score_matching||0)-(a.score_matching||0));
+  const allMatches = (matchByDem[demandaId]||[]).sort((a,b) => (b.score_matching||0)-(a.score_matching||0));
+  // Show: approved ones + top non-reviewed up to 5 visible (hide discarded)
+  const approved = allMatches.filter(m => m.estado === 'aprobado');
+  const pending = allMatches.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor');
+  const slotsForPending = Math.max(0, 5 - approved.length);
+  const dMatches = [...approved, ...pending.slice(0, slotsForPending)];
 
   function scoreColor(s) { return s >= 80 ? '#C9A84C' : s >= 60 ? '#B8860B' : '#8B2020'; }
   function scoreRing(s) {
