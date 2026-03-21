@@ -391,7 +391,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px;
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">
-      <svg viewBox="0 0 160 52" xmlns="http://www.w3.org/2000/svg" style="width:140px;height:auto;display:inline-block"><g transform="translate(0, 6)"><text x="0" y="28" font-family="'Jost', sans-serif" font-weight="700" font-size="32" fill="#1C1C1C" letter-spacing="3">O</text><g transform="translate(17, 4)"><circle cx="10" cy="14" r="13" fill="none" stroke="#C9A84C" stroke-width="2"/><polygon points="10,5 17,11 3,11" fill="#C9A84C"/><rect x="5" y="11" width="10" height="8" fill="#C9A84C"/><rect x="8" y="15" width="4" height="4" fill="#FFFFFF"/></g><text x="44" y="28" font-family="'Jost', sans-serif" font-weight="700" font-size="32" fill="#1C1C1C" letter-spacing="3">NOMA</text></g><text x="2" y="48" font-family="'Jost', sans-serif" font-weight="400" font-size="11" fill="#AFA395" letter-spacing="5">HOMES</text></svg>
+      <svg viewBox="0 0 190 50" xmlns="http://www.w3.org/2000/svg" width="165" height="43"><text x="0" y="32" font-family="'Jost',sans-serif" font-weight="700" font-size="32" fill="#1C1C1C" letter-spacing="1">ON</text><g transform="translate(72, 2)"><circle cx="14" cy="15" r="13" fill="none" stroke="#C9A84C" stroke-width="2.2"/><polygon points="14,5 22,13 6,13" fill="#C9A84C"/><rect x="8" y="13" width="12" height="9" fill="#C9A84C"/><rect x="11" y="17" width="6" height="5" fill="#FFFFFF"/></g><text x="104" y="32" font-family="'Jost',sans-serif" font-weight="700" font-size="32" fill="#1C1C1C" letter-spacing="1">MA</text><text x="2" y="46" font-family="'Jost',sans-serif" font-weight="400" font-size="9" fill="#AFA395" letter-spacing="7">HOMES</text></svg>
     </div>
     <div class="login-title">Acceso al CRM</div>
     <form id="login-form" onsubmit="handleLogin(event)">
@@ -421,7 +421,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px;
       <span></span><span></span><span></span>
       <span class="hamburger-dot" id="hamburger-dot"></span>
     </button>
-    <div class="header-logo"><svg viewBox="0 0 160 52" xmlns="http://www.w3.org/2000/svg" style="width:120px;height:auto;display:block"><g transform="translate(0, 6)"><text x="0" y="28" font-family="'Jost', sans-serif" font-weight="700" font-size="32" fill="#FFFFFF" letter-spacing="3">O</text><g transform="translate(17, 4)"><circle cx="10" cy="14" r="13" fill="none" stroke="#C9A84C" stroke-width="2"/><polygon points="10,5 17,11 3,11" fill="#C9A84C"/><rect x="5" y="11" width="10" height="8" fill="#C9A84C"/><rect x="8" y="15" width="4" height="4" fill="#232320"/></g><text x="44" y="28" font-family="'Jost', sans-serif" font-weight="700" font-size="32" fill="#FFFFFF" letter-spacing="3">NOMA</text></g><text x="2" y="48" font-family="'Jost', sans-serif" font-weight="400" font-size="11" fill="rgba(255,255,255,0.50)" letter-spacing="5">HOMES</text></svg></div>
+    <div class="header-logo"><svg viewBox="0 0 190 50" xmlns="http://www.w3.org/2000/svg" width="155" height="40"><text x="0" y="32" font-family="'Jost',sans-serif" font-weight="700" font-size="32" fill="#FFFFFF" letter-spacing="1">ON</text><g transform="translate(72, 2)"><circle cx="14" cy="15" r="13" fill="none" stroke="#C9A84C" stroke-width="2.2"/><polygon points="14,5 22,13 6,13" fill="#C9A84C"/><rect x="8" y="13" width="12" height="9" fill="#C9A84C"/><rect x="11" y="17" width="6" height="5" fill="#232320"/></g><text x="104" y="32" font-family="'Jost',sans-serif" font-weight="700" font-size="32" fill="#FFFFFF" letter-spacing="1">MA</text><text x="2" y="46" font-family="'Jost',sans-serif" font-weight="400" font-size="9" fill="rgba(255,255,255,0.40)" letter-spacing="7">HOMES</text></svg></div>
     <div class="header-spacer"></div>
     <div class="header-user">
       <div class="user-info">
@@ -463,8 +463,6 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px;
 </div>
 
 <!-- HELP FAB -->
-<button class="help-fab" id="help-fab" onclick="toggleHelpPopup()" style="display:none">?</button>
-<div class="help-popup" id="help-popup"></div>
 
 <script>
 // ─── SUPABASE ─────────────────────────────────────────
@@ -520,8 +518,8 @@ const TAB_PLACEHOLDERS = {
   dashboard:      { icon: '🏠', title: 'Dashboard', desc: 'Resumen del día: actividad, próximas visitas, alertas y métricas personales.' },
   pendientes:     { icon: '🔔', title: 'Acciones Pendientes', desc: 'Lista de tareas pendientes: seguimientos, feedbacks, matchings por revisar.' },
   matchings:      { icon: '🤝', title: 'Matchings', desc: 'Gestión de matchings: demandas activas → top pisos → envío al cliente.' },
-  calendario:     { icon: '📅', title: 'Calendario', desc: 'Visitas programadas y agenda.' },
-  kpis:           { icon: '📊', title: 'Mis KPIs', desc: 'Rendimiento personal: matchings, conversión, visitas, comisiones.' },
+  calendario:     { icon: '📅', title: 'Calendario de visitas', desc: 'Vista de calendario con todas tus visitas confirmadas y pendientes. Se implementa en Fase 6.' },
+  kpis:           { icon: '📊', title: 'Mis KPIs', desc: 'Tu rendimiento personal: ventas, visitas, conversión, comisiones generadas. Se implementa en Fase 8.' },
   notificaciones: { icon: '🔔', title: 'Notificaciones', desc: 'Alertas de escalado 72h, pisos sin actividad, operaciones bloqueadas.' },
   pipeline:       { icon: '📊', title: 'Pipeline', desc: 'Operaciones en curso: fases, fechas clave, comisiones.' },
   agenda:         { icon: '📅', title: 'Agenda', desc: 'Todas las visitas del equipo.' },
@@ -809,6 +807,54 @@ function filterPisosSearch(q) {
   applyPisosFilters();
 }
 
+// Asesor toggle: Mis Pisos / Pisos Colaboradores
+async function showPisosView(view, btn) {
+  if (btn) { btn.closest('.toggle-group').querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+  const grid = document.getElementById('pisos-grid');
+  const colabsView = document.getElementById('pisos-colabs-view');
+  if (view === 'mis') {
+    if (grid) grid.style.display = '';
+    if (colabsView) colabsView.style.display = 'none';
+  } else {
+    if (grid) grid.style.display = 'none';
+    if (!colabsView) {
+      const container = grid ? grid.parentElement : document.getElementById('tab-pisos');
+      const div = document.createElement('div'); div.id = 'pisos-colabs-view';
+      div.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)"><div class="spinner" style="margin:0 auto 12px"></div>Cargando colaboradores...</div>';
+      container.appendChild(div);
+      try {
+        const { data: colabs } = await sb.from('colaboradores').select('id,nombre,apellido,empresa,logo_empresa,brand_color').filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`);
+        if (!colabs || !colabs.length) { div.innerHTML = '<div class="empty-state"><span class="empty-icon">👥</span><p>No tienes colaboradores con pisos.</p></div>'; return; }
+        // Count pisos per colab
+        const { data: allP } = await sb.from('pisos').select('id,colaborador');
+        const countMap = {};
+        (allP||[]).forEach(p => { const cid = Array.isArray(p.colaborador)?p.colaborador[0]:p.colaborador; if(cid) { const k=String(cid).replace(/[{}]/g,''); countMap[k]=(countMap[k]||0)+1; } });
+        div.innerHTML = '<div class="cards-grid">' + colabs.map(c => {
+          const cnt = countMap[c.id] || 0;
+          const avatar = c.logo_empresa ? `<img src="${Array.isArray(c.logo_empresa)?c.logo_empresa[0].url:c.logo_empresa}" style="width:48px;height:48px;border-radius:8px;object-fit:contain">` : `<div style="width:48px;height:48px;border-radius:12px;background:${c.brand_color||'var(--color-cafe)'};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px">${(c.nombre||'?')[0].toUpperCase()}</div>`;
+          return `<div class="data-card" style="cursor:pointer;padding:20px" onclick="showColabPisos('${c.id}','${((c.nombre||'')+(c.apellido?' '+c.apellido:'')).replace(/'/g,"\\'")}')">${avatar}<div style="font-weight:600;margin-top:8px">${c.nombre||''} ${c.apellido||''}</div>${c.empresa?`<div style="font-size:12px;color:var(--text-muted)">${c.empresa}</div>`:''}<div style="font-size:13px;margin-top:4px">${cnt} piso${cnt!==1?'s':''}</div></div>`;
+        }).join('') + '</div>';
+      } catch(e) { div.innerHTML = '<div class="tab-error">Error: '+e.message+'</div>'; }
+    } else {
+      colabsView.style.display = '';
+    }
+  }
+}
+
+async function showColabPisos(colabId, colabName) {
+  const div = document.getElementById('pisos-colabs-view');
+  if (!div) return;
+  div.innerHTML = '<div style="padding:20px"><button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'pisos-colabs-view\').innerHTML=\'\';showPisosView(\'colabs\')">← Volver</button><div class="spinner" style="margin:20px auto"></div></div>';
+  const { data } = await sb.from('pisos').select('id,direccion,precio,barrio,fotos,metros,habitaciones,urban_flip,colaborador').filter('colaborador', 'cs', `{"${colabId}"}`);
+  if (!data || !data.length) { div.innerHTML = `<div style="padding:20px"><button class="btn btn-secondary btn-sm" onclick="document.getElementById('pisos-colabs-view').innerHTML='';showPisosView('colabs')">← Volver</button><div class="empty-state" style="margin-top:20px"><span class="empty-icon">🏠</span><p>Este colaborador no tiene pisos.</p></div></div>`; return; }
+  div.innerHTML = `<div style="padding:20px"><button class="btn btn-secondary btn-sm" onclick="document.getElementById('pisos-colabs-view').innerHTML='';showPisosView('colabs')">← Volver a colaboradores</button><h3 style="margin:16px 0 12px">Pisos de ${colabName} (${data.length})</h3><div class="cards-grid">${data.map(p => {
+    let fts = p.fotos||[]; if(typeof fts==='string'){try{fts=JSON.parse(fts)}catch(e){fts=[]}} if(!Array.isArray(fts))fts=[];
+    const url = fts.length ? (typeof fts[0]==='object'?(fts[0].url||''):String(fts[0])) : '';
+    const img = url&&url.startsWith('http') ? `<img src="${url}" style="width:100%;height:160px;object-fit:cover">` : `<div style="height:160px;display:flex;align-items:center;justify-content:center;font-size:48px;background:#f3f2ef">🏠</div>`;
+    return `<div class="data-card" onclick="openPisoDetail('${p.id}')" style="cursor:pointer">${img}<div class="card-body">${p.urban_flip?'<div class="uf-badge">⭐ URBAN FLIP</div>':''}<div class="card-title">${p.direccion||'—'}</div><div class="card-meta">${p.barrio||''} · ${p.habitaciones||'—'} hab · ${p.metros||'—'} m²</div><div class="card-price">${eur(p.precio)}</div></div></div>`;
+  }).join('')}</div></div>`;
+}
+
 // ─── SLIDER ──────────────────────────────────────────
 function updateSlider(input) {
   const val = parseInt(input.value);
@@ -1022,25 +1068,21 @@ TAB_LOADERS.dashboard = async function() {
           </div>
         </div>`;
     } else {
-      // Asesor dashboard
+      // Asesor dashboard — 5 KPIs only, no banners
       pane.innerHTML = `
         <div class="tab-toolbar"><div><h2>Mi Dashboard</h2><p>Resumen del día — ${new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}</p></div></div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:24px">
-          ${kpiCard(visitasHoy, 'Visitas hoy', 'gold', '📅', "switchTab('visitas')")}
-          ${kpiCard(fbPendiente, 'Feedback pendiente', fbPendiente>0?'danger':'accent', '⚠️', "switchTab('visitas')")}
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px">
+          ${kpiCard(visitasHoy, 'Visitas agendadas hoy', 'gold', '📅', "switchTab('calendario')")}
+          ${kpiCard(fbPendiente, 'Feedbacks pendientes', fbPendiente>0?'danger':'accent', '⚠️', "switchTab('visitas')")}
           ${kpiCard(pendingCount||0, 'Acciones pendientes', pendingCount>0?'danger':'accent', '🔔', "switchTab('pendientes')")}
           ${kpiCard(pisosActivos, 'Mis pisos', 'accent', '🏘️', "switchTab('pisos')")}
           ${kpiCard(demandasActivas, 'Mis demandas', 'accent', '📋', "switchTab('demandas')")}
-          ${kpiCard(matchingsCount, 'Matchings', 'accent', '🤝', "switchTab('matchings')")}
-          ${kpiCard(visitasMes, 'Visitas este mes', 'accent', '📊', "switchTab('visitas')")}
-        </div>
-        ${visitasHoy > 0 ? `<div class="data-card" style="padding:16px;border-left:3px solid var(--gold)"><div style="font-size:14px;font-weight:700;margin-bottom:4px">📅 Próximas visitas hoy</div><div style="font-size:13px;color:var(--text-muted)">Tienes ${visitasHoy} visita${visitasHoy>1?'s':''} programada${visitasHoy>1?'s':''}. <a href="#" onclick="switchTab('visitas');return false" style="color:var(--accent)">Ver visitas →</a></div></div>` : ''}
-        ${fbPendiente > 0 ? `<div class="data-card" style="padding:16px;margin-top:12px;border-left:3px solid var(--danger)"><div style="font-size:14px;font-weight:700;margin-bottom:4px">⚠️ Feedback pendiente</div><div style="font-size:13px;color:var(--text-muted)">${fbPendiente} visita${fbPendiente>1?'s':''} sin feedback. <a href="#" onclick="switchTab('visitas');return false" style="color:var(--accent)">Completar →</a></div></div>` : ''}`;
+        </div>`;
     }
   } catch(e) { tabError(pane, e); }
 };
 
-// ACCIONES PENDIENTES (asesor)
+// ACCIONES PENDIENTES (asesor) — acordeón colapsable
 TAB_LOADERS.pendientes = async function() {
   const pane = document.getElementById('tab-pendientes');
   tabLoad(pane);
@@ -1053,26 +1095,31 @@ TAB_LOADERS.pendientes = async function() {
     const grouped = {};
     items.forEach(a => { const t = a.tipo || 'otro'; if (!grouped[t]) grouped[t] = []; grouped[t].push(a); });
     const tipoLabels = { feedback_visita: '📝 Feedback de visita', matching_revisar: '🤝 Matchings por revisar', visita_confirmar: '📅 Visitas por confirmar', otro: '📋 Otros' };
-    const tipoColors = { feedback_visita: 'danger', matching_revisar: 'gold', visita_confirmar: 'accent', otro: 'text-muted' };
 
     pane.innerHTML = `
       <div class="tab-toolbar"><div><h2>Acciones Pendientes</h2><p>${items.length} acciones pendientes</p></div></div>
       ${!items.length ? '<div class="empty-state"><span class="empty-icon">✅</span><p>No tienes acciones pendientes. ¡Todo al día!</p></div>' :
       Object.entries(grouped).map(([tipo, acciones]) => `
-        <div style="margin-bottom:20px">
-          <div style="font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-            ${tipoLabels[tipo]||tipo}
-            <span class="badge" style="background:var(--${tipoColors[tipo]||'accent'})">${acciones.length}</span>
+        <div class="accion-group" style="margin-bottom:16px">
+          <div class="accion-group-header" onclick="this.classList.toggle('collapsed');this.nextElementSibling.style.display=this.classList.contains('collapsed')?'none':'block'" style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:#f9f8f6;border:1.5px solid var(--color-gris);border-radius:10px;cursor:pointer;user-select:none;transition:background 0.15s">
+            <span class="toggle-icon" style="font-size:12px;transition:transform 0.2s">▼</span>
+            <span style="font-size:14px;font-weight:700;flex:1">${tipoLabels[tipo]||tipo}</span>
+            <span style="background:#8B2020;color:#FFF;font-family:var(--font-ui);font-weight:700;font-size:12px;border-radius:100px;padding:2px 10px;min-width:26px;text-align:center">${acciones.length}</span>
           </div>
-          ${acciones.map(a => `
-            <div class="data-card" style="padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+          <div class="accion-group-body" style="display:block;padding-top:8px">
+            ${acciones.map(a => {
+              let onclick = '';
+              if (a.tipo === 'feedback_visita') onclick = `switchTab('visitas');setTimeout(()=>{try{openFeedbackModal('${a.referencia_id}')}catch(e){}},400)`;
+              else if (a.tipo === 'visita_confirmar') onclick = `switchTab('visitas')`;
+              else if (a.tipo === 'matching_revisar') onclick = `switchTab('matchings');setTimeout(()=>{try{openMatchReview('${a.referencia_id}')}catch(e){}},400)`;
+              return `<div class="data-card" style="padding:14px;margin-bottom:8px;cursor:pointer;transition:border-color 0.15s" ${onclick ? `onclick="${onclick}"` : ''} onmouseenter="this.style.borderColor='var(--gold)'" onmouseleave="this.style.borderColor=''">
               <div>
                 <div style="font-size:14px;font-weight:500">${a.titulo||a.descripcion||'Acción pendiente'}</div>
                 ${a.descripcion && a.titulo ? `<div style="font-size:12px;color:var(--text-muted);margin-top:1px">${a.descripcion}</div>` : ''}
                 <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${a.fecha_creacion ? fdate(a.fecha_creacion) : ''}</div>
               </div>
-              <button class="btn btn-secondary btn-sm" onclick="markActionDone('${a.id}',this)">Completar</button>
-            </div>`).join('')}
+            </div>`;}).join('')}
+          </div>
         </div>`).join('')}`;
   } catch(e) { tabError(pane, e); }
 };
@@ -1117,6 +1164,21 @@ TAB_LOADERS.colaboradores = async function() {
         ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">🤝</span><p>No hay colaboradores registrados.</p></div>`
           : `<div class="cards-grid" id="dir-colabs-grid">${(data||[]).map(c => dirColabCard(c)).join('')}</div>`}`;
     } else {
+      // Count pisos and demandas per colaborador
+      const colabIds = (data||[]).map(c => c.id);
+      let pisosCount = {}, demandasCount = {};
+      if (colabIds.length) {
+        const { data: allPisos } = await sb.from('pisos').select('id,colaborador');
+        (allPisos||[]).forEach(p => {
+          const cid = Array.isArray(p.colaborador) ? p.colaborador[0] : p.colaborador;
+          if (cid) { const k = String(cid).replace(/[{}]/g,''); pisosCount[k] = (pisosCount[k]||0) + 1; }
+        });
+        const { data: allDem } = await sb.from('demandas').select('id,colaborador_id');
+        (allDem||[]).forEach(d => {
+          const cid = d.colaborador_id;
+          if (cid) { const k = String(cid).replace(/[{}]/g,''); demandasCount[k] = (demandasCount[k]||0) + 1; }
+        });
+      }
       pane.innerHTML = `
         <div class="tab-toolbar">
           <div><h2>Mis Colaboradores</h2><p>${(data||[]).length} colaboradores en tu cartera</p></div>
@@ -1126,21 +1188,25 @@ TAB_LOADERS.colaboradores = async function() {
           </div>
         </div>
         ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">👥</span><p>Aún no tienes colaboradores.</p><button class="btn btn-primary" onclick="newColabModal()">➕ Añadir primero</button></div>` : `
-        <div class="data-table"><table>
-          <thead><tr><th>Colaborador</th><th>Tipo</th><th>Estado</th><th>Acciones</th></tr></thead>
-          <tbody>${(data||[]).map(c => `<tr>
-            <td class="name-cell"><div style="display:flex;align-items:center;gap:10px">
-              ${c.logo_empresa ? `<img src="${Array.isArray(c.logo_empresa) ? c.logo_empresa[0].url : c.logo_empresa}" style="width:32px;height:32px;border-radius:6px;object-fit:contain;border:1px solid #eee">`
-                : `<div style="width:32px;height:32px;border-radius:50%;background:${c.brand_color||'var(--accent)'};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">${(c.nombre||'?').charAt(0)}</div>`}
-              <div><div style="font-weight:600">${c.nombre||'—'} ${c.apellido||''}</div><div style="font-size:12px;color:var(--text-muted)">${c.empresa||''} ${c.email?'· '+c.email:''}</div></div>
+        <div class="data-table"><table style="table-layout:fixed;width:100%">
+          <thead><tr><th style="width:28%">Colaborador</th><th style="width:18%">Email</th><th style="width:11%">Teléfono</th><th style="width:9%">Tipo</th><th style="width:9%">Estado</th><th style="width:7%">Pisos</th><th style="width:7%">Dem.</th><th style="width:11%">Acciones</th></tr></thead>
+          <tbody>${(data||[]).map(c => {
+            const avatar = c.logo_empresa
+              ? `<img src="${Array.isArray(c.logo_empresa)?c.logo_empresa[0].url:c.logo_empresa}" style="width:32px;height:32px;border-radius:6px;object-fit:contain;border:1px solid #eee">`
+              : `<div style="width:32px;height:32px;border-radius:12px;background:${c.brand_color||'var(--color-cafe)'};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;flex-shrink:0">${(c.nombre||'?').charAt(0).toUpperCase()}</div>`;
+            return `<tr>
+            <td class="name-cell"><div style="display:flex;align-items:center;gap:10px">${avatar}<div><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.nombre||'—'} ${c.apellido||''}</div>${c.empresa?`<div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.empresa}</div>`:''}</div></div></td>
+            <td style="font-size:12px;word-break:break-all">${c.email||'—'}</td>
+            <td style="font-size:13px">${c.telefono||'—'}</td>
+            <td><span class="pill ${c.es_independiente?'pill-blue':'pill-gray'}">${c.es_independiente?'Indep.':'Empresa'}</span></td>
+            <td><span class="pill ${c.contrato_estado==='firmado'?'pill-green':c.estado==='activo'?'pill-green':c.estado==='pendiente_activacion'?'pill-yellow':'pill-gray'}">${c.contrato_estado==='firmado'?'Firmado':c.estado||'Pendiente'}</span></td>
+            <td style="text-align:center;font-weight:600">${pisosCount[c.id]||0}</td>
+            <td style="text-align:center;font-weight:600">${demandasCount[c.id]||0}</td>
+            <td><div style="display:flex;gap:4px">
+              <button class="btn btn-secondary btn-sm" onclick="openDirColabDetail('${c.id}')">Ver ficha</button>
+              <button class="btn btn-secondary btn-sm" onclick="window.open('mailto:${(c.email||'')}?subject='+encodeURIComponent('ONOMA Homes — Mensaje de tu asesor'))">📧</button>
             </div></td>
-            <td><span class="pill ${c.es_independiente?'pill-blue':'pill-gray'}">${c.es_independiente?'Independiente':'Empresa'}</span></td>
-            <td><span class="pill ${c.estado==='activo'?'pill-green':c.estado==='pendiente_activacion'?'pill-yellow':'pill-gray'}">${c.estado||'pendiente'}</span></td>
-            <td style="display:flex;gap:4px;flex-wrap:wrap">
-              <button class="btn btn-secondary btn-sm" onclick="toast('Detalle disponible en Fase 3','info')">Ver</button>
-              ${c.contrato_estado !== 'firmado' ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();sendContractEmail('${c.id}','${(c.email||'').replace(/'/g,"\\'")}','${((c.nombre||'')+(c.apellido?' '+c.apellido:'')).replace(/'/g,"\\'")}')" title="Re-enviar contrato">📧</button>` : ''}
-            </td>
-          </tr>`).join('')}</tbody>
+          </tr>`}).join('')}</tbody>
         </table></div>`}`;
     }
   } catch(e) { tabError(pane, e); }
@@ -1312,14 +1378,8 @@ TAB_LOADERS.pisos = async function() {
     _pisosFilter = { chip: 'todos', barrio: '', precioMin: null, precioMax: null };
     const barrios = [...new Set((data||[]).map(p => p.barrio).filter(Boolean))].sort();
     const barrioOpts = '<option value="">Todos los barrios</option>' + barrios.map(b => `<option value="${b}">${b}</option>`).join('');
-    pane.innerHTML = `
-      <div class="tab-toolbar">
-        <div><h2>Pisos</h2><p>${(data||[]).length} pisos en cartera</p></div>
-        <div class="tab-actions">
-          ${isDir ? `<button class="btn btn-primary" onclick="newPisoModal(false)">🏠 Piso Terceros</button><button class="btn btn-gold" onclick="newPisoModal(true)">⭐ Urban Flip</button>`
-                  : `<button class="btn btn-primary" onclick="newPisoModal(false)">➕ Nuevo Piso</button>`}
-        </div>
-      </div>
+    // Asesor: toggle view; Director: full filters
+    const pisosToolbar = isDir ? `
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
         <div class="search-bar"><span class="search-icon">🔍</span><input type="text" placeholder="Buscar dirección, barrio, descripción..." oninput="filterPisosSearch(this.value)" style="width:280px"></div>
         ${barrios.length ? `<select class="filter-select" onchange="_pisosFilter.barrio=this.value;applyPisosFilters()">${barrioOpts}</select>` : ''}
@@ -1333,8 +1393,21 @@ TAB_LOADERS.pisos = async function() {
         <button class="filter-chip" onclick="filterPisosChip(this,'urban_flip')">⭐ Urban Flip</button>
         <button class="filter-chip" onclick="filterPisosChip(this,'terraza')">Terraza</button>
         <button class="filter-chip" onclick="filterPisosChip(this,'ascensor')">Ascensor</button>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;margin-left:auto"><input type="checkbox" onchange="_pisosFilter.chip=this.checked?'expirados':'todos';applyPisosFilters()" style="accent-color:var(--sidebar)"> Mostrar expirados</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;margin-left:auto"><input type="checkbox" onchange="_pisosFilter.chip=this.checked?'expirados':'todos';applyPisosFilters()" style="accent-color:var(--gold)"> Mostrar expirados</label>
+      </div>` : `
+      <div class="toggle-group" style="margin-bottom:16px;max-width:360px" id="pisos-toggle">
+        <button class="active" onclick="showPisosView('mis',this)">Mis Pisos</button>
+        <button onclick="showPisosView('colabs',this)">Pisos Colaboradores</button>
+      </div>`;
+    pane.innerHTML = `
+      <div class="tab-toolbar">
+        <div><h2>Pisos</h2><p>${(data||[]).length} pisos en cartera</p></div>
+        <div class="tab-actions">
+          ${isDir ? `<button class="btn btn-primary" onclick="newPisoModal(false)">🏠 Piso Terceros</button><button class="btn btn-gold" onclick="newPisoModal(true)">⭐ Urban Flip</button>`
+                  : `<button class="btn btn-primary" onclick="newPisoModal(false)">➕ Nuevo Piso</button>`}
+        </div>
       </div>
+      ${pisosToolbar}
       ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">🏘️</span><p>Aún no hay pisos registrados.</p><button class="btn btn-primary" onclick="newPisoModal(false)">➕ Añadir primer piso</button></div>` : `
       <div class="cards-grid" id="pisos-grid">${(data||[]).map(p => {
         let fotos = p.fotos || [];
@@ -1585,29 +1658,35 @@ function renderMatchingsList() {
   if (!el) return;
   const { demandas, matchings, matchByDem } = _matchReviewData;
 
-  // Recalculate KPIs
-  const totalMatch = matchings.length;
+  // Recalculate KPIs — 5 cards
   const pendReview = matchings.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
   const activas = demandas.filter(d => (d.estado_matching||d.estado||'').trim().toLowerCase() !== 'eliminada').length;
+  const enviadasColab = matchings.filter(m => m.estado === 'aprobado' && m.envio_id).length;
+  const enviadasCliente = matchings.filter(m => m.accion_cliente && m.accion_cliente !== 'pendiente').length;
+  const completadas = demandas.filter(d => (d.estado_matching||'').trim().toLowerCase() === 'completada').length;
   if (hdr) hdr.innerHTML = `
-    <div class="tab-toolbar"><div><h2>Matchings</h2><p>${activas} demandas activas · ${totalMatch} matchings</p></div></div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px">
-      <div style="background:white;border-radius:10px;padding:14px;border:1px solid var(--border);text-align:center"><div style="font-size:24px;font-weight:700;color:var(--accent)">${activas}</div><div style="font-size:12px;color:var(--text-muted)">Demandas activas</div></div>
-      <div style="background:white;border-radius:10px;padding:14px;border:1px solid var(--border);text-align:center"><div style="font-size:24px;font-weight:700;color:var(--gold)">${totalMatch}</div><div style="font-size:12px;color:var(--text-muted)">Total matchings</div></div>
-      <div style="background:white;border-radius:10px;padding:14px;border:1px solid var(--border);text-align:center"><div style="font-size:24px;font-weight:700;color:var(--danger)">${pendReview}</div><div style="font-size:12px;color:var(--text-muted)">Por revisar</div></div>
+    <div class="tab-toolbar"><div><h2>Matchings</h2><p>${activas} demandas activas</p></div></div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px">
+      <div style="background:white;border-radius:10px;padding:14px;border:1.5px solid var(--color-gris);text-align:center"><div style="font-size:24px;font-weight:700;font-family:var(--font-ui);color:var(--accent)">${activas}</div><div style="font-size:11px;color:var(--text-muted)">Demandas activas</div></div>
+      <div style="background:white;border-radius:10px;padding:14px;border:1.5px solid var(--color-gris);text-align:center"><div style="font-size:24px;font-weight:700;font-family:var(--font-ui);color:var(--danger)">${pendReview}</div><div style="font-size:11px;color:var(--text-muted)">Por revisar</div></div>
+      <div style="background:white;border-radius:10px;padding:14px;border:1.5px solid var(--color-gris);text-align:center"><div style="font-size:24px;font-weight:700;font-family:var(--font-ui);color:var(--gold)">${enviadasColab}</div><div style="font-size:11px;color:var(--text-muted)">Enviadas a colab.</div></div>
+      <div style="background:white;border-radius:10px;padding:14px;border:1.5px solid var(--color-gris);text-align:center"><div style="font-size:24px;font-weight:700;font-family:var(--font-ui);color:var(--color-cafe);">${enviadasCliente}</div><div style="font-size:11px;color:var(--text-muted)">Enviadas a cliente</div></div>
+      <div style="background:white;border-radius:10px;padding:14px;border:1.5px solid var(--color-gris);text-align:center"><div style="font-size:24px;font-weight:700;font-family:var(--font-ui);color:var(--color-success)">${completadas}</div><div style="font-size:11px;color:var(--text-muted)">Completadas</div></div>
     </div>`;
 
-  if (!demandas.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">🤝</span><p>No hay demandas asignadas.</p></div>'; return; }
+  // Filter out eliminadas
+  const activeDemandas = demandas.filter(d => (d.estado_matching||d.estado||'').trim().toLowerCase() !== 'eliminada');
+  if (!activeDemandas.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">🤝</span><p>No hay demandas activas.</p></div>'; return; }
 
-  el.innerHTML = demandas.map(d => {
-    const dMatches = matchByDem[d.id] || [];
-    const isElim = (d.estado_matching||'').trim().toLowerCase() === 'eliminada';
+  el.innerHTML = activeDemandas.map(d => {
+    // Limit to top 7 by score
+    const dMatches = (matchByDem[d.id] || []).sort((a,b) => (b.score_matching||0)-(a.score_matching||0)).slice(0, 7);
     const pendCount = dMatches.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
     const approvedCount = dMatches.filter(m => m.estado === 'aprobado').length;
-    const statusColor = isElim ? 'gray' : pendCount > 0 ? 'gold' : 'green';
-    const statusText = isElim ? 'Eliminada' : pendCount > 0 ? `${pendCount} por revisar` : `${approvedCount} aprobados`;
+    const statusColor = pendCount > 0 ? 'gold' : 'green';
+    const statusText = pendCount > 0 ? `${pendCount} por revisar` : `${approvedCount} aprobados`;
 
-    return `<div style="background:white;border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;${isElim?'opacity:0.5':''}">
+    return `<div style="background:white;border:1.5px solid var(--color-gris);border-radius:12px;margin-bottom:16px;overflow:hidden">
       <div style="padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="openMatchReview('${d.id}')">
         <div>
           <div style="font-weight:600;font-size:15px">${d.nombre||'Sin nombre'}</div>
@@ -1615,8 +1694,8 @@ function renderMatchingsList() {
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span class="pill pill-${statusColor}" style="font-size:11px">${statusText}</span>
-          <span class="badge" style="background:var(--accent)">${dMatches.length}</span>
-          ${!isElim ? `<button class="btn btn-secondary btn-sm" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();eliminarDemanda('${d.id}','${(d.nombre||'').replace(/'/g,"\\'")}')" title="Eliminar demanda">🗑️</button>` : ''}
+          <span class="badge">${dMatches.length}</span>
+          <button class="btn btn-secondary btn-sm" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();eliminarDemanda('${d.id}','${(d.nombre||'').replace(/'/g,"\\'")}')" title="Eliminar demanda">🗑️</button>
         </div>
       </div>
     </div>`;
@@ -2226,15 +2305,14 @@ TAB_LOADERS.visitas = async function() {
       </div>`;
     }
 
-    const total = (data||[]).length;
     pane.innerHTML = `
       <div class="tab-toolbar">
-        <div><h2>📍 Visitas</h2><p>${total} visita${total !== 1 ? 's' : ''} en total</p></div>
+        <div><h2>📍 Visitas</h2></div>
       </div>
       <div class="filters-bar">
         <button class="filter-chip active" onclick="filterVisitasSection(this,'all')">Todas</button>
         <button class="filter-chip" onclick="filterVisitasSection(this,'solicitada')">Por confirmar (${sections.solicitada.length})</button>
-        <button class="filter-chip" onclick="filterVisitasSection(this,'confirmada')">Próximas (${sections.confirmada.length})</button>
+        <button class="filter-chip" onclick="filterVisitasSection(this,'confirmada')">Confirmadas (${sections.confirmada.length})</button>
         <button class="filter-chip" onclick="filterVisitasSection(this,'pendiente_feedback')">Feedback pendiente (${sections.pendiente_feedback.length})</button>
         <button class="filter-chip" onclick="filterVisitasSection(this,'completada')">Completadas (${sections.completada.length})</button>
       </div>
@@ -2381,7 +2459,14 @@ async function submitColaborador() {
       direccion_fiscal: fd.get('direccion_fiscal')||null,
     };
     const { error } = await sb.from('colaboradores').insert(record);
-    if (error) throw error;
+    if (error) {
+      if (error.code === '23505' || (error.message||'').includes('duplicate')) {
+        if ((error.message||'').includes('email')) throw new Error('Este correo electrónico ya está registrado en el sistema.');
+        else if ((error.message||'').includes('nif_cif')) throw new Error('Este NIF/CIF ya está registrado en el sistema.');
+        else throw new Error('Ya existe un colaborador con estos datos. Revisa el email y el NIF/CIF.');
+      }
+      throw error;
+    }
     toast('✅ Colaborador guardado');
     loadedTabs.delete('colaboradores');
     generateAndShowContrato(record, { inter: !!fd.get('acuerdo_inter'), uf: !!fd.get('acuerdo_uf'), trip: !!fd.get('acuerdo_trip') });
@@ -2439,7 +2524,9 @@ function generateAndShowContrato(colab, clausulas) {
     </div>
   `, 'lg', `
     <button class="btn btn-secondary" onclick="closeModal(); TAB_LOADERS.colaboradores()">Cerrar</button>
-    <button class="btn btn-primary" id="btn-send-contract" onclick="sendContractEmail('${colab.id}','${safeEmail}','${safeNombre}')">📧 Enviar al colaborador</button>
+    <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('${signingUrl}');toast('Link copiado')">📋 Copiar link</button>
+    <button class="btn btn-primary" id="btn-send-contract" onclick="sendContractEmail('${colab.id}','${safeEmail}','${safeNombre}')">📧 Enviar email</button>
+    <button class="btn btn-secondary" onclick="window.open('mailto:${safeEmail}?subject='+encodeURIComponent('Contrato de Colaboración — ONOMA Homes')+'&body='+encodeURIComponent('Hola ${safeNombre},\\n\\nAdjunto el enlace para firmar tu contrato de colaboración con ONOMA Homes:\\n\\n${signingUrl}\\n\\nUn saludo,\\nEl equipo de ONOMA Homes'))">📧 Mailto</button>
   `);
 }
 
@@ -2495,75 +2582,138 @@ function openDemandaColabSearch() {
   });
 }
 
+// Barrios de Madrid para autocompletado
+const BARRIOS_MADRID = ["Palacio","Embajadores","Cortes","Justicia","Universidad","Sol","Imperial","Acacias","Chopera","Legazpi","Delicias","Palos de Moguer","Atocha","Pacífico","Adelfas","Estrella","Ibiza","Jerónimos","Niño Jesús","Recoletos","Goya","Fuente del Berro","Guindalera","Lista","Castellana","El Viso","Prosperidad","Ciudad Jardín","Hispanoamérica","Nueva España","Castilla","Bellas Vistas","Cuatro Caminos","Castillejos","Almenara","Valdeacederas","Berruguete","Gaztambide","Arapiles","Trafalgar","Almagro","Ríos Rosas","Vallehermoso","El Pardo","Fuentelarreina","Peñagrande","El Pilar","La Paz","Valverde","Mirasierra","Las Tablas","Casa de Campo","Argüelles","Ciudad Universitaria","Valdezarza","Valdemarín","El Plantío","Aravaca","Los Cármenes","Puerta del Ángel","Lucero","Aluche","Las Águilas","Comillas","Opañel","San Isidro","Vista Alegre","Buenavista","Abrantes","Orcasitas","Moscardó","Zofío","Almendrales","Entrevías","San Diego","Palomeras Bajas","Portazgo","Numancia","Pavones","Horcajo","Marroquina","Fontarrón","Vinateros","Ventas","Pueblo Nuevo","Quintana","Concepción","San Pascual","San Juan Bautista","Colina","Costillares","Palomas","Valdefuentes","Piovera","Canillas","Los Rosales","Butarque","San Cristóbal","Villaverde Alto","Santa Eugenia","Simancas","Hellín","Amposta","Canillejas","Alameda de Osuna","Casco Histórico de Barajas","Pozuelo de Alarcón","Las Rozas","Majadahonda","Boadilla del Monte","Alcobendas","San Sebastián de los Reyes","Getafe","Leganés","Alcorcón","Móstoles","Alcalá de Henares"];
+
+function _barrioAutocomplete(inputId, containerId) {
+  const inp = document.getElementById(inputId);
+  if (!inp) return;
+  inp.addEventListener('input', function() {
+    const q = norm(this.value).toLowerCase();
+    const container = document.getElementById(containerId);
+    if (!q || q.length < 2) { container.innerHTML = ''; return; }
+    const matches = BARRIOS_MADRID.filter(b => norm(b).toLowerCase().includes(q)).slice(0,8);
+    container.innerHTML = matches.map(b => `<div class="autocomplete-item" onclick="_addZoneTag('${inputId}','${b}')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border)">${b}</div>`).join('');
+  });
+}
+function _addZoneTag(inputId, barrio) {
+  const inp = document.getElementById(inputId);
+  const tagsEl = inp.closest('.form-col').querySelector('.zone-tags');
+  const hiddenEl = inp.closest('.form-col').querySelector('input[type=hidden]');
+  if (!tagsEl || !hiddenEl) return;
+  // Check not duplicate
+  const existing = (hiddenEl.value||'').split(',').filter(Boolean);
+  if (existing.includes(barrio)) return;
+  existing.push(barrio);
+  hiddenEl.value = existing.join(',');
+  tagsEl.innerHTML = existing.map(z => `<span style="display:inline-flex;align-items:center;gap:4px;background:${inputId.includes('evitar')?'var(--color-error-bg)':'var(--color-gold-bg)'};color:${inputId.includes('evitar')?'var(--color-error)':'var(--color-gold-dark)'};padding:4px 10px;border-radius:100px;font-size:12px;font-weight:500">${z} <span style="cursor:pointer;font-size:14px" onclick="_removeZoneTag('${inputId}','${z}')">×</span></span>`).join(' ');
+  inp.value = '';
+  inp.nextElementSibling.innerHTML = '';
+}
+function _removeZoneTag(inputId, barrio) {
+  const inp = document.getElementById(inputId);
+  const hiddenEl = inp.closest('.form-col').querySelector('input[type=hidden]');
+  const existing = (hiddenEl.value||'').split(',').filter(Boolean).filter(z => z !== barrio);
+  hiddenEl.value = existing.join(',');
+  _addZoneTag(inputId, ''); // refresh display — actually let me just trigger re-render
+  const tagsEl = inp.closest('.form-col').querySelector('.zone-tags');
+  tagsEl.innerHTML = existing.map(z => `<span style="display:inline-flex;align-items:center;gap:4px;background:${inputId.includes('evitar')?'var(--color-error-bg)':'var(--color-gold-bg)'};color:${inputId.includes('evitar')?'var(--color-error)':'var(--color-gold-dark)'};padding:4px 10px;border-radius:100px;font-size:12px;font-weight:500">${z} <span style="cursor:pointer;font-size:14px" onclick="_removeZoneTag('${inputId}','${z}')">×</span></span>`).join(' ');
+}
+
 function openDemandaForm(tipo, colaboradorId) {
   const colab = colaboradorId ? (colabsCache.find(c => c.id === colaboradorId) || {}) : null;
   const colabNombre = colab ? [[colab.nombre||'', colab.apellido||''].filter(Boolean).join(' '), colab.empresa].filter(Boolean).join(' · ') : '';
-  const origenSection = tipo === 'colaborador'
-    ? `<div class="form-section">
-        <div class="form-section-title">Colaborador</div>
-        <div class="colab-badge" style="margin-bottom:14px">🤝 ${colabNombre || 'Colaborador seleccionado'}</div>
-        <input type="hidden" name="tipo_origen" value="colaborador">
-        <input type="hidden" name="colaborador_id" value="${colaboradorId}">
-        <div class="form-col"><label>Nombre del cliente *</label><input type="text" name="nombre" required placeholder="Carlos Rodríguez"></div>
-      </div>`
-    : `<div class="form-section">
-        <div class="form-section-title">Datos del comprador</div>
-        <input type="hidden" name="tipo_origen" value="comprador_directo">
-        <input type="hidden" name="colaborador_id" value="">
-        <div class="form-row">
-          <div class="form-col"><label>Nombre *</label><input type="text" name="nombre" required placeholder="María López"></div>
-          <div class="form-col"><label>Email</label><input type="email" name="email_dir" placeholder="maria@gmail.com"></div>
-        </div>
-        <div class="form-col" style="margin-top:10px"><label>Teléfono</label><input type="tel" name="tel_dir" placeholder="+34 600 000 000"></div>
-      </div>`;
+
+  function collapsible(id, title, content, open=true) {
+    return `<div class="collapsible" id="cs-${id}"><div class="collapsible-header ${open?'open':''}" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>${title}</span><span class="caret">▾</span></div><div class="collapsible-body ${open?'open':''}">${content}</div></div>`;
+  }
+
+  // Section 1 — Datos del comprador
+  const s1 = tipo === 'colaborador'
+    ? `<div class="colab-badge" style="margin-bottom:14px">🤝 ${colabNombre || 'Colaborador seleccionado'}</div>
+       <input type="hidden" name="tipo_origen" value="colaborador"><input type="hidden" name="colaborador_id" value="${colaboradorId}">
+       <div class="form-row"><div class="form-col"><label>Nombre del cliente *</label><input type="text" name="nombre" required placeholder="Carlos Rodríguez"></div>
+       <div class="form-col"><label>Apellidos</label><input type="text" name="apellido_cliente" placeholder="Rodríguez López"></div></div>
+       <div class="form-row" style="margin-top:10px"><div class="form-col"><label>Email</label><input type="email" name="email_dir" placeholder="carlos@gmail.com"></div>
+       <div class="form-col"><label>Teléfono</label><input type="tel" name="tel_dir" placeholder="+34 600 000 000"></div></div>`
+    : `<input type="hidden" name="tipo_origen" value="comprador_directo"><input type="hidden" name="colaborador_id" value="">
+       <div class="form-row"><div class="form-col"><label>Nombre *</label><input type="text" name="nombre" required placeholder="María"></div>
+       <div class="form-col"><label>Apellidos *</label><input type="text" name="apellido_cliente" placeholder="López García"></div></div>
+       <div class="form-row" style="margin-top:10px"><div class="form-col"><label>Email *</label><input type="email" name="email_dir" placeholder="maria@gmail.com"></div>
+       <div class="form-col"><label>Teléfono</label><input type="tel" name="tel_dir" placeholder="+34 600 000 000"></div></div>
+       <div class="form-col" style="margin-top:10px"><label>DNI/NIE/Pasaporte</label><input type="text" name="nif_cliente" placeholder="Opcional"></div>`;
+
+  // Section 2 — Criterios de búsqueda
+  const s2 = `
+    <div class="form-col"><label>Zonas preferidas</label>
+      <div class="zone-tags" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div>
+      <div style="position:relative"><input type="text" id="zona-pref-input" placeholder="Escribe un barrio de Madrid..." autocomplete="off"><div id="zona-pref-dropdown" style="position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;z-index:50;max-height:200px;overflow-y:auto"></div></div>
+      <input type="hidden" name="zona_preferida" value="">
+    </div>
+    <div class="form-col" style="margin-top:12px"><label>Zonas a evitar</label>
+      <div class="zone-tags" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div>
+      <div style="position:relative"><input type="text" id="zona-evitar-input" placeholder="Barrios que no quiere..." autocomplete="off"><div id="zona-evitar-dropdown" style="position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;z-index:50;max-height:200px;overflow-y:auto"></div></div>
+      <input type="hidden" name="zonas_evitar" value="">
+    </div>
+    <div class="form-row" style="margin-top:12px">
+      <div class="form-col"><label>Presupuesto máximo € *</label><input type="number" name="presupuesto_max" placeholder="500000"></div>
+      <div class="form-col"><label>Metros mínimos</label><input type="number" name="metros_min" placeholder="80"></div>
+    </div>
+    <div class="form-row" style="margin-top:12px">
+      <div class="form-col"><label>Habitaciones mín.</label><input type="number" name="habitaciones_min" min="1" max="10" placeholder="3"></div>
+      <div class="form-col"><label>Baños mín.</label><input type="number" name="banos_min" min="1" max="5" placeholder="1"></div>
+    </div>`;
+
+  // Section 3 — Características deseadas
+  const s3 = `
+    <div class="checkbox-group" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${['Ascensor','Terraza','Garaje','Trastero','Piscina','Jardín','Portero','Reformado','Exterior'].map(f => `<label class="checkbox-item"><input type="checkbox" name="pref_${f.toLowerCase()}"><span class="cb-label">${f}</span></label>`).join('')}
+    </div>
+    <div class="form-row" style="margin-top:14px">
+      <div class="form-col"><label>Estado del piso</label><select name="pref_estado"><option value="">Cualquiera</option><option value="bien_conservado">Bien conservado</option><option value="reformado">Reformado</option></select></div>
+      <div class="form-col"><label>Orientación preferida</label><select name="pref_orientacion"><option value="">Cualquiera</option><option value="sur">Sur</option><option value="este">Este</option><option value="oeste">Oeste</option><option value="norte">Norte</option></select></div>
+    </div>`;
+
+  // Section 4 — Perfil del comprador (IA)
+  const s4 = `
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Esta información alimenta el motor de IA para encontrar los pisos perfectos.</p>
+    <div class="form-col"><label>¿Para quién es el piso? ¿Quiénes van a vivir?</label><textarea name="perfil_quien" rows="2" placeholder="Ej: matrimonio con 2 hijos y un perro"></textarea></div>
+    <div class="form-col" style="margin-top:10px"><label>¿Qué actividades hacen en casa? ¿Qué es importante?</label><textarea name="perfil_actividades" rows="2" placeholder="Ej: trabajan desde casa, necesitan despacho, les gusta cocinar"></textarea></div>
+    <div class="form-col" style="margin-top:10px"><label>¿Qué es lo que más valoran de un piso?</label><textarea name="perfil_valoran" rows="2" placeholder="Ej: luz natural, silencio, espacio de almacenamiento"></textarea></div>
+    <div class="form-col" style="margin-top:10px"><label>¿Hay algo que definitivamente no quieren?</label><textarea name="perfil_no_quieren" rows="2" placeholder="Ej: bajo, interior, cerca de una discoteca"></textarea></div>
+    <div class="form-col" style="margin-top:10px"><label>Información adicional</label><textarea name="perfil_adicional" rows="2" placeholder="Cualquier otra información relevante"></textarea></div>`;
+
+  // Section 5 — Términos
+  const s5 = `
+    <div class="form-row">
+      <div class="form-col"><label>Honorarios comprador %</label><input type="number" name="honorarios_comprador_pct" min="0" max="10" step="0.1" placeholder="3"></div>
+      <div class="form-col" style="justify-content:flex-end;padding-bottom:6px">
+        <label class="checkbox-item"><input type="checkbox" name="no_cobra_comprador"><span class="cb-label">No cobro al comprador</span></label>
+      </div>
+    </div>
+    <div class="form-col" style="margin-top:12px"><label>Mandato de compra (PDF)</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('mandato-input').click()">Subir PDF</button>
+        <span id="mandato-status" style="font-size:13px;color:var(--text-muted)">Sin documento</span>
+      </div>
+      <input type="file" id="mandato-input" accept=".pdf" style="display:none" onchange="uploadMandato(this)">
+      <input type="hidden" name="mandato_compra" id="mandato-url">
+    </div>
+    <div class="form-col" style="margin-top:12px"><label>Notas internas</label><textarea name="notas_internas" rows="2" placeholder="Notas privadas (no se comparten con el cliente)"></textarea></div>
+    <label class="checkbox-item" style="margin-top:10px"><input type="checkbox" name="privacidad"><span class="cb-label">El comprador ha sido informado de la política de privacidad</span></label>`;
+
   openModal('Nueva Demanda — Formulario', `<form id="demanda-form">
-    ${origenSection}
-    <div class="form-section">
-      <div class="form-section-title">Datos de búsqueda</div>
-      <div class="form-row">
-        <div class="form-col"><label>Zona preferida</label><input type="text" name="zona_preferida" placeholder="Salamanca, Retiro..."></div>
-        <div class="form-col"><label>Presupuesto máximo €</label><input type="number" name="presupuesto_max" placeholder="500000"></div>
-      </div>
-      <div class="form-row" style="margin-top:12px">
-        <div class="form-col"><label>Habitaciones mínimas</label><input type="number" name="habitaciones_min" min="1" max="10" placeholder="3"></div>
-        <div class="form-col"><label>Metros mínimos</label><input type="number" name="metros_min" placeholder="80"></div>
-      </div>
-    </div>
-    <div class="form-section">
-      <div class="form-section-title">Preferencias (Termómetros)</div>
-      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">≥90 = obligatorio · 50-89 = importante · &lt;50 = deseable</p>
-      <div class="slider-group">
-        ${sliderHtml('peso_zona','📍 Zona / Ubicación',80)}
-        ${sliderHtml('peso_habitaciones','🛏️ Habitaciones',70)}
-        ${sliderHtml('peso_metros','📐 Metros cuadrados',60)}
-        ${sliderHtml('peso_ascensor','🛗 Ascensor',40)}
-        ${sliderHtml('peso_terraza','🌿 Terraza',30)}
-        ${sliderHtml('peso_parking','🚗 Parking',30)}
-        ${sliderHtml('peso_estado','✨ Estado del inmueble',50)}
-      </div>
-    </div>
-    <div class="form-section">
-      <div class="form-section-title">Honorarios y documentos</div>
-      <div class="form-row">
-        <div class="form-col"><label>Honorarios comprador %</label><input type="number" name="honorarios_comprador_pct" min="0" max="10" step="0.1" placeholder="3"></div>
-        <div class="form-col" style="justify-content:flex-end;padding-bottom:6px">
-          <label class="checkbox-item"><input type="checkbox" name="no_cobra_comprador"><span class="cb-label">No cobro al comprador</span></label>
-        </div>
-      </div>
-      <div class="form-col" style="margin-top:12px">
-        <label>Mandato de compra (PDF)</label>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('mandato-input').click()">Subir PDF</button>
-          <span id="mandato-status" style="font-size:13px;color:var(--text-muted)">Sin documento</span>
-        </div>
-        <input type="file" id="mandato-input" accept=".pdf" style="display:none" onchange="uploadMandato(this)">
-        <input type="hidden" name="mandato_compra" id="mandato-url">
-      </div>
-    </div>
+    ${collapsible('s1', '1. Datos del comprador', s1)}
+    ${collapsible('s2', '2. Lo que busca', s2)}
+    ${collapsible('s3', '3. Características deseadas', s3, false)}
+    ${collapsible('s4', '4. Perfil del comprador (IA)', s4, false)}
+    ${collapsible('s5', '5. Términos y estado', s5, false)}
   </form>`, 'lg', `
     <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
     <button class="btn btn-primary" id="btn-save-demanda" onclick="submitDemanda()">Guardar demanda</button>`);
-  setupFormV('demanda-form', { nombre:'nombre', email_dir:'email', tel_dir:'telefono', zona_preferida:'direccion', presupuesto_max:'presupuesto', habitaciones_min:'numPos', metros_min:'numPos', honorarios_comprador_pct:'numPos' }, 'btn-save-demanda');
+  setupFormV('demanda-form', { nombre:'nombre', email_dir:'email', tel_dir:'telefono', presupuesto_max:'presupuesto', habitaciones_min:'numPos', metros_min:'numPos', honorarios_comprador_pct:'numPos' }, 'btn-save-demanda');
+  // Init barrio autocompletes
+  setTimeout(() => { _barrioAutocomplete('zona-pref-input','zona-pref-dropdown'); _barrioAutocomplete('zona-evitar-input','zona-evitar-dropdown'); }, 100);
 }
 
 
@@ -3024,9 +3174,9 @@ function copyLink(url) { navigator.clipboard.writeText(url).then(() => toast('�
 // ─── FORM VALIDATION SYSTEM ──────────────────────────
 const V = {
   nombre:    { re: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-']+$/, msg: 'Solo letras, espacios, guiones y acentos' },
-  telefono:  { re: /^[+\d\s]{9,}$/, msg: 'Solo números, espacios y +. Mínimo 9 dígitos' },
+  telefono:  { re: /^[+\d\s\-()]{6,20}$/, msg: 'Solo números, espacios, +, - y (). Mínimo 6 dígitos' },
   email:     { re: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, msg: 'Formato de email no válido' },
-  nif:       { fn: v => /^\d{8}[A-Za-z]$/.test(v) || /^[XYZxyz]\d{7}[A-Za-z]$/.test(v) || /^[A-Ha-h]\d{7}[\dA-Ja-j]$/.test(v), msg: 'Formato: DNI (12345678A), NIE (X1234567A) o CIF (B1234567A)' },
+  nif:       { fn: v => { if (/^\d{8}[A-Za-z]$/.test(v)||/^[XYZxyz]\d{7}[A-Za-z]$/.test(v)||/^[A-HJNPQRSUVWa-hjnpqrsuvw]\d{7}[\dA-Za-z]$/.test(v)) return true; return v.length >= 5 ? 'warn' : false; }, msg: 'Formato no reconocido como DNI/NIE/CIF. Se guardará igualmente (ej: pasaporte)' },
   refcat:    { fn: v => /^[A-Za-z0-9]{20}$/.test(v), msg: 'Exactamente 20 caracteres alfanuméricos' },
   precio:    { fn: v => /^\d+(\.\d+)?$/.test(v) && parseFloat(v) > 0, msg: 'Solo números, mayor que 0' },
   numPos:    { fn: v => v === '' || (/^\d+$/.test(v) && parseInt(v) >= 0), msg: 'Solo números positivos' },
@@ -3054,6 +3204,7 @@ function vCheck(input, rule) {
   const r = V[rule];
   if (!r) return true;
   const ok = r.fn ? r.fn(v) : r.re.test(v);
+  if (ok === 'warn') { input.classList.remove('valid','invalid'); input.style.borderColor='var(--color-warning)'; input.style.background='rgba(184,134,11,0.04)'; const ex=input.parentElement.querySelector('.v-msg'); if(ex)ex.textContent=r.msg; else { const m=document.createElement('div'); m.className='v-msg'; m.style.cssText='font-size:11px;color:var(--color-warning);margin-top:2px'; m.textContent=r.msg; input.parentElement.appendChild(m); } return true; }
   ok ? vOk(input) : vErr(input, r.msg);
   return ok;
 }
