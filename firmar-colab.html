@@ -759,9 +759,9 @@
 
   // ── Handle sign ───────────────────────────────────────────────────────────
   async function handleSign() {
-    const btn       = $('btn-sign');
-    const inputName = $('input-nombre');
-    const nombre    = inputName.value.trim();
+    var btn       = $('btn-sign');
+    var inputName = $('input-nombre');
+    var nombre    = inputName.value.trim();
 
     if (!nombre) {
       inputName.style.borderColor = 'red';
@@ -770,93 +770,59 @@
     }
 
     // Validate name matches collaborator
-    const colabFullName = [colab.nombre, colab.apellido].filter(Boolean).join(' ');
-    const normName = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
-    if (normName(nombre) !== normName(colabFullName)) {
+    var fullName = [colab.nombre, colab.apellido].filter(Boolean).join(' ');
+    var normN = function(s) { return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim(); };
+    if (normN(nombre) !== normN(fullName)) {
       inputName.style.borderColor = 'red';
-      const errHint = document.createElement('div');
+      var errHint = document.createElement('div');
       errHint.style.cssText = 'color:#e53e3e;font-size:12px;margin-top:4px;';
-      errHint.textContent = 'El nombre debe coincidir con tu nombre registrado: ' + colabFullName;
-      const existing = inputName.parentElement.querySelector('.name-err');
+      errHint.textContent = 'El nombre debe coincidir con tu nombre registrado: ' + fullName;
+      var existing = inputName.parentElement.querySelector('.name-err');
       if (existing) existing.remove();
       errHint.className = 'name-err';
       inputName.parentElement.appendChild(errHint);
       inputName.focus();
       return;
     }
-    // Remove previous error
-    const prevErr = inputName.parentElement.querySelector('.name-err');
+    var prevErr = inputName.parentElement.querySelector('.name-err');
     if (prevErr) prevErr.remove();
     inputName.style.borderColor = '';
 
     btn.disabled = true;
     btn.classList.add('loading');
 
-    const now = new Date().toISOString();
-    let patchOk = false;
+    var now = new Date().toISOString();
+    var dateFmt = new Date(now).toLocaleString('es-ES', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
+    // 1. Patch Supabase
     try {
-      const { error: patchError } = await sb.from('colaboradores')
+      var patchRes = await sb.from('colaboradores')
         .update({ contrato_estado: 'firmado', firma_nombre: nombre, firma_fecha: now })
         .eq('id', colab.id);
-
-      if (patchError) {
-        console.warn('PATCH failed:', patchError.message);
-        $('rls-notice').style.display = 'block';
-      } else {
-        patchOk = true;
-      }
-
+      if (patchRes.error) { console.warn('PATCH failed:', patchRes.error.message); $('rls-notice').style.display = 'block'; }
     } catch (err) {
       console.warn('PATCH failed:', err.message);
       $('rls-notice').style.display = 'block';
     }
 
-    // Send confirmation email regardless
+    // 2. Send confirmation email
     try {
-      const colabFullName = [colab.nombre, colab.apellido].filter(Boolean).join(' ');
-      const dateLabel = new Date(now).toLocaleString('es-ES', {
-        day: '2-digit', month: 'long', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
-      });
-
-      await fetch(`${N8N}/send-email`, {
+      await fetch(N8N + '/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to: colab.email,
           subject: 'Contrato firmado — ONOMA Homes',
-          html: `
-            <div style="font-family:Inter,sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;">
-              <div style="text-align:center;margin-bottom:28px;">
-                <div style="display:inline-block;background:#1a1a2e;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;font-size:18px;letter-spacing:2px;">ONOMA</div>
-                <p style="color:#888;font-size:12px;margin-top:6px;letter-spacing:1px;">REAL ESTATE</p>
-              </div>
-              <h2 style="color:#1e7e34;font-size:20px;margin-bottom:12px;">✅ Contrato firmado correctamente</h2>
-              <p style="color:#444;font-size:14px;line-height:1.7;margin-bottom:20px;">
-                Hola <strong>${colabFullName}</strong>,<br><br>
-                Tu contrato de colaboración con <strong>ONOMA Real Estate</strong> ha sido firmado correctamente.
-              </p>
-              <table style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
-                <tr style="background:#f8f9fa;">
-                  <td style="padding:10px 14px;color:#888;border-bottom:1px solid #eee;">Firmado por</td>
-                  <td style="padding:10px 14px;font-weight:500;border-bottom:1px solid #eee;">${nombre}</td>
-                </tr>
-                <tr>
-                  <td style="padding:10px 14px;color:#888;border-bottom:1px solid #eee;">Fecha y hora</td>
-                  <td style="padding:10px 14px;font-weight:500;border-bottom:1px solid #eee;">${dateLabel}</td>
-                </tr>
-                <tr style="background:#f8f9fa;">
-                  <td style="padding:10px 14px;color:#888;">Email</td>
-                  <td style="padding:10px 14px;font-weight:500;">${colab.email}</td>
-                </tr>
-              </table>
-              <p style="color:#888;font-size:12px;text-align:center;margin-top:28px;line-height:1.6;">
-                Si no has firmado este contrato o crees que es un error,<br>
-                contacta con nosotros en <a href="mailto:melmadani@urbanflip.io" style="color:#6B7F5E;">melmadani@urbanflip.io</a>
-              </p>
-            </div>
-          `,
+          html: '<div style="font-family:Inter,sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;">' +
+            '<div style="text-align:center;margin-bottom:28px;"><div style="display:inline-block;background:#1a1a2e;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;font-size:18px;letter-spacing:2px;">ONOMA</div><p style="color:#888;font-size:12px;margin-top:6px;letter-spacing:1px;">REAL ESTATE</p></div>' +
+            '<h2 style="color:#1e7e34;font-size:20px;margin-bottom:12px;">Contrato firmado correctamente</h2>' +
+            '<p style="color:#444;font-size:14px;line-height:1.7;margin-bottom:20px;">Hola <strong>' + fullName + '</strong>,<br><br>Tu contrato de colaboración con <strong>ONOMA Real Estate</strong> ha sido firmado correctamente.</p>' +
+            '<table style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">' +
+            '<tr style="background:#f8f9fa;"><td style="padding:10px 14px;color:#888;border-bottom:1px solid #eee;">Firmado por</td><td style="padding:10px 14px;font-weight:500;border-bottom:1px solid #eee;">' + nombre + '</td></tr>' +
+            '<tr><td style="padding:10px 14px;color:#888;border-bottom:1px solid #eee;">Fecha y hora</td><td style="padding:10px 14px;font-weight:500;border-bottom:1px solid #eee;">' + dateFmt + '</td></tr>' +
+            '<tr style="background:#f8f9fa;"><td style="padding:10px 14px;color:#888;">Email</td><td style="padding:10px 14px;font-weight:500;">' + colab.email + '</td></tr>' +
+            '</table>' +
+            '<p style="color:#888;font-size:12px;text-align:center;margin-top:28px;line-height:1.6;">Si no has firmado este contrato, contacta en <a href="mailto:melmadani@urbanflip.io" style="color:#6B7F5E;">melmadani@urbanflip.io</a></p></div>',
         }),
       });
     } catch (e) {
@@ -865,15 +831,9 @@
 
     btn.classList.remove('loading');
 
-    // Show success (colabFullName already declared above)
-    const _successName = [colab.nombre, colab.apellido].filter(Boolean).join(' ');
-    const dateLabel = new Date(now).toLocaleString('es-ES', {
-      day: '2-digit', month: 'long', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-
+    // 3. Show success
     $('s-nombre').textContent = nombre;
-    $('s-fecha').textContent  = dateLabel;
+    $('s-fecha').textContent  = dateFmt;
     $('s-email').textContent  = colab.email || '—';
 
     showState('state-success');
