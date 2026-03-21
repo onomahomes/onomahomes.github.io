@@ -619,6 +619,8 @@ function switchTab(tabId) {
   const pane = document.getElementById(`tab-${tabId}`);
   if (pane) pane.classList.add('active');
   activeTab = tabId; closeSidebar();
+  // Pendientes always reloads fresh to keep badge in sync
+  if (tabId === 'pendientes') loadedTabs.delete('pendientes');
   if (!loadedTabs.has(tabId)) {
     loadedTabs.add(tabId);
     const loader = TAB_LOADERS[tabId];
@@ -1096,6 +1098,8 @@ TAB_LOADERS.pendientes = async function() {
     const { data, error } = await q;
     if (error) throw error;
     const items = data || [];
+    // Sync badge with real count
+    pendingCount = items.length; updateBadge();
     const grouped = {};
     items.forEach(a => { const t = a.tipo || 'otro'; if (!grouped[t]) grouped[t] = []; grouped[t].push(a); });
     const tipoLabels = { feedback_visita: '📝 Feedback de visita', matching_revisar: '🤝 Matchings por revisar', visita_confirmar: '📅 Visitas por confirmar', otro: '📋 Otros' };
