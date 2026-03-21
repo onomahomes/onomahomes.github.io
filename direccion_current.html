@@ -1510,6 +1510,13 @@ async function crearAsesor() {
     err.style.display = 'block';
     return;
   }
+  // Validate fields
+  var hasErr = false;
+  if (nombre && !VR.nombre.re.test(nombre)) { dvErr(document.getElementById('a-nombre'), VR.nombre.msg); hasErr = true; }
+  if (email && !VR.email.re.test(email)) { dvErr(document.getElementById('a-email'), VR.email.msg); hasErr = true; }
+  if (tel && !VR.telefono.re.test(tel)) { dvErr(document.getElementById('a-tel'), VR.telefono.msg); hasErr = true; }
+  if (dni && !VR.nif.fn(dni)) { dvErr(document.getElementById('a-dni'), VR.nif.msg); hasErr = true; }
+  if (hasErr) { err.textContent = 'Corrige los campos marcados en rojo'; err.style.display = 'block'; return; }
   btn.disabled = true;
   btn.textContent = 'Creando...';
   try {
@@ -1705,6 +1712,69 @@ function loadMockData() {
   renderFacturacion(mockData.kpis, mockData.operaciones);
   updateCounts(mockData);
 }
+
+// ═══ FORM VALIDATION SYSTEM ═══
+var VR = {
+  nombre:    { re: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-']+$/, msg: 'Solo letras, espacios, guiones y acentos' },
+  telefono:  { re: /^[+\d\s]{9,}$/, msg: 'Solo números, espacios y +. Mínimo 9 dígitos' },
+  email:     { re: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, msg: 'Formato de email no válido' },
+  nif:       { fn: function(v) { return /^\d{8}[A-Za-z]$/.test(v) || /^[XYZxyz]\d{7}[A-Za-z]$/.test(v) || /^[A-Ha-h]\d{7}[\dA-Ja-j]$/.test(v); }, msg: 'Formato: DNI (12345678A), NIE (X1234567A) o CIF (B1234567A)' },
+  precio:    { fn: function(v) { return /^\d+(\.\d+)?$/.test(v) && parseFloat(v) > 0; }, msg: 'Solo números, mayor que 0' },
+  numPos:    { fn: function(v) { return v === '' || (/^\d+$/.test(v) && parseInt(v) >= 0); }, msg: 'Solo números positivos' },
+  anio:      { fn: function(v) { return v === '' || (/^\d{4}$/.test(v) && parseInt(v) >= 1800 && parseInt(v) <= new Date().getFullYear()); }, msg: 'Año entre 1800 y ' + new Date().getFullYear() },
+  direccion: { re: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s,.\-ºª/]+$/, msg: 'Letras, números, espacios, comas, puntos, guiones' },
+};
+
+function dvErr(input, msg) {
+  input.style.borderColor = '#e05252';
+  var el = input.parentElement.querySelector('.v-err');
+  if (!el) { el = document.createElement('div'); el.className = 'v-err'; el.style.cssText = 'color:#f87171;font-size:11px;margin-top:3px;'; input.parentElement.appendChild(el); }
+  el.textContent = msg;
+}
+function dvOk(input) {
+  input.style.borderColor = '';
+  var el = input.parentElement.querySelector('.v-err');
+  if (el) el.remove();
+}
+function dvCheck(input, rule) {
+  var v = input.value.trim();
+  if (!v) { dvOk(input); return true; }
+  var r = VR[rule];
+  if (!r) return true;
+  var ok = r.fn ? r.fn(v) : r.re.test(v);
+  ok ? dvOk(input) : dvErr(input, r.msg);
+  return ok;
+}
+
+// Wire asesor form validation
+function setupAsesorValidation() {
+  var fields = { 'a-nombre': 'nombre', 'a-apellido': 'nombre', 'a-email': 'email', 'a-tel': 'telefono', 'a-dni': 'nif' };
+  Object.keys(fields).forEach(function(id) {
+    var input = document.getElementById(id);
+    if (input) {
+      input.addEventListener('input', function() { dvCheck(input, fields[id]); });
+      input.addEventListener('blur', function() { dvCheck(input, fields[id]); });
+    }
+  });
+}
+
+// Wire piso form validation
+function setupPisoFormValidation() {
+  var fields = { 'pf-direccion': 'direccion', 'pf-precio': 'precio', 'pf-barrio': 'nombre', 'pf-habitaciones': 'numPos', 'pf-banos': 'numPos', 'pf-metros': 'numPos', 'pf-anio': 'anio' };
+  Object.keys(fields).forEach(function(id) {
+    var input = document.getElementById(id);
+    if (input) {
+      input.addEventListener('input', function() { dvCheck(input, fields[id]); });
+      input.addEventListener('blur', function() { dvCheck(input, fields[id]); });
+    }
+  });
+}
+
+// Init validations on page load
+document.addEventListener('DOMContentLoaded', function() {
+  setupAsesorValidation();
+  setupPisoFormValidation();
+});
 
 // ═══ COLABORADOR SEARCH IN PISO FORM ═══
 var _colabSearchTimer = null;
@@ -2027,6 +2097,13 @@ async function submitPiso() {
   var precio = document.getElementById('pf-precio').value;
   if (!direccion) { showPisoErr('La dirección es obligatoria'); return; }
   if (!precio) { showPisoErr('El precio es obligatorio'); return; }
+  // Validate fields
+  var vHasErr = false;
+  if (direccion && !VR.direccion.re.test(direccion)) { dvErr(document.getElementById('pf-direccion'), VR.direccion.msg); vHasErr = true; }
+  if (precio && !VR.precio.fn(precio)) { dvErr(document.getElementById('pf-precio'), VR.precio.msg); vHasErr = true; }
+  var anio = document.getElementById('pf-anio').value;
+  if (anio && !VR.anio.fn(anio)) { dvErr(document.getElementById('pf-anio'), VR.anio.msg); vHasErr = true; }
+  if (vHasErr) { showPisoErr('Corrige los campos marcados en rojo'); return; }
 
   var btn = document.getElementById('btnSubmitPiso');
   btn.disabled = true;
