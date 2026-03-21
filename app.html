@@ -1941,6 +1941,7 @@ function openColabForm() {
   </form>`, 'lg', `
     <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
     <button class="btn btn-primary" id="btn-save-colab" onclick="submitColaborador()">Guardar y Generar Contrato</button>`);
+  setupFormV('colab-form', { nombre:'nombre', apellido:'nombre', empresa:'nombre', email:'email', telefono:'telefono', nif_cif:'nif', cif_empresa:'nif', landing_web:'url', direccion_fiscal:'direccion', cargo:'nombre' }, 'btn-save-colab');
 }
 
 function setColabTipo(btn, tipo) {
@@ -1966,6 +1967,7 @@ async function uploadLogo(input) {
 
 async function submitColaborador() {
   const form = document.getElementById('colab-form');
+  if (vScrollFirst('colab-form')) return;
   if (!form.checkValidity()) { form.reportValidity(); return; }
   const btn = document.getElementById('btn-save-colab');
   btn.disabled = true; btn.textContent = 'Guardando…';
@@ -2169,6 +2171,7 @@ function openDemandaForm(tipo, colaboradorId) {
   </form>`, 'lg', `
     <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
     <button class="btn btn-primary" id="btn-save-demanda" onclick="submitDemanda()">Guardar demanda</button>`);
+  setupFormV('demanda-form', { nombre:'nombre', email_dir:'email', tel_dir:'telefono', zona_preferida:'direccion', presupuesto_max:'presupuesto', habitaciones_min:'numPos', metros_min:'numPos', honorarios_comprador_pct:'numPos' }, 'btn-save-demanda');
 }
 
 
@@ -2408,6 +2411,7 @@ function openPisoForm(urbanFlip, colaboradorId) {
   </form>`, 'lg', `
     <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
     <button class="btn ${urbanFlip?'btn-gold':'btn-primary'}" id="btn-save-piso" onclick="submitPiso(${urbanFlip})">${urbanFlip?'⭐ Guardar Urban Flip':'Guardar piso'}</button>`);
+  setupFormV('piso-form', { 'piso-refcat':'refcat', direccion:'direccion', precio:'precio', barrio:'nombre', habitaciones:'numPos', banos:'numPos', metros:'numPos', anio_construccion:'anio', video:'url', honorarios_vendedor_pct:'numPos' }, 'btn-save-piso');
 }
 
 function openPisoLink() {
@@ -2486,6 +2490,7 @@ async function generarDescripcionIA() {
 
 async function submitPiso(urbanFlip) {
   const form = document.getElementById('piso-form');
+  if (vScrollFirst('piso-form')) return;
   if (!form.checkValidity()) { form.reportValidity(); return; }
   const btn = document.getElementById('btn-save-piso');
   btn.disabled = true; btn.textContent = 'Guardando…';
@@ -2553,10 +2558,12 @@ function newAsesorModal() {
   </form>`, 'md', `
     <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
     <button class="btn btn-primary" id="btn-save-asesor" onclick="submitAsesor()">Crear asesor</button>`);
+  setupFormV('asesor-form', { nombre:'nombre', email:'email', telefono:'telefono' }, 'btn-save-asesor');
 }
 
 async function submitAsesor() {
   const form = document.getElementById('asesor-form');
+  if (vScrollFirst('asesor-form')) return;
   if (!form.checkValidity()) { form.reportValidity(); return; }
   const btn = document.getElementById('btn-save-asesor');
   btn.disabled = true; btn.textContent = 'Creando…';
@@ -2571,6 +2578,81 @@ async function submitAsesor() {
 
 // ─── HELPERS ─────────────────────────────────────────
 function copyLink(url) { navigator.clipboard.writeText(url).then(() => toast('✅ Link copiado')); }
+
+// ─── FORM VALIDATION SYSTEM ──────────────────────────
+const V = {
+  nombre:    { re: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-']+$/, msg: 'Solo letras, espacios, guiones y acentos' },
+  telefono:  { re: /^[+\d\s]{9,}$/, msg: 'Solo números, espacios y +. Mínimo 9 dígitos' },
+  email:     { re: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, msg: 'Formato de email no válido' },
+  nif:       { fn: v => /^\d{8}[A-Za-z]$/.test(v) || /^[XYZxyz]\d{7}[A-Za-z]$/.test(v) || /^[A-Ha-h]\d{7}[\dA-Ja-j]$/.test(v), msg: 'Formato: DNI (12345678A), NIE (X1234567A) o CIF (B1234567A)' },
+  refcat:    { fn: v => /^[A-Za-z0-9]{20}$/.test(v), msg: 'Exactamente 20 caracteres alfanuméricos' },
+  precio:    { fn: v => /^\d+(\.\d+)?$/.test(v) && parseFloat(v) > 0, msg: 'Solo números, mayor que 0' },
+  numPos:    { fn: v => v === '' || (/^\d+$/.test(v) && parseInt(v) >= 0), msg: 'Solo números positivos' },
+  anio:      { fn: v => v === '' || (/^\d{4}$/.test(v) && parseInt(v) >= 1800 && parseInt(v) <= new Date().getFullYear()), msg: 'Año entre 1800 y ' + new Date().getFullYear() },
+  url:       { fn: v => v === '' || /^https?:\/\/.+/.test(v), msg: 'Debe empezar con http:// o https://' },
+  direccion: { re: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s,.\-ºª/]+$/, msg: 'Letras, números, espacios, comas, puntos, guiones' },
+  presupuesto: { fn: v => v === '' || (/^\d+(\.\d+)?$/.test(v) && parseFloat(v) > 0), msg: 'Solo números, mayor que 0' },
+};
+
+function vErr(input, msg) {
+  input.style.borderColor = '#e05252';
+  let el = input.parentElement.querySelector('.v-err');
+  if (!el) { el = document.createElement('div'); el.className = 'v-err'; el.style.cssText = 'color:#e05252;font-size:11px;margin-top:3px;'; input.parentElement.appendChild(el); }
+  el.textContent = msg;
+}
+function vOk(input) {
+  input.style.borderColor = '';
+  const el = input.parentElement.querySelector('.v-err');
+  if (el) el.remove();
+}
+function vCheck(input, rule) {
+  const v = input.value.trim();
+  if (!v && !input.required) { vOk(input); return true; }
+  if (!v && input.required) { vErr(input, 'Campo obligatorio'); return false; }
+  const r = V[rule];
+  if (!r) return true;
+  const ok = r.fn ? r.fn(v) : r.re.test(v);
+  ok ? vOk(input) : vErr(input, r.msg);
+  return ok;
+}
+
+function setupFormV(formId, rules, submitBtnId) {
+  setTimeout(() => {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    Object.entries(rules).forEach(([name, rule]) => {
+      const inputs = form.querySelectorAll(`[name="${name}"], #${name}`);
+      inputs.forEach(input => {
+        if (input.type === 'hidden' || input.type === 'checkbox' || input.type === 'file') return;
+        input.addEventListener('input', () => { vCheck(input, rule); vUpdateBtn(formId, rules, submitBtnId); });
+        input.addEventListener('blur', () => vCheck(input, rule));
+      });
+    });
+  }, 100);
+}
+
+function vUpdateBtn(formId, rules, submitBtnId) {
+  const form = document.getElementById(formId);
+  const btn = document.getElementById(submitBtnId);
+  if (!form || !btn) return;
+  let valid = true;
+  Object.entries(rules).forEach(([name, rule]) => {
+    const input = form.querySelector(`[name="${name}"], #${name}`);
+    if (!input || input.type === 'hidden' || input.type === 'checkbox' || input.type === 'file') return;
+    const v = input.value.trim();
+    if (!v && input.required) { valid = false; return; }
+    if (v) { const r = V[rule]; if (r && !(r.fn ? r.fn(v) : r.re.test(v))) valid = false; }
+  });
+  btn.disabled = !valid;
+}
+
+function vScrollFirst(formId) {
+  const form = document.getElementById(formId);
+  if (!form) return false;
+  const err = form.querySelector('.v-err');
+  if (err) { err.closest('.form-col, .fld-new, .form-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); return true; }
+  return false;
+}
 
 // ─── INIT ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
