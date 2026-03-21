@@ -910,6 +910,100 @@ function tabError(pane, e) { pane.innerHTML = `<div class="tab-error">Error carg
 // ─── TAB LOADERS ─────────────────────────────────────
 const TAB_LOADERS = {};
 
+// DASHBOARD (both roles)
+TAB_LOADERS.dashboard = async function() {
+  const pane = document.getElementById('tab-dashboard');
+  tabLoad(pane);
+  const isDir = currentUser.rol === 'director';
+  try {
+    const hoy = new Date().toISOString().split('T')[0];
+    const mesStart = new Date().toISOString().substring(0,7) + '-01';
+
+    // Parallel queries
+    const queries = [
+      sb.from('pisos').select('id,estado_sistema,urban_flip,precio', { count: 'exact', head: false }).order('created_time', { ascending: false }),
+      sb.from('demandas').select('id,estado', { count: 'exact', head: false }),
+      sb.from('matchings').select('id', { count: 'exact', head: true }),
+      sb.from('visitas').select('id,fecha_hora,estado,feedback_asesor_completado,asesor_id').order('fecha_hora', { ascending: false }).limit(100),
+    ];
+    if (isDir) {
+      queries.push(sb.from('colaboradores').select('id,contrato_estado', { count: 'exact', head: false }));
+      queries.push(sb.from('asesores').select('id,activo').eq('rol','asesor'));
+    }
+    if (!isDir) {
+      // Asesor: filter own data
+      queries[0] = sb.from('pisos').select('id,estado_sistema,urban_flip,precio', { count: 'exact' }).filter('asesor_piso', 'cs', `{"${currentUser.id}"}`);
+      queries[1] = sb.from('demandas').select('id,estado', { count: 'exact' }).eq('asesor_id', currentUser.id);
+      queries[3] = sb.from('visitas').select('id,fecha_hora,estado,feedback_asesor_completado').eq('asesor_id', currentUser.id).order('fecha_hora', { ascending: false }).limit(50);
+    }
+
+    const results = await Promise.all(queries);
+    const pisos = results[0].data || [];
+    const demandas = results[1].data || [];
+    const matchingsCount = results[2].count || 0;
+    const visitas = results[3].data || [];
+
+    const pisosActivos = pisos.filter(p => p.estado_sistema === 'activo' || !p.estado_sistema).length;
+    const pisosUF = pisos.filter(p => p.urban_flip).length;
+    const demandasActivas = demandas.filter(d => d.estado === 'activa' || !d.estado).length;
+    const visitasHoy = visitas.filter(v => v.fecha_hora && v.fecha_hora.startsWith(hoy)).length;
+    const visitasMes = visitas.filter(v => v.fecha_hora && v.fecha_hora >= mesStart).length;
+    const fbPendiente = visitas.filter(v => (v.estado === 'realizada' || v.estado === 'Realizada') && !v.feedback_asesor_completado).length;
+
+    function kpiCard(num, label, color, icon, onclick) {
+      return `<div class="data-card" style="text-align:center;padding:20px 14px;cursor:${onclick?'pointer':'default'}" ${onclick?`onclick="${onclick}"`:''}><div style="font-size:28px;font-weight:700;color:var(--${color});margin-bottom:4px">${num}</div><div style="font-size:12px;color:var(--text-muted)">${icon} ${label}</div></div>`;
+    }
+
+    if (isDir) {
+      const colabs = results[4]?.data || [];
+      const asesores = results[5]?.data || [];
+      const colabsFirmados = colabs.filter(c => c.contrato_estado === 'firmado').length;
+      const asesoresActivos = asesores.filter(a => a.activo).length;
+      const cartera = pisos.reduce((s,p) => s + (p.precio||0) * 0.03, 0);
+
+      pane.innerHTML = `
+        <div class="tab-toolbar"><div><h2>Dashboard</h2><p>Resumen general — ${new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}</p></div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:24px">
+          ${kpiCard(visitasHoy, 'Visitas hoy', 'gold', '📅', "switchTab('agenda')")}
+          ${kpiCard(fbPendiente, 'Feedback pendiente', fbPendiente>0?'danger':'accent', '⚠️', '')}
+          ${kpiCard(visitasMes, 'Visitas mes', 'accent', '📊', '')}
+          ${kpiCard(pisosActivos, 'Pisos activos', 'accent', '🏘️', "switchTab('pisos')")}
+          ${kpiCard(pisosUF, 'Urban Flip', 'gold', '⭐', "switchTab('pisos')")}
+          ${kpiCard(demandasActivas, 'Demandas', 'accent', '📋', "switchTab('demandas')")}
+          ${kpiCard(matchingsCount, 'Matchings', 'accent', '🤝', '')}
+          ${kpiCard(asesoresActivos+' / '+colabs.length, 'Equipo / Colabs', 'accent', '👥', "switchTab('equipo')")}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="data-card" style="padding:20px">
+            <div style="font-size:14px;font-weight:700;margin-bottom:12px">Colaboradores</div>
+            <div style="font-size:12px;color:var(--text-muted)">${colabsFirmados} firmados de ${colabs.length} totales</div>
+            <div style="margin-top:8px;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;background:var(--accent);width:${colabs.length?Math.round(colabsFirmados/colabs.length*100):0}%;border-radius:3px"></div></div>
+          </div>
+          <div class="data-card" style="padding:20px">
+            <div style="font-size:14px;font-weight:700;margin-bottom:12px">Comisión estimada</div>
+            <div style="font-size:24px;font-weight:700;color:var(--accent)">${eur(Math.round(cartera))}</div>
+            <div style="font-size:12px;color:var(--text-muted)">3% sobre ${pisosActivos} pisos activos</div>
+          </div>
+        </div>`;
+    } else {
+      // Asesor dashboard
+      pane.innerHTML = `
+        <div class="tab-toolbar"><div><h2>Mi Dashboard</h2><p>Resumen del día — ${new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}</p></div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:24px">
+          ${kpiCard(visitasHoy, 'Visitas hoy', 'gold', '📅', "switchTab('visitas')")}
+          ${kpiCard(fbPendiente, 'Feedback pendiente', fbPendiente>0?'danger':'accent', '⚠️', "switchTab('visitas')")}
+          ${kpiCard(pendingCount||0, 'Acciones pendientes', pendingCount>0?'danger':'accent', '🔔', "switchTab('pendientes')")}
+          ${kpiCard(pisosActivos, 'Mis pisos', 'accent', '🏘️', "switchTab('pisos')")}
+          ${kpiCard(demandasActivas, 'Mis demandas', 'accent', '📋', "switchTab('demandas')")}
+          ${kpiCard(matchingsCount, 'Matchings', 'accent', '🤝', "switchTab('matchings')")}
+          ${kpiCard(visitasMes, 'Visitas este mes', 'accent', '📊', "switchTab('visitas')")}
+        </div>
+        ${visitasHoy > 0 ? `<div class="data-card" style="padding:16px;border-left:3px solid var(--gold)"><div style="font-size:14px;font-weight:700;margin-bottom:4px">📅 Próximas visitas hoy</div><div style="font-size:13px;color:var(--text-muted)">Tienes ${visitasHoy} visita${visitasHoy>1?'s':''} programada${visitasHoy>1?'s':''}. <a href="#" onclick="switchTab('visitas');return false" style="color:var(--accent)">Ver visitas →</a></div></div>` : ''}
+        ${fbPendiente > 0 ? `<div class="data-card" style="padding:16px;margin-top:12px;border-left:3px solid var(--danger)"><div style="font-size:14px;font-weight:700;margin-bottom:4px">⚠️ Feedback pendiente</div><div style="font-size:13px;color:var(--text-muted)">${fbPendiente} visita${fbPendiente>1?'s':''} sin feedback. <a href="#" onclick="switchTab('visitas');return false" style="color:var(--accent)">Completar →</a></div></div>` : ''}`;
+    }
+  } catch(e) { tabError(pane, e); }
+};
+
 // COLABORADORES (role-aware)
 TAB_LOADERS.colaboradores = async function() {
   const pane = document.getElementById('tab-colaboradores');
@@ -1555,18 +1649,20 @@ async function searchInformeItem(q) {
   if (!q || q.length < 1) { dd.style.display = 'none'; return; }
   _infAcT = setTimeout(async () => {
     let items = [];
+    const nq = norm(q); // normalized without accents
     if (_informeTipo === 'pisos') {
-      const { data } = await sb.from('pisos').select('id,direccion,barrio').or(`direccion.ilike.%${q}%,barrio.ilike.%${q}%`).limit(8);
-      items = (data||[]).map(p => ({ id: p.id, main: p.direccion||'—', sub: p.barrio||'' }));
+      // Fetch more results and filter client-side for accent-insensitive matching
+      const { data } = await sb.from('pisos').select('id,direccion,barrio').limit(200);
+      items = (data||[]).filter(p => norm(p.direccion||'').includes(nq) || norm(p.barrio||'').includes(nq)).slice(0,8).map(p => ({ id: p.id, main: p.direccion||'—', sub: p.barrio||'' }));
     } else if (_informeTipo === 'asesor') {
-      const { data } = await sb.from('asesores').select('id,nombre,email').ilike('nombre', `%${q}%`).limit(8);
-      items = (data||[]).map(a => ({ id: a.id, main: a.nombre||'—', sub: a.email||'' }));
+      const { data } = await sb.from('asesores').select('id,nombre,email').limit(50);
+      items = (data||[]).filter(a => norm(a.nombre||'').includes(nq) || norm(a.email||'').includes(nq)).slice(0,8).map(a => ({ id: a.id, main: a.nombre||'—', sub: a.email||'' }));
     } else if (_informeTipo === 'colaborador') {
-      const { data } = await sb.from('colaboradores').select('id,nombre,empresa').or(`nombre.ilike.%${q}%,empresa.ilike.%${q}%`).limit(8);
-      items = (data||[]).map(c => ({ id: c.id, main: [c.nombre,c.empresa].filter(Boolean).join(' · '), sub: '' }));
+      const { data } = await sb.from('colaboradores').select('id,nombre,empresa').limit(100);
+      items = (data||[]).filter(c => norm(c.nombre||'').includes(nq) || norm(c.empresa||'').includes(nq)).slice(0,8).map(c => ({ id: c.id, main: [c.nombre,c.empresa].filter(Boolean).join(' · '), sub: '' }));
     } else if (_informeTipo === 'demanda') {
-      const { data } = await sb.from('demandas').select('id,nombre,zona_preferida').ilike('nombre', `%${q}%`).limit(8);
-      items = (data||[]).map(d => ({ id: d.id, main: d.nombre||'—', sub: d.zona_preferida||'' }));
+      const { data } = await sb.from('demandas').select('id,nombre,zona_preferida').limit(100);
+      items = (data||[]).filter(d => norm(d.nombre||'').includes(nq) || norm(d.zona_preferida||'').includes(nq)).slice(0,8).map(d => ({ id: d.id, main: d.nombre||'—', sub: d.zona_preferida||'' }));
     }
     if (!items.length) {
       dd.innerHTML = '<div class="autocomplete-item" style="color:var(--text-muted);cursor:default">Sin resultados para "' + q + '"</div>';
