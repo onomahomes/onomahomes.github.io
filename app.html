@@ -99,8 +99,8 @@ body { font-family: var(--font-body); font-size: 14px; background: var(--bg); co
 .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; pointer-events: none; }
 
 /* TABLE */
-.data-table { background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-.data-table table { width: 100%; border-collapse: collapse; }
+.data-table { background: white; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+.data-table table { width: 100%; border-collapse: collapse; min-width: 600px; }
 .data-table th { text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); background: #f9f8f6; border-bottom: 1px solid var(--border); }
 .data-table td { padding: 13px 16px; font-size: 14px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
 .data-table tr:last-child td { border-bottom: none; }
@@ -1601,7 +1601,7 @@ function openMatchReview(demandaId) {
   if (!d) return;
   const dMatches = (matchByDem[demandaId]||[]).sort((a,b) => (b.score_matching||0)-(a.score_matching||0));
 
-  function scoreColor(s) { return s >= 80 ? '#22c55e' : s >= 60 ? '#f59e0b' : '#ef4444'; }
+  function scoreColor(s) { return s >= 80 ? '#1C1C1C' : s >= 60 ? '#A6896E' : '#8B2020'; }
   function scoreRing(s) {
     const pct = (s/100)*251; const color = scoreColor(s);
     return `<svg width="56" height="56" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="#e5e3df" stroke-width="5"/><circle cx="30" cy="30" r="26" fill="none" stroke="${color}" stroke-width="5" stroke-dasharray="${pct} 251" stroke-dashoffset="0" transform="rotate(-90 30 30)" stroke-linecap="round"/><text x="30" y="34" text-anchor="middle" font-size="15" font-weight="700" fill="${color}">${s}</text></svg>`;
@@ -1611,7 +1611,8 @@ function openMatchReview(demandaId) {
     const pid = Array.isArray(m.piso) ? m.piso[0] : m.piso;
     const pisoId = pid ? String(pid).replace(/[{}]/g,'') : '';
     const p = pisosMap[pisoId] || {};
-    const foto = p.fotos && p.fotos[0] ? (typeof p.fotos[0]==='object'?p.fotos[0].url:p.fotos[0]) : null;
+    const _rawFoto = p.fotos && p.fotos[0] ? (typeof p.fotos[0]==='object'?p.fotos[0].url:String(p.fotos[0])) : '';
+    const foto = (_rawFoto && _rawFoto.startsWith('http')) ? _rawFoto : null;
     const score = m.score_matching ? Math.round(m.score_matching) : 0;
     const isUF = p.urban_flip;
     const isApproved = m.estado === 'aprobado';
@@ -1623,7 +1624,7 @@ function openMatchReview(demandaId) {
     return `<div style="background:var(--bg);border:${isUF?'2px solid var(--gold)':'1px solid var(--border)'};border-radius:12px;overflow:hidden;${isDiscarded?'opacity:0.5':''}">
       <div style="display:flex;gap:14px;padding:14px">
         <div style="flex-shrink:0">
-          ${foto ? `<img src="${foto}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="openPisoDetail('${pisoId}')">` : `<div style="width:100px;height:80px;display:flex;align-items:center;justify-content:center;background:#f3f2ef;border-radius:8px;font-size:32px">🏠</div>`}
+          ${foto ? `<img src="${foto}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="openPisoDetail('${pisoId}')" onerror="this.outerHTML='<div style=\\'width:100px;height:80px;display:flex;align-items:center;justify-content:center;background:#f3f2ef;border-radius:8px;font-size:32px\\'>🏠</div>'">` : `<div style="width:100px;height:80px;display:flex;align-items:center;justify-content:center;background:#f3f2ef;border-radius:8px;font-size:32px">🏠</div>`}
           <div style="text-align:center;margin-top:6px">${scoreRing(score)}</div>
         </div>
         <div style="flex:1;min-width:0">
@@ -2240,8 +2241,8 @@ function openColabForm() {
           <div class="form-col"><label>Landing / Web</label><input type="url" name="landing_web" placeholder="https://..."></div>
           <div class="form-col"><label>Color de marca</label>
             <div style="display:flex;gap:8px;align-items:center">
-              <input type="color" name="brand_color" value="#6B7F5E" style="width:44px;height:40px;border:1.5px solid var(--border);border-radius:6px;padding:2px;cursor:pointer" oninput="document.querySelector('[name=brand_color_txt]').value=this.value">
-              <input type="text" name="brand_color_txt" placeholder="#6B7F5E" value="#6B7F5E" style="flex:1" oninput="document.querySelector('[name=brand_color]').value=this.value">
+              <input type="color" name="brand_color" value="#A6896E" style="width:44px;height:40px;border:1.5px solid var(--border);border-radius:6px;padding:2px;cursor:pointer" oninput="document.querySelector('[name=brand_color_txt]').value=this.value">
+              <input type="text" name="brand_color_txt" placeholder="#A6896E" value="#A6896E" style="flex:1" oninput="document.querySelector('[name=brand_color]').value=this.value">
             </div>
           </div>
         </div>
@@ -2337,7 +2338,7 @@ async function submitColaborador() {
       empresa: fd.get('empresa')||null, cif_empresa: fd.get('cif_empresa')||null,
       email: fd.get('email'), telefono: fd.get('telefono')||null, nif_cif: fd.get('nif_cif'),
       cargo: fd.get('cargo')||null, logo_empresa: fd.get('logo_empresa')||null,
-      brand_color: fd.get('brand_color')||'#6B7F5E', landing_web: fd.get('landing_web')||null,
+      brand_color: fd.get('brand_color')||'#A6896E', landing_web: fd.get('landing_web')||null,
       es_independiente: esIndep, asesor_onoma: [currentUser.id],
       estado: 'pendiente_activacion', contrato_estado: 'pendiente',
       acepta_broker_broker: !!fd.get('acuerdo_inter'),
@@ -2415,7 +2416,7 @@ async function sendContractEmail(colabId, email, nombre) {
     const signingUrl = `${GH_PAGES}/firmar-colab.html?id=${colabId}`;
     await callN8n('send-email', {
       to: email, subject: 'Contrato de colaboración — ONOMA Homes',
-      html: `<p>Hola ${nombre},</p><p>Tu contrato de colaboración con ONOMA Real Estate está listo para firma digital.</p><p style="text-align:center;margin:24px 0"><a href="${signingUrl}" style="display:inline-block;background:#6B7F5E;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">✍️ Firmar contrato</a></p><p style="font-size:13px;color:#666">Si tienes dudas, escríbenos a melmadani@urbanflip.io</p><p>Un saludo,<br><strong>ONOMA Real Estate</strong></p>`,
+      html: `<p>Hola ${nombre},</p><p>Tu contrato de colaboración con ONOMA Real Estate está listo para firma digital.</p><p style="text-align:center;margin:24px 0"><a href="${signingUrl}" style="display:inline-block;background:#A6896E;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">✍️ Firmar contrato</a></p><p style="font-size:13px;color:#666">Si tienes dudas, escríbenos a melmadani@urbanflip.io</p><p>Un saludo,<br><strong>ONOMA Real Estate</strong></p>`,
     });
     await sb.from('colaboradores').update({ contrato_estado: 'enviado' }).eq('id', colabId);
     toast('✅ Contrato enviado por email');
@@ -2975,7 +2976,7 @@ async function submitAsesor() {
     // 3. Try to send email (non-blocking)
     callN8n('send-email', {
       to: email, subject: 'Bienvenido a ONOMA CRM',
-      html: `<p>Hola ${nombre},</p><p>Se ha creado tu cuenta de asesor en ONOMA Real Estate CRM.</p><p><strong>Email:</strong> ${email}<br><strong>Contraseña:</strong> ${password}</p><p><a href="https://onomahomes.github.io/app.html" style="display:inline-block;background:#6B7F5E;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700">Acceder al CRM</a></p>`
+      html: `<p>Hola ${nombre},</p><p>Se ha creado tu cuenta de asesor en ONOMA Real Estate CRM.</p><p><strong>Email:</strong> ${email}<br><strong>Contraseña:</strong> ${password}</p><p><a href="https://onomahomes.github.io/app.html" style="display:inline-block;background:#A6896E;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700">Acceder al CRM</a></p>`
     }).catch(() => {});
 
     toast('✅ Asesor creado (modo directo). Credenciales: ' + email + ' / ' + password); closeModal();
