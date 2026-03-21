@@ -2226,7 +2226,7 @@ async function rechazarVisita(id) {
 }
 
 async function openFeedbackModal(visitaId) {
-  // Load visita context
+  // Load visita context automatically
   let visita = {}, pisoInfo = {};
   try {
     const { data: vd } = await sb.from('visitas').select('*').eq('id', visitaId).limit(1);
@@ -2240,68 +2240,75 @@ async function openFeedbackModal(visitaId) {
   const pisoDir = pisoInfo.direccion || '—';
   const pisoBarrio = pisoInfo.barrio || '';
   const dt = visita.fecha_hora ? new Date(visita.fecha_hora).toLocaleString('es-ES',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-  const esColab = visita.colaborador_id && visita.colaborador_id !== 'Directo';
+  const esColab = visita.colaborador_id && visita.colaborador_id !== 'Directo' && visita.colaborador_id !== '';
 
-  // Context header
+  // Context header (automatic — system knows this)
   const contextHtml = `<div style="background:var(--bg);border:1.5px solid var(--color-gris);border-radius:10px;padding:16px;margin-bottom:20px">
     <div style="font-weight:700;font-size:15px;margin-bottom:4px">📍 ${pisoDir}</div>
     <div style="font-size:13px;color:var(--text-muted)">${pisoBarrio}${pisoInfo.precio ? ' · '+eur(pisoInfo.precio) : ''}</div>
-    <div style="font-size:13px;color:var(--text-muted);margin-top:4px">👤 ${visita.cliente_nombre||'—'} ${esColab ? '· 🤝 '+visita.colaborador_id : '· Comprador directo'}</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-top:4px">👤 ${visita.cliente_nombre||'—'} ${esColab ? '· 🤝 Colaborador: '+visita.colaborador_id : '· Comprador directo ONOMA'}</div>
     <div style="font-size:12px;color:var(--text-muted);margin-top:2px">📅 ${dt}</div>
   </div>`;
 
-  function stars(name, label) {
-    return `<div class="form-col"><label>${label}</label><div style="display:flex;gap:4px">${[1,2,3,4,5,6,7,8,9,10].map(n => `<label style="cursor:pointer"><input type="radio" name="${name}" value="${n}" style="display:none"><span class="pill pill-gray" style="font-size:12px;padding:6px 10px;cursor:pointer" onclick="this.closest('.form-col').querySelectorAll('.pill').forEach(p=>p.classList.remove('pill-gold'));this.classList.add('pill-gold')">${n}</span></label>`).join('')}</div></div>`;
+  function rating5(name, label) {
+    return `<div class="form-col"><label>${label}</label><div style="display:flex;gap:6px">${[1,2,3,4,5].map(n => `<label style="cursor:pointer"><input type="radio" name="${name}" value="${n}" style="display:none"><span class="pill pill-gray" style="font-size:13px;padding:8px 14px;cursor:pointer;min-width:36px;text-align:center" onclick="this.closest('.form-col').querySelectorAll('.pill').forEach(p=>{p.classList.remove('pill-gold');p.style.background=''});this.classList.add('pill-gold');this.style.background='var(--color-gold-bg)'">${n}</span></label>`).join('')}</div></div>`;
   }
 
   openModal('📝 Feedback de visita', `
     ${contextHtml}
     <form id="feedback-form">
-    <!-- Sección A: Valoración del piso -->
-    <div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>A. Valoración del piso</span><span class="caret">▾</span></div><div class="collapsible-body open">
-      ${stars('val_global','Puntuación global del piso (1-10)')}
-      <div class="form-col" style="margin-top:12px"><label>¿El piso cumplió expectativas del cliente?</label>
-        <select name="cumple_expectativas"><option value="">—</option><option value="si">Sí</option><option value="parcialmente">Parcialmente</option><option value="no">No</option></select></div>
-      <div class="form-col" style="margin-top:12px"><label>Condición observada del piso</label>
-        <select name="condicion_piso"><option value="">—</option><option value="excelente">Excelente</option><option value="buena">Buena</option><option value="regular">Regular</option><option value="necesita_reforma">Necesita reforma</option></select></div>
-    </div></div>
 
-    <!-- Sección B: Descripción del asesor -->
-    <div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>B. Descripción de la visita</span><span class="caret">▾</span></div><div class="collapsible-body open">
-      <div class="form-col"><label>Bondades del piso observadas</label>
-        <textarea name="bondades" rows="3" placeholder="Ej: El salón es muy amplio, la cocina tiene mucha luz natural, el dormitorio principal es silencioso..."></textarea></div>
-      <div class="form-col" style="margin-top:12px"><label>Aspectos negativos o mejorables</label>
-        <textarea name="negativos" rows="3" placeholder="Ej: La segunda habitación es pequeña, hay algo de ruido de la calle..."></textarea></div>
-    </div></div>
-
-    <!-- Sección C: Bloque y zona -->
-    <div class="collapsible"><div class="collapsible-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>C. Valoración del bloque y zona</span><span class="caret">▾</span></div><div class="collapsible-body">
-      ${stars('val_bloque','¿Cómo viste el bloque? (1-10)')}
-      <div style="margin-top:12px">${stars('val_zona','¿Cómo viste la zona/barrio? (1-10)')}</div>
-      <div class="form-col" style="margin-top:12px"><label>Observaciones del bloque/zona</label>
-        <textarea name="obs_zona" rows="2" placeholder="Portal limpio, vecinos amables, zona tranquila..."></textarea></div>
-    </div></div>
-
-    <!-- Sección D: Feedback del cliente -->
-    <div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>D. Feedback del cliente durante la visita</span><span class="caret">▾</span></div><div class="collapsible-body open">
-      <div class="form-col"><label>¿Qué le gustó al cliente?</label>
-        <textarea name="cliente_gusto" rows="2" placeholder="Ej: Le encantó el salón, mencionó que le gustaba la luz..."></textarea></div>
-      <div class="form-col" style="margin-top:12px"><label>¿Qué no le convenció?</label>
-        <textarea name="cliente_no_gusto" rows="2" placeholder="Ej: Le pareció pequeña la cocina..."></textarea></div>
-      <div class="form-col" style="margin-top:12px"><label>¿Mostró interés?</label>
-        <select name="decision_cliente"><option value="">—</option><option value="segunda_visita">Sí, quiere segunda visita</option><option value="con_dudas">Sí, pero con dudas</option><option value="descartado">No, descartado</option><option value="ofertar">Quiere ofertar</option></select></div>
-      <div class="form-col" style="margin-top:12px"><label>Comentarios adicionales del cliente</label>
-        <textarea name="cliente_comentarios" rows="2" placeholder="Cualquier comentario relevante..."></textarea></div>
-    </div></div>
-
-    <!-- Sección E: Próximos pasos -->
-    <div class="collapsible"><div class="collapsible-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>E. Próximos pasos</span><span class="caret">▾</span></div><div class="collapsible-body">
-      <div class="form-col"><label>Acción recomendada</label>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          ${['Segunda visita','Enviar más opciones','Descartado definitivamente','Preparar oferta'].map(opt => `<label class="checkbox-item"><input type="radio" name="accion_recomendada" value="${opt.toLowerCase().replace(/ /g,'_')}"><span class="cb-label">${opt}</span></label>`).join('')}
+    <!-- S1: Feedback del comprador -->
+    <div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>1. Feedback del comprador</span><span class="caret">▾</span></div><div class="collapsible-body open">
+      <div class="form-col"><label>¿Qué le gustó al comprador?</label>
+        <textarea name="comprador_gusto" rows="3" placeholder="Ej: Le encantó la luminosidad del salón, la cocina amplia, la zona tranquila..."></textarea></div>
+      <div class="form-col" style="margin-top:12px"><label>¿Qué no le gustó?</label>
+        <textarea name="comprador_no_gusto" rows="3" placeholder="Ej: Le pareció pequeña la terraza, no le convenció el estado del baño..."></textarea></div>
+      <div class="form-col" style="margin-top:12px"><label>¿Descarta el piso?</label>
+        <div style="display:flex;gap:10px">
+          <label class="checkbox-item"><input type="radio" name="comprador_descarta" value="no"><span class="cb-label">No descarta</span></label>
+          <label class="checkbox-item"><input type="radio" name="comprador_descarta" value="si"><span class="cb-label">Sí, descarta</span></label>
         </div></div>
-      <div class="form-col" style="margin-top:12px"><label>Notas internas (no visibles para cliente)</label>
-        <textarea name="notas_internas" rows="2" placeholder="Notas privadas del asesor..."></textarea></div>
+    </div></div>
+
+    <!-- S2: Feedback del vendedor -->
+    <div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>2. Feedback del vendedor</span><span class="caret">▾</span></div><div class="collapsible-body open">
+      <div class="form-col"><label>Observaciones sobre el propietario</label>
+        <textarea name="vendedor_observaciones" rows="3" placeholder="Ej: Propietario receptivo, flexible con horarios, dispuesto a negociar precio, tiene prisa por vender..."></textarea></div>
+    </div></div>
+
+    <!-- S3: Feedback del broker (solo si hay colaborador) -->
+    ${esColab ? `<div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>3. Feedback del broker</span><span class="caret">▾</span></div><div class="collapsible-body open">
+      ${rating5('broker_profesionalidad','Profesionalidad del broker (1-5)')}
+      <div class="form-col" style="margin-top:12px"><label>Observaciones sobre el colaborador</label>
+        <textarea name="broker_observaciones" rows="2" placeholder="Ej: Puntual, bien preparado, conoce al cliente..."></textarea></div>
+    </div></div>` : ''}
+
+    <!-- S4: Feedback del piso para el sistema -->
+    <div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>${esColab?'4':'3'}. Feedback del piso para el sistema</span><span class="caret">▾</span></div><div class="collapsible-body open">
+      <div class="form-col"><label>Aspectos positivos del piso</label>
+        <textarea name="piso_positivos" rows="3" placeholder="Ej: Muy luminoso, techos altos, distribución práctica, vecindario silencioso, portero amable..."></textarea></div>
+      <div class="form-col" style="margin-top:12px"><label>Aspectos negativos del piso</label>
+        <textarea name="piso_negativos" rows="3" placeholder="Ej: Ruido de la calle por la noche, ascensor antiguo, necesita pintar..."></textarea></div>
+      <div class="form-col" style="margin-top:12px"><label>Video o audio del asesor describiendo el piso</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('feedback-media-input').click()">📹 Subir video/audio</button>
+          <span id="feedback-media-status" style="font-size:12px;color:var(--text-muted)">Alimenta la búsqueda semántica del motor IA</span>
+        </div>
+        <input type="file" id="feedback-media-input" accept="video/*,audio/*" style="display:none" onchange="uploadFeedbackMedia(this)">
+        <input type="hidden" name="media_url" id="feedback-media-url">
+      </div>
+    </div></div>
+
+    <!-- S5: Próximo paso -->
+    <div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>${esColab?'5':'4'}. Próximo paso</span><span class="caret">▾</span></div><div class="collapsible-body open">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button type="button" class="btn btn-secondary" style="padding:16px;font-size:13px" onclick="document.getElementById('fb-paso').value='descartar';this.closest('div').querySelectorAll('.btn').forEach(b=>{b.style.borderColor='';b.style.background=''});this.style.borderColor='var(--danger)';this.style.background='var(--color-error-bg)'">🗑️ Descartar</button>
+        <button type="button" class="btn btn-secondary" style="padding:16px;font-size:13px" onclick="document.getElementById('fb-paso').value='guardar';this.closest('div').querySelectorAll('.btn').forEach(b=>{b.style.borderColor='';b.style.background=''});this.style.borderColor='var(--color-cafe)';this.style.background='rgba(166,137,110,0.08)'">💾 Guardar</button>
+        <button type="button" class="btn btn-secondary" style="padding:16px;font-size:13px" onclick="document.getElementById('fb-paso').value='segunda_visita';this.closest('div').querySelectorAll('.btn').forEach(b=>{b.style.borderColor='';b.style.background=''});this.style.borderColor='var(--gold)';this.style.background='var(--color-gold-bg)'">🔄 Segunda visita</button>
+        <button type="button" class="btn btn-secondary" style="padding:16px;font-size:13px" onclick="document.getElementById('fb-paso').value='reservar';this.closest('div').querySelectorAll('.btn').forEach(b=>{b.style.borderColor='';b.style.background=''});this.style.borderColor='var(--color-success)';this.style.background='var(--color-success-bg)'">✅ Reservar</button>
+      </div>
+      <input type="hidden" name="proximo_paso" id="fb-paso" value="">
     </div></div>
 
     <input type="hidden" name="es_colaborador" value="${esColab ? '1' : '0'}">
@@ -2312,34 +2319,42 @@ async function openFeedbackModal(visitaId) {
   `);
 }
 
+async function uploadFeedbackMedia(input) {
+  const file = input.files[0]; if (!file) return;
+  const status = document.getElementById('feedback-media-status');
+  status.textContent = 'Subiendo...';
+  try {
+    const r = await uploadToCloudinary(file, 'onoma/feedback');
+    document.getElementById('feedback-media-url').value = r.secure_url;
+    status.textContent = '✅ ' + file.name; status.style.color = '#2C5F2E';
+  } catch(e) { status.textContent = '❌ Error'; toast('Error: ' + e.message, 'error'); }
+}
+
 async function submitFeedback(visitaId) {
   const form = document.getElementById('feedback-form');
   const fd = new FormData(form);
+  const paso = fd.get('proximo_paso');
+  if (!paso) { toast('Selecciona un próximo paso (Descartar/Guardar/Segunda visita/Reservar)','error'); return; }
   const btn = document.querySelector('.modal-footer .btn-primary');
   if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
   try {
-    // Build feedback object
     const feedback = {
-      val_global: fd.get('val_global')||null,
-      cumple_expectativas: fd.get('cumple_expectativas')||null,
-      condicion_piso: fd.get('condicion_piso')||null,
-      bondades: fd.get('bondades')||null,
-      negativos: fd.get('negativos')||null,
-      val_bloque: fd.get('val_bloque')||null,
-      val_zona: fd.get('val_zona')||null,
-      obs_zona: fd.get('obs_zona')||null,
-      cliente_gusto: fd.get('cliente_gusto')||null,
-      cliente_no_gusto: fd.get('cliente_no_gusto')||null,
-      cliente_comentarios: fd.get('cliente_comentarios')||null,
-      accion_recomendada: fd.get('accion_recomendada')||null,
-      notas_internas: fd.get('notas_internas')||null,
+      comprador_gusto: fd.get('comprador_gusto')||null,
+      comprador_no_gusto: fd.get('comprador_no_gusto')||null,
+      comprador_descarta: fd.get('comprador_descarta')||null,
+      vendedor_observaciones: fd.get('vendedor_observaciones')||null,
+      broker_profesionalidad: fd.get('broker_profesionalidad')||null,
+      broker_observaciones: fd.get('broker_observaciones')||null,
+      piso_positivos: fd.get('piso_positivos')||null,
+      piso_negativos: fd.get('piso_negativos')||null,
+      media_url: fd.get('media_url')||null,
+      proximo_paso: paso,
     };
 
-    // Update visita
     await sb.from('visitas').update({
       feedback_asesor_completado: true,
-      valoracion_asesor: parseInt(fd.get('val_global'))||null,
-      decision_cliente: fd.get('decision_cliente')||null,
+      valoracion_asesor: parseInt(fd.get('broker_profesionalidad'))||null,
+      decision_cliente: paso,
       notas_feedback: JSON.stringify(feedback),
     }).eq('id', visitaId);
 
@@ -2348,41 +2363,37 @@ async function submitFeedback(visitaId) {
     loadPendingCount();
 
     const esColab = fd.get('es_colaborador') === '1';
-
-    // Generate link for next in chain
     const linkHash = btoa(visitaId + ':' + Date.now()).replace(/=/g,'');
 
+    toast('✅ Feedback guardado');
+    closeModal();
+
+    // Generate link for next in chain
     if (esColab) {
-      // Chain: asesor → colaborador → cliente
-      toast('✅ Feedback guardado');
-      closeModal();
-      // Show link generation modal for collaborator
-      const colabLink = `${GH_PAGES}/feedback-colab.html?h=${linkHash}`;
-      const telefono = ''; // Would need to fetch from visita data
-      openModal('📧 Enviar feedback al colaborador', `
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Tu feedback se ha guardado. Ahora envía este enlace al colaborador para que complete su parte:</p>
+      const colabLink = GH_PAGES + '/feedback-colab.html?h=' + linkHash;
+      openModal('📧 Enviar al colaborador', `
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Envía este enlace al colaborador para que complete su parte del feedback:</p>
         <div class="link-box"><span class="link-text">${colabLink}</span><button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText('${colabLink}');toast('Link copiado')">📋</button></div>
         <div style="display:flex;gap:8px;margin-top:14px">
-          <button class="btn btn-primary" onclick="window.open('https://wa.me/?text='+encodeURIComponent('Hola, te envío el enlace para completar tu feedback de la visita:\\n${colabLink}'))">💬 WhatsApp</button>
-          <button class="btn btn-secondary" onclick="window.open('mailto:?subject='+encodeURIComponent('Feedback de visita — ONOMA')+'&body='+encodeURIComponent('Hola,\\n\\nCompleta tu feedback de la visita en este enlace:\\n\\n${colabLink}\\n\\nGracias,\\nONOMA Homes'))">📧 Email</button>
+          <button class="btn btn-primary" onclick="window.open('https://wa.me/?text='+encodeURIComponent('Hola, completa tu feedback de la visita aquí:\\n${colabLink}'))">💬 WhatsApp</button>
+          <button class="btn btn-secondary" onclick="window.open('mailto:?subject='+encodeURIComponent('Feedback de visita — ONOMA')+'&body='+encodeURIComponent('Completa tu feedback:\\n\\n${colabLink}'))">📧 Email</button>
         </div>
-      `, 'sm', `<button class="btn btn-secondary" onclick="closeModal();loadedTabs.delete('visitas');TAB_LOADERS.visitas()">Cerrar</button>`);
+        <p style="font-size:11px;color:var(--text-muted);margin-top:14px">Las páginas externas de feedback (colaborador y comprador final) se construyen en Fase 6.</p>
+      `, 'sm', '<button class="btn btn-secondary" onclick="closeModal();loadedTabs.delete(\'visitas\');TAB_LOADERS.visitas()">Cerrar</button>');
     } else {
-      // Chain: asesor → cliente final directo
-      toast('✅ Feedback guardado');
-      closeModal();
-      const clienteLink = `${GH_PAGES}/feedback-cliente.html?h=${linkHash}`;
-      openModal('📧 Enviar feedback al comprador', `
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Tu feedback se ha guardado. Envía este enlace al comprador para que valore el piso:</p>
+      const clienteLink = GH_PAGES + '/feedback-cliente.html?h=' + linkHash;
+      openModal('📧 Enviar al comprador', `
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Envía este enlace al comprador para que valore el piso:</p>
         <div class="link-box"><span class="link-text">${clienteLink}</span><button class="btn btn-secondary btn-sm" onclick="navigator.clipboard.writeText('${clienteLink}');toast('Link copiado')">📋</button></div>
         <div style="display:flex;gap:8px;margin-top:14px">
-          <button class="btn btn-primary" onclick="window.open('https://wa.me/?text='+encodeURIComponent('Hola, nos gustaría conocer tu opinión sobre el piso que visitaste. Completa este breve formulario:\\n${clienteLink}'))">💬 WhatsApp</button>
-          <button class="btn btn-secondary" onclick="window.open('mailto:?subject='+encodeURIComponent('¿Qué te pareció el piso? — ONOMA')+'&body='+encodeURIComponent('Hola,\\n\\nNos encantaría conocer tu opinión sobre el piso que visitaste.\\n\\nCompleta este breve formulario:\\n${clienteLink}\\n\\nGracias,\\nONOMA Homes'))">📧 Email</button>
+          <button class="btn btn-primary" onclick="window.open('https://wa.me/?text='+encodeURIComponent('Hola, nos gustaría tu opinión sobre el piso:\\n${clienteLink}'))">💬 WhatsApp</button>
+          <button class="btn btn-secondary" onclick="window.open('mailto:?subject='+encodeURIComponent('¿Qué te pareció el piso? — ONOMA')+'&body='+encodeURIComponent('Completa este breve formulario:\\n\\n${clienteLink}'))">📧 Email</button>
         </div>
         <div style="margin-top:14px;padding:12px;background:var(--color-gold-bg);border-radius:8px;font-size:12px;color:var(--color-gold-dark)">
           El comprador podrá: 🗑️ Descartar · 💾 Guardar · 🔄 Segunda visita · ✅ Reservar
         </div>
-      `, 'sm', `<button class="btn btn-secondary" onclick="closeModal();loadedTabs.delete('visitas');TAB_LOADERS.visitas()">Cerrar</button>`);
+        <p style="font-size:11px;color:var(--text-muted);margin-top:10px">La página externa de feedback del comprador se construye en Fase 6.</p>
+      `, 'sm', '<button class="btn btn-secondary" onclick="closeModal();loadedTabs.delete(\'visitas\');TAB_LOADERS.visitas()">Cerrar</button>');
     }
   } catch(e) { toast('Error: ' + e.message, 'error'); if(btn) { btn.disabled=false; btn.textContent='Guardar feedback'; } }
 }
