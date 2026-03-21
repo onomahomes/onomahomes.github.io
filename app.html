@@ -1902,8 +1902,8 @@ function renderMatchingsList() {
   if (!el) return;
   const { demandas, matchings, matchByDem } = _matchReviewData;
 
-  // Recalculate KPIs — 5 cards
-  const pendReview = matchings.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
+  // Recalculate KPIs — 5 cards (count DEMANDAS with pending, not individual pisos)
+  const pendReview = Object.values(matchByDem).filter(dMatches => dMatches.some(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor' && m.estado !== 'enviado')).length;
   const activas = demandas.filter(d => (d.estado_matching||d.estado||'').trim().toLowerCase() !== 'eliminada').length;
   const enviadasColab = matchings.filter(m => m.estado === 'aprobado' && m.envio_id).length;
   const enviadasCliente = matchings.filter(m => m.accion_cliente && m.accion_cliente !== 'pendiente').length;
