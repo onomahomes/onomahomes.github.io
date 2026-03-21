@@ -2301,9 +2301,9 @@ async function generateEnvio(demandaId) {
     <div class="form-section-title" style="margin-bottom:8px">Link de envío</div>
     <div class="link-box" style="margin-bottom:14px"><span class="link-text" style="word-break:break-all">${linkUrl}</span><button class="btn btn-secondary btn-sm" onclick="copyLink('${linkUrl}')">Copiar</button></div>
   `, 'lg', `
-    <button class="btn btn-secondary" onclick="closeModal();loadedTabs.delete('matchings');TAB_LOADERS.matchings()">Cerrar</button>
     <button class="btn btn-secondary" onclick="copyLink(document.getElementById('envio-msg').value)">📋 Copiar mensaje</button>
-    <button class="btn btn-primary" onclick="window.open('mailto:${emailTo}?subject=${emailSubject}&body='+encodeURIComponent(document.getElementById('envio-msg').value))">📧 Enviar por Email</button>
+    <button class="btn btn-secondary" onclick="window.open('mailto:${emailTo}?subject=${emailSubject}&body='+encodeURIComponent(document.getElementById('envio-msg').value))">📧 Enviar por Email</button>
+    <button class="btn btn-primary" onclick="toast('✅ Envío registrado');closeModal();loadedTabs.delete('matchings');TAB_LOADERS.matchings()">✅ Listo</button>
   `);
 }
 
