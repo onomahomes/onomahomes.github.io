@@ -592,6 +592,7 @@ function showApp() {
   const nav = currentUser.rol === 'director' ? NAV_DIRECTOR : NAV_ASESOR;
   renderSidebar(nav); renderContent(nav);
   loadPendingCount();
+  checkDemandaAlarmas(); // Check for stale demandas
   switchTab(nav[0].id);
   showHelpFab();
 }
@@ -1366,7 +1367,7 @@ TAB_LOADERS.demandas = async function() {
       <td style="text-align:center">${d.habitaciones_min||'—'}</td>
       <td><span class="pill ${d.tipo_origen==='colaborador'?'pill-blue':'pill-green'}">${d.tipo_origen==='colaborador'?'Colab.':'Directo'}</span></td>
       <td><span class="pill ${d.estado_matching==='enviado'?'pill-green':d.estado_matching==='pendiente'?'pill-yellow':'pill-gray'}">${d.estado_matching||'pendiente'}</span></td>
-      <td style="font-size:13px;color:var(--text-muted)">${fdate(d.ultimo_matching_enviado)}</td>
+      <td><button class="btn btn-secondary btn-sm" onclick="openDemandaDetail('${d.id}')">Ver Ficha</button></td>
     </tr>`).join('');
 
     pane.innerHTML = `
@@ -1385,7 +1386,7 @@ TAB_LOADERS.demandas = async function() {
       </div>
       ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">📋</span><p>Aún no hay demandas registradas.</p><button class="btn btn-primary" onclick="newDemandaModal()">➕ Crear primera demanda</button></div>` : `
       <div class="data-table"><table>
-        <thead><tr><th>Cliente</th>${isDir?'<th>Asesor</th>':''}<th>Zona</th><th>Presupuesto</th><th>Hab.</th><th>Origen</th><th>Matching</th><th>Último envío</th></tr></thead>
+        <thead><tr><th>Cliente</th>${isDir?'<th>Asesor</th>':''}<th>Zona</th><th>Presupuesto</th><th>Hab.</th><th>Origen</th><th>Estado</th><th>Acciones</th></tr></thead>
         <tbody>${demandasRows}</tbody>
       </table></div>`}`;
   } catch(e) { tabError(pane, e); }
@@ -1396,6 +1397,86 @@ function filterDemandasAsesor(asesId) {
     const match = !asesId || row.dataset.asesor_id === asesId;
     row.style.display = match ? '' : 'none';
   });
+}
+
+async function openDemandaDetail(demandaId) {
+  let d = {};
+  try {
+    const { data } = await sb.from('demandas').select('*').eq('id', demandaId).limit(1);
+    if (data && data[0]) d = data[0];
+  } catch(e) { toast('Error cargando demanda','error'); return; }
+
+  // Fetch stats in parallel
+  let visitasCount = 0, pisosEnviados = 0, pisosDescartados = 0, pisosVisitados = 0, ofertas = 0;
+  try {
+    const [mRes, vRes] = await Promise.all([
+      sb.from('matchings').select('id,estado,envio_id,accion_cliente').or(`demanda.cs.{"${demandaId}"}`),
+      sb.from('visitas').select('id,estado,decision_cliente').or(`demanda.cs.{"${demandaId}"},demanda_2.cs.{"${demandaId}"}`)
+    ]);
+    const matchings = mRes.data || [];
+    const visitas = vRes.data || [];
+    visitasCount = visitas.length;
+    pisosVisitados = visitas.filter(v => v.estado === 'realizada').length;
+    pisosEnviados = matchings.filter(m => m.envio_id).length;
+    pisosDescartados = matchings.filter(m => m.estado === 'descartado_asesor' || m.accion_cliente === 'descartado').length;
+    ofertas = visitas.filter(v => v.decision_cliente === 'reservar' || v.decision_cliente === 'ofertar').length;
+  } catch(e) {}
+
+  const createdDate = d.created_time ? new Date(d.created_time) : null;
+  const diasActiva = createdDate ? Math.round((Date.now() - createdDate) / (1000*60*60*24)) : '—';
+
+  function stat(icon, label, val, color) {
+    return `<div style="text-align:center;padding:12px"><div style="font-size:20px;font-weight:700;color:var(--${color||'accent'});font-family:var(--font-ui)">${val}</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">${icon} ${label}</div></div>`;
+  }
+
+  openModal('📋 Ficha: ' + (d.nombre || '—'), `
+    <!-- Stats grid -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px">
+      ${stat('📍','Visitas realizadas', pisosVisitados, 'accent')}
+      ${stat('📧','Pisos enviados', pisosEnviados, 'gold')}
+      ${stat('❌','Descartados', pisosDescartados, 'text-muted')}
+      ${stat('🏠','Pisos visitados', visitasCount, 'accent')}
+      ${stat('✅','Ofertas', ofertas, ofertas>0?'color-success':'text-muted')}
+      ${stat('📅','Días activa', diasActiva, 'text-muted')}
+    </div>
+
+    <!-- Datos de la demanda -->
+    <div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>Datos de búsqueda</span><span class="caret">▾</span></div><div class="collapsible-body open">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px">
+        <div><span style="color:var(--text-muted)">Zona:</span> <strong>${d.zona_preferida||'—'}</strong></div>
+        <div><span style="color:var(--text-muted)">Presupuesto:</span> <strong>${eur(d.presupuesto_max)}</strong></div>
+        <div><span style="color:var(--text-muted)">Habitaciones mín:</span> <strong>${d.habitaciones_min||'—'}</strong></div>
+        <div><span style="color:var(--text-muted)">Metros mín:</span> <strong>${d.metros_min||'—'}</strong></div>
+        <div><span style="color:var(--text-muted)">Origen:</span> <strong>${d.tipo_origen==='colaborador'?'Colaborador':'Comprador directo'}</strong></div>
+        <div><span style="color:var(--text-muted)">Estado:</span> <strong>${d.estado_matching||d.estado||'activa'}</strong></div>
+        <div><span style="color:var(--text-muted)">Creada:</span> <strong>${d.created_time?fdate(d.created_time):'—'}</strong></div>
+      </div>
+      ${d.perfil_quien||d.perfil_valoran||d.perfil_no_quieren ? `<div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Perfil del comprador</div>
+        ${d.perfil_quien ? '<p style="font-size:13px;margin-bottom:4px"><strong>Quién:</strong> '+d.perfil_quien+'</p>' : ''}
+        ${d.perfil_valoran ? '<p style="font-size:13px;margin-bottom:4px"><strong>Valora:</strong> '+d.perfil_valoran+'</p>' : ''}
+        ${d.perfil_no_quieren ? '<p style="font-size:13px;margin-bottom:4px"><strong>No quiere:</strong> '+d.perfil_no_quieren+'</p>' : ''}
+        ${d.perfil_actividades ? '<p style="font-size:13px"><strong>Actividades:</strong> '+d.perfil_actividades+'</p>' : ''}
+      </div>` : ''}
+    </div></div>
+
+    <!-- Notas del asesor -->
+    <div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>Notas del asesor</span><span class="caret">▾</span></div><div class="collapsible-body open">
+      <textarea id="demanda-notas" rows="4" style="width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px solid var(--border);border-radius:8px;resize:vertical" placeholder="Ej: llamé al cliente, busca piso para junio, el colaborador dice que amplió presupuesto...">${d.notas_asesor||''}</textarea>
+      <button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="saveDemandaNotas('${demandaId}')">💾 Guardar notas</button>
+    </div></div>
+  `, 'lg', `
+    <button class="btn btn-secondary" onclick="closeModal()">Cerrar</button>
+    <button class="btn btn-primary" onclick="closeModal();switchTab('matchings');setTimeout(()=>{try{openMatchReview('${demandaId}')}catch(e){}},600)">🤝 Ver Matchings</button>
+  `);
+}
+
+async function saveDemandaNotas(demandaId) {
+  const notas = document.getElementById('demanda-notas')?.value || '';
+  try {
+    await sb.from('demandas').update({ notas_asesor: notas }).eq('id', demandaId);
+    toast('✅ Notas guardadas');
+  } catch(e) { toast('Error: '+e.message,'error'); }
 }
 
 // PISOS
@@ -1960,6 +2041,63 @@ async function syncMatchingAcciones(demandas, matchByDem) {
     }
     if (created > 0) loadPendingCount();
   } catch(e) { /* silent — don't break matchings tab */ }
+}
+
+// Alarmas inteligentes: demanda sin visitas 30d + envíos sin actividad
+async function checkDemandaAlarmas() {
+  try {
+    const { data: demandas } = await sb.from('demandas').select('id,nombre,tipo_origen,colaborador,created_time').eq('asesor_id', currentUser.id).eq('estado', 'Activa ');
+    if (!demandas || !demandas.length) return;
+
+    // Get existing alarma actions to avoid duplicates
+    const { data: existingAcc } = await sb.from('acciones_pendientes').select('id,referencia_id,tipo').eq('asesor_id', currentUser.id).eq('estado', 'pendiente').in('tipo', ['llamada_sin_visita','llamada_sin_actividad']);
+    const existingRefs = new Set((existingAcc||[]).map(a => a.referencia_id + ':' + a.tipo));
+
+    const now = Date.now();
+    let created = 0;
+
+    for (const d of demandas) {
+      const createdMs = d.created_time ? new Date(d.created_time).getTime() : now;
+      const diasActiva = (now - createdMs) / (1000*60*60*24);
+      const esColab = d.tipo_origen === 'colaborador';
+      const contacto = esColab ? 'al colaborador' : 'al comprador directo';
+
+      // Alarma 1: demanda sin visitas en más de 30 días
+      if (diasActiva >= 30 && !existingRefs.has(d.id + ':llamada_sin_visita')) {
+        const { count } = await sb.from('visitas').select('id', { count: 'exact', head: true }).or(`demanda.cs.{"${d.id}"},demanda_2.cs.{"${d.id}"}`);
+        if ((count||0) === 0) {
+          await sb.from('acciones_pendientes').insert({
+            asesor_id: currentUser.id,
+            tipo: 'llamada_sin_visita',
+            titulo: '📞 Llamar ' + contacto + ' — ' + (d.nombre||'Demanda'),
+            descripcion: 'Demanda activa desde hace ' + Math.round(diasActiva) + ' días sin ninguna visita. Contactar para verificar interés y actualizar criterios.',
+            referencia_id: d.id,
+            estado: 'pendiente',
+            prioridad: 'alta'
+          });
+          created++;
+        }
+      }
+
+      // Alarma 2: 2+ envíos de matchings sin actividad del cliente
+      const { data: matchEnvios } = await sb.from('matchings').select('id,envio_id,accion_cliente').or(`demanda.cs.{"${d.id}"}`).not('envio_id', 'is', null);
+      const enviosCount = (matchEnvios||[]).filter(m => m.envio_id).length;
+      const conActividad = (matchEnvios||[]).filter(m => m.accion_cliente && m.accion_cliente !== 'pendiente').length;
+      if (enviosCount >= 2 && conActividad === 0 && !existingRefs.has(d.id + ':llamada_sin_actividad')) {
+        await sb.from('acciones_pendientes').insert({
+          asesor_id: currentUser.id,
+          tipo: 'llamada_sin_actividad',
+          titulo: '📞 Seguimiento — ' + (d.nombre||'Demanda'),
+          descripcion: enviosCount + ' envíos de pisos sin respuesta del cliente. Llamar ' + contacto + ' para verificar si ha visto las opciones.',
+          referencia_id: d.id,
+          estado: 'pendiente',
+          prioridad: 'alta'
+        });
+        created++;
+      }
+    }
+    if (created > 0) loadPendingCount();
+  } catch(e) { /* silent */ }
 }
 
 function showDiscardPopup(matchId, pisoDir) {
