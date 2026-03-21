@@ -1822,14 +1822,22 @@ async function approveMatch(matchId, btn) {
   btn.disabled = true; btn.textContent = '...';
   try {
     await sb.from('matchings').update({ estado: 'aprobado' }).eq('id', matchId);
-    // Update local data
     const m = _matchReviewData.matchings.find(x => x.id === matchId);
     if (m) m.estado = 'aprobado';
     toast('✅ Piso aprobado');
-    // Re-open the review with updated data
     const did = m ? (Array.isArray(m.demanda)?m.demanda[0]:m.demanda) : null;
-    if (did) openMatchReview(String(did).replace(/[{}]/g,''));
+    if (did) { checkMatchingReviewDone(String(did).replace(/[{}]/g,'')); openMatchReview(String(did).replace(/[{}]/g,'')); }
   } catch(e) { toast('Error: '+e.message,'error'); btn.disabled = false; btn.textContent = '✅ Aprobar'; }
+}
+
+// Mark matching_revisar action as done when all matchings of a demanda are reviewed
+async function checkMatchingReviewDone(demandaId) {
+  const dMatches = _matchReviewData.matchByDem[demandaId] || [];
+  const pending = dMatches.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor');
+  if (pending.length === 0) {
+    await sb.from('acciones_pendientes').update({ estado: 'completada' }).eq('referencia_id', demandaId).eq('tipo', 'matching_revisar');
+    loadPendingCount();
+  }
 }
 
 function showDiscardPopup(matchId, pisoDir) {
@@ -1860,7 +1868,7 @@ async function discardMatch(matchId) {
     callN8n('analizar-feedback', { matching_id: matchId, tipo: 'descarte_asesor', feedback }).catch(() => {});
     toast('Piso descartado');
     const did = m ? (Array.isArray(m.demanda)?m.demanda[0]:m.demanda) : null;
-    if (did) openMatchReview(String(did).replace(/[{}]/g,''));
+    if (did) { checkMatchingReviewDone(String(did).replace(/[{}]/g,'')); openMatchReview(String(did).replace(/[{}]/g,'')); }
   } catch(e) { toast('Error: '+e.message,'error'); }
 }
 
@@ -2216,6 +2224,9 @@ function filterVisitasSection(btn, filter) {
 async function confirmarVisita(id) {
   try {
     await sb.from('visitas').update({ estado: 'confirmada' }).eq('id', id);
+    // Mark related accion as done
+    await sb.from('acciones_pendientes').update({ estado: 'completada' }).eq('referencia_id', id).eq('tipo', 'visita_confirmar');
+    loadPendingCount();
     toast('✅ Visita confirmada');
     loadedTabs.delete('visitas'); TAB_LOADERS.visitas();
   } catch(e) { toast('Error: ' + e.message, 'error'); }
@@ -2224,6 +2235,8 @@ async function confirmarVisita(id) {
 async function rechazarVisita(id) {
   try {
     await sb.from('visitas').update({ estado: 'cancelada' }).eq('id', id);
+    await sb.from('acciones_pendientes').update({ estado: 'completada' }).eq('referencia_id', id).eq('tipo', 'visita_confirmar');
+    loadPendingCount();
     toast('Visita rechazada');
     loadedTabs.delete('visitas'); TAB_LOADERS.visitas();
   } catch(e) { toast('Error: ' + e.message, 'error'); }
