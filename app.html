@@ -2001,40 +2001,62 @@ async function generateEnvio(demandaId) {
   if (!approved.length) { toast('Aprueba al menos 1 piso', 'error'); return; }
 
   const linkHash = Math.random().toString(36).substring(2,14);
-  const pisosSummary = approved.map(m => {
+  const isDirecto = d.tipo_origen === 'comprador_directo' || d.tipo_origen === 'directo';
+  const linkUrl = GH_PAGES + '/matchings-cliente.html?h=' + linkHash;
+
+  // Build piso details for the message
+  const pisosDetails = approved.map(m => {
     const pid = Array.isArray(m.piso)?m.piso[0]:m.piso;
     const pisoId = pid?String(pid).replace(/[{}]/g,''):'';
     const p = _matchReviewData.pisosMap[pisoId]||{};
-    return `${p.direccion||'—'} · ${eur(p.precio)} · Score ${Math.round(m.score_matching||0)}%`;
-  }).join('\n');
+    return { dir: p.direccion||'—', barrio: p.barrio||'', precio: p.precio||0, hab: p.habitaciones||0, m2: p.metros||0, score: Math.round(m.score_matching||0) };
+  });
 
-  const isDirecto = d.tipo_origen === 'comprador_directo';
-  const destino = isDirecto ? 'comprador directamente' : 'colaborador';
-  const linkUrl = `${GH_PAGES}/matchings-cliente.html?h=${linkHash}`;
+  // Get collaborator info if applicable
+  let colabEmail = '', colabNombre = '';
+  if (!isDirecto && d.colaborador) {
+    try {
+      const colabId = Array.isArray(d.colaborador) ? d.colaborador[0] : d.colaborador;
+      const cid = String(colabId).replace(/[{}]/g,'');
+      const { data: cd } = await sb.from('colaboradores').select('nombre,apellido,email,empresa').eq('id', cid).limit(1);
+      if (cd && cd[0]) { colabNombre = [cd[0].nombre, cd[0].apellido].filter(Boolean).join(' '); colabEmail = cd[0].email || ''; }
+    } catch(e) {}
+  }
 
   // Save envio
   try {
     const envioId = genId();
-    await sb.from('matchings').update({ envio_id: envioId }).in('id', approved.map(m => m.id));
-    // Mark action as completed
+    await sb.from('matchings').update({ envio_id: envioId, estado: 'enviado' }).in('id', approved.map(m => m.id));
     await sb.from('acciones_pendientes').update({ estado: 'completada' }).eq('referencia_id', demandaId).eq('tipo', 'matching_revisar').eq('estado', 'pendiente');
     loadPendingCount();
   } catch(e) { console.warn('Envio save:', e); }
 
-  const msgText = `Hola! Aquí tienes ${approved.length} pisos seleccionados para ${d.nombre||'tu cliente'}:\n\n${pisosSummary}\n\nRevísalos aquí: ${linkUrl}`;
+  // Generate IA-style personalized message
+  const clienteNombre = d.nombre || 'tu cliente';
+  const pisosList = pisosDetails.map((p,i) => '  ' + (i+1) + '. ' + p.dir + ' — ' + eur(p.precio) + ' · ' + p.hab + ' hab · ' + p.m2 + ' m² (' + p.barrio + ')').join('\n');
 
-  openModal('Envío generado', `
+  const msgText = isDirecto
+    ? 'Hola ' + clienteNombre + ',\n\nDesde ONOMA Homes hemos seleccionado ' + approved.length + ' pisos que encajan con lo que buscas:\n\n' + pisosList + '\n\nPuedes ver las fichas completas, fotos y detalles aquí:\n' + linkUrl + '\n\nSi alguno te interesa, dinos y organizamos una visita.\n\nUn saludo,\nEl equipo de ONOMA Homes'
+    : 'Hola ' + (colabNombre || 'colaborador') + ',\n\nHemos preparado ' + approved.length + ' opciones para ' + clienteNombre + ' que creemos que encajan muy bien con su perfil (' + (d.zona_preferida||'') + ', ' + eur(d.presupuesto_max) + ', ' + (d.habitaciones_min||'') + '+ hab):\n\n' + pisosList + '\n\nRevisa las fichas completas aquí y envíalas a tu cliente:\n' + linkUrl + '\n\nSi necesitas que ajustemos algo o quieres ver más opciones, dinos.\n\nUn saludo,\nONOMA Homes';
+
+  const destino = isDirecto ? 'comprador' : 'colaborador';
+  const emailTo = isDirecto ? '' : colabEmail;
+  const emailSubject = encodeURIComponent('ONOMA — Nuevos matchings para ' + clienteNombre);
+  const emailBody = encodeURIComponent(document.getElementById('envio-msg')?.value || msgText);
+
+  openModal('📧 Envío generado', `
     <p style="color:var(--text-muted);margin-bottom:12px">Se han aprobado <strong>${approved.length} pisos</strong> para enviar al ${destino}.</p>
+    ${!isDirecto && colabNombre ? '<div style="font-size:13px;margin-bottom:12px;padding:10px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">📧 Destinatario: <strong>' + colabNombre + '</strong> (' + colabEmail + ')</div>' : ''}
     <div style="background:#f9f8f6;border-radius:8px;padding:14px;margin-bottom:14px">
-      <div class="form-section-title" style="margin-bottom:8px">Mensaje pre-redactado</div>
-      <textarea id="envio-msg" rows="6" style="width:100%;font-family:inherit;font-size:13px;padding:10px;border:1px solid var(--border);border-radius:8px">${msgText}</textarea>
+      <div class="form-section-title" style="margin-bottom:8px">Mensaje (editable)</div>
+      <textarea id="envio-msg" rows="10" style="width:100%;font-family:inherit;font-size:13px;padding:10px;border:1px solid var(--border);border-radius:8px;resize:vertical">${msgText}</textarea>
     </div>
     <div class="form-section-title" style="margin-bottom:8px">Link de envío</div>
     <div class="link-box" style="margin-bottom:14px"><span class="link-text" style="word-break:break-all">${linkUrl}</span><button class="btn btn-secondary btn-sm" onclick="copyLink('${linkUrl}')">Copiar</button></div>
   `, 'lg', `
     <button class="btn btn-secondary" onclick="closeModal();loadedTabs.delete('matchings');TAB_LOADERS.matchings()">Cerrar</button>
     <button class="btn btn-secondary" onclick="copyLink(document.getElementById('envio-msg').value)">📋 Copiar mensaje</button>
-    <button class="btn btn-primary" onclick="window.open('https://wa.me/?text='+encodeURIComponent(document.getElementById('envio-msg').value))">💬 Enviar por WhatsApp</button>
+    <button class="btn btn-primary" onclick="window.open('mailto:${emailTo}?subject=${emailSubject}&body='+encodeURIComponent(document.getElementById('envio-msg').value))">📧 Enviar por Email</button>
   `);
 }
 
