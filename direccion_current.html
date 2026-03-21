@@ -6,6 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <title>ONOMA · Dirección</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://onomahomes.github.io/onoma-track.js" defer></script>
 <script src="https://onomahomes.github.io/onoma-ui.js" defer></script>
 <style>
@@ -337,10 +338,12 @@ body{
 .form-section-hdr:hover{background:rgba(255,255,255,.02)}
 .form-section-hdr .sec-num{
   display:inline-flex;align-items:center;justify-content:center;
-  width:28px;height:28px;border-radius:50%;
+  width:28px;height:28px;border-radius:8px;
   background:var(--gold-dim);border:1px solid var(--gold-b);
   color:var(--gold);font-size:13px;font-weight:700;margin-right:12px;flex-shrink:0;
 }
+/* Card initials avatar */
+.card-initials{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;background:var(--gold-dim);border:1px solid var(--gold-b);color:var(--gold);font-size:15px;font-weight:700;flex-shrink:0;letter-spacing:1px}
 .form-section-hdr .sec-label{font-size:15px;font-weight:600;flex:1}
 .form-section-hdr .sec-arrow{color:var(--muted);font-size:14px;transition:transform .3s}
 .form-section-hdr.open .sec-arrow{transform:rotate(180deg)}
@@ -1304,9 +1307,10 @@ function renderEquipo(asesores) {
     return;
   }
   el.innerHTML = asesores.map(function(a) {
+    var initials = (a.nombre || '?').split(' ').map(function(w){return w[0]||''}).slice(0,2).join('').toUpperCase();
     return '<div class="card">' +
       '<div class="card-top">' +
-        '<div><div class="card-name">' + a.nombre + '</div><div class="card-sub">' + a.email + '</div></div>' +
+        '<div style="display:flex;align-items:center;gap:12px"><div class="card-initials">' + initials + '</div><div><div class="card-name">' + a.nombre + '</div><div class="card-sub">' + a.email + '</div></div></div>' +
         '<span class="badge ' + (a.activo ? 'badge-green' : 'badge-amber') + '">' + (a.activo ? 'Activo' : 'Pendiente') + '</span>' +
       '</div>' +
       '<div class="card-meta">' +
@@ -1332,9 +1336,10 @@ function renderColabs(list) {
   }
   el.innerHTML = list.map(function(c) {
     var fecha = c.created_time ? new Date(c.created_time).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+    var initials = (c.nombre || '?').split(' ').map(function(w){return w[0]||''}).slice(0,2).join('').toUpperCase();
     return '<div class="card" style="cursor:pointer" onclick="this.querySelector(\'.colab-detail\').style.display=this.querySelector(\'.colab-detail\').style.display===\'none\'?\'block\':\'none\'">' +
       '<div class="card-top">' +
-        '<div><div class="card-name">' + (c.nombre || 'Sin nombre') + '</div><div class="card-sub">' + (c.email || '') + '</div></div>' +
+        '<div style="display:flex;align-items:center;gap:12px"><div class="card-initials">' + initials + '</div><div><div class="card-name">' + (c.nombre || 'Sin nombre') + '</div><div class="card-sub">' + (c.email || '') + '</div></div></div>' +
         '<span class="badge ' + (c.activo ? 'badge-green' : 'badge-gray') + '">' + (c.activo ? 'Activo' : 'Inactivo') + '</span>' +
       '</div>' +
       '<div class="card-meta">' +
@@ -1543,7 +1548,26 @@ async function crearAsesor() {
       btn.textContent = 'Crear asesor y enviar email →';
     }
   } catch (e) {
-    err.textContent = 'Error de conexión';
+    // Plan B: Try direct creation via Supabase if available
+    try {
+      if (typeof supabase !== 'undefined' || window._sb) {
+        var _sb = window._sb || supabase.createClient('https://wwaytwudfbwxttyyojjx.supabase.co', 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b');
+        btn.textContent = 'Creando (directo)...';
+        var pwd = 'onoma' + new Date().getFullYear();
+        var authRes = await _sb.auth.signUp({ email: email, password: pwd });
+        var authId = authRes.data?.user?.id || null;
+        var newId = 'rec' + Math.random().toString(36).substring(2, 14);
+        var insRes = await _sb.from('asesores').insert({ id: newId, nombre: nombre + ' ' + apellido, email: email, telefono: tel || null, rol: 'asesor', activo: true, supabase_auth_id: authId });
+        if (insRes.error) throw insRes.error;
+        document.getElementById('asesorForm').style.display = 'none';
+        document.getElementById('asesorOk').classList.add('on');
+        document.getElementById('asesorOkNombre').textContent = nombre + ' ' + apellido;
+        document.getElementById('asesorOkPortal').textContent = 'Credenciales: ' + email + ' / ' + pwd;
+        setTimeout(loadData, 2000);
+        return;
+      }
+    } catch (e2) { console.warn('Plan B also failed:', e2); }
+    err.textContent = 'Error de conexión. Puedes crear el asesor desde el CRM principal (app.html).';
     err.style.display = 'block';
     btn.disabled = false;
     btn.textContent = 'Crear asesor y enviar email →';
@@ -2059,19 +2083,21 @@ async function generarDescripcionIA() {
 
   try {
     var caracteristicas = {
-      direccion: direccion, precio: precio, barrio: barrio,
-      habitaciones: habitaciones, banos: banos, metros: metros,
-      planta: planta, ascensor: ascensor, terraza: terraza,
-      garaje: garaje, trastero: trastero, orientacion: orientacion,
-      estado_inmueble: estadoInm, anio_construccion: anio,
-      tipo: pisoFormTipo === 'urban_flip' ? 'Urban Flip (exclusivo del grupo)' : 'Piso de terceros',
-      num_fotos: pisoFiles.fotos.length
+      direccion: direccion || null, precio: precio || null, barrio: barrio || null,
+      habitaciones: habitaciones || null, banos: banos || null, metros: metros || null,
+      planta: planta || null, ascensor: ascensor || null, terraza: terraza || null,
+      garaje: garaje || null, trastero: trastero || null, orientacion: orientacion || null,
+      estado_inmueble: estadoInm || null, anio_construccion: anio || null,
+      caracteristicas_libres: (document.getElementById('pf-descripcion').value || '').trim() || null
     };
 
     var r = await authFetch(WH + '/generar-descripcion-piso', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ caracteristicas: caracteristicas })
+      body: JSON.stringify({
+        instrucciones: 'Genera una descripción del piso basándote EXCLUSIVAMENTE en los datos proporcionados. No inventes datos que no estén en el formulario. Si faltan datos, no los menciones. Tono premium ONOMA, 2-3 párrafos en español.',
+        caracteristicas: caracteristicas
+      })
     });
     var d = await r.json();
     if (d.descripcion) {
