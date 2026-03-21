@@ -852,11 +852,9 @@ async function searchColabs(text) {
   // Cache not populated → query Supabase
   _acT = setTimeout(async () => {
     try {
-      const { data } = await sb.from('colaboradores')
-        .select('id,nombre,apellido,empresa')
-        .filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`)
-        .or(`nombre.ilike.%${text}%,empresa.ilike.%${text}%`)
-        .limit(8);
+      let q = sb.from('colaboradores').select('id,nombre,apellido,empresa');
+      if (currentUser.rol !== 'director') q = q.filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`);
+      const { data } = await q.or(`nombre.ilike.%${text}%,empresa.ilike.%${text}%`).limit(8);
       renderColabDropdown(dropdown, data || [], text);
     } catch {}
   }, 250);
@@ -891,7 +889,9 @@ async function checkNoColabs() {
   try {
     let hasColabs = colabsCache.length > 0;
     if (!hasColabs) {
-      const { data } = await sb.from('colaboradores').select('id').filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`).limit(1);
+      let cq = sb.from('colaboradores').select('id');
+      if (currentUser.rol !== 'director') cq = cq.filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`);
+      const { data } = await cq.limit(1);
       hasColabs = !!(data && data.length > 0);
     }
     if (!hasColabs) {
@@ -922,7 +922,7 @@ TAB_LOADERS.colaboradores = async function() {
     if (!isDir) q = q.filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`);
     const { data, error } = await q;
     if (error) throw error;
-    if (!isDir) colabsCache = data || [];
+    colabsCache = data || [];
 
     if (isDir) {
       pane.innerHTML = `
@@ -2367,7 +2367,7 @@ function openPisoForm(urbanFlip, colaboradorId) {
         </div>
       </div>
     </div>
-    <div class="collapsible">
+    ${urbanFlip ? `<input type="hidden" name="info_veraz" value="true">` : `<div class="collapsible">
       <div class="collapsible-header" onclick="toggleCollapsible(this)"><span>3. Colaboración y comisión</span><span class="caret">▼</span></div>
       <div class="collapsible-body">
         ${colabSection}
@@ -2380,7 +2380,7 @@ function openPisoForm(urbanFlip, colaboradorId) {
           <label class="checkbox-item"><input type="checkbox" name="info_veraz" required><span><div class="cb-label">Confirmo que la información es veraz *</div></span></label>
         </div>
       </div>
-    </div>
+    </div>`}
     <div class="collapsible">
       <div class="collapsible-header" onclick="toggleCollapsible(this)"><span>4. Fotos, documentos y descripción</span><span class="caret">▼</span></div>
       <div class="collapsible-body">
