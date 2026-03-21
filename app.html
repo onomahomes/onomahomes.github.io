@@ -2317,7 +2317,7 @@ function openPisoForm(urbanFlip, colaboradorId) {
         </div>
         <div class="form-row" style="margin-top:12px">
           <div class="form-col"><label>Planta</label><input type="text" name="planta" placeholder="3ª, bajo, ático..."></div>
-          <div class="form-col"><label>Año construcción</label><input type="number" name="anio_construccion" min="1900" max="2025" placeholder="1985"></div>
+          <div class="form-col"><label>Año construcción</label><input type="number" name="anio_construccion" min="1000" max="2026" placeholder="1985"></div>
         </div>
       </div>
     </div>
@@ -2588,7 +2588,7 @@ const V = {
   refcat:    { fn: v => /^[A-Za-z0-9]{20}$/.test(v), msg: 'Exactamente 20 caracteres alfanuméricos' },
   precio:    { fn: v => /^\d+(\.\d+)?$/.test(v) && parseFloat(v) > 0, msg: 'Solo números, mayor que 0' },
   numPos:    { fn: v => v === '' || (/^\d+$/.test(v) && parseInt(v) >= 0), msg: 'Solo números positivos' },
-  anio:      { fn: v => v === '' || (/^\d{4}$/.test(v) && parseInt(v) >= 1800 && parseInt(v) <= new Date().getFullYear()), msg: 'Año entre 1800 y ' + new Date().getFullYear() },
+  anio:      { fn: v => v === '' || (/^\d{4}$/.test(v) && parseInt(v) >= 1000 && parseInt(v) <= new Date().getFullYear()), msg: 'Año entre 1000 y ' + new Date().getFullYear() },
   url:       { fn: v => v === '' || /^https?:\/\/.+/.test(v), msg: 'Debe empezar con http:// o https://' },
   direccion: { re: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s,.\-ºª/]+$/, msg: 'Letras, números, espacios, comas, puntos, guiones' },
   presupuesto: { fn: v => v === '' || (/^\d+(\.\d+)?$/.test(v) && parseFloat(v) > 0), msg: 'Solo números, mayor que 0' },
