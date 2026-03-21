@@ -1818,12 +1818,12 @@ function openMatchReview(demandaId) {
   // Descartar siempre habilitado — aviso cuando quedan pocos
   const canDiscard = true;
 
-  // Counter HTML
+  // Counter HTML — total = all non-discarded in queue (≥70%)
   let counterColor = 'var(--text-muted)';
   let counterMsg = '';
   if (totalDisponibles <= 5 && pending.length > 0) { counterColor = 'var(--color-warning)'; counterMsg = ' — ⚠️ Al descartar, el colaborador recibirá menos de 5 opciones'; }
   else if (totalDisponibles <= 10 && totalDisponibles > 5) { counterColor = 'var(--color-warning)'; counterMsg = ' — ⚠️ Quedan pocos pisos para esta demanda'; }
-  const counterHtml = `<div id="match-counter" style="font-size:12px;color:${counterColor};margin-bottom:12px;padding:8px 12px;background:var(--bg);border-radius:6px;border:1px solid var(--border)">Mostrando ${Math.min(dMatches.length,5)} de <strong>${totalDisponibles}</strong> pisos disponibles${counterMsg}</div>`;
+  const counterHtml = `<div id="match-counter" style="font-size:12px;color:${counterColor};margin-bottom:12px;padding:8px 12px;background:var(--bg);border-radius:6px;border:1px solid var(--border)">Mostrando ${Math.min(dMatches.length,5)} de <strong>${totalDisponibles}</strong> disponibles en cola (≥70%)${counterMsg}</div>`;
 
   function scoreColor(s) { return s >= 80 ? '#C9A84C' : s >= 60 ? '#B8860B' : '#8B2020'; }
   function scoreRing(s) {
