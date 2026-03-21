@@ -1721,7 +1721,7 @@ var VR = {
   nif:       { fn: function(v) { return /^\d{8}[A-Za-z]$/.test(v) || /^[XYZxyz]\d{7}[A-Za-z]$/.test(v) || /^[A-Ha-h]\d{7}[\dA-Ja-j]$/.test(v); }, msg: 'Formato: DNI (12345678A), NIE (X1234567A) o CIF (B1234567A)' },
   precio:    { fn: function(v) { return /^\d+(\.\d+)?$/.test(v) && parseFloat(v) > 0; }, msg: 'Solo números, mayor que 0' },
   numPos:    { fn: function(v) { return v === '' || (/^\d+$/.test(v) && parseInt(v) >= 0); }, msg: 'Solo números positivos' },
-  anio:      { fn: function(v) { return v === '' || (/^\d{4}$/.test(v) && parseInt(v) >= 1800 && parseInt(v) <= new Date().getFullYear()); }, msg: 'Año entre 1800 y ' + new Date().getFullYear() },
+  anio:      { fn: function(v) { return v === '' || (/^\d{4}$/.test(v) && parseInt(v) >= 1000 && parseInt(v) <= new Date().getFullYear()); }, msg: 'Año entre 1000 y ' + new Date().getFullYear() },
   direccion: { re: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s,.\-ºª/]+$/, msg: 'Letras, números, espacios, comas, puntos, guiones' },
 };
 
