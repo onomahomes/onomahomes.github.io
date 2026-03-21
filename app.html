@@ -317,6 +317,15 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px;
 .doc-chip:hover { border-color: var(--accent); background: #f0f4ee; }
 .doc-chip.unavailable { color: var(--text-muted); cursor: default; opacity: 0.5; pointer-events: none; }
 
+/* HELP FAB */
+.help-fab{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:var(--accent);color:white;border:none;font-size:22px;cursor:pointer;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.help-fab:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(0,0,0,0.35)}
+.help-popup{display:none;position:fixed;bottom:88px;right:24px;background:white;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.2);padding:20px;z-index:201;width:280px;max-height:400px;overflow-y:auto}
+.help-popup.open{display:block}
+.help-popup h3{font-size:14px;margin-bottom:12px;color:var(--text)}
+.help-contact{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;border:1px solid var(--border);margin-bottom:8px;font-size:13px;text-decoration:none;color:var(--text);transition:border-color 0.2s}
+.help-contact:hover{border-color:var(--accent)}
+
 /* MOBILE */
 @media (max-width: 768px) {
   :root { --sidebar-width: 260px; }
@@ -416,6 +425,10 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px;
   <div class="lightbox-label" id="lightbox-label"></div>
   <div class="lightbox-counter" id="lightbox-counter"></div>
 </div>
+
+<!-- HELP FAB -->
+<button class="help-fab" id="help-fab" onclick="toggleHelpPopup()" style="display:none">?</button>
+<div class="help-popup" id="help-popup"></div>
 
 <script>
 // ─── SUPABASE ─────────────────────────────────────────
@@ -546,6 +559,7 @@ function showApp() {
   renderSidebar(nav); renderContent(nav);
   loadPendingCount();
   switchTab(nav[0].id);
+  showHelpFab();
 }
 
 function renderSidebar(nav) {
@@ -942,7 +956,10 @@ TAB_LOADERS.colaboradores = async function() {
             </div></td>
             <td><span class="pill ${c.es_independiente?'pill-blue':'pill-gray'}">${c.es_independiente?'Independiente':'Empresa'}</span></td>
             <td><span class="pill ${c.estado==='activo'?'pill-green':c.estado==='pendiente_activacion'?'pill-yellow':'pill-gray'}">${c.estado||'pendiente'}</span></td>
-            <td><button class="btn btn-secondary btn-sm" onclick="toast('Detalle disponible en Fase 3','info')">Ver</button></td>
+            <td style="display:flex;gap:4px;flex-wrap:wrap">
+              <button class="btn btn-secondary btn-sm" onclick="toast('Detalle disponible en Fase 3','info')">Ver</button>
+              ${c.contrato_estado !== 'firmado' ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();sendContractEmail('${c.id}','${(c.email||'').replace(/'/g,"\\'")}','${((c.nombre||'')+(c.apellido?' '+c.apellido:'')).replace(/'/g,"\\'")}')" title="Re-enviar contrato">📧</button>` : ''}
+            </td>
           </tr>`).join('')}</tbody>
         </table></div>`}`;
     }
@@ -972,6 +989,7 @@ function dirColabCard(c) {
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${tipoBadge}${estadoBadge}</div>
       <div style="font-size:12px;color:var(--text-muted)">📧 ${c.email||'—'}</div>
+      ${c.contrato_estado !== 'firmado' ? `<button class="btn btn-secondary btn-sm" style="margin-top:8px;font-size:11px" onclick="event.stopPropagation();sendContractEmail('${c.id}','${(c.email||'').replace(/'/g,"\\'")}','${((c.nombre||'')+(c.apellido?' '+c.apellido:'')).replace(/'/g,"\\'")}')" >📧 Re-enviar contrato</button>` : ''}
     </div>
   </div>`;
 }
@@ -2480,7 +2498,23 @@ async function generarDescripcionIA() {
   const btn = document.querySelector('[onclick="generarDescripcionIA()"]');
   btn.disabled = true; btn.textContent = '⌛ Generando…';
   try {
-    const result = await callN8n('generar-descripcion-piso', { caracteristicas: { direccion: fd.get('direccion'), barrio: fd.get('barrio'), precio: fd.get('precio'), habitaciones: fd.get('habitaciones'), metros: fd.get('metros'), banos: fd.get('banos'), ascensor: form.querySelector('[name=ascensor]')?.checked, terraza: form.querySelector('[name=terraza]')?.checked, estado_inmueble: fd.get('estado_inmueble'), orientacion: fd.get('orientacion'), anio_construccion: fd.get('anio_construccion') } });
+    const result = await callN8n('generar-descripcion-piso', {
+      instrucciones: 'Genera una descripción del piso basándote EXCLUSIVAMENTE en los datos proporcionados. No inventes datos que no estén en el formulario. Si faltan datos, no los menciones. Tono premium ONOMA, 2-3 párrafos en español.',
+      caracteristicas: {
+        direccion: fd.get('direccion') || null, barrio: fd.get('barrio') || null,
+        precio: fd.get('precio') || null, habitaciones: fd.get('habitaciones') || null,
+        metros: fd.get('metros') || null, banos: fd.get('banos') || null,
+        planta: fd.get('planta') || null,
+        ascensor: form.querySelector('[name=ascensor]')?.checked || false,
+        terraza: form.querySelector('[name=terraza]')?.checked || false,
+        garaje: form.querySelector('[name=garaje]')?.checked || false,
+        trastero: form.querySelector('[name=trastero]')?.checked || false,
+        estado_inmueble: fd.get('estado_inmueble') || null,
+        orientacion: fd.get('orientacion') || null,
+        anio_construccion: fd.get('anio_construccion') || null,
+        caracteristicas_libres: fd.get('caracteristicas_libres') || null
+      }
+    });
     const desc = result.descripcion || result.text || (result[0] && result[0].descripcion) || '';
     if (desc) { document.getElementById('piso-descripcion').value = desc; toast('✅ Descripción generada'); }
     else throw new Error('Respuesta vacía');
@@ -2567,12 +2601,46 @@ async function submitAsesor() {
   if (!form.checkValidity()) { form.reportValidity(); return; }
   const btn = document.getElementById('btn-save-asesor');
   btn.disabled = true; btn.textContent = 'Creando…';
+  const fd = new FormData(form);
+  const nombre = fd.get('nombre'), email = fd.get('email'), telefono = fd.get('telefono')||null, password = fd.get('password')||'onoma2026';
+
+  // Plan A: via n8n webhook
   try {
-    const fd = new FormData(form);
-    const result = await callN8n('crear-asesor', { nombre: fd.get('nombre'), email: fd.get('email'), telefono: fd.get('telefono')||null, password: fd.get('password') });
+    const result = await callN8n('crear-asesor', { nombre, email, telefono, password });
     if (result.error) throw new Error(result.error);
     toast('✅ Asesor creado. Email enviado.'); closeModal();
-    loadedTabs.delete('equipo'); TAB_LOADERS.equipo();
+    loadedTabs.delete('equipo'); if (TAB_LOADERS.equipo) TAB_LOADERS.equipo();
+    return;
+  } catch(e) {
+    console.warn('Webhook crear-asesor falló, usando Plan B directo:', e.message);
+  }
+
+  // Plan B: directo vía Supabase Auth + INSERT
+  btn.textContent = 'Creando (directo)…';
+  try {
+    // 1. Create Supabase Auth user
+    const { data: authData, error: authErr } = await sb.auth.admin?.createUser
+      ? await sb.auth.admin.createUser({ email, password, email_confirm: true })
+      : await sb.auth.signUp({ email, password });
+    const authId = authData?.user?.id || authData?.id || null;
+    if (authErr && !authErr.message.includes('already')) throw new Error('Auth: ' + authErr.message);
+
+    // 2. INSERT into asesores table
+    const newId = genId();
+    const { error: dbErr } = await sb.from('asesores').insert({
+      id: newId, nombre, email, telefono, rol: 'asesor', activo: true,
+      supabase_auth_id: authId
+    });
+    if (dbErr) throw new Error('DB: ' + dbErr.message);
+
+    // 3. Try to send email (non-blocking)
+    callN8n('send-email', {
+      to: email, subject: 'Bienvenido a ONOMA CRM',
+      html: `<p>Hola ${nombre},</p><p>Se ha creado tu cuenta de asesor en ONOMA Real Estate CRM.</p><p><strong>Email:</strong> ${email}<br><strong>Contraseña:</strong> ${password}</p><p><a href="https://onomahomes.github.io/app.html" style="display:inline-block;background:#6B7F5E;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700">Acceder al CRM</a></p>`
+    }).catch(() => {});
+
+    toast('✅ Asesor creado (modo directo). Credenciales: ' + email + ' / ' + password); closeModal();
+    loadedTabs.delete('equipo'); if (TAB_LOADERS.equipo) TAB_LOADERS.equipo();
   } catch(e) { toast('Error: ' + e.message, 'error'); btn.disabled = false; btn.textContent = 'Crear asesor'; }
 }
 
@@ -2653,6 +2721,45 @@ function vScrollFirst(formId) {
   if (err) { err.closest('.form-col, .fld-new, .form-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); return true; }
   return false;
 }
+
+// ─── HELP FAB ────────────────────────────────────────
+function toggleHelpPopup() {
+  const popup = document.getElementById('help-popup');
+  popup.classList.toggle('open');
+  if (popup.classList.contains('open')) renderHelpPopup();
+}
+async function renderHelpPopup() {
+  const popup = document.getElementById('help-popup');
+  if (currentUser.rol === 'director') {
+    // Director: show list of asesores with contact info
+    popup.innerHTML = '<h3>Contactar asesor</h3><div id="help-asesores-list"><p style="color:var(--text-muted);font-size:12px">Cargando...</p></div>';
+    try {
+      const { data } = await sb.from('asesores').select('nombre,email,telefono').eq('rol','asesor').eq('activo',true).order('nombre');
+      const list = (data||[]).map(a => {
+        const tel = (a.telefono||'').replace(/\s/g,'');
+        return `<a class="help-contact" href="mailto:${a.email||''}">${a.nombre||'—'}<br><small>${a.email||''}</small></a>
+          ${tel ? `<a class="help-contact" href="https://wa.me/${tel.replace('+','')}" target="_blank">💬 WhatsApp ${a.nombre}</a>` : ''}`;
+      }).join('');
+      document.getElementById('help-asesores-list').innerHTML = list || '<p style="color:var(--text-muted)">No hay asesores activos</p>';
+    } catch(e) { document.getElementById('help-asesores-list').innerHTML = '<p>Error cargando</p>'; }
+  } else {
+    // Asesor: show ONOMA support contact
+    popup.innerHTML = `<h3>Soporte ONOMA</h3>
+      <a class="help-contact" href="mailto:melmadani@urbanflip.io">📧 melmadani@urbanflip.io</a>
+      <a class="help-contact" href="https://wa.me/34600379758" target="_blank">💬 WhatsApp Soporte</a>
+      <a class="help-contact" href="tel:+34600379758">📞 +34 600 37 97 58</a>`;
+  }
+}
+function showHelpFab() {
+  const fab = document.getElementById('help-fab');
+  if (fab) fab.style.display = 'flex';
+}
+// Close help on click outside
+document.addEventListener('click', function(e) {
+  const popup = document.getElementById('help-popup');
+  const fab = document.getElementById('help-fab');
+  if (popup && fab && !popup.contains(e.target) && e.target !== fab) popup.classList.remove('open');
+});
 
 // ─── INIT ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
