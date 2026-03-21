@@ -2052,7 +2052,7 @@ function openMatchReview(demandaId) {
   const approvedIds = dMatches.filter(m => m.estado === 'aprobado').map(m => m.id);
   const canGenerate = approvedIds.length > 0;
 
-  const need5 = approved.length >= 5;
+  const canGenerate = approved.length > 0;
 
   openModal(`Revisar matchings: ${d.nombre||'—'}`, `
     <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
@@ -2062,7 +2062,7 @@ function openMatchReview(demandaId) {
     <div style="display:flex;flex-direction:column;gap:12px" id="match-review-cards">${cards}</div>
   `, 'lg', `
     <button class="btn btn-secondary" onclick="closeModal();renderMatchingsList()">← Volver</button>
-    <button class="btn btn-primary" id="btn-gen-envio" ${need5?'':'disabled'} onclick="generateEnvio('${d.id}')">📧 Generar envío (${approved.length}/5 aprobados)</button>
+    <button class="btn btn-primary" id="btn-gen-envio" ${canGenerate?'':'disabled'} onclick="generateEnvio('${d.id}')">📧 Generar envío (${approved.length} aprobados)</button>
   `);
 }
 
@@ -2244,7 +2244,15 @@ async function discardMatch(matchId) {
 async function generateEnvio(demandaId) {
   const d = _matchReviewData.demandas.find(x => x.id === demandaId);
   if (!d) return;
-  const approved = (_matchReviewData.matchByDem[demandaId]||[]).filter(m => m.estado === 'aprobado');
+  // Read approved from local data first, fallback to Supabase
+  let approved = (_matchReviewData.matchByDem[demandaId]||[]).filter(m => m.estado === 'aprobado');
+  if (!approved.length) {
+    // Fallback: re-read from Supabase in case local state is stale
+    try {
+      const { data: freshM } = await sb.from('matchings').select('id,piso,score_matching,estado').eq('estado','aprobado').or(`demanda.cs.{"${demandaId}"}`);
+      approved = (freshM||[]).filter(m => m.estado === 'aprobado');
+    } catch(e) {}
+  }
   if (!approved.length) { toast('Aprueba al menos 1 piso', 'error'); return; }
 
   const linkHash = Math.random().toString(36).substring(2,14);
