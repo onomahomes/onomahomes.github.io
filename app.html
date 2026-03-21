@@ -2278,26 +2278,48 @@ async function generateEnvio(demandaId) {
     } catch(e) {}
   }
 
-  // Save envio
+  // Get colaborador ID
+  let colabId = '';
+  if (!isDirecto && d.colaborador) {
+    const cRaw = Array.isArray(d.colaborador) ? d.colaborador[0] : d.colaborador;
+    colabId = cRaw ? String(cRaw).replace(/[{}]/g,'') : '';
+  }
+
+  // Save envio to envios_matching table
   try {
-    const envioId = genId();
-    await sb.from('matchings').update({ envio_id: envioId, estado: 'enviado' }).in('id', approved.map(m => m.id));
+    await sb.from('envios_matching').insert({
+      link_hash: linkHash,
+      tipo: isDirecto ? 'asesor_a_cliente' : 'asesor_a_colaborador',
+      asesor_id: currentUser.id,
+      colaborador_id: colabId || null,
+      demanda_id: demandaId,
+      cliente_nombre: d.nombre || null,
+      cliente_email: d.email_dir || null,
+      matchings_ids: approved.map(m => m.id),
+      estado: 'enviado'
+    });
+    await sb.from('matchings').update({ envio_id: linkHash, estado: 'enviado' }).in('id', approved.map(m => m.id));
     await sb.from('acciones_pendientes').update({ estado: 'completada' }).eq('referencia_id', demandaId).eq('tipo', 'matching_revisar').eq('estado', 'pendiente');
+    await sb.from('demandas').update({ ultimo_matching_enviado: new Date().toISOString() }).eq('id', demandaId);
     loadPendingCount();
   } catch(e) { console.warn('Envio save:', e); }
 
-  // Generate IA-style personalized message
+  // Link to collaborator page or client page
+  const linkUrl = isDirecto
+    ? GH_PAGES + '/matching-cliente.html?id=' + linkHash
+    : GH_PAGES + '/matching-colaborador.html?id=' + linkHash;
+
+  // Generate personalized message
   const clienteNombre = d.nombre || 'tu cliente';
   const pisosList = pisosDetails.map((p,i) => '  ' + (i+1) + '. ' + p.dir + ' — ' + eur(p.precio) + ' · ' + p.hab + ' hab · ' + p.m2 + ' m² (' + p.barrio + ')').join('\n');
 
   const msgText = isDirecto
     ? 'Hola ' + clienteNombre + ',\n\nDesde ONOMA Homes hemos seleccionado ' + approved.length + ' pisos que encajan con lo que buscas:\n\n' + pisosList + '\n\nPuedes ver las fichas completas, fotos y detalles aquí:\n' + linkUrl + '\n\nSi alguno te interesa, dinos y organizamos una visita.\n\nUn saludo,\nEl equipo de ONOMA Homes'
-    : 'Hola ' + (colabNombre || 'colaborador') + ',\n\nHemos preparado ' + approved.length + ' opciones para ' + clienteNombre + ' que creemos que encajan muy bien con su perfil (' + (d.zona_preferida||'') + ', ' + eur(d.presupuesto_max) + ', ' + (d.habitaciones_min||'') + '+ hab):\n\n' + pisosList + '\n\nRevisa las fichas completas aquí y envíalas a tu cliente:\n' + linkUrl + '\n\nSi necesitas que ajustemos algo o quieres ver más opciones, dinos.\n\nUn saludo,\nONOMA Homes';
+    : 'Hola ' + (colabNombre || 'colaborador') + ',\n\nHemos preparado ' + approved.length + ' opciones para ' + clienteNombre + ' que creemos que encajan muy bien con su perfil (' + (d.zona_preferida||'') + ', ' + eur(d.presupuesto_max) + ', ' + (d.habitaciones_min||'') + '+ hab):\n\n' + pisosList + '\n\nRevisa las fichas y selecciona los que quieras enviar a tu cliente:\n' + linkUrl + '\n\nSi necesitas que ajustemos algo o quieres ver más opciones, dinos.\n\nUn saludo,\nONOMA Homes';
 
   const destino = isDirecto ? 'comprador' : 'colaborador';
-  const emailTo = isDirecto ? '' : colabEmail;
+  const emailTo = isDirecto ? (d.email_dir||'') : colabEmail;
   const emailSubject = encodeURIComponent('ONOMA — Nuevos matchings para ' + clienteNombre);
-  const emailBody = encodeURIComponent(document.getElementById('envio-msg')?.value || msgText);
 
   openModal('📧 Envío generado', `
     <p style="color:var(--text-muted);margin-bottom:12px">Se han aprobado <strong>${approved.length} pisos</strong> para enviar al ${destino}.</p>
