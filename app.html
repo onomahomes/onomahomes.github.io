@@ -770,7 +770,11 @@ function filterChips(btn, attr, val) {
   btn.closest('.filters-bar').querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   btn.closest('.tab-pane').querySelectorAll('tbody tr').forEach(row => {
-    row.style.display = (val === 'todos' || row.dataset[attr] === val) ? '' : 'none';
+    if (val === 'todos') { row.style.display = ''; return; }
+    const rowVal = row.dataset[attr] || '';
+    // Normalize: 'directo' matches 'comprador_directo'
+    const match = rowVal === val || (val === 'comprador_directo' && (rowVal === 'directo' || rowVal === 'comprador_directo'));
+    row.style.display = match ? '' : 'none';
   });
 }
 let _pisosFilter = { chip: 'todos', barrio: '', precioMin: null, precioMax: null, search: '' };
@@ -1199,7 +1203,7 @@ TAB_LOADERS.colaboradores = async function() {
             <td style="font-size:12px;word-break:break-all">${c.email||'—'}</td>
             <td style="font-size:13px">${c.telefono||'—'}</td>
             <td><span class="pill ${c.es_independiente?'pill-blue':'pill-gray'}">${c.es_independiente?'Indep.':'Empresa'}</span></td>
-            <td><span class="pill ${c.contrato_estado==='firmado'?'pill-green':c.estado==='activo'?'pill-green':c.estado==='pendiente_activacion'?'pill-yellow':'pill-gray'}">${c.contrato_estado==='firmado'?'Firmado':c.estado||'Pendiente'}</span></td>
+            <td><span class="pill ${c.contrato_estado==='firmado'?'pill-green':c.estado==='activo'?'pill-green':c.estado==='pendiente_activacion'||c.estado==='Pendiente'?'pill-yellow':'pill-gray'}">${c.contrato_estado==='firmado'?'Firmado':c.estado==='activo'?'Activo':c.estado==='pendiente_activacion'?'Pendiente':(c.estado||'Pendiente')}</span></td>
             <td style="text-align:center;font-weight:600">${pisosCount[c.id]||0}</td>
             <td style="text-align:center;font-weight:600">${demandasCount[c.id]||0}</td>
             <td><div style="display:flex;gap:4px">
@@ -1445,8 +1449,11 @@ TAB_LOADERS.pisos = async function() {
 
 // ─── PISO DETAIL ─────────────────────────────────────
 async function openPisoDetail(id) {
-  const p = _pisosData.find(x => x.id === id);
-  if (!p) return;
+  let p = _pisosData.find(x => x.id === id);
+  // Fallback: check matchings pisosMap or fetch from Supabase
+  if (!p && _matchReviewData && _matchReviewData.pisosMap && _matchReviewData.pisosMap[id]) p = _matchReviewData.pisosMap[id];
+  if (!p) { try { const { data } = await sb.from('pisos').select('*').eq('id', id).limit(1); if (data && data[0]) p = data[0]; } catch(e) {} }
+  if (!p) { toast('Piso no encontrado','error'); return; }
 
   // Resolve provenance
   let procedencia = 'ONOMA Directo';
@@ -2316,7 +2323,7 @@ TAB_LOADERS.visitas = async function() {
         <button class="filter-chip" onclick="filterVisitasSection(this,'pendiente_feedback')">Feedback pendiente (${sections.pendiente_feedback.length})</button>
         <button class="filter-chip" onclick="filterVisitasSection(this,'completada')">Completadas (${sections.completada.length})</button>
       </div>
-      ${total === 0 ? `<div class="empty-state"><span class="empty-icon">📍</span><p>Aún no hay visitas registradas.</p></div>` : `
+      ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">📍</span><p>Aún no hay visitas registradas.</p></div>` : `
       ${renderSection('Por confirmar', sections.solicitada, 'solicitada', '#f59e0b', '🕐')}
       ${renderSection('Confirmadas / Próximas', sections.confirmada, 'confirmada', '#22c55e', '✅')}
       ${renderSection('Pendientes de feedback', sections.pendiente_feedback, 'pendiente_feedback', 'var(--danger)', '⚠️')}
@@ -2592,8 +2599,9 @@ function _barrioAutocomplete(inputId, containerId) {
     const q = norm(this.value).toLowerCase();
     const container = document.getElementById(containerId);
     if (!q || q.length < 2) { container.innerHTML = ''; return; }
-    const matches = BARRIOS_MADRID.filter(b => norm(b).toLowerCase().includes(q)).slice(0,8);
-    container.innerHTML = matches.map(b => `<div class="autocomplete-item" onclick="_addZoneTag('${inputId}','${b}')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border)">${b}</div>`).join('');
+    const matches = BARRIOS_MADRID.filter(b => norm(b).toLowerCase().includes(q));
+    matches.sort((a,b) => { const an=norm(a).toLowerCase(),bn=norm(b).toLowerCase(); const as=an.startsWith(q),bs=bn.startsWith(q); if(as&&!bs)return -1; if(!as&&bs)return 1; return a.localeCompare(b); });
+    container.innerHTML = matches.slice(0,8).map(b => `<div class="autocomplete-item" onclick="_addZoneTag('${inputId}','${b}')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border)">${b}</div>`).join('');
   });
 }
 function _addZoneTag(inputId, barrio) {
