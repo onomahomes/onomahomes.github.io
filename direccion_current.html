@@ -1076,6 +1076,13 @@ body{
 <script>
 const WH = 'https://onomahomes.app.n8n.cloud/webhook';
 const AUTH_TOKEN = localStorage.getItem('onoma_token') || '';
+const SB_URL = 'https://wwaytwudfbwxttyyojjx.supabase.co';
+const SB_KEY = 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
+var _sbClient = null;
+function getSb() {
+  if (!_sbClient && typeof supabase !== 'undefined') _sbClient = supabase.createClient(SB_URL, SB_KEY);
+  return _sbClient;
+}
 let allData = {};
 let allColabs = [];
 let allVisitas = [];
@@ -2271,15 +2278,88 @@ function showPisoErr(msg) {
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+// ═══ SUPABASE DIRECT LOADER (Plan B) ═══
+async function loadFromSupabase() {
+  var sb = getSb();
+  if (!sb) { loadMockData(); return; }
+  try {
+    var [pisosR, colabsR, asesoresR, visitasR, demandasR, matchingsR] = await Promise.all([
+      sb.from('pisos').select('id,nombre,direccion,precio,barrio,habitaciones,metros,banos,estado_sistema,urban_flip,fotos,colaborador,tipo_piso,created_time').order('created_time',{ascending:false}),
+      sb.from('colaboradores').select('id,nombre,apellido,empresa,email,es_independiente,estado,contrato_estado,telefono,nif_cif,created_time,firma_fecha,asesor_onoma').order('created_time',{ascending:false}),
+      sb.from('asesores').select('id,nombre,email,telefono,activo,rol').eq('rol','asesor').order('nombre'),
+      sb.from('visitas').select('id,fecha_hora,estado,cliente_nombre,piso_id,colaborador_id,asesor_id,feedback_asesor_completado').order('fecha_hora',{ascending:false}).limit(50),
+      sb.from('demandas').select('id',{count:'exact',head:true}),
+      sb.from('matchings').select('id',{count:'exact',head:true})
+    ]);
+    var pisos = pisosR.data || [];
+    var colabs = colabsR.data || [];
+    var asesores = asesoresR.data || [];
+    var visitas = visitasR.data || [];
+
+    // Build KPIs
+    var hoy = new Date().toISOString().split('T')[0];
+    var mesStart = new Date().toISOString().substring(0,7) + '-01';
+    var visitasHoy = visitas.filter(function(v){ return v.fecha_hora && v.fecha_hora.startsWith(hoy); }).length;
+    var visitasMes = visitas.filter(function(v){ return v.fecha_hora && v.fecha_hora >= mesStart; }).length;
+    var fbPendiente = visitas.filter(function(v){ return (v.estado==='realizada'||v.estado==='Realizada') && !v.feedback_asesor_completado; }).length;
+
+    var kpis = {
+      visitas_hoy: visitasHoy, feedback_pendiente: fbPendiente,
+      visitas_mes: visitasMes, visitas_realizadas_mes: visitas.filter(function(v){ return v.fecha_hora>=mesStart && (v.estado==='realizada'||v.estado==='Realizada'); }).length,
+      pisos_activos: pisos.filter(function(p){ return p.estado_sistema==='activo'||!p.estado_sistema; }).length,
+      demandas_activas: demandasR.count || 0, matchings_total: matchingsR.count || 0,
+      asesores_activos: asesores.filter(function(a){ return a.activo; }).length,
+      colaboradores_activos: colabs.length, comision_estimada: null
+    };
+
+    // Map data to expected format
+    allColabs = colabs.map(function(c){ return {
+      id: c.id, nombre: [c.nombre,c.apellido].filter(Boolean).join(' '), email: c.email,
+      activo: c.contrato_estado==='firmado' || c.estado==='activo',
+      pisos_activos: 0, demandas_activas: 0, matchings: 0,
+      es_independiente: c.es_independiente, empresa: c.empresa, telefono: c.telefono,
+      nif_cif: c.nif_cif, contrato_firmado: c.contrato_estado==='firmado',
+      created_time: c.created_time || c.firma_fecha
+    }; });
+
+    allPisos = pisos.map(function(p){
+      var foto = '';
+      if(p.fotos&&p.fotos.length){ var f=p.fotos[0]; foto=typeof f==='object'?(f.url||''):String(f); }
+      return { id:p.id, direccion:p.direccion||p.nombre, barrio:p.barrio, precio:p.precio,
+        habitaciones:p.habitaciones, metros:p.metros, estado_sistema:p.estado_sistema||'Activo',
+        fotos:p.fotos?[{url:foto}]:[], colaborador_nombre:'', visitas_count:0 };
+    });
+
+    allVisitas = visitas.map(function(v){ return {
+      comprador_nombre: v.cliente_nombre||'—', piso_dir: '—', fecha: v.fecha_hora?v.fecha_hora.split('T')[0]:'',
+      hora: v.fecha_hora?v.fecha_hora.split('T')[1]?.substring(0,5):'', estado: v.estado||'Programada',
+      feedback_asesor: v.feedback_asesor_completado, feedback_colab: false
+    }; });
+
+    allData = { kpis: kpis, asesores: asesores.map(function(a){ return {
+      id:a.id, nombre:a.nombre, email:a.email, activo:a.activo,
+      visitas_hoy:0, visitas_mes:0, visitas_total:0, feedback_pendiente:0
+    }; }), colaboradores: allColabs, visitas_detail: allVisitas, pisos_detail: allPisos, pipeline: [], operaciones: [] };
+
+    renderKPIs(kpis);
+    renderEquipo(allData.asesores);
+    renderColabs(allColabs);
+    renderVisitas(allVisitas);
+    renderPisos(allPisos);
+    filtrarPisos();
+    renderPipeline([]);
+    renderFacturacion(kpis, []);
+    updateCounts(allData);
+  } catch(e) { console.error('Supabase load error:', e); loadMockData(); }
+}
+
 // ═══ INIT ═══
-// Try real data first, fallback to mock
+// Try webhook first, then Supabase direct, then mockData
 loadData().then(function() {
-  // Check if real data actually had KPI values
-  if (!allData.kpis || allData.kpis.pisos_activos == null) loadMockData();
-}).catch(function() { loadMockData(); });
-// If no data after 3s, load mock
+  if (!allData.kpis || allData.kpis.pisos_activos == null) loadFromSupabase();
+}).catch(function() { loadFromSupabase(); });
 setTimeout(function() {
-  if (!allData.kpis || allData.kpis.pisos_activos == null) loadMockData();
+  if (!allData.kpis || allData.kpis.pisos_activos == null) loadFromSupabase();
 }, 3000);
 </script>
 </body>
