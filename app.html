@@ -746,6 +746,9 @@ function applyPisosFilters() {
   document.querySelectorAll('#pisos-grid .data-card').forEach(card => {
     let show = true;
     const f = _pisosFilter;
+    // Hide expirados by default unless chip=todos explicitly includes them
+    const estado = card.dataset.estado || 'activo';
+    if (estado.toLowerCase() === 'expirado' || estado.toLowerCase() === 'vendido') { if (f.chip !== 'expirados') show = false; }
     if (f.chip === 'urban_flip') show = show && card.dataset.uf === 'true';
     else if (f.chip === 'terraza') show = show && card.dataset.terraza === 'true';
     else if (f.chip === 'ascensor') show = show && card.dataset.ascensor === 'true';
@@ -987,8 +990,9 @@ function dirColabCard(c) {
           ${c.empresa ? `<div style="font-size:13px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.empresa}</div>` : ''}
         </div>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${tipoBadge}${estadoBadge}</div>
-      <div style="font-size:12px;color:var(--text-muted)">📧 ${c.email||'—'}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${tipoBadge}${estadoBadge}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">📧 ${c.email||'—'}</div>
+      <div style="font-size:11px;color:var(--text-muted)">${c.created_time ? 'Registrado: '+fdate(c.created_time) : ''} ${c.firma_fecha ? '· Firmado: '+fdate(c.firma_fecha) : ''}</div>
       ${c.contrato_estado !== 'firmado' ? `<button class="btn btn-secondary btn-sm" style="margin-top:8px;font-size:11px" onclick="event.stopPropagation();sendContractEmail('${c.id}','${(c.email||'').replace(/'/g,"\\'")}','${((c.nombre||'')+(c.apellido?' '+c.apellido:'')).replace(/'/g,"\\'")}')" >📧 Re-enviar contrato</button>` : ''}
     </div>
   </div>`;
@@ -1046,7 +1050,10 @@ async function openDirColabDetail(id) {
       <div><span style="color:var(--text-muted)">Dirección fiscal</span><br><strong>${c.direccion_fiscal||'—'}</strong></div>
     </div>
     ${acuerdos.length?`<div class="form-section-title">Tipos de acuerdo</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">${acuerdos.map(a=>`<span class="pill pill-green">${a}</span>`).join('')}</div>`:''}
-    <div style="font-size:12px;color:var(--text-muted)">Registrado: ${fdate(c.created_time)} ${c.firma_fecha?'· Firmado: '+fdate(c.firma_fecha):''}</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Registrado: ${fdate(c.created_time||c.firma_fecha)} ${c.firma_fecha?'· Firmado: '+fdate(c.firma_fecha):''}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${c.contrato_estado==='firmado' ? `<a class="btn btn-secondary btn-sm" href="${GH_PAGES}/firmar-colab.html?id=${c.id}" target="_blank">📄 Ver contrato</a>` : `<button class="btn btn-secondary btn-sm" onclick="sendContractEmail('${c.id}','${(c.email||'').replace(/'/g,"\\'")}','${((c.nombre||'')+(c.apellido?' '+c.apellido:'')).replace(/'/g,"\\'")}')" >📧 Enviar contrato</button>`}
+    </div>
   `,'lg');
 }
 
@@ -1163,7 +1170,7 @@ TAB_LOADERS.pisos = async function() {
               <button class="card-car-btn card-car-next" onclick="event.stopPropagation();cardCarNav(this.closest('.card-car'),1)">&#8250;</button>
               <div class="card-car-count">1/${urls.length}</div>` : ''}
             </div>`;
-        return `<div class="data-card ${p.urban_flip?'urban-flip':''}" data-uf="${!!p.urban_flip}" data-terraza="${!!p.terraza}" data-ascensor="${!!p.ascensor}" data-barrio="${p.barrio||''}" data-precio="${p.precio||0}" data-search="${searchStr.replace(/"/g,'')}" onclick="openPisoDetail('${p.id}')" style="cursor:pointer">
+        return `<div class="data-card ${p.urban_flip?'urban-flip':''}" data-uf="${!!p.urban_flip}" data-terraza="${!!p.terraza}" data-ascensor="${!!p.ascensor}" data-barrio="${p.barrio||''}" data-precio="${p.precio||0}" data-estado="${p.estado_sistema||'activo'}" data-search="${searchStr.replace(/"/g,'')}" onclick="openPisoDetail('${p.id}')" style="cursor:pointer">
           ${carHtml}
           <div class="card-body">
             ${p.urban_flip?'<div class="uf-badge">⭐ URBAN FLIP</div>':''}
@@ -1178,6 +1185,8 @@ TAB_LOADERS.pisos = async function() {
             </div>
           </div></div>`;
       }).join('')}</div>`}`;
+    // Apply default filter to hide expirados
+    setTimeout(() => applyPisosFilters(), 50);
   } catch(e) { tabError(pane, e); }
 };
 
