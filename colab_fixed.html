@@ -1082,7 +1082,8 @@ function renderMatchPisos(){
   el.innerHTML=allCards.map((m,i)=>{
     const p=m.piso;const sel=selectedPisos.includes(m.matching_id);
     const isUF=m.es_urban_flip||p.urban_flip;
-    const img=p.fotos&&p.fotos.length?'<img class="mc-img" src="'+p.fotos[0]+'" loading="lazy">':'<div class="mc-noimg">SIN FOTOS</div>';
+    const _fotoUrl=p.fotos&&p.fotos.length?(typeof p.fotos[0]==='object'?(p.fotos[0].url||''):String(p.fotos[0])):'';
+    const img=_fotoUrl?'<img class="mc-img" src="'+_fotoUrl+'" loading="lazy">':'<div class="mc-noimg">SIN FOTOS</div>';
     let body='<div class="mc-dir">'+p.direccion+'</div><div class="mc-zona">'+p.barrio+'</div>';
     body+='<div class="mc-pills">';
     if(p.hab) body+='<span class="mc-pill">'+p.hab+' hab</span>';
