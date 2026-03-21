@@ -1103,7 +1103,7 @@ TAB_LOADERS.pendientes = async function() {
     pendingCount = items.length; updateBadge();
     const grouped = {};
     items.forEach(a => { const t = a.tipo || 'otro'; if (!grouped[t]) grouped[t] = []; grouped[t].push(a); });
-    const tipoLabels = { feedback_visita: '📝 Feedback de visita', matching_revisar: '🤝 Matchings por revisar', visita_confirmar: '📅 Visitas por confirmar', otro: '📋 Otros' };
+    const tipoLabels = { feedback_visita: '📝 Feedback de visita', matching_revisar: '🤝 Matchings por revisar', visita_confirmar: '📅 Visitas por confirmar', llamada_sin_visita: '📞 Seguimiento — sin visitas', llamada_sin_actividad: '📞 Seguimiento — sin respuesta', otro: '📋 Otros' };
 
     pane.innerHTML = `
       <div class="tab-toolbar"><div><h2>Acciones Pendientes</h2><p>${items.length} acciones pendientes</p></div></div>
@@ -1121,6 +1121,8 @@ TAB_LOADERS.pendientes = async function() {
               if (a.tipo === 'feedback_visita') onclick = `handleAccionClick('feedback_visita','${a.referencia_id}')`;
               else if (a.tipo === 'visita_confirmar') onclick = `handleAccionClick('visita_confirmar','${a.referencia_id}')`;
               else if (a.tipo === 'matching_revisar') onclick = `handleAccionClick('matching_revisar','${a.referencia_id}')`;
+              else if (a.tipo === 'llamada_sin_visita' || a.tipo === 'llamada_sin_actividad') onclick = `handleAccionClick('${a.tipo}','${a.referencia_id}')`;
+              else if (a.tipo === 'escalado_director') onclick = `openDemandaDetail('${a.referencia_id}')`;
               return `<div class="data-card" style="padding:14px;margin-bottom:8px;cursor:pointer;transition:border-color 0.15s" ${onclick ? `onclick="${onclick}"` : ''} onmouseenter="this.style.borderColor='var(--gold)'" onmouseleave="this.style.borderColor=''">
               <div>
                 <div style="font-size:14px;font-weight:500">${a.titulo||a.descripcion||'Acción pendiente'}</div>
@@ -1158,7 +1160,96 @@ function handleAccionClick(tipo, refId) {
     loadedTabs.delete('matchings');
     switchTab('matchings');
     setTimeout(() => { try { openMatchReview(refId); } catch(e) { toast('No se pudo abrir el matching','error'); } }, 600);
+  } else if (tipo === 'llamada_sin_visita' || tipo === 'llamada_sin_actividad') {
+    openSeguimientoModal(tipo, refId);
   }
+}
+
+async function openSeguimientoModal(tipo, demandaId) {
+  // Load demanda + contact info
+  let d = {}, contactNombre = '', contactEmail = '', contactTel = '';
+  try {
+    const { data } = await sb.from('demandas').select('*').eq('id', demandaId).limit(1);
+    if (data && data[0]) d = data[0];
+    const esColab = d.tipo_origen === 'colaborador';
+    if (esColab && d.colaborador) {
+      const colabId = Array.isArray(d.colaborador) ? d.colaborador[0] : d.colaborador;
+      const cid = String(colabId).replace(/[{}]/g,'');
+      const { data: cd } = await sb.from('colaboradores').select('nombre,apellido,email,telefono').eq('id', cid).limit(1);
+      if (cd && cd[0]) { contactNombre = [cd[0].nombre, cd[0].apellido].filter(Boolean).join(' '); contactEmail = cd[0].email||''; contactTel = cd[0].telefono||''; }
+    } else {
+      contactNombre = d.nombre || '—';
+      contactEmail = d.email_dir || '';
+      contactTel = d.tel_dir || '';
+    }
+  } catch(e) {}
+
+  const esColab = d.tipo_origen === 'colaborador';
+  const diasActiva = d.created_time ? Math.round((Date.now() - new Date(d.created_time).getTime()) / (1000*60*60*24)) : '?';
+  const motivoTexto = tipo === 'llamada_sin_visita'
+    ? 'La demanda de <strong>' + (d.nombre||'—') + '</strong> lleva ' + diasActiva + ' días activa sin ninguna visita programada.'
+    : 'Se han enviado pisos a <strong>' + (d.nombre||'—') + '</strong> sin respuesta del ' + (esColab ? 'colaborador' : 'comprador') + '.';
+
+  // Generated message
+  const msgSugerido = tipo === 'llamada_sin_visita'
+    ? 'Hola ' + contactNombre + ',\n\nTe contacto desde ONOMA Homes respecto a la búsqueda de piso en ' + (d.zona_preferida||'la zona solicitada') + ' (hasta ' + eur(d.presupuesto_max) + ', ' + (d.habitaciones_min||'') + '+ habitaciones).\n\nQueremos saber si sigues interesado/a en la búsqueda y si los criterios siguen siendo los mismos. Tenemos varias opciones que podrían interesarte.\n\n¿Podemos agendar una llamada breve para comentarlo?\n\nUn saludo,\nONOMA Homes'
+    : 'Hola ' + contactNombre + ',\n\nTe hemos enviado varias opciones de pisos para ' + (d.nombre||'tu cliente') + ' pero no hemos recibido respuesta.\n\n¿Has tenido oportunidad de revisarlos? ¿Quieres que ajustemos los criterios de búsqueda?\n\nQuedamos a tu disposición.\n\nUn saludo,\nONOMA Homes';
+
+  openModal('📞 Seguimiento — ' + (d.nombre||'Demanda'), `
+    <div style="background:var(--color-error-bg);border:1px solid rgba(139,32,32,0.2);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-size:13px;color:var(--color-error)">${motivoTexto}</div>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px">Contactar a:</div>
+      <div style="font-size:14px;font-weight:700">${contactNombre}</div>
+      ${contactEmail ? '<div style="font-size:13px;color:var(--text-muted)">📧 '+contactEmail+'</div>' : ''}
+      ${contactTel ? '<div style="font-size:13px;color:var(--text-muted)">📱 '+contactTel+'</div>' : ''}
+    </div>
+    <div style="margin-bottom:16px">
+      <div class="form-section-title" style="margin-bottom:8px">Mensaje sugerido (editable)</div>
+      <textarea id="seg-msg" rows="8" style="width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px solid var(--border);border-radius:8px;resize:vertical">${msgSugerido}</textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        ${contactEmail ? `<button class="btn btn-secondary btn-sm" onclick="window.open('mailto:${contactEmail}?subject='+encodeURIComponent('ONOMA Homes — Seguimiento búsqueda')+'&body='+encodeURIComponent(document.getElementById('seg-msg').value))">📧 Enviar email</button>` : ''}
+        <button class="btn btn-secondary btn-sm" onclick="copyLink(document.getElementById('seg-msg').value)">📋 Copiar mensaje</button>
+      </div>
+    </div>
+    <div style="border-top:1.5px solid var(--border);padding-top:16px">
+      <div class="form-section-title" style="margin-bottom:8px">Registrar resultado del contacto *</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+        ${['Llamé por teléfono','Envié email','Envié mensaje (WhatsApp/SMS)','No contestó — reintentar'].map(opt =>
+          `<label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px"><input type="radio" name="seg-metodo" value="${opt}"> ${opt}</label>`
+        ).join('')}
+      </div>
+      <div class="form-col"><label>¿Qué dijo? / Resultado *</label>
+        <textarea id="seg-feedback" rows="3" placeholder="Ej: El cliente dice que amplió presupuesto a 500k. Quiere ver pisos la próxima semana. / No contestó, dejé mensaje de voz."></textarea>
+      </div>
+    </div>
+  `, 'lg', `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="submitSeguimiento('${demandaId}','${tipo}')">✅ Registrar y completar</button>
+  `);
+}
+
+async function submitSeguimiento(demandaId, tipo) {
+  const metodo = document.querySelector('input[name="seg-metodo"]:checked')?.value;
+  const feedback = document.getElementById('seg-feedback')?.value?.trim();
+  if (!metodo) { toast('Selecciona cómo contactaste','error'); return; }
+  if (!feedback) { toast('Escribe el resultado del contacto','error'); return; }
+  try {
+    // Save feedback as nota in demanda
+    const { data: dData } = await sb.from('demandas').select('notas_asesor').eq('id', demandaId).limit(1);
+    const existing = (dData && dData[0]) ? (dData[0].notas_asesor||'') : '';
+    const fecha = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'2-digit'});
+    const nuevaNota = '[' + fecha + ' — ' + metodo + '] ' + feedback;
+    await sb.from('demandas').update({ notas_asesor: (existing ? existing + '\n' : '') + nuevaNota }).eq('id', demandaId);
+
+    // Complete the action
+    await sb.from('acciones_pendientes').update({ estado: 'completada' }).eq('referencia_id', demandaId).eq('tipo', tipo).eq('estado', 'pendiente');
+    loadPendingCount();
+    toast('✅ Seguimiento registrado');
+    closeModal();
+    loadedTabs.delete('pendientes');
+  } catch(e) { toast('Error: '+e.message,'error'); }
 }
 
 async function markActionDone(id, btn) {
@@ -2044,14 +2135,17 @@ async function syncMatchingAcciones(demandas, matchByDem) {
 }
 
 // Alarmas inteligentes: demanda sin visitas 30d + envíos sin actividad
+// Alarmas: cada 5 días (2 intentos), después de 10 días sin feedback → escalar a director
 async function checkDemandaAlarmas() {
   try {
-    const { data: demandas } = await sb.from('demandas').select('id,nombre,tipo_origen,colaborador,created_time').eq('asesor_id', currentUser.id).eq('estado', 'Activa ');
+    const { data: demandas } = await sb.from('demandas').select('id,nombre,tipo_origen,colaborador,created_time,asesor_id').eq('asesor_id', currentUser.id).eq('estado', 'Activa ');
     if (!demandas || !demandas.length) return;
 
-    // Get existing alarma actions to avoid duplicates
-    const { data: existingAcc } = await sb.from('acciones_pendientes').select('id,referencia_id,tipo').eq('asesor_id', currentUser.id).eq('estado', 'pendiente').in('tipo', ['llamada_sin_visita','llamada_sin_actividad']);
-    const existingRefs = new Set((existingAcc||[]).map(a => a.referencia_id + ':' + a.tipo));
+    // Get ALL alarma actions (pendiente + completada) to track history
+    const { data: allAcc } = await sb.from('acciones_pendientes').select('id,referencia_id,tipo,estado,fecha_creacion,fecha_completada')
+      .eq('asesor_id', currentUser.id).in('tipo', ['llamada_sin_visita','llamada_sin_actividad','escalado_director']);
+    const accByDem = {};
+    (allAcc||[]).forEach(a => { if (!accByDem[a.referencia_id]) accByDem[a.referencia_id] = []; accByDem[a.referencia_id].push(a); });
 
     const now = Date.now();
     let created = 0;
@@ -2059,39 +2153,54 @@ async function checkDemandaAlarmas() {
     for (const d of demandas) {
       const createdMs = d.created_time ? new Date(d.created_time).getTime() : now;
       const diasActiva = (now - createdMs) / (1000*60*60*24);
+      if (diasActiva < 5) continue; // Skip new demandas
+
       const esColab = d.tipo_origen === 'colaborador';
       const contacto = esColab ? 'al colaborador' : 'al comprador directo';
+      const demAcciones = accByDem[d.id] || [];
 
-      // Alarma 1: demanda sin visitas en más de 30 días
-      if (diasActiva >= 30 && !existingRefs.has(d.id + ':llamada_sin_visita')) {
-        const { count } = await sb.from('visitas').select('id', { count: 'exact', head: true }).or(`demanda.cs.{"${d.id}"},demanda_2.cs.{"${d.id}"}`);
-        if ((count||0) === 0) {
-          await sb.from('acciones_pendientes').insert({
-            asesor_id: currentUser.id,
-            tipo: 'llamada_sin_visita',
-            titulo: '📞 Llamar ' + contacto + ' — ' + (d.nombre||'Demanda'),
-            descripcion: 'Demanda activa desde hace ' + Math.round(diasActiva) + ' días sin ninguna visita. Contactar para verificar interés y actualizar criterios.',
-            referencia_id: d.id,
-            estado: 'pendiente',
-            prioridad: 'alta'
-          });
-          created++;
-        }
-      }
+      // Count completed seguimientos for this demanda
+      const completados = demAcciones.filter(a => a.estado === 'completada' && (a.tipo === 'llamada_sin_visita' || a.tipo === 'llamada_sin_actividad')).length;
+      const pendientes = demAcciones.filter(a => a.estado === 'pendiente' && (a.tipo === 'llamada_sin_visita' || a.tipo === 'llamada_sin_actividad')).length;
+      const yaEscalado = demAcciones.some(a => a.tipo === 'escalado_director');
 
-      // Alarma 2: 2+ envíos de matchings sin actividad del cliente
-      const { data: matchEnvios } = await sb.from('matchings').select('id,envio_id,accion_cliente').or(`demanda.cs.{"${d.id}"}`).not('envio_id', 'is', null);
-      const enviosCount = (matchEnvios||[]).filter(m => m.envio_id).length;
-      const conActividad = (matchEnvios||[]).filter(m => m.accion_cliente && m.accion_cliente !== 'pendiente').length;
-      if (enviosCount >= 2 && conActividad === 0 && !existingRefs.has(d.id + ':llamada_sin_actividad')) {
+      // Check if demanda has any activity (visitas or matching responses)
+      const { count: visitasCount } = await sb.from('visitas').select('id', { count: 'exact', head: true }).or(`demanda.cs.{"${d.id}"},demanda_2.cs.{"${d.id}"}`);
+      const hasActivity = (visitasCount||0) > 0;
+      if (hasActivity) continue; // Demanda with visits = no alarm needed
+
+      if (pendientes > 0) continue; // Already has pending alarm
+
+      // Intento 1: a los 5 días
+      if (diasActiva >= 5 && completados === 0) {
         await sb.from('acciones_pendientes').insert({
-          asesor_id: currentUser.id,
-          tipo: 'llamada_sin_actividad',
-          titulo: '📞 Seguimiento — ' + (d.nombre||'Demanda'),
-          descripcion: enviosCount + ' envíos de pisos sin respuesta del cliente. Llamar ' + contacto + ' para verificar si ha visto las opciones.',
-          referencia_id: d.id,
-          estado: 'pendiente',
-          prioridad: 'alta'
+          asesor_id: currentUser.id, tipo: 'llamada_sin_visita',
+          titulo: '📞 1er seguimiento — ' + (d.nombre||'Demanda'),
+          descripcion: Math.round(diasActiva) + ' días sin actividad. Contactar ' + contacto + ' para verificar interés.',
+          referencia_id: d.id, estado: 'pendiente', prioridad: 'normal'
+        });
+        created++;
+      }
+      // Intento 2: a los 10 días (5 días después del primero)
+      else if (diasActiva >= 10 && completados === 1) {
+        await sb.from('acciones_pendientes').insert({
+          asesor_id: currentUser.id, tipo: 'llamada_sin_actividad',
+          titulo: '📞 2do seguimiento (URGENTE) — ' + (d.nombre||'Demanda'),
+          descripcion: Math.round(diasActiva) + ' días sin actividad. Segundo intento. Si no hay respuesta, se escalará a dirección.',
+          referencia_id: d.id, estado: 'pendiente', prioridad: 'alta'
+        });
+        created++;
+      }
+      // Escalado a director: después de 10 días sin feedback del asesor
+      else if (diasActiva >= 10 && completados >= 2 && !yaEscalado) {
+        // Create action for director
+        const { data: dirs } = await sb.from('asesores').select('id').eq('rol','director').limit(1);
+        const dirId = dirs && dirs[0] ? dirs[0].id : 'admin';
+        await sb.from('acciones_pendientes').insert({
+          asesor_id: dirId, tipo: 'escalado_director',
+          titulo: '🚨 Demanda sin actividad 10+ días — ' + (d.nombre||'Demanda'),
+          descripcion: 'El asesor ha contactado 2 veces sin resultado. Demanda: ' + (d.zona_preferida||'') + ', ' + eur(d.presupuesto_max) + '. Requiere decisión de dirección.',
+          referencia_id: d.id, estado: 'pendiente', prioridad: 'alta'
         });
         created++;
       }
