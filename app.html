@@ -946,7 +946,7 @@ TAB_LOADERS.dashboard = async function() {
 
     const pisosActivos = pisos.filter(p => p.estado_sistema === 'activo' || !p.estado_sistema).length;
     const pisosUF = pisos.filter(p => p.urban_flip).length;
-    const demandasActivas = demandas.filter(d => d.estado === 'activa' || !d.estado).length;
+    const demandasActivas = demandas.filter(d => !d.estado || (d.estado||'').trim().toLowerCase() === 'activa' || (d.estado||'').trim().toLowerCase() === 'pendiente').length;
     const visitasHoy = visitas.filter(v => v.fecha_hora && v.fecha_hora.startsWith(hoy)).length;
     const visitasMes = visitas.filter(v => v.fecha_hora && v.fecha_hora >= mesStart).length;
     const fbPendiente = visitas.filter(v => (v.estado === 'realizada' || v.estado === 'Realizada') && !v.feedback_asesor_completado).length;
@@ -1032,7 +1032,8 @@ TAB_LOADERS.pendientes = async function() {
           ${acciones.map(a => `
             <div class="data-card" style="padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
               <div>
-                <div style="font-size:14px;font-weight:500">${a.descripcion||'Acción pendiente'}</div>
+                <div style="font-size:14px;font-weight:500">${a.titulo||a.descripcion||'Acción pendiente'}</div>
+                ${a.descripcion && a.titulo ? `<div style="font-size:12px;color:var(--text-muted);margin-top:1px">${a.descripcion}</div>` : ''}
                 <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${a.fecha_creacion ? fdate(a.fecha_creacion) : ''}</div>
               </div>
               <button class="btn btn-secondary btn-sm" onclick="markActionDone('${a.id}',this)">Completar</button>
