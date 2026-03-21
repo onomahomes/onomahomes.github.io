@@ -1534,24 +1534,29 @@ TAB_LOADERS.matchings = async function() {
     const pendReview = matchings.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
     const activas = (demandas||[]).filter(d => (d.estado_matching||d.estado||'').trim().toLowerCase() !== 'eliminada').length;
 
-    pane.innerHTML = `
-      <div class="tab-toolbar">
-        <div><h2>Matchings</h2><p>${activas} demandas activas · ${totalMatch} matchings</p></div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px">
-        <div style="background:white;border-radius:10px;padding:14px;border:1px solid var(--border);text-align:center"><div style="font-size:24px;font-weight:700;color:var(--accent)">${activas}</div><div style="font-size:12px;color:var(--text-muted)">Demandas activas</div></div>
-        <div style="background:white;border-radius:10px;padding:14px;border:1px solid var(--border);text-align:center"><div style="font-size:24px;font-weight:700;color:var(--gold)">${totalMatch}</div><div style="font-size:12px;color:var(--text-muted)">Total matchings</div></div>
-        <div style="background:white;border-radius:10px;padding:14px;border:1px solid var(--border);text-align:center"><div style="font-size:24px;font-weight:700;color:var(--danger)">${pendReview}</div><div style="font-size:12px;color:var(--text-muted)">Por revisar</div></div>
-      </div>
-      <div id="matchings-list"></div>`;
+    pane.innerHTML = `<div id="matchings-header"></div><div id="matchings-list"></div>`;
     renderMatchingsList();
   } catch(e) { tabError(pane, e); }
 };
 
 function renderMatchingsList() {
   const el = document.getElementById('matchings-list');
+  const hdr = document.getElementById('matchings-header');
   if (!el) return;
-  const { demandas, matchByDem, pisosMap } = _matchReviewData;
+  const { demandas, matchings, matchByDem } = _matchReviewData;
+
+  // Recalculate KPIs
+  const totalMatch = matchings.length;
+  const pendReview = matchings.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor').length;
+  const activas = demandas.filter(d => (d.estado_matching||d.estado||'').trim().toLowerCase() !== 'eliminada').length;
+  if (hdr) hdr.innerHTML = `
+    <div class="tab-toolbar"><div><h2>Matchings</h2><p>${activas} demandas activas · ${totalMatch} matchings</p></div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px">
+      <div style="background:white;border-radius:10px;padding:14px;border:1px solid var(--border);text-align:center"><div style="font-size:24px;font-weight:700;color:var(--accent)">${activas}</div><div style="font-size:12px;color:var(--text-muted)">Demandas activas</div></div>
+      <div style="background:white;border-radius:10px;padding:14px;border:1px solid var(--border);text-align:center"><div style="font-size:24px;font-weight:700;color:var(--gold)">${totalMatch}</div><div style="font-size:12px;color:var(--text-muted)">Total matchings</div></div>
+      <div style="background:white;border-radius:10px;padding:14px;border:1px solid var(--border);text-align:center"><div style="font-size:24px;font-weight:700;color:var(--danger)">${pendReview}</div><div style="font-size:12px;color:var(--text-muted)">Por revisar</div></div>
+    </div>`;
+
   if (!demandas.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">🤝</span><p>No hay demandas asignadas.</p></div>'; return; }
 
   el.innerHTML = demandas.map(d => {
