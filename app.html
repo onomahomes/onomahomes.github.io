@@ -1806,11 +1806,19 @@ function openMatchReview(demandaId) {
   const d = demandas.find(x => x.id === demandaId);
   if (!d) return;
   const allMatches = (matchByDem[demandaId]||[]).sort((a,b) => (b.score_matching||0)-(a.score_matching||0));
-  // Show: approved ones + top non-reviewed up to 5 visible (hide discarded)
   const approved = allMatches.filter(m => m.estado === 'aprobado');
   const pending = allMatches.filter(m => m.estado !== 'aprobado' && m.estado !== 'descartado_asesor');
+  const totalDisponibles = pending.length + approved.length;
   const slotsForPending = Math.max(0, 5 - approved.length);
   const dMatches = [...approved, ...pending.slice(0, slotsForPending)];
+  const canDiscard = totalDisponibles > 5;
+
+  // Counter HTML
+  let counterColor = 'var(--text-muted)';
+  let counterMsg = '';
+  if (totalDisponibles <= 5) { counterColor = 'var(--color-error)'; counterMsg = ' — No puedes descartar más'; }
+  else if (totalDisponibles <= 10) { counterColor = 'var(--color-warning)'; counterMsg = ' — ⚠️ Quedan pocos pisos'; }
+  const counterHtml = `<div id="match-counter" style="font-size:12px;color:${counterColor};margin-bottom:12px;padding:8px 12px;background:var(--bg);border-radius:6px;border:1px solid var(--border)">Mostrando 5 de <strong>${totalDisponibles}</strong> pisos disponibles${counterMsg}</div>`;
 
   function scoreColor(s) { return s >= 80 ? '#C9A84C' : s >= 60 ? '#B8860B' : '#8B2020'; }
   function scoreRing(s) {
@@ -1860,7 +1868,7 @@ function openMatchReview(demandaId) {
           ${m.texto_recomendacion ? `<div style="font-size:12px;color:var(--text);margin-top:6px;line-height:1.5;background:#f9f8f6;padding:8px 10px;border-radius:6px;border-left:3px solid var(--accent)">${m.texto_recomendacion}</div>` : ''}
           ${!isApproved && !isDiscarded ? `<div style="display:flex;gap:6px;margin-top:8px">
             <button class="btn btn-primary btn-sm" onclick="approveMatch('${m.id}',this)">✅ Aprobar</button>
-            <button class="btn btn-secondary btn-sm" onclick="showDiscardPopup('${m.id}','${(p.direccion||'').replace(/'/g,"\\'")}')" style="color:var(--danger)">❌ Descartar</button>
+            <button class="btn btn-secondary btn-sm" onclick="showDiscardPopup('${m.id}','${(p.direccion||'').replace(/'/g,"\\'")}')" style="color:var(--danger)" ${canDiscard?'':'disabled title="No puedes descartar — el colaborador recibiría menos de 5 opciones"'}>❌ Descartar</button>
             <button class="btn btn-secondary btn-sm" onclick="openPisoDetail('${pisoId}')" style="font-size:11px">Ver dossier</button>
           </div>` : ''}
           ${isDiscarded && m.feedback_descarte_asesor ? `<div style="font-size:11px;color:var(--text-muted);margin-top:4px;font-style:italic">Motivo: ${m.feedback_descarte_asesor}</div>` : ''}
@@ -1872,14 +1880,17 @@ function openMatchReview(demandaId) {
   const approvedIds = dMatches.filter(m => m.estado === 'aprobado').map(m => m.id);
   const canGenerate = approvedIds.length > 0;
 
+  const need5 = approved.length >= 5;
+
   openModal(`Revisar matchings: ${d.nombre||'—'}`, `
     <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
       <div style="font-size:13px;color:var(--text-muted)">${d.zona_preferida||''} · ${eur(d.presupuesto_max)} · ${d.habitaciones_min||'—'} hab · Tipo: ${d.tipo_origen||'—'}</div>
     </div>
+    ${counterHtml}
     <div style="display:flex;flex-direction:column;gap:12px" id="match-review-cards">${cards}</div>
   `, 'lg', `
     <button class="btn btn-secondary" onclick="closeModal();renderMatchingsList()">← Volver</button>
-    <button class="btn btn-primary" id="btn-gen-envio" ${canGenerate?'':'disabled'} onclick="generateEnvio('${d.id}')">📧 Generar envío (${approvedIds.length} pisos)</button>
+    <button class="btn btn-primary" id="btn-gen-envio" ${need5?'':'disabled'} onclick="generateEnvio('${d.id}')">📧 Generar envío (${approved.length}/5 aprobados)</button>
   `);
 }
 
