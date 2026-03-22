@@ -481,16 +481,26 @@ function renderCurrent() {
           <span>\uD83D\uDCB0 Ver gastos totales</span><span class="arrow" id="costs-arrow-${m.id}">\u25BC</span>
         </button>
         <div class="costs-panel" id="costs-${m.id}">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 12px;border-bottom:1px solid rgba(0,0,0,0.05);margin-bottom:8px">
-            <label for="vh-${m.id}" style="font-size:13px;color:var(--text);cursor:pointer">\u00BFEs tu vivienda habitual?</label>
-            <label style="position:relative;width:44px;height:24px;cursor:pointer">
-              <input type="checkbox" id="vh-${m.id}" onchange="recalcCosts('${m.id}',${precio})" style="opacity:0;width:0;height:0">
-              <span style="position:absolute;inset:0;background:#ccc;border-radius:24px;transition:0.2s"></span>
-              <span style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)" id="vh-knob-${m.id}"></span>
-            </label>
-          </div>
           <div class="costs-row"><span class="label">Precio del piso</span><span class="value">${eur(precio)}</span></div>
-          <div class="costs-row"><span class="label" id="itp-label-${m.id}">ITP (6%)</span><span class="value" id="itp-val-${m.id}">${eur(Math.round(precio * 0.06))}</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.05)">
+            <div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span class="label" id="itp-label-${m.id}">ITP (6%)</span>
+                <span class="value" id="itp-val-${m.id}">${eur(Math.round(precio * 0.06))}</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <label for="vh-${m.id}" style="font-size:12px;color:var(--text);cursor:pointer;white-space:nowrap">\u00BFSer\u00E1 tu vivienda habitual?</label>
+                <label style="position:relative;width:44px;height:24px;cursor:pointer;flex-shrink:0">
+                  <input type="checkbox" id="vh-${m.id}" onchange="recalcCosts('${m.id}',${precio})" style="opacity:0;width:0;height:0">
+                  <span style="position:absolute;inset:0;background:#ccc;border-radius:24px;transition:0.2s"></span>
+                  <span style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)"></span>
+                </label>
+              </div>
+              <span style="font-size:10px;color:var(--muted);font-style:italic;text-align:right">Te lo preguntamos para aplicar la bonificaci\u00F3n fiscal correspondiente</span>
+            </div>
+          </div>
           <div class="costs-row"><span class="label">Notar\u00EDa</span><span class="value">${eur(Math.round(precio * 0.003 + 300))}</span></div>
           <div class="costs-row"><span class="label">Registro</span><span class="value">${eur(Math.round(precio * 0.002 + 200))}</span></div>
           <div class="costs-row"><span class="label">Gestor\u00EDa</span><span class="value">${eur(800)}</span></div>
