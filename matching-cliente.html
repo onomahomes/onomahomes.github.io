@@ -400,6 +400,10 @@ function renderCurrent() {
 
   // Costs breakdown
   const precio = p.precio || 0;
+  const notaria = Math.round(precio * 0.003 + 300);
+  const registro = Math.round(precio * 0.002 + 200);
+  const gestoria = 800;
+  const honorarios = Math.round(precio * 0.03);
 
   // AI text
   const aiText = _aiTexts[m.id];
