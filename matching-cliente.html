@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONOMA — Pisos seleccionados para ti</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg: #F8F7F4; --card: #FFFFFF; --text: #2D2D2D; --muted: #7A6E66; --border: #D7D6D4;
+  --gold: #C9A84C; --gold-dark: #B8962E; --gold-bg: rgba(201,168,76,0.10);
+  --success: #2C5F2E; --error: #8B2020; --warning: #B8860B;
+  --font: 'Barlow', sans-serif; --font-ui: 'Jost', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* Header */
+.header { background: #232320; padding: 16px 20px; text-align: center; }
+.header svg { height: 28px; width: 120px; }
+
+/* Container */
+.container { max-width: 640px; margin: 0 auto; padding: 20px 16px 120px; }
+
+/* Hero */
+.hero { text-align: center; padding: 28px 0 24px; }
+.hero h1 { font-family: var(--font-ui); font-size: 22px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+.hero p { font-size: 14px; color: var(--muted); }
+
+/* Piso card */
+.piso-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; margin-bottom: 20px; overflow: hidden; transition: border-color 0.2s; }
+.piso-card.urban-flip { border-color: var(--gold); }
+.piso-card.rated { border-color: var(--gold); box-shadow: 0 2px 12px rgba(201,168,76,0.15); }
+
+/* Carousel */
+.carousel { position: relative; width: 100%; height: 240px; overflow: hidden; background: #f3f2ef; }
+.carousel img { width: 100%; height: 100%; object-fit: cover; display: none; }
+.carousel img.active { display: block; }
+.carousel-ph { width: 100%; height: 240px; display: flex; align-items: center; justify-content: center; background: #f3f2ef; font-size: 56px; }
+.carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.85); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; z-index: 2; box-shadow: 0 2px 6px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
+.carousel-btn:hover { background: white; }
+.carousel-prev { left: 8px; }
+.carousel-next { right: 8px; }
+.carousel-dots { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 2; }
+.carousel-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.5); border: none; cursor: pointer; padding: 0; }
+.carousel-dot.active { background: white; }
+
+/* Piso body */
+.piso-body { padding: 16px; }
+.piso-dir { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+.piso-barrio { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.piso-precio { font-family: var(--font-ui); font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+
+/* Pills */
+.pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.pill { display: inline-flex; padding: 4px 10px; border-radius: 100px; font-family: var(--font-ui); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(0,0,0,0.05); color: var(--muted); }
+.pill-gold { background: var(--gold-bg); color: var(--gold-dark); border: 1px solid rgba(201,168,76,0.3); }
+
+/* Score */
+.score-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.score-row span { font-size: 12px; color: var(--muted); }
+
+/* UF badge */
+.uf-badge { background: var(--gold); color: #1C1C1C; font-family: var(--font-ui); font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+
+/* Description */
+.desc-ia { font-size: 13px; line-height: 1.6; color: var(--text); background: #f9f8f6; padding: 12px; border-radius: 8px; border-left: 3px solid var(--gold); margin-bottom: 12px; }
+.expand-btn { font-size: 12px; color: var(--gold-dark); cursor: pointer; margin-bottom: 12px; background: none; border: none; font-family: var(--font-ui); font-weight: 500; }
+
+/* Action buttons — 4 big touch targets */
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.action-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 14px 8px; min-height: 56px; border-radius: 10px; border: 1.5px solid var(--border); background: white; cursor: pointer; transition: all 0.2s; font-family: var(--font-ui); }
+.action-btn:hover { border-color: var(--gold); background: var(--gold-bg); }
+.action-btn .action-icon { font-size: 20px; }
+.action-btn .action-label { font-size: 11px; font-weight: 600; color: var(--text); text-transform: uppercase; letter-spacing: 0.04em; }
+.action-btn.selected { border-color: var(--gold); background: var(--gold-bg); }
+.action-btn.selected-descartar { border-color: var(--error); background: rgba(139,32,32,0.06); }
+.action-btn.selected-descartar .action-label { color: var(--error); }
+.action-btn.selected-guardar { border-color: #5B7F9E; background: rgba(91,127,158,0.06); }
+.action-btn.selected-guardar .action-label { color: #5B7F9E; }
+.action-btn.selected-segunda { border-color: var(--warning); background: rgba(184,134,11,0.06); }
+.action-btn.selected-segunda .action-label { color: var(--warning); }
+.action-btn.selected-reservar { border-color: var(--success); background: rgba(44,95,46,0.08); }
+.action-btn.selected-reservar .action-label { color: var(--success); }
+.action-status { text-align: center; margin-top: 8px; font-size: 12px; font-weight: 600; font-family: var(--font-ui); }
+
+/* Fixed bar */
+.fixed-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1.5px solid var(--border); padding: 14px 20px; display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 100; box-shadow: 0 -4px 16px rgba(0,0,0,0.08); }
+.fixed-bar .progress-text { font-size: 12px; color: var(--muted); font-family: var(--font-ui); }
+.fixed-bar .progress-text strong { color: var(--text); }
+.btn-submit { width: 100%; max-width: 400px; padding: 16px 24px; background: var(--gold); color: #1C1C1C; border: none; border-radius: 8px; font-family: var(--font-ui); font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: background 0.15s; }
+.btn-submit:hover { background: var(--gold-dark); }
+.btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Loading & states */
+.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; }
+.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.state-msg { text-align: center; padding: 80px 20px; }
+.state-msg .state-icon { font-size: 48px; margin-bottom: 16px; }
+.state-msg h2 { font-family: var(--font-ui); font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.state-msg p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+.footer-brand { text-align: center; font-size: 11px; color: var(--muted); padding: 20px; }
+
+/* Toast */
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #232320; color: white; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-family: var(--font-ui); z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <svg viewBox="0 0 1911 312" xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF"><path d="M250.74,41.54c-12.01-13.34-26.94-23.61-44.79-30.78C188.09,3.59,167.15,0,143.14,0c-31.7,0-58.23,6.26-79.58,18.77-21.35,12.51-37.28,30.36-47.8,53.55C5.25,95.52,0,123.12,0,155.15c0,24.02,2.91,45.63,8.75,64.82,5.84,19.18,14.68,35.53,26.53,49.04,11.84,13.52,26.78,23.94,44.79,31.29,18.02,7.33,39.04,11.01,63.07,11.01,32.36,0,59.05-6.35,80.08-19.02,21.02-12.68,36.78-30.7,47.29-54.06,10.51-23.36,15.77-51.05,15.77-83.08,0-24.02-2.92-45.62-8.76-64.81-5.83-19.19-14.76-35.45-26.77-48.8ZM239.73,220.96c-7.01,18.86-18.35,33.45-34.03,43.79-15.68,10.36-36.54,15.52-62.56,15.52s-46.88-5.16-62.57-15.52c-15.68-10.33-27.02-24.92-34.03-43.79-7.01-18.84-10.52-40.78-10.52-65.81s3.59-47.29,10.76-65.81c7.17-18.52,18.6-32.79,34.28-42.79,15.68-10.01,36.37-15.01,62.06-15.01s46.79,5,62.31,15.01c15.51,10.01,26.85,24.19,34.03,42.55,7.17,18.35,10.76,40.38,10.76,66.06s-3.5,46.98-10.51,65.81Z"/><path d="M622.59,91.09c0,16.02.33,33.04,1,51.05.66,18.01,1.5,35.95,2.5,53.81,1,17.84,2.16,34.62,3.5,50.29.86,10.15,1.72,18.95,2.59,27.15l-21.24.61c-2.02-5.54-4.24-11.42-6.87-18-4.33-10.84-9.18-22.43-14.51-34.79-5.34-12.33-11.26-24.85-17.77-37.53-6.51-12.67-13.26-25.03-20.27-37.03L468.94,5.51h-57.55v300.28h34.03v-85.58c0-12.68-.08-26.11-.25-40.29-.17-14.19-.5-28.53-1-43.04-.5-14.53-1.17-28.78-2-42.79-.83-14.02-1.75-27.2-2.75-39.54-.5-6.11-1.04-11.9-1.62-17.36l22.11-1.1c2.01,5.13,3.93,10.05,6.03,15.45,4,10.35,8.26,20.86,12.76,31.53,4.5,10.69,9.34,21.28,14.51,31.78,5.17,10.5,10.43,20.61,15.77,30.28l93.59,160.65h54.06V5.51h-34.03v85.58Z"/><path d="M1032.48,41.54c-12.01-13.34-26.94-23.61-44.79-30.78-17.85-7.17-38.79-10.76-62.81-10.76-31.7,0-58.23,6.26-79.58,18.77-21.35,12.51-37.28,30.36-47.8,53.55-10.51,23.2-15.76,50.8-15.76,82.83,0,24.02,2.91,45.63,8.75,64.82,5.84,19.18,14.68,35.53,26.53,49.04,11.84,13.52,26.78,23.94,44.79,31.29,18.02,7.33,39.04,11.01,63.06,11.01,32.36,0,59.06-6.35,80.08-19.02,21.02-12.68,36.78-30.7,47.29-54.06,10.51-23.36,15.77-51.05,15.77-83.08,0-24.02-2.92-45.62-8.76-64.81-5.83-19.19-14.76-35.45-26.77-48.8ZM828.54,89.34c7.17-18.52,18.6-32.79,34.28-42.79,15.68-10.01,36.37-15.01,62.06-15.01s46.79,5,62.31,15.01c15.51,10.01,26.85,24.19,34.03,42.55,7.17,18.35,10.76,40.38,10.76,66.06,0,10.75-.97,20.65-2.26,30.27l-104.12-69.03-105.36,71.86c-1.55-10.4-2.47-21.35-2.47-33.1,0-25.36,3.59-47.29,10.76-65.81ZM987.44,264.75c-12.17,8.03-27.53,12.85-45.92,14.66v-72.57h-.08l-16.05-10.65-15.7,10.65h-.09v72.63c-18.97-1.7-34.82-6.51-47.27-14.72-15.58-10.27-26.85-24.75-33.87-43.43l97.41-66.45,96.22,63.79c-.26.72-.33,1.61-.6,2.31-7.01,18.86-18.35,33.45-34.03,43.79Z"/><path d="M1393.33,143.64c-2.68,7-5.76,15.6-9.26,25.77-3.5,10.19-6.93,20.77-10.26,31.78-3.34,11.01-6.51,21.51-9.51,31.52-.27.9-.48,1.63-.74,2.51h-18.28c-3.01-10.01-6.43-20.77-10.26-32.28-3.84-11.51-7.51-22.52-11.01-33.04-3.51-10.5-6.43-19.09-8.76-25.77l-53.55-138.63h-68.57v300.28h34.03V54.81c0-7.12-.08-13.68-.22-19.78h16.96c1.69,6.05,3.44,12.27,5.28,18.77,4,14.19,8.52,29.03,13.52,44.55,5,15.51,10.34,30.78,16.01,45.79l50.55,124.13h43.54l52.05-122.13c6-14.34,11.59-29.18,16.77-44.55,5.17-15.34,10.09-30.52,14.77-45.54,2.26-7.29,4.36-14.28,6.31-21.02h19.05c-.08,5.93-.2,12.31-.34,19.27-.34,15.52-.68,31.7-1,48.54-.34,16.85-.5,32.12-.5,45.8v157.15h36.03V5.51h-66.06l-56.55,138.13Z"/><path d="M1794.71,5.51h-55.05l-115.61,300.28h37.54l32.36-88.58h145.18l32.66,88.58h38.54L1794.71,5.51ZM1703.63,190.68l15-41.04c5.34-15.01,10.68-30.52,16.02-46.54,5.33-16,10.34-31.52,15.01-46.54,2.44-7.86,4.63-15.15,6.62-22.01h21.93c1.72,6.45,3.63,13.46,5.73,21.02,4.17,15.02,8.92,30.7,14.26,47.04,5.33,16.36,10.68,32.03,16.01,47.04l15.13,41.04h-125.71Z"/></svg>
+</div>
+
+<div class="container" id="main-content">
+  <div class="loading"><div class="spinner"></div><p style="margin-top:12px;color:var(--muted)">Cargando tus pisos...</p></div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+const SB_URL = 'https://wwaytwudfbwxttyyojjx.supabase.co';
+const SB_KEY = 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+let _envio = null, _pisos = [], _demanda = {};
+let _actions = {}; // { matchingId: 'descartar'|'guardar'|'segunda_visita'|'reservar' }
+let _submitted = false;
+
+function eur(n) { return n ? Number(n).toLocaleString('es-ES') + ' \u20AC' : '\u2014'; }
+
+function toast(msg) {
+  const el = document.getElementById('toast-el');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+async function init() {
+  const params = new URLSearchParams(location.search);
+  const linkHash = params.get('id') || params.get('h');
+  if (!linkHash) { showState('\u26A0\uFE0F', 'Link inv\u00E1lido', 'Este enlace no contiene informaci\u00F3n v\u00E1lida.'); return; }
+
+  try {
+    // Load envio
+    const { data: envios } = await sb.from('envios_matching').select('*').eq('link_hash', linkHash).limit(1);
+    if (!envios || !envios.length) { showState('\u26A0\uFE0F', 'Enlace no v\u00E1lido', 'Este enlace no es v\u00E1lido o ha expirado.'); return; }
+    _envio = envios[0];
+
+    // Already responded?
+    if (_envio.estado === 'respondido') {
+      showState('\u2705', 'Ya has enviado tu valoraci\u00F3n', 'Gracias por tu respuesta. Tu asesor se pondr\u00E1 en contacto contigo pronto.');
+      return;
+    }
+
+    // Mark as opened
+    if (!_envio.abierto_at) {
+      await sb.from('envios_matching').update({ abierto_at: new Date().toISOString() }).eq('link_hash', linkHash);
+    }
+
+    // Load demanda
+    const { data: dd } = await sb.from('demandas').select('*').eq('id', _envio.demanda_id).limit(1);
+    if (dd && dd[0]) _demanda = dd[0];
+
+    // Load matchings + pisos
+    const matchIds = _envio.matchings_ids || [];
+    if (!matchIds.length) { showState('\u26A0\uFE0F', 'Sin pisos', 'No hay pisos en este env\u00EDo.'); return; }
+    const { data: matchings } = await sb.from('matchings').select('id,piso,score_matching,texto_recomendacion,tipo_operacion,estado').in('id', matchIds);
+
+    const pisoIds = (matchings||[]).map(m => {
+      const p = Array.isArray(m.piso) ? m.piso[0] : m.piso;
+      return p ? String(p).replace(/[{}]/g, '') : null;
+    }).filter(Boolean);
+    const { data: pisosData } = await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,ascensor,terraza,garaje,trastero,piscina,jardin,estado_inmueble,fotos,descripcion_ia,urban_flip').in('id', pisoIds);
+    const pisosMap = {};
+    (pisosData||[]).forEach(p => { pisosMap[p.id] = p; });
+
+    _pisos = (matchings||[]).map(m => {
+      const pid = Array.isArray(m.piso) ? m.piso[0] : m.piso;
+      const pisoId = pid ? String(pid).replace(/[{}]/g, '') : '';
+      return { ...m, pisoData: pisosMap[pisoId] || {}, pisoId };
+    }).sort((a, b) => (b.score_matching||0) - (a.score_matching||0));
+
+    render();
+  } catch(e) {
+    showState('\u26A0\uFE0F', 'Error', 'No se pudieron cargar los datos: ' + e.message);
+  }
+}
+
+function render() {
+  const clienteNombre = _envio.cliente_nombre || _demanda.nombre || '';
+  const ratedCount = Object.keys(_actions).length;
+  const totalCount = _pisos.length;
+  const allRated = ratedCount === totalCount;
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="hero">
+      <h1>${clienteNombre ? 'Hola ' + clienteNombre + ', hemos seleccionado estos pisos para ti' : 'Pisos seleccionados para ti'}</h1>
+      <p>${_demanda.zona_preferida || ''} \u00B7 Hasta ${eur(_demanda.presupuesto_max)} \u00B7 ${_demanda.habitaciones_min || ''}+ habitaciones</p>
+    </div>
+    ${_pisos.map(m => renderCard(m)).join('')}
+    <div class="footer-brand">ONOMA Homes \u00B7 onoma.es</div>
+  `;
+
+  // Fixed bar
+  let bar = document.getElementById('fixed-bar');
+  if (!bar) { bar = document.createElement('div'); bar.id = 'fixed-bar'; bar.className = 'fixed-bar'; document.body.appendChild(bar); }
+  bar.innerHTML = `
+    <div class="progress-text"><strong>${ratedCount}</strong> de ${totalCount} pisos valorados</div>
+    <button class="btn-submit" onclick="submitValoracion()" ${allRated ? '' : 'disabled'}>${allRated ? '\u2705 Enviar mi valoraci\u00F3n' : 'Valora todos los pisos para enviar'}</button>
+  `;
+}
+
+function renderCard(m) {
+  const p = m.pisoData;
+  const isUF = p.urban_flip;
+  const action = _actions[m.id] || null;
+  const score = Math.round(m.score_matching || 0);
+
+  // Photos carousel
+  let fotos = p.fotos || [];
+  if (typeof fotos === 'string') { try { fotos = JSON.parse(fotos); } catch(e) { fotos = []; } }
+  if (!Array.isArray(fotos)) fotos = [];
+  const fotoUrls = fotos.map(f => typeof f === 'object' ? (f.url || '') : String(f)).filter(u => u.startsWith('http'));
+
+  let carouselHtml;
+  if (fotoUrls.length > 1) {
+    const imgs = fotoUrls.map((u, i) => `<img src="${u}" class="${i === 0 ? 'active' : ''}" onerror="this.style.display='none'">`).join('');
+    const dots = fotoUrls.map((_, i) => `<button class="carousel-dot ${i === 0 ? 'active' : ''}" onclick="slideTo('${m.id}',${i})"></button>`).join('');
+    carouselHtml = `<div class="carousel" id="carousel-${m.id}">
+      ${imgs}
+      <button class="carousel-btn carousel-prev" onclick="slideDir('${m.id}',-1)">\u2039</button>
+      <button class="carousel-btn carousel-next" onclick="slideDir('${m.id}',1)">\u203A</button>
+      <div class="carousel-dots">${dots}</div>
+    </div>`;
+  } else if (fotoUrls.length === 1) {
+    carouselHtml = `<div class="carousel"><img src="${fotoUrls[0]}" class="active" onerror="this.outerHTML='<div class=carousel-ph>\uD83C\uDFE0</div>'"></div>`;
+  } else {
+    carouselHtml = '<div class="carousel-ph">\uD83C\uDFE0</div>';
+  }
+
+  // Pills
+  const pills = [
+    p.habitaciones ? p.habitaciones + ' hab' : '',
+    p.metros ? p.metros + ' m\u00B2' : '',
+    p.ascensor ? 'Ascensor' : '',
+    p.terraza ? 'Terraza' : '',
+    p.garaje ? 'Garaje' : '',
+    p.trastero ? 'Trastero' : '',
+    p.piscina ? 'Piscina' : '',
+    p.jardin ? 'Jard\u00EDn' : '',
+  ].filter(Boolean).map(t => `<span class="pill">${t}</span>`).join('');
+
+  // Description (collapsible)
+  const desc = m.texto_recomendacion || p.descripcion_ia || '';
+  const shortDesc = desc.length > 150 ? desc.substring(0, 150) + '...' : desc;
+  const descHtml = desc ? `
+    <div class="desc-ia" id="desc-${m.id}">${shortDesc}</div>
+    ${desc.length > 150 ? `<button class="expand-btn" onclick="toggleDesc('${m.id}')">Ver m\u00E1s detalles</button>` : ''}
+  ` : '';
+
+  // Action buttons
+  const actions = [
+    { key: 'descartar', icon: '\uD83D\uDDD1\uFE0F', label: 'Descartar' },
+    { key: 'guardar', icon: '\uD83D\uDCBE', label: 'Guardar' },
+    { key: 'segunda_visita', icon: '\uD83D\uDD04', label: 'Segunda visita' },
+    { key: 'reservar', icon: '\u2705', label: 'Reservar' },
+  ];
+  const actionBtns = actions.map(a => {
+    const sel = action === a.key;
+    const cls = sel ? `selected selected-${a.key}` : '';
+    return `<button class="action-btn ${cls}" onclick="setAction('${m.id}','${a.key}')">
+      <span class="action-icon">${a.icon}</span>
+      <span class="action-label">${sel ? '\u2713 ' : ''}${a.label}</span>
+    </button>`;
+  }).join('');
+
+  const statusMsg = action ? { descartar: '\uD83D\uDDD1\uFE0F Descartado', guardar: '\uD83D\uDCBE Guardado para despu\u00E9s', segunda_visita: '\uD83D\uDD04 Quieres volver a verlo', reservar: '\u2705 Quieres reservar' }[action] : '';
+
+  return `<div class="piso-card ${isUF ? 'urban-flip' : ''} ${action ? 'rated' : ''}" id="card-${m.id}">
+    ${carouselHtml}
+    <div class="piso-body">
+      ${isUF ? '<div class="uf-badge">\u2B50 EXCLUSIVO ONOMA</div>' : ''}
+      <div class="piso-dir">${p.direccion || '\u2014'}</div>
+      <div class="piso-barrio">${p.barrio || ''} ${p.estado_inmueble ? '\u00B7 ' + p.estado_inmueble : ''}</div>
+      <div class="piso-precio">${eur(p.precio)}</div>
+      <div class="score-row">
+        <svg width="40" height="40" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="#e5e3df" stroke-width="4"/><circle cx="30" cy="30" r="26" fill="none" stroke="var(--gold)" stroke-width="4" stroke-dasharray="${(score/100)*163} 163" transform="rotate(-90 30 30)" stroke-linecap="round"/><text x="30" y="34" text-anchor="middle" font-size="14" font-weight="700" fill="var(--gold)">${score}</text></svg>
+        <span>Compatibilidad con tu b\u00FAsqueda</span>
+      </div>
+      <div class="pills">${pills}</div>
+      ${descHtml}
+      <div class="action-grid">${actionBtns}</div>
+      ${statusMsg ? `<div class="action-status">${statusMsg}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// Carousel
+function slideDir(matchId, dir) {
+  const c = document.getElementById('carousel-' + matchId);
+  if (!c) return;
+  const imgs = c.querySelectorAll('img');
+  const dots = c.querySelectorAll('.carousel-dot');
+  let cur = [...imgs].findIndex(i => i.classList.contains('active'));
+  imgs[cur].classList.remove('active');
+  dots[cur]?.classList.remove('active');
+  cur = (cur + dir + imgs.length) % imgs.length;
+  imgs[cur].classList.add('active');
+  dots[cur]?.classList.add('active');
+}
+function slideTo(matchId, idx) {
+  const c = document.getElementById('carousel-' + matchId);
+  if (!c) return;
+  c.querySelectorAll('img').forEach((img, i) => img.classList.toggle('active', i === idx));
+  c.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+}
+
+// Description expand/collapse
+function toggleDesc(matchId) {
+  const el = document.getElementById('desc-' + matchId);
+  const btn = el.nextElementSibling;
+  const m = _pisos.find(p => p.id === matchId);
+  const fullDesc = m?.texto_recomendacion || m?.pisoData?.descripcion_ia || '';
+  const shortDesc = fullDesc.substring(0, 150) + '...';
+  if (el._expanded) {
+    el.textContent = shortDesc;
+    btn.textContent = 'Ver m\u00E1s detalles';
+    el._expanded = false;
+  } else {
+    el.textContent = fullDesc;
+    btn.textContent = 'Ver menos';
+    el._expanded = true;
+  }
+}
+
+// Set action per piso
+function setAction(matchId, action) {
+  if (_actions[matchId] === action) {
+    delete _actions[matchId]; // toggle off
+  } else {
+    _actions[matchId] = action;
+  }
+  // Save immediately to Supabase (individual feedback)
+  saveFeedback(matchId, _actions[matchId] || null);
+  render();
+  // Scroll slightly if needed
+  const card = document.getElementById('card-' + matchId);
+  if (card) {
+    const next = card.nextElementSibling;
+    if (next && _actions[matchId]) {
+      setTimeout(() => next.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
+    }
+  }
+  toast(_actions[matchId] ? '\u2713 Registrado' : 'Selecci\u00F3n eliminada');
+}
+
+async function saveFeedback(matchId, action) {
+  const m = _pisos.find(p => p.id === matchId);
+  if (!m) return;
+  try {
+    if (action) {
+      // Upsert feedback
+      await sb.from('feedbacks_cliente').upsert({
+        envio_id: _envio.id,
+        matching_id: matchId,
+        piso_id: m.pisoId,
+        demanda_id: _envio.demanda_id,
+        accion: action,
+        origen: 'cliente_final',
+        created_at: new Date().toISOString()
+      }, { onConflict: 'envio_id,matching_id' });
+    }
+  } catch(e) {
+    // Fallback: save to envios_matching directly
+    console.warn('Feedback save:', e);
+  }
+}
+
+async function submitValoracion() {
+  const allRated = Object.keys(_actions).length === _pisos.length;
+  if (!allRated) return;
+
+  const btn = document.querySelector('.btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  try {
+    // Build feedback summary
+    const feedback = {};
+    Object.entries(_actions).forEach(([matchId, action]) => {
+      feedback[matchId] = action;
+    });
+
+    // Update envio
+    await sb.from('envios_matching').update({
+      estado: 'respondido',
+      feedback_descarte: feedback,
+      fecha_accion: new Date().toISOString()
+    }).eq('link_hash', _envio.link_hash);
+
+    // Create acciones_pendientes for reservar and segunda_visita
+    const accionesInsert = [];
+    for (const [matchId, action] of Object.entries(_actions)) {
+      if (action !== 'reservar' && action !== 'segunda_visita') continue;
+      const m = _pisos.find(p => p.id === matchId);
+      const p = m?.pisoData || {};
+      const clienteNombre = _envio.cliente_nombre || _demanda.nombre || 'Cliente';
+
+      if (action === 'reservar') {
+        accionesInsert.push({
+          asesor_id: _envio.asesor_id,
+          tipo: 'llamar_reserva',
+          titulo: '\u2705 Cliente quiere RESERVAR \u2014 ' + (p.direccion || 'piso'),
+          descripcion: clienteNombre + ' quiere reservar el piso en ' + (p.direccion || '') + ' (' + (p.barrio || '') + '). Contactar urgente para formalizar.',
+          referencia_id: _envio.demanda_id,
+          piso_id: m?.pisoId || null,
+          estado: 'pendiente',
+          prioridad: 'alta'
+        });
+      } else if (action === 'segunda_visita') {
+        accionesInsert.push({
+          asesor_id: _envio.asesor_id,
+          tipo: 'programar_visita',
+          titulo: '\uD83D\uDD04 Cliente quiere SEGUNDA VISITA \u2014 ' + (p.direccion || 'piso'),
+          descripcion: clienteNombre + ' quiere volver a ver el piso en ' + (p.direccion || '') + ' (' + (p.barrio || '') + '). Programar visita.',
+          referencia_id: _envio.demanda_id,
+          piso_id: m?.pisoId || null,
+          estado: 'pendiente',
+          prioridad: 'normal'
+        });
+      }
+    }
+
+    if (accionesInsert.length) {
+      await sb.from('acciones_pendientes').insert(accionesInsert);
+    }
+
+    // Update matching estados
+    for (const [matchId, action] of Object.entries(_actions)) {
+      let newEstado = 'feedback_cliente';
+      if (action === 'reservar') newEstado = 'reserva_solicitada';
+      else if (action === 'segunda_visita') newEstado = 'segunda_visita_solicitada';
+      else if (action === 'descartar') newEstado = 'descartado_cliente';
+      await sb.from('matchings').update({ estado: newEstado }).eq('id', matchId);
+    }
+
+    // Show confirmation
+    _submitted = true;
+    showState('\uD83C\uDF89', '\u00A1Gracias por tu valoraci\u00F3n!', 'Tu asesor se pondr\u00E1 en contacto contigo pronto para los pr\u00F3ximos pasos.');
+    const bar = document.getElementById('fixed-bar');
+    if (bar) bar.remove();
+
+  } catch(e) {
+    console.error('Submit error:', e);
+    btn.disabled = false;
+    btn.textContent = '\u2705 Enviar mi valoraci\u00F3n';
+    toast('Error al enviar. Int\u00E9ntalo de nuevo.');
+  }
+}
+
+function showState(icon, title, msg) {
+  document.getElementById('main-content').innerHTML = `
+    <div class="state-msg">
+      <div class="state-icon">${icon}</div>
+      <h2>${title}</h2>
+      <p>${msg}</p>
+    </div>
+    <div class="footer-brand">ONOMA Homes \u00B7 onoma.es</div>
+  `;
+}
+
+init();
+</script>
+</body>
+</html>
