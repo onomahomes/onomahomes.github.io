@@ -13,99 +13,161 @@
   --success: #2C5F2E; --error: #8B2020; --warning: #B8860B;
   --font: 'Barlow', sans-serif; --font-ui: 'Jost', sans-serif;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
 
 /* Header */
-.header { background: #232320; padding: 16px 20px; text-align: center; }
-.header svg { height: 28px; width: 120px; }
+.header{background:#232320;padding:16px 20px;text-align:center}
+.header svg{height:28px;width:120px}
 
 /* Container */
-.container { max-width: 640px; margin: 0 auto; padding: 20px 16px 120px; }
+.container{max-width:640px;margin:0 auto;padding:20px 16px 40px}
+
+/* Progress bar */
+.progress-bar-wrap{margin-bottom:20px}
+.progress-label{display:flex;justify-content:space-between;font-family:var(--font-ui);font-size:12px;color:var(--muted);margin-bottom:6px}
+.progress-label strong{color:var(--text)}
+.progress-track{height:4px;background:#e5e3df;border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--gold);border-radius:4px;transition:width 0.4s ease}
 
 /* Hero */
-.hero { text-align: center; padding: 28px 0 24px; }
-.hero h1 { font-family: var(--font-ui); font-size: 22px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
-.hero p { font-size: 14px; color: var(--muted); }
-
-/* Piso card */
-.piso-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; margin-bottom: 20px; overflow: hidden; transition: border-color 0.2s; }
-.piso-card.urban-flip { border-color: var(--gold); }
-.piso-card.rated { border-color: var(--gold); box-shadow: 0 2px 12px rgba(201,168,76,0.15); }
+.hero{text-align:center;padding:8px 0 20px}
+.hero h1{font-family:var(--font-ui);font-size:20px;font-weight:700;margin-bottom:6px;line-height:1.3}
+.hero p{font-size:14px;color:var(--muted)}
 
 /* Carousel */
-.carousel { position: relative; width: 100%; height: 240px; overflow: hidden; background: #f3f2ef; }
-.carousel img { width: 100%; height: 100%; object-fit: cover; display: none; }
-.carousel img.active { display: block; }
-.carousel-ph { width: 100%; height: 240px; display: flex; align-items: center; justify-content: center; background: #f3f2ef; font-size: 56px; }
-.carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.85); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; z-index: 2; box-shadow: 0 2px 6px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
-.carousel-btn:hover { background: white; }
-.carousel-prev { left: 8px; }
-.carousel-next { right: 8px; }
-.carousel-dots { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 2; }
-.carousel-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.5); border: none; cursor: pointer; padding: 0; }
-.carousel-dot.active { background: white; }
+.carousel{position:relative;width:100%;height:280px;overflow:hidden;background:#f3f2ef;border-radius:12px 12px 0 0;cursor:pointer}
+.carousel img{width:100%;height:100%;object-fit:cover;display:none}
+.carousel img.active{display:block}
+.carousel-ph{width:100%;height:280px;display:flex;align-items:center;justify-content:center;background:#f3f2ef;font-size:56px;border-radius:12px 12px 0 0}
+.carousel-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.9);border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center}
+.carousel-prev{left:10px}
+.carousel-next{right:10px}
+.carousel-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}
+.carousel-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.5);border:none;cursor:pointer;padding:0}
+.carousel-dot.active{background:white}
+.carousel-counter{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.5);color:white;font-size:11px;padding:3px 8px;border-radius:12px;font-family:var(--font-ui);z-index:2}
 
-/* Piso body */
-.piso-body { padding: 16px; }
-.piso-dir { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
-.piso-barrio { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-.piso-precio { font-family: var(--font-ui); font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+/* Lightbox */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:500;align-items:center;justify-content:center;flex-direction:column}
+.lightbox.open{display:flex}
+.lightbox img{max-width:95vw;max-height:80vh;object-fit:contain;border-radius:4px}
+.lightbox-close{position:absolute;top:16px;right:16px;background:none;border:none;color:white;font-size:28px;cursor:pointer;z-index:501}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:white;font-size:24px;width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lightbox-prev{left:12px}
+.lightbox-next{right:12px}
+.lightbox-dots{display:flex;gap:6px;margin-top:16px}
+.lightbox-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);border:none;cursor:pointer;padding:0}
+.lightbox-dot.active{background:white}
+
+/* Piso card */
+.piso-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.piso-card.urban-flip{border-color:var(--gold)}
+.piso-body{padding:16px}
+.piso-dir{font-weight:700;font-size:17px;margin-bottom:4px}
+.piso-barrio{font-size:13px;color:var(--muted);margin-bottom:10px}
+.piso-precio{font-family:var(--font-ui);font-size:26px;font-weight:700;margin-bottom:12px}
+.uf-badge{background:var(--gold);color:#1C1C1C;font-family:var(--font-ui);font-size:10px;font-weight:700;padding:4px 10px;border-radius:4px;display:inline-block;margin-bottom:8px}
 
 /* Pills */
-.pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-.pill { display: inline-flex; padding: 4px 10px; border-radius: 100px; font-family: var(--font-ui); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(0,0,0,0.05); color: var(--muted); }
-.pill-gold { background: var(--gold-bg); color: var(--gold-dark); border: 1px solid rgba(201,168,76,0.3); }
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.pill{display:inline-flex;padding:4px 10px;border-radius:100px;font-family:var(--font-ui);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;background:rgba(0,0,0,0.05);color:var(--muted)}
+.pill-gold{background:var(--gold-bg);color:var(--gold-dark);border:1px solid rgba(201,168,76,0.3)}
 
 /* Score */
-.score-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-.score-row span { font-size: 12px; color: var(--muted); }
+.score-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.score-row span{font-size:12px;color:var(--muted)}
 
-/* UF badge */
-.uf-badge { background: var(--gold); color: #1C1C1C; font-family: var(--font-ui); font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+/* AI text */
+.ai-section{margin-bottom:16px}
+.ai-title{font-family:var(--font-ui);font-size:13px;font-weight:700;color:var(--gold-dark);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ai-text{font-size:13.5px;line-height:1.7;color:var(--text);background:#f9f8f6;padding:14px;border-radius:10px;border-left:3px solid var(--gold)}
+.ai-skeleton{background:#f3f2ef;border-radius:10px;padding:16px;margin-bottom:16px}
+.ai-skeleton-line{height:12px;background:linear-gradient(90deg,#e8e7e4 25%,#f3f2ef 50%,#e8e7e4 75%);background-size:200%;border-radius:4px;margin-bottom:8px;animation:shimmer 1.5s infinite}
+.ai-skeleton-line:last-child{width:60%;margin-bottom:0}
+@keyframes shimmer{0%{background-position:200%}100%{background-position:-200%}}
 
-/* Description */
-.desc-ia { font-size: 13px; line-height: 1.6; color: var(--text); background: #f9f8f6; padding: 12px; border-radius: 8px; border-left: 3px solid var(--gold); margin-bottom: 12px; }
-.expand-btn { font-size: 12px; color: var(--gold-dark); cursor: pointer; margin-bottom: 12px; background: none; border: none; font-family: var(--font-ui); font-weight: 500; }
+/* Docs */
+.docs-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.doc-chip{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);font-size:12px;font-family:var(--font-ui);font-weight:500;color:var(--text);background:white;cursor:pointer;text-decoration:none}
+.doc-chip:hover{border-color:var(--gold);background:var(--gold-bg)}
 
-/* Action buttons — 4 big touch targets */
-.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
-.action-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 14px 8px; min-height: 56px; border-radius: 10px; border: 1.5px solid var(--border); background: white; cursor: pointer; transition: all 0.2s; font-family: var(--font-ui); }
-.action-btn:hover { border-color: var(--gold); background: var(--gold-bg); }
-.action-btn .action-icon { font-size: 20px; }
-.action-btn .action-label { font-size: 11px; font-weight: 600; color: var(--text); text-transform: uppercase; letter-spacing: 0.04em; }
-.action-btn.selected { border-color: var(--gold); background: var(--gold-bg); }
-.action-btn.selected-descartar { border-color: var(--error); background: rgba(139,32,32,0.06); }
-.action-btn.selected-descartar .action-label { color: var(--error); }
-.action-btn.selected-guardar { border-color: #5B7F9E; background: rgba(91,127,158,0.06); }
-.action-btn.selected-guardar .action-label { color: #5B7F9E; }
-.action-btn.selected-segunda { border-color: var(--warning); background: rgba(184,134,11,0.06); }
-.action-btn.selected-segunda .action-label { color: var(--warning); }
-.action-btn.selected-reservar { border-color: var(--success); background: rgba(44,95,46,0.08); }
-.action-btn.selected-reservar .action-label { color: var(--success); }
-.action-status { text-align: center; margin-top: 8px; font-size: 12px; font-weight: 600; font-family: var(--font-ui); }
+/* Costs */
+.costs-toggle{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;background:white;font-family:var(--font-ui);font-size:13px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;color:var(--text)}
+.costs-toggle:hover{border-color:var(--gold)}
+.costs-panel{display:none;background:#f9f8f6;border-radius:10px;padding:14px;margin-bottom:14px;font-size:13px}
+.costs-panel.open{display:block}
+.costs-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.05)}
+.costs-row:last-child{border-bottom:none;font-weight:700;padding-top:10px;margin-top:4px;border-top:1.5px solid var(--border)}
+.costs-row .label{color:var(--muted)}
+.costs-row .value{font-family:var(--font-ui);font-weight:600}
 
-/* Fixed bar */
-.fixed-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1.5px solid var(--border); padding: 14px 20px; display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 100; box-shadow: 0 -4px 16px rgba(0,0,0,0.08); }
-.fixed-bar .progress-text { font-size: 12px; color: var(--muted); font-family: var(--font-ui); }
-.fixed-bar .progress-text strong { color: var(--text); }
-.btn-submit { width: 100%; max-width: 400px; padding: 16px 24px; background: var(--gold); color: #1C1C1C; border: none; border-radius: 8px; font-family: var(--font-ui); font-size: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: background 0.15s; }
-.btn-submit:hover { background: var(--gold-dark); }
-.btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+/* Action buttons — 3 big touch targets */
+.action-bar{display:flex;gap:8px;margin-top:16px}
+.action-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:16px 8px;min-height:64px;border-radius:12px;border:1.5px solid var(--border);background:white;cursor:pointer;transition:all 0.2s;font-family:var(--font-ui)}
+.action-btn:active{transform:scale(0.97)}
+.action-btn .action-icon{font-size:22px}
+.action-btn .action-label{font-size:11px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.04em}
+.action-btn:hover{border-color:var(--gold);background:var(--gold-bg)}
+.action-btn-visit{border-color:var(--success);background:rgba(44,95,46,0.04)}
+.action-btn-visit:hover{background:rgba(44,95,46,0.1)}
+.action-btn-visit .action-label{color:var(--success)}
+.action-btn-discard{border-color:rgba(139,32,32,0.2)}
+.action-btn-discard:hover{background:rgba(139,32,32,0.04)}
+.action-btn-discard .action-label{color:var(--error)}
 
-/* Loading & states */
-.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; }
-.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.state-msg { text-align: center; padding: 80px 20px; }
-.state-msg .state-icon { font-size: 48px; margin-bottom: 16px; }
-.state-msg h2 { font-family: var(--font-ui); font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-.state-msg p { font-size: 14px; color: var(--muted); line-height: 1.5; }
-.footer-brand { text-align: center; font-size: 11px; color: var(--muted); padding: 20px; }
+/* Modal overlay */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(35,35,32,0.6);backdrop-filter:blur(3px);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:14px;max-width:420px;width:100%;max-height:85vh;overflow-y:auto;padding:24px}
+.modal h3{font-family:var(--font-ui);font-size:17px;font-weight:700;margin-bottom:14px}
+.modal-actions{display:flex;gap:8px;margin-top:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 20px;border-radius:8px;font-family:var(--font-ui);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s}
+.btn-primary{background:var(--gold);color:#1C1C1C}
+.btn-primary:hover{background:var(--gold-dark)}
+.btn-secondary{background:transparent;color:var(--text);border:1.5px solid var(--border)}
+.btn-danger{background:var(--error);color:white}
+.btn:disabled{opacity:0.4;cursor:not-allowed}
 
-/* Toast */
-.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #232320; color: white; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-family: var(--font-ui); z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-.toast.show { opacity: 1; }
+/* Calendar mini */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px}
+.cal-header{font-family:var(--font-ui);font-size:11px;font-weight:600;color:var(--muted);text-align:center;padding:4px}
+.cal-day{padding:8px 4px;text-align:center;border-radius:8px;font-size:13px;font-family:var(--font-ui);cursor:pointer;border:none;background:transparent}
+.cal-day:hover{background:var(--gold-bg)}
+.cal-day.disabled{color:#ccc;cursor:default;pointer-events:none}
+.cal-day.selected{background:var(--gold);color:#1C1C1C;font-weight:700}
+.cal-day.today{border:1.5px solid var(--gold)}
+.cal-month-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.cal-month-nav span{font-family:var(--font-ui);font-size:14px;font-weight:600}
+.cal-month-nav button{background:none;border:none;font-size:18px;cursor:pointer;padding:4px 8px;color:var(--text)}
+.time-slots{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.time-slot{padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);font-family:var(--font-ui);font-size:13px;cursor:pointer;background:white}
+.time-slot:hover{border-color:var(--gold);background:var(--gold-bg)}
+.time-slot.selected{border-color:var(--gold);background:var(--gold);color:#1C1C1C;font-weight:600}
+
+/* Discard reasons */
+.reason-opt{display:flex;align-items:center;gap:8px;padding:11px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;margin-bottom:6px;transition:border-color 0.15s}
+.reason-opt:hover{border-color:var(--gold)}
+.reason-opt.selected{border-color:var(--gold);background:var(--gold-bg)}
+textarea{width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px solid var(--border);border-radius:8px;resize:vertical}
+
+/* States */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.state-msg{text-align:center;padding:60px 20px}
+.state-msg .state-icon{font-size:56px;margin-bottom:16px}
+.state-msg h2{font-family:var(--font-ui);font-size:22px;font-weight:700;margin-bottom:8px}
+.state-msg p{font-size:14px;color:var(--muted);line-height:1.6;max-width:380px;margin:0 auto}
+.footer-brand{text-align:center;font-size:11px;color:var(--muted);padding:20px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#232320;color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-family:var(--font-ui);z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* Completed piso badge */
+.completed-badge{display:flex;align-items:center;gap:8px;padding:12px;border-radius:10px;font-family:var(--font-ui);font-size:13px;font-weight:600;margin-top:12px}
+.completed-badge.visit{background:rgba(44,95,46,0.08);color:var(--success)}
+.completed-badge.discard{background:rgba(139,32,32,0.06);color:var(--error)}
+.completed-badge.saved{background:rgba(201,168,76,0.1);color:var(--gold-dark)}
 </style>
 </head>
 <body>
@@ -118,44 +180,59 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
   <div class="loading"><div class="spinner"></div><p style="margin-top:12px;color:var(--muted)">Cargando tus pisos...</p></div>
 </div>
 
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <button class="lightbox-nav lightbox-prev" onclick="lbNav(-1)">&lsaquo;</button>
+  <img id="lb-img" src="">
+  <button class="lightbox-nav lightbox-next" onclick="lbNav(1)">&rsaquo;</button>
+  <div class="lightbox-dots" id="lb-dots"></div>
+</div>
+
+<!-- Visit modal -->
+<div class="modal-overlay" id="visit-modal">
+  <div class="modal" id="visit-modal-content"></div>
+</div>
+
+<!-- Discard modal -->
+<div class="modal-overlay" id="discard-modal">
+  <div class="modal" id="discard-modal-content"></div>
+</div>
+
 <div class="toast" id="toast-el"></div>
 
 <script>
 const SB_URL = 'https://wwaytwudfbwxttyyojjx.supabase.co';
 const SB_KEY = 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
 const sb = supabase.createClient(SB_URL, SB_KEY);
+const N8N = 'https://onomahomes.app.n8n.cloud/webhook';
 
-let _envio = null, _pisos = [], _demanda = {};
-let _actions = {}; // { matchingId: 'descartar'|'guardar'|'segunda_visita'|'reservar' }
-let _submitted = false;
+let _envio = null, _pisos = [], _demanda = {}, _allFeedbacks = [], _allVisitas = [];
+let _currentIdx = 0;
+let _actions = {}; // { matchingId: { action, date?, time?, reason? } }
+let _aiTexts = {}; // { matchingId: 'text' }
+let _lbPhotos = [], _lbIdx = 0;
 
 function eur(n) { return n ? Number(n).toLocaleString('es-ES') + ' \u20AC' : '\u2014'; }
+function toast(msg) { const el = document.getElementById('toast-el'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
 
-function toast(msg) {
-  const el = document.getElementById('toast-el');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2500);
-}
-
+// ─── INIT ───
 async function init() {
   const params = new URLSearchParams(location.search);
   const linkHash = params.get('id') || params.get('h');
   if (!linkHash) { showState('\u26A0\uFE0F', 'Link inv\u00E1lido', 'Este enlace no contiene informaci\u00F3n v\u00E1lida.'); return; }
 
   try {
-    // Load envio
     const { data: envios } = await sb.from('envios_matching').select('*').eq('link_hash', linkHash).limit(1);
     if (!envios || !envios.length) { showState('\u26A0\uFE0F', 'Enlace no v\u00E1lido', 'Este enlace no es v\u00E1lido o ha expirado.'); return; }
     _envio = envios[0];
 
-    // Already responded?
     if (_envio.estado === 'respondido') {
       showState('\u2705', 'Ya has enviado tu valoraci\u00F3n', 'Gracias por tu respuesta. Tu asesor se pondr\u00E1 en contacto contigo pronto.');
       return;
     }
 
-    // Mark as opened
+    // Mark opened
     if (!_envio.abierto_at) {
       await sb.from('envios_matching').update({ abierto_at: new Date().toISOString() }).eq('link_hash', linkHash);
     }
@@ -173,7 +250,7 @@ async function init() {
       const p = Array.isArray(m.piso) ? m.piso[0] : m.piso;
       return p ? String(p).replace(/[{}]/g, '') : null;
     }).filter(Boolean);
-    const { data: pisosData } = await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,ascensor,terraza,garaje,trastero,piscina,jardin,estado_inmueble,fotos,descripcion_ia,urban_flip').in('id', pisoIds);
+    const { data: pisosData } = await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,planta,ascensor,terraza,garaje,trastero,piscina,jardin,parking,estado_inmueble,fotos,descripcion_ia,urban_flip,video,ite,catastro,memoria_calidades').in('id', pisoIds);
     const pisosMap = {};
     (pisosData||[]).forEach(p => { pisosMap[p.id] = p; });
 
@@ -183,294 +260,501 @@ async function init() {
       return { ...m, pisoData: pisosMap[pisoId] || {}, pisoId };
     }).sort((a, b) => (b.score_matching||0) - (a.score_matching||0));
 
-    render();
+    // Load previous feedbacks and visits for AI context
+    try {
+      const { data: fb } = await sb.from('feedbacks_cliente').select('*').eq('demanda_id', _envio.demanda_id);
+      _allFeedbacks = fb || [];
+    } catch(e) {}
+    try {
+      const demId = _envio.demanda_id;
+      const { data: vis } = await sb.from('visitas').select('*');
+      _allVisitas = (vis||[]).filter(v => {
+        const refs = [v.demanda, v.demanda_2].flat().filter(Boolean).map(r => String(r).replace(/[{}]/g,''));
+        return refs.includes(demId);
+      });
+    } catch(e) {}
+
+    _currentIdx = 0;
+    renderCurrent();
+
+    // Pre-generate AI texts for all pisos
+    _pisos.forEach((m, i) => generateAIText(m, i));
   } catch(e) {
     showState('\u26A0\uFE0F', 'Error', 'No se pudieron cargar los datos: ' + e.message);
   }
 }
 
-function render() {
-  const clienteNombre = _envio.cliente_nombre || _demanda.nombre || '';
-  const ratedCount = Object.keys(_actions).length;
-  const totalCount = _pisos.length;
-  const allRated = ratedCount === totalCount;
+// ─── AI TEXT GENERATION ───
+async function generateAIText(m, idx) {
+  const p = m.pisoData;
+  const prevActions = Object.entries(_actions).map(([mid, a]) => {
+    const pm = _pisos.find(x => x.id === mid);
+    return { piso: pm?.pisoData?.direccion, accion: a.action, motivo: a.reason || '' };
+  });
 
-  document.getElementById('main-content').innerHTML = `
-    <div class="hero">
-      <h1>${clienteNombre ? 'Hola ' + clienteNombre + ', hemos seleccionado estos pisos para ti' : 'Pisos seleccionados para ti'}</h1>
-      <p>${_demanda.zona_preferida || ''} \u00B7 Hasta ${eur(_demanda.presupuesto_max)} \u00B7 ${_demanda.habitaciones_min || ''}+ habitaciones</p>
-    </div>
-    ${_pisos.map(m => renderCard(m)).join('')}
-    <div class="footer-brand">ONOMA Homes \u00B7 onoma.es</div>
-  `;
+  const prompt = `Eres un asesor inmobiliario de lujo de ONOMA Homes en Madrid. Genera un texto personalizado de 4-6 frases explicando por qu\u00E9 recomiendas este piso a este comprador. Usa tono cercano y profesional, en segunda persona ("Creemos que este piso es ideal para ti porque...").
 
-  // Fixed bar
-  let bar = document.getElementById('fixed-bar');
-  if (!bar) { bar = document.createElement('div'); bar.id = 'fixed-bar'; bar.className = 'fixed-bar'; document.body.appendChild(bar); }
-  bar.innerHTML = `
-    <div class="progress-text"><strong>${ratedCount}</strong> de ${totalCount} pisos valorados</div>
-    <button class="btn-submit" onclick="submitValoracion()" ${allRated ? '' : 'disabled'}>${allRated ? '\u2705 Enviar mi valoraci\u00F3n' : 'Valora todos los pisos para enviar'}</button>
-  `;
+PERFIL DEL COMPRADOR:
+- Nombre: ${_envio.cliente_nombre || _demanda.nombre || 'Cliente'}
+- Zona deseada: ${_demanda.zona_preferida || 'No especificada'}
+- Presupuesto m\u00E1ximo: ${_demanda.presupuesto_max ? eur(_demanda.presupuesto_max) : 'No especificado'}
+- Habitaciones m\u00EDnimas: ${_demanda.habitaciones_min || 'No especificado'}
+- Notas del asesor: ${_demanda.notas_asesor || 'Sin notas'}
+- Perfil - Qu\u00E9 valoran: ${_demanda.perfil_valoran || 'No especificado'}
+- Perfil - Qu\u00E9 no quieren: ${_demanda.perfil_no_quieren || 'No especificado'}
+
+PISO:
+- Direcci\u00F3n: ${p.direccion || ''}, ${p.barrio || ''}
+- Precio: ${eur(p.precio)}
+- Habitaciones: ${p.habitaciones || '?'}, Metros: ${p.metros || '?'} m\u00B2
+- Planta: ${p.planta || '?'}, Ascensor: ${p.ascensor ? 'S\u00ED' : 'No'}
+- Terraza: ${p.terraza ? 'S\u00ED' : 'No'}, Garaje: ${p.garaje || p.parking ? 'S\u00ED' : 'No'}
+- Estado: ${p.estado_inmueble || 'No especificado'}
+- Score de compatibilidad: ${Math.round(m.score_matching||0)}%
+${p.urban_flip ? '- EXCLUSIVO ONOMA (Urban Flip)' : ''}
+
+${prevActions.length ? 'FEEDBACK ANTERIOR DEL CLIENTE EN OTROS PISOS:\n' + prevActions.map(a => '- ' + a.piso + ': ' + a.accion + (a.motivo ? ' (' + a.motivo + ')' : '')).join('\n') : ''}
+${_allFeedbacks.length ? 'HISTORIAL DE FEEDBACKS:\n' + _allFeedbacks.map(f => '- Acci\u00F3n: ' + f.accion).join('\n') : ''}
+${_allVisitas.length ? 'VISITAS ANTERIORES: ' + _allVisitas.length + ' visitas realizadas' : ''}
+
+Responde SOLO con el texto de recomendaci\u00F3n, sin comillas ni encabezados.`;
+
+  try {
+    const resp = await fetch(N8N + '/generate-piso-text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, pisoId: m.pisoId, demandaId: _envio.demanda_id })
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      _aiTexts[m.id] = data.text || data.output || data.message || '';
+    }
+  } catch(e) {
+    // Fallback to existing texto_recomendacion or descripcion_ia
+    _aiTexts[m.id] = m.texto_recomendacion || p.descripcion_ia || '';
+  }
+
+  // If no AI text, use fallback
+  if (!_aiTexts[m.id]) {
+    _aiTexts[m.id] = m.texto_recomendacion || p.descripcion_ia || '';
+  }
+
+  // Re-render if this is the current piso
+  if (idx === _currentIdx) {
+    const aiEl = document.getElementById('ai-text-' + m.id);
+    if (aiEl) aiEl.innerHTML = _aiTexts[m.id] || '<span style="color:var(--muted)">Informaci\u00F3n de compatibilidad no disponible para este piso.</span>';
+    const skelEl = document.getElementById('ai-skeleton-' + m.id);
+    if (skelEl) skelEl.style.display = 'none';
+    const textEl = document.getElementById('ai-section-' + m.id);
+    if (textEl) textEl.style.display = '';
+  }
 }
 
-function renderCard(m) {
-  const p = m.pisoData;
-  const isUF = p.urban_flip;
-  const action = _actions[m.id] || null;
-  const score = Math.round(m.score_matching || 0);
+// ─── RENDER CURRENT PISO ───
+function renderCurrent() {
+  if (_currentIdx >= _pisos.length) { finalize(); return; }
 
-  // Photos carousel
+  const m = _pisos[_currentIdx];
+  const p = m.pisoData;
+  const score = Math.round(m.score_matching || 0);
+  const isUF = p.urban_flip;
+  const done = _actions[m.id];
+  const clienteNombre = _envio.cliente_nombre || _demanda.nombre || '';
+
+  // Photos
   let fotos = p.fotos || [];
   if (typeof fotos === 'string') { try { fotos = JSON.parse(fotos); } catch(e) { fotos = []; } }
   if (!Array.isArray(fotos)) fotos = [];
   const fotoUrls = fotos.map(f => typeof f === 'object' ? (f.url || '') : String(f)).filter(u => u.startsWith('http'));
 
-  let carouselHtml;
-  if (fotoUrls.length > 1) {
-    const imgs = fotoUrls.map((u, i) => `<img src="${u}" class="${i === 0 ? 'active' : ''}" onerror="this.style.display='none'">`).join('');
-    const dots = fotoUrls.map((_, i) => `<button class="carousel-dot ${i === 0 ? 'active' : ''}" onclick="slideTo('${m.id}',${i})"></button>`).join('');
-    carouselHtml = `<div class="carousel" id="carousel-${m.id}">
-      ${imgs}
-      <button class="carousel-btn carousel-prev" onclick="slideDir('${m.id}',-1)">\u2039</button>
-      <button class="carousel-btn carousel-next" onclick="slideDir('${m.id}',1)">\u203A</button>
-      <div class="carousel-dots">${dots}</div>
-    </div>`;
-  } else if (fotoUrls.length === 1) {
-    carouselHtml = `<div class="carousel"><img src="${fotoUrls[0]}" class="active" onerror="this.outerHTML='<div class=carousel-ph>\uD83C\uDFE0</div>'"></div>`;
-  } else {
-    carouselHtml = '<div class="carousel-ph">\uD83C\uDFE0</div>';
-  }
-
   // Pills
   const pills = [
     p.habitaciones ? p.habitaciones + ' hab' : '',
     p.metros ? p.metros + ' m\u00B2' : '',
+    p.planta ? 'Planta ' + p.planta : '',
     p.ascensor ? 'Ascensor' : '',
     p.terraza ? 'Terraza' : '',
-    p.garaje ? 'Garaje' : '',
+    p.garaje || p.parking ? 'Parking' : '',
     p.trastero ? 'Trastero' : '',
     p.piscina ? 'Piscina' : '',
     p.jardin ? 'Jard\u00EDn' : '',
-  ].filter(Boolean).map(t => `<span class="pill">${t}</span>`).join('');
+  ].filter(Boolean);
 
-  // Description (collapsible)
-  const desc = m.texto_recomendacion || p.descripcion_ia || '';
-  const shortDesc = desc.length > 150 ? desc.substring(0, 150) + '...' : desc;
-  const descHtml = desc ? `
-    <div class="desc-ia" id="desc-${m.id}">${shortDesc}</div>
-    ${desc.length > 150 ? `<button class="expand-btn" onclick="toggleDesc('${m.id}')">Ver m\u00E1s detalles</button>` : ''}
-  ` : '';
+  // Docs
+  const docs = [];
+  if (p.ite) docs.push({ icon: '\uD83D\uDCC4', label: 'ITE', url: p.ite });
+  if (p.catastro) docs.push({ icon: '\uD83D\uDCD0', label: 'Catastro', url: p.catastro });
+  if (p.memoria_calidades) docs.push({ icon: '\uD83D\uDCCB', label: 'Memoria calidades', url: p.memoria_calidades });
+  if (p.video) docs.push({ icon: '\uD83C\uDFA5', label: 'Video', url: p.video });
 
-  // Action buttons
-  const actions = [
-    { key: 'descartar', icon: '\uD83D\uDDD1\uFE0F', label: 'Descartar' },
-    { key: 'guardar', icon: '\uD83D\uDCBE', label: 'Guardar' },
-    { key: 'segunda_visita', icon: '\uD83D\uDD04', label: 'Segunda visita' },
-    { key: 'reservar', icon: '\u2705', label: 'Reservar' },
-  ];
-  const actionBtns = actions.map(a => {
-    const sel = action === a.key;
-    const cls = sel ? `selected selected-${a.key}` : '';
-    return `<button class="action-btn ${cls}" onclick="setAction('${m.id}','${a.key}')">
-      <span class="action-icon">${a.icon}</span>
-      <span class="action-label">${sel ? '\u2713 ' : ''}${a.label}</span>
-    </button>`;
-  }).join('');
+  // Costs breakdown
+  const precio = p.precio || 0;
+  const itp = Math.round(precio * 0.06);
+  const notaria = Math.round(precio * 0.003 + 300);
+  const registro = Math.round(precio * 0.002 + 200);
+  const gestoria = 800;
+  const honorarios = Math.round(precio * 0.03);
+  const total = precio + itp + notaria + registro + gestoria + honorarios;
 
-  const statusMsg = action ? { descartar: '\uD83D\uDDD1\uFE0F Descartado', guardar: '\uD83D\uDCBE Guardado para despu\u00E9s', segunda_visita: '\uD83D\uDD04 Quieres volver a verlo', reservar: '\u2705 Quieres reservar' }[action] : '';
+  // AI text
+  const aiText = _aiTexts[m.id];
+  const aiLoading = !aiText;
 
-  return `<div class="piso-card ${isUF ? 'urban-flip' : ''} ${action ? 'rated' : ''}" id="card-${m.id}">
-    ${carouselHtml}
-    <div class="piso-body">
-      ${isUF ? '<div class="uf-badge">\u2B50 EXCLUSIVO ONOMA</div>' : ''}
-      <div class="piso-dir">${p.direccion || '\u2014'}</div>
-      <div class="piso-barrio">${p.barrio || ''} ${p.estado_inmueble ? '\u00B7 ' + p.estado_inmueble : ''}</div>
-      <div class="piso-precio">${eur(p.precio)}</div>
-      <div class="score-row">
-        <svg width="40" height="40" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="#e5e3df" stroke-width="4"/><circle cx="30" cy="30" r="26" fill="none" stroke="var(--gold)" stroke-width="4" stroke-dasharray="${(score/100)*163} 163" transform="rotate(-90 30 30)" stroke-linecap="round"/><text x="30" y="34" text-anchor="middle" font-size="14" font-weight="700" fill="var(--gold)">${score}</text></svg>
-        <span>Compatibilidad con tu b\u00FAsqueda</span>
-      </div>
-      <div class="pills">${pills}</div>
-      ${descHtml}
-      <div class="action-grid">${actionBtns}</div>
-      ${statusMsg ? `<div class="action-status">${statusMsg}</div>` : ''}
-    </div>
-  </div>`;
-}
-
-// Carousel
-function slideDir(matchId, dir) {
-  const c = document.getElementById('carousel-' + matchId);
-  if (!c) return;
-  const imgs = c.querySelectorAll('img');
-  const dots = c.querySelectorAll('.carousel-dot');
-  let cur = [...imgs].findIndex(i => i.classList.contains('active'));
-  imgs[cur].classList.remove('active');
-  dots[cur]?.classList.remove('active');
-  cur = (cur + dir + imgs.length) % imgs.length;
-  imgs[cur].classList.add('active');
-  dots[cur]?.classList.add('active');
-}
-function slideTo(matchId, idx) {
-  const c = document.getElementById('carousel-' + matchId);
-  if (!c) return;
-  c.querySelectorAll('img').forEach((img, i) => img.classList.toggle('active', i === idx));
-  c.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
-}
-
-// Description expand/collapse
-function toggleDesc(matchId) {
-  const el = document.getElementById('desc-' + matchId);
-  const btn = el.nextElementSibling;
-  const m = _pisos.find(p => p.id === matchId);
-  const fullDesc = m?.texto_recomendacion || m?.pisoData?.descripcion_ia || '';
-  const shortDesc = fullDesc.substring(0, 150) + '...';
-  if (el._expanded) {
-    el.textContent = shortDesc;
-    btn.textContent = 'Ver m\u00E1s detalles';
-    el._expanded = false;
+  // Carousel HTML
+  let carouselHtml;
+  if (fotoUrls.length > 1) {
+    const imgs = fotoUrls.map((u, i) => `<img src="${u}" class="${i === 0 ? 'active' : ''}" onerror="this.style.display='none'">`).join('');
+    const dotsHtml = fotoUrls.map((_, i) => `<button class="carousel-dot ${i === 0 ? 'active' : ''}" onclick="event.stopPropagation();cSlide('${m.id}',${i})"></button>`).join('');
+    carouselHtml = `<div class="carousel" id="carousel-${m.id}" onclick="openLightbox(${_currentIdx})">
+      ${imgs}
+      <span class="carousel-counter">1 / ${fotoUrls.length}</span>
+      <button class="carousel-btn carousel-prev" onclick="event.stopPropagation();cDir('${m.id}',-1)">\u2039</button>
+      <button class="carousel-btn carousel-next" onclick="event.stopPropagation();cDir('${m.id}',1)">\u203A</button>
+      <div class="carousel-dots">${dotsHtml}</div>
+    </div>`;
+  } else if (fotoUrls.length === 1) {
+    carouselHtml = `<div class="carousel" onclick="openLightbox(${_currentIdx})"><img src="${fotoUrls[0]}" class="active" onerror="this.outerHTML='<div class=carousel-ph>\uD83C\uDFE0</div>'"></div>`;
   } else {
-    el.textContent = fullDesc;
-    btn.textContent = 'Ver menos';
-    el._expanded = true;
+    carouselHtml = '<div class="carousel-ph">\uD83C\uDFE0</div>';
   }
-}
 
-// Set action per piso
-function setAction(matchId, action) {
-  if (_actions[matchId] === action) {
-    delete _actions[matchId]; // toggle off
-  } else {
-    _actions[matchId] = action;
+  // Completed badge if already done
+  let completedHtml = '';
+  if (done) {
+    const badges = {
+      visitar: { cls: 'visit', text: '\u2705 Visita solicitada' + (done.date ? ' \u2014 ' + done.date + (done.time ? ' ' + done.time : '') : '') },
+      descartar: { cls: 'discard', text: '\uD83D\uDDD1\uFE0F Descartado' + (done.reason ? ' \u2014 ' + done.reason : '') },
+      guardar: { cls: 'saved', text: '\uD83D\uDCBE Guardado para m\u00E1s adelante' }
+    };
+    const b = badges[done.action] || { cls: 'saved', text: done.action };
+    completedHtml = `<div class="completed-badge ${b.cls}">${b.text}</div>`;
   }
-  // Save immediately to Supabase (individual feedback)
-  saveFeedback(matchId, _actions[matchId] || null);
-  render();
-  // Scroll slightly if needed
-  const card = document.getElementById('card-' + matchId);
-  if (card) {
-    const next = card.nextElementSibling;
-    if (next && _actions[matchId]) {
-      setTimeout(() => next.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
-    }
-  }
-  toast(_actions[matchId] ? '\u2713 Registrado' : 'Selecci\u00F3n eliminada');
-}
 
-async function saveFeedback(matchId, action) {
-  const m = _pisos.find(p => p.id === matchId);
-  if (!m) return;
-  try {
-    if (action) {
-      // Upsert feedback
-      await sb.from('feedbacks_cliente').upsert({
-        envio_id: _envio.id,
-        matching_id: matchId,
-        piso_id: m.pisoId,
-        demanda_id: _envio.demanda_id,
-        accion: action,
-        origen: 'cliente_final',
-        created_at: new Date().toISOString()
-      }, { onConflict: 'envio_id,matching_id' });
-    }
-  } catch(e) {
-    // Fallback: save to envios_matching directly
-    console.warn('Feedback save:', e);
-  }
-}
-
-async function submitValoracion() {
-  const allRated = Object.keys(_actions).length === _pisos.length;
-  if (!allRated) return;
-
-  const btn = document.querySelector('.btn-submit');
-  btn.disabled = true;
-  btn.textContent = 'Enviando...';
-
-  try {
-    // Build feedback summary
-    const feedback = {};
-    Object.entries(_actions).forEach(([matchId, action]) => {
-      feedback[matchId] = action;
-    });
-
-    // Update envio
-    await sb.from('envios_matching').update({
-      estado: 'respondido',
-      feedback_descarte: feedback,
-      fecha_accion: new Date().toISOString()
-    }).eq('link_hash', _envio.link_hash);
-
-    // Create acciones_pendientes for reservar and segunda_visita
-    const accionesInsert = [];
-    for (const [matchId, action] of Object.entries(_actions)) {
-      if (action !== 'reservar' && action !== 'segunda_visita') continue;
-      const m = _pisos.find(p => p.id === matchId);
-      const p = m?.pisoData || {};
-      const clienteNombre = _envio.cliente_nombre || _demanda.nombre || 'Cliente';
-
-      if (action === 'reservar') {
-        accionesInsert.push({
-          asesor_id: _envio.asesor_id,
-          tipo: 'llamar_reserva',
-          titulo: '\u2705 Cliente quiere RESERVAR \u2014 ' + (p.direccion || 'piso'),
-          descripcion: clienteNombre + ' quiere reservar el piso en ' + (p.direccion || '') + ' (' + (p.barrio || '') + '). Contactar urgente para formalizar.',
-          referencia_id: _envio.demanda_id,
-          piso_id: m?.pisoId || null,
-          estado: 'pendiente',
-          prioridad: 'alta'
-        });
-      } else if (action === 'segunda_visita') {
-        accionesInsert.push({
-          asesor_id: _envio.asesor_id,
-          tipo: 'programar_visita',
-          titulo: '\uD83D\uDD04 Cliente quiere SEGUNDA VISITA \u2014 ' + (p.direccion || 'piso'),
-          descripcion: clienteNombre + ' quiere volver a ver el piso en ' + (p.direccion || '') + ' (' + (p.barrio || '') + '). Programar visita.',
-          referencia_id: _envio.demanda_id,
-          piso_id: m?.pisoId || null,
-          estado: 'pendiente',
-          prioridad: 'normal'
-        });
-      }
-    }
-
-    if (accionesInsert.length) {
-      await sb.from('acciones_pendientes').insert(accionesInsert);
-    }
-
-    // Update matching estados
-    for (const [matchId, action] of Object.entries(_actions)) {
-      let newEstado = 'feedback_cliente';
-      if (action === 'reservar') newEstado = 'reserva_solicitada';
-      else if (action === 'segunda_visita') newEstado = 'segunda_visita_solicitada';
-      else if (action === 'descartar') newEstado = 'descartado_cliente';
-      await sb.from('matchings').update({ estado: newEstado }).eq('id', matchId);
-    }
-
-    // Show confirmation
-    _submitted = true;
-    showState('\uD83C\uDF89', '\u00A1Gracias por tu valoraci\u00F3n!', 'Tu asesor se pondr\u00E1 en contacto contigo pronto para los pr\u00F3ximos pasos.');
-    const bar = document.getElementById('fixed-bar');
-    if (bar) bar.remove();
-
-  } catch(e) {
-    console.error('Submit error:', e);
-    btn.disabled = false;
-    btn.textContent = '\u2705 Enviar mi valoraci\u00F3n';
-    toast('Error al enviar. Int\u00E9ntalo de nuevo.');
-  }
-}
-
-function showState(icon, title, msg) {
   document.getElementById('main-content').innerHTML = `
-    <div class="state-msg">
-      <div class="state-icon">${icon}</div>
-      <h2>${title}</h2>
-      <p>${msg}</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-label"><span>Piso <strong>${_currentIdx + 1}</strong> de ${_pisos.length}</span><span>${Object.keys(_actions).length} valorados</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${(Object.keys(_actions).length / _pisos.length) * 100}%"></div></div>
+    </div>
+    ${_currentIdx === 0 ? `<div class="hero"><h1>${clienteNombre ? 'Hola ' + clienteNombre + ', hemos seleccionado estos pisos para ti' : 'Pisos seleccionados para ti'}</h1><p>${_demanda.zona_preferida || ''} \u00B7 Hasta ${eur(_demanda.presupuesto_max)}</p></div>` : ''}
+    <div class="piso-card ${isUF ? 'urban-flip' : ''}">
+      ${carouselHtml}
+      <div class="piso-body">
+        ${isUF ? '<div class="uf-badge">\u2B50 EXCLUSIVO ONOMA</div>' : ''}
+        <div class="piso-dir">${p.direccion || '\u2014'}</div>
+        <div class="piso-barrio">${p.barrio || ''} ${p.estado_inmueble ? '\u00B7 ' + p.estado_inmueble : ''}</div>
+        <div class="piso-precio">${eur(precio)}</div>
+        <div class="score-row">
+          <svg width="44" height="44" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="#e5e3df" stroke-width="4"/><circle cx="30" cy="30" r="26" fill="none" stroke="var(--gold)" stroke-width="4" stroke-dasharray="${(score/100)*163} 163" transform="rotate(-90 30 30)" stroke-linecap="round"/><text x="30" y="34" text-anchor="middle" font-size="14" font-weight="700" fill="var(--gold)">${score}</text></svg>
+          <span>Compatibilidad con tu b\u00FAsqueda</span>
+        </div>
+        <div class="pills">${pills.map(t => `<span class="pill">${t}</span>`).join('')}</div>
+
+        <!-- AI Recommendation -->
+        <div class="ai-section" id="ai-section-${m.id}" style="${aiLoading ? 'display:none' : ''}">
+          <div class="ai-title">\u2B50 Por qu\u00E9 te recomendamos este piso</div>
+          <div class="ai-text" id="ai-text-${m.id}">${aiText || ''}</div>
+        </div>
+        ${aiLoading ? `<div class="ai-skeleton" id="ai-skeleton-${m.id}">
+          <div style="font-family:var(--font-ui);font-size:12px;color:var(--gold-dark);margin-bottom:10px;font-weight:600">\u2B50 Analizando compatibilidad...</div>
+          <div class="ai-skeleton-line"></div><div class="ai-skeleton-line"></div><div class="ai-skeleton-line"></div><div class="ai-skeleton-line"></div>
+        </div>` : ''}
+
+        <!-- Docs -->
+        ${docs.length ? `<div class="docs-row">${docs.map(d => `<a class="doc-chip" href="${typeof d.url === 'string' ? d.url : '#'}" target="_blank">${d.icon} ${d.label}</a>`).join('')}</div>` : ''}
+
+        <!-- Costs breakdown -->
+        <button class="costs-toggle" onclick="document.getElementById('costs-${m.id}').classList.toggle('open');this.querySelector('.arrow').textContent=document.getElementById('costs-${m.id}').classList.contains('open')?'\u25B2':'\u25BC'">
+          <span>\uD83D\uDCB0 Ver gastos totales</span><span class="arrow">\u25BC</span>
+        </button>
+        <div class="costs-panel" id="costs-${m.id}">
+          <div class="costs-row"><span class="label">Precio del piso</span><span class="value">${eur(precio)}</span></div>
+          <div class="costs-row"><span class="label">ITP (6%)</span><span class="value">${eur(itp)}</span></div>
+          <div class="costs-row"><span class="label">Notar\u00EDa</span><span class="value">${eur(notaria)}</span></div>
+          <div class="costs-row"><span class="label">Registro</span><span class="value">${eur(registro)}</span></div>
+          <div class="costs-row"><span class="label">Gestor\u00EDa</span><span class="value">${eur(gestoria)}</span></div>
+          <div class="costs-row"><span class="label">Honorarios ONOMA (3%)</span><span class="value">${eur(honorarios)}</span></div>
+          <div class="costs-row"><span class="label">Total inversi\u00F3n</span><span class="value" style="color:var(--gold-dark);font-size:15px">${eur(total)}</span></div>
+        </div>
+
+        ${completedHtml}
+
+        <!-- Action buttons -->
+        ${!done ? `<div class="action-bar">
+          <button class="action-btn action-btn-visit" onclick="openVisitModal('${m.id}')">
+            <span class="action-icon">\u2705</span>
+            <span class="action-label">Visitar</span>
+          </button>
+          <button class="action-btn action-btn-discard" onclick="openDiscardModal('${m.id}')">
+            <span class="action-icon">\uD83D\uDDD1\uFE0F</span>
+            <span class="action-label">Descartar</span>
+          </button>
+          <button class="action-btn" onclick="doGuardar('${m.id}')">
+            <span class="action-icon">\uD83D\uDCBE</span>
+            <span class="action-label">Guardar</span>
+          </button>
+        </div>` : `<div style="text-align:center;margin-top:12px">
+          <button class="btn btn-secondary" onclick="goNext()" style="padding:14px 32px;font-size:14px">${_currentIdx < _pisos.length - 1 ? 'Siguiente piso \u203A' : 'Finalizar'}</button>
+        </div>`}
+      </div>
     </div>
     <div class="footer-brand">ONOMA Homes \u00B7 onoma.es</div>
   `;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+function goNext() {
+  _currentIdx++;
+  renderCurrent();
+}
+
+// ─── CAROUSEL ───
+function cDir(mid, dir) {
+  const c = document.getElementById('carousel-' + mid); if (!c) return;
+  const imgs = c.querySelectorAll('img');
+  const dots = c.querySelectorAll('.carousel-dot');
+  const counter = c.querySelector('.carousel-counter');
+  let cur = [...imgs].findIndex(i => i.classList.contains('active'));
+  imgs[cur].classList.remove('active');
+  if (dots[cur]) dots[cur].classList.remove('active');
+  cur = (cur + dir + imgs.length) % imgs.length;
+  imgs[cur].classList.add('active');
+  if (dots[cur]) dots[cur].classList.add('active');
+  if (counter) counter.textContent = (cur + 1) + ' / ' + imgs.length;
+}
+function cSlide(mid, idx) {
+  const c = document.getElementById('carousel-' + mid); if (!c) return;
+  c.querySelectorAll('img').forEach((img, i) => img.classList.toggle('active', i === idx));
+  c.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+  const counter = c.querySelector('.carousel-counter');
+  if (counter) counter.textContent = (idx + 1) + ' / ' + c.querySelectorAll('img').length;
+}
+
+// ─── LIGHTBOX ───
+function openLightbox(pisoIdx) {
+  const p = _pisos[pisoIdx]?.pisoData;
+  let fotos = p?.fotos || [];
+  if (typeof fotos === 'string') { try { fotos = JSON.parse(fotos); } catch(e) { fotos = []; } }
+  if (!Array.isArray(fotos)) fotos = [];
+  _lbPhotos = fotos.map(f => typeof f === 'object' ? (f.url || '') : String(f)).filter(u => u.startsWith('http'));
+  if (!_lbPhotos.length) return;
+  _lbIdx = 0;
+  updateLightbox();
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+function lbNav(dir) {
+  _lbIdx = (_lbIdx + dir + _lbPhotos.length) % _lbPhotos.length;
+  updateLightbox();
+}
+function updateLightbox() {
+  document.getElementById('lb-img').src = _lbPhotos[_lbIdx];
+  document.getElementById('lb-dots').innerHTML = _lbPhotos.map((_, i) =>
+    `<button class="lightbox-dot ${i === _lbIdx ? 'active' : ''}" onclick="event.stopPropagation();_lbIdx=${i};updateLightbox()"></button>`
+  ).join('');
+}
+
+// ─── VISIT MODAL (mini calendar) ───
+let _visitMonthOffset = 0, _visitSelectedDate = null, _visitSelectedTime = null, _visitMatchId = null;
+
+function openVisitModal(matchId) {
+  _visitMatchId = matchId;
+  _visitMonthOffset = 0;
+  _visitSelectedDate = null;
+  _visitSelectedTime = null;
+  renderVisitModal();
+  document.getElementById('visit-modal').classList.add('open');
+}
+
+function renderVisitModal() {
+  const now = new Date();
+  const viewMonth = new Date(now.getFullYear(), now.getMonth() + _visitMonthOffset, 1);
+  const year = viewMonth.getFullYear();
+  const month = viewMonth.getMonth();
+  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const dayNames = ['L','M','X','J','V','S','D'];
+
+  const firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayStr = now.toISOString().split('T')[0];
+
+  let calCells = dayNames.map(d => `<div class="cal-header">${d}</div>`).join('');
+  for (let i = 0; i < firstDay; i++) calCells += '<div></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isPast = dateStr < todayStr;
+    const isToday = dateStr === todayStr;
+    const isSel = dateStr === _visitSelectedDate;
+    calCells += `<button class="cal-day ${isPast?'disabled':''} ${isToday?'today':''} ${isSel?'selected':''}" ${isPast?'disabled':''} onclick="selectVisitDate('${dateStr}')">${d}</button>`;
+  }
+
+  const times = ['09:00','10:00','11:00','12:00','13:00','16:00','17:00','18:00','19:00'];
+
+  document.getElementById('visit-modal-content').innerHTML = `
+    <h3>\u2705 Elegir d\u00EDa y hora de visita</h3>
+    <div class="cal-month-nav">
+      <button onclick="_visitMonthOffset--;renderVisitModal()" ${_visitMonthOffset<=0?'disabled style="opacity:0.3"':''}>\u2039</button>
+      <span>${monthNames[month]} ${year}</span>
+      <button onclick="_visitMonthOffset++;renderVisitModal()">\u203A</button>
+    </div>
+    <div class="cal-grid">${calCells}</div>
+    ${_visitSelectedDate ? `
+      <div style="font-family:var(--font-ui);font-size:13px;font-weight:600;margin-bottom:8px">Hora preferida:</div>
+      <div class="time-slots">${times.map(t => `<button class="time-slot ${_visitSelectedTime===t?'selected':''}" onclick="selectVisitTime('${t}')">${t}</button>`).join('')}</div>
+    ` : '<p style="font-size:13px;color:var(--muted);margin-bottom:12px">Selecciona un d\u00EDa en el calendario</p>'}
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('visit-modal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmVisit()" ${_visitSelectedDate && _visitSelectedTime ? '' : 'disabled'}>Confirmar visita</button>
+    </div>
+  `;
+}
+
+function selectVisitDate(dateStr) { _visitSelectedDate = dateStr; renderVisitModal(); }
+function selectVisitTime(time) { _visitSelectedTime = time; renderVisitModal(); }
+
+async function confirmVisit() {
+  const m = _pisos.find(p => p.id === _visitMatchId);
+  if (!m) return;
+
+  _actions[_visitMatchId] = { action: 'visitar', date: _visitSelectedDate, time: _visitSelectedTime };
+
+  // Save to Supabase
+  try {
+    await sb.from('feedbacks_cliente').upsert({
+      envio_id: _envio.id,
+      matching_id: _visitMatchId,
+      piso_id: m.pisoId,
+      demanda_id: _envio.demanda_id,
+      accion: 'visitar',
+      origen: 'cliente_final',
+      created_at: new Date().toISOString()
+    }, { onConflict: 'envio_id,matching_id' });
+
+    // Create accion for asesor
+    const p = m.pisoData;
+    await sb.from('acciones_pendientes').insert({
+      asesor_id: _envio.asesor_id,
+      tipo: 'programar_visita',
+      titulo: '\u2705 Cliente quiere VISITAR \u2014 ' + (p.direccion || 'piso'),
+      descripcion: (_envio.cliente_nombre || _demanda.nombre || 'Cliente') + ' quiere visitar ' + (p.direccion || '') + ' (' + (p.barrio || '') + ') el ' + _visitSelectedDate + ' a las ' + _visitSelectedTime,
+      referencia_id: _envio.demanda_id,
+      piso_id: m.pisoId,
+      estado: 'pendiente',
+      prioridad: 'alta'
+    });
+  } catch(e) { console.warn('Save visit:', e); }
+
+  closeModal('visit-modal');
+  toast('\u2705 Visita solicitada');
+  renderCurrent();
+  setTimeout(goNext, 1200);
+}
+
+// ─── DISCARD MODAL ───
+let _discardMatchId = null, _discardReason = '';
+
+function openDiscardModal(matchId) {
+  _discardMatchId = matchId;
+  _discardReason = '';
+  const reasons = ['Precio alto', 'Zona no me convence', 'Tama\u00F1o insuficiente', 'Estado del piso', 'Otro'];
+  document.getElementById('discard-modal-content').innerHTML = `
+    <h3>\uD83D\uDDD1\uFE0F \u00BFPor qu\u00E9 descartas este piso?</h3>
+    <div id="discard-reasons">${reasons.map(r => `<div class="reason-opt" onclick="selectDiscardReason(this,'${r}')">${r}</div>`).join('')}</div>
+    <textarea id="discard-notes" rows="2" placeholder="Notas adicionales (opcional)..." style="margin-top:8px"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('discard-modal')">Cancelar</button>
+      <button class="btn btn-danger" id="btn-confirm-discard" onclick="confirmDiscard()" disabled>Confirmar descarte</button>
+    </div>
+  `;
+  document.getElementById('discard-modal').classList.add('open');
+}
+
+function selectDiscardReason(el, reason) {
+  document.querySelectorAll('#discard-reasons .reason-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  _discardReason = reason;
+  document.getElementById('btn-confirm-discard').disabled = false;
+}
+
+async function confirmDiscard() {
+  const notes = document.getElementById('discard-notes').value.trim();
+  const fullReason = _discardReason + (notes ? ': ' + notes : '');
+  const m = _pisos.find(p => p.id === _discardMatchId);
+  if (!m) return;
+
+  _actions[_discardMatchId] = { action: 'descartar', reason: fullReason };
+
+  try {
+    await sb.from('feedbacks_cliente').upsert({
+      envio_id: _envio.id,
+      matching_id: _discardMatchId,
+      piso_id: m.pisoId,
+      demanda_id: _envio.demanda_id,
+      accion: 'descartar',
+      origen: 'cliente_final',
+      created_at: new Date().toISOString()
+    }, { onConflict: 'envio_id,matching_id' });
+
+    await sb.from('matchings').update({ estado: 'descartado_cliente', feedback_descarte_asesor: fullReason }).eq('id', _discardMatchId);
+  } catch(e) { console.warn('Save discard:', e); }
+
+  closeModal('discard-modal');
+  toast('\uD83D\uDDD1\uFE0F Piso descartado');
+  renderCurrent();
+  setTimeout(goNext, 1200);
+}
+
+// ─── GUARDAR ───
+async function doGuardar(matchId) {
+  const m = _pisos.find(p => p.id === matchId);
+  if (!m) return;
+
+  _actions[matchId] = { action: 'guardar' };
+
+  try {
+    await sb.from('feedbacks_cliente').upsert({
+      envio_id: _envio.id,
+      matching_id: matchId,
+      piso_id: m.pisoId,
+      demanda_id: _envio.demanda_id,
+      accion: 'guardar',
+      origen: 'cliente_final',
+      created_at: new Date().toISOString()
+    }, { onConflict: 'envio_id,matching_id' });
+  } catch(e) { console.warn('Save guardar:', e); }
+
+  toast('\uD83D\uDCBE Guardado');
+  renderCurrent();
+  setTimeout(goNext, 800);
+}
+
+// ─── FINALIZE ───
+async function finalize() {
+  try {
+    await sb.from('envios_matching').update({
+      estado: 'respondido',
+      feedback_descarte: _actions,
+      fecha_accion: new Date().toISOString()
+    }).eq('link_hash', _envio.link_hash);
+  } catch(e) { console.warn('Finalize:', e); }
+
+  showState('\uD83C\uDF89', '\u00A1Gracias por tu valoraci\u00F3n!', 'Tu asesor se pondr\u00E1 en contacto contigo pronto para organizar las visitas y los pr\u00F3ximos pasos.');
+}
+
+// ─── UTILS ───
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showState(icon, title, msg) {
+  document.getElementById('main-content').innerHTML = `
+    <div class="state-msg"><div class="state-icon">${icon}</div><h2>${title}</h2><p>${msg}</p></div>
+    <div class="footer-brand">ONOMA Homes \u00B7 onoma.es</div>`;
+}
+
+// Keyboard nav for lightbox
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') lbNav(-1);
+  if (e.key === 'ArrowRight') lbNav(1);
+});
 
 init();
 </script>
