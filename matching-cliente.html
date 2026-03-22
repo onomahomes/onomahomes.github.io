@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ONOMA — Pisos seleccionados para ti</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -254,6 +257,8 @@ async function init() {
     const { data: pisosData } = await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,planta,ascensor,terraza,garaje,trastero,piscina,jardin,parking,estado_inmueble,fotos,descripcion_ia,urban_flip,video,ite,catastro,memoria_calidades').in('id', pisoIds);
     const pisosMap = {};
     (pisosData||[]).forEach(p => { pisosMap[p.id] = p; });
+    console.log('[CLIENTE] Pisos loaded:', (pisosData||[]).length, 'IDs:', pisoIds);
+    console.log('[CLIENTE] Sample piso:', pisosData?.[0]?.direccion, pisosData?.[0]?.precio);
 
     _pisos = (matchings||[]).map(m => {
       const pid = Array.isArray(m.piso) ? m.piso[0] : m.piso;
