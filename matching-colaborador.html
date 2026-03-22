@@ -125,6 +125,7 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px}
 .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:200%}100%{background-position:-200%}}
 .footer-brand{text-align:center;font-size:11px;color:var(--muted);padding:20px}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#232320;color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-family:var(--font-ui);z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
@@ -164,6 +165,7 @@ var N8N='https://onomahomes.app.n8n.cloud/webhook';
 var _envio=null,_pisos=[],_colab={},_demanda={},_comisiones={};
 var _selected=new Set(),_discarded=new Set(),_discardingId=null;
 var _cardModes={};
+var _aiTexts={}; // {matchingId: 'text'}
 var _lbPhotos=[],_lbIdx=0;
 
 function eur(n){return n?Number(n).toLocaleString('es-ES')+' \u20AC':'\u2014'}
@@ -206,9 +208,11 @@ async function init(){
       return Object.assign({},m,{pisoData:pisosMap[pisoId]||{},pisoId:pisoId});
     }).sort(function(a,b){return(b.score_matching||0)-(a.score_matching||0)});
 
-    _pisos.forEach(function(m){_selected.add(m.id)});
+    // Start with NO pisos selected
     applyBrand();
     render();
+    // Pre-generate AI texts
+    _pisos.forEach(function(m,i){generateAIText(m,i)});
   }catch(e){
     console.error('Init error:',e);
     showError('Error: '+e.message);
@@ -232,25 +236,53 @@ function getEscenario(m){
   return 'broker_onoma';
 }
 
+async function generateAIText(m,idx){
+  var p=m.pisoData;
+  var prompt='Eres un asesor inmobiliario de lujo de ONOMA Homes en Madrid. Genera una recomendaci\u00F3n detallada de este piso para un colaborador inmobiliario.\n\n';
+  prompt+='PISO:\n- Direcci\u00F3n: '+(p.direccion||'')+'\n- Barrio: '+(p.barrio||'')+'\n- Precio: '+eur(p.precio)+'\n- Habitaciones: '+(p.habitaciones||'?')+', Metros: '+(p.metros||'?')+' m\u00B2\n- Planta: '+(p.planta||'?')+', Ascensor: '+(p.ascensor?'S\u00ED':'No')+'\n- Terraza: '+(p.terraza?'S\u00ED':'No')+', Garaje: '+(p.garaje?'S\u00ED':'No')+'\n- Estado: '+(p.estado_inmueble||'No especificado')+'\n';
+  if(p.urban_flip)prompt+='- EXCLUSIVO ONOMA (Urban Flip)\n';
+  prompt+='\nCLIENTE:\n- Zona deseada: '+(_demanda.zona_preferida||'No especificada')+'\n- Presupuesto: '+eur(_demanda.presupuesto_max)+'\n- Habitaciones m\u00EDnimas: '+(_demanda.habitaciones_min||'?')+'\n- Notas del asesor: '+(_demanda.notas_asesor||'Sin notas')+'\n- Qu\u00E9 valora: '+(_demanda.perfil_valoran||'No especificado')+'\n- Qu\u00E9 no quiere: '+(_demanda.perfil_no_quieren||'No especificado')+'\n';
+  prompt+='\nScore de compatibilidad: '+Math.round(m.score_matching||0)+'%\n';
+  prompt+='\nEstructura obligatoria:\n1. Descripci\u00F3n del piso (2-3 p\u00E1rrafos: ubicaci\u00F3n, caracter\u00EDsticas, extras, relaci\u00F3n calidad/precio)\n2. Por qu\u00E9 encaja con este cliente (1-2 p\u00E1rrafos)\n3. Puntos fuertes destacados (3-5 bullets con \u2022)\n\nTono profesional dirigido al colaborador. Responde SOLO con el texto, sin comillas ni encabezados.';
+
+  try{
+    var resp=await fetch(N8N+'/generate-piso-text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,pisoId:m.pisoId,demandaId:_envio.demanda_id})});
+    if(resp.ok){var data=await resp.json();var item=Array.isArray(data)?data[0]:data;_aiTexts[m.id]=item&&item.text||''}
+  }catch(e){}
+  if(!_aiTexts[m.id])_aiTexts[m.id]=m.texto_recomendacion||p.descripcion_ia||'';
+  // Update if visible
+  var aiEl=document.getElementById('ai-text-'+m.id);
+  if(aiEl){aiEl.innerHTML=_aiTexts[m.id];var skel=document.getElementById('ai-skel-'+m.id);if(skel)skel.style.display='none';if(aiEl.parentElement)aiEl.parentElement.style.display=''}
+}
+
 function render(){
   var selCount=_selected.size;
-  var total=_pisos.filter(function(m){return!_discarded.has(m.id)}).length;
   var colabName=[_colab.nombre,_colab.apellido].filter(Boolean).join(' ')||'Colaborador';
   var clienteNombre=_envio.cliente_nombre||_demanda.nombre||'tu cliente';
-
-  document.getElementById('main-content').innerHTML=
-    '<div class="hero"><h1>Hola '+colabName+', tienes '+_pisos.length+' pisos seleccionados para '+clienteNombre+'</h1><p>'+(_demanda.zona_preferida||'')+' \u00B7 Hasta '+eur(_demanda.presupuesto_max)+' \u00B7 '+(_demanda.habitaciones_min||'')+'+ habitaciones</p></div>'+
-    '<div class="counter"><strong>'+selCount+'</strong> de '+total+' pisos seleccionados para enviar</div>'+
-    _pisos.map(function(m,i){return renderCard(m,i)}).join('')+
-    '<div class="footer-brand">Presentado por '+(_colab.empresa||colabName)+' en colaboraci\u00F3n con ONOMA Homes</div>';
-
-  var bar=document.getElementById('fixed-bar');
-  if(!bar){bar=document.createElement('div');bar.id='fixed-bar';bar.className='fixed-bar';document.body.appendChild(bar)}
   var valorados=selCount+_discarded.size;
   var totalPisos=_pisos.length;
   var pendientes=totalPisos-valorados;
+  var pendingPisos=_pisos.filter(function(m){return!_selected.has(m.id)&&!_discarded.has(m.id)});
+
+  var contentHtml='<div class="hero"><h1>Hola '+colabName+', tienes '+totalPisos+' pisos seleccionados para '+clienteNombre+'</h1><p>'+(_demanda.zona_preferida||'')+' \u00B7 Hasta '+eur(_demanda.presupuesto_max)+' \u00B7 '+(_demanda.habitaciones_min||'')+'+ habitaciones</p></div>';
+  contentHtml+='<div class="counter"><strong>'+valorados+'</strong> de '+totalPisos+' pisos valorados'+(selCount>0?' \u00B7 <span style="color:var(--success)">'+selCount+' seleccionados</span>':'')+((_discarded.size)>0?' \u00B7 <span style="color:var(--error)">'+_discarded.size+' eliminados</span>':'')+'</div>';
+
+  if(pendingPisos.length>0){
+    contentHtml+=pendingPisos.map(function(m,i){return renderCard(m,_pisos.indexOf(m))}).join('');
+  }else{
+    if(selCount>0){
+      contentHtml+='<div style="text-align:center;padding:40px 20px"><div style="font-size:48px;margin-bottom:12px">\u2705</div><p style="font-size:16px;font-weight:600;margin-bottom:6px">Has valorado todos los pisos</p><p style="color:var(--muted)">'+selCount+' seleccionados para enviar al cliente</p></div>';
+    }else{
+      contentHtml+='<div style="text-align:center;padding:40px 20px"><div style="font-size:48px;margin-bottom:12px">\u26A0\uFE0F</div><p style="font-size:16px;font-weight:600;margin-bottom:6px">Has eliminado todos los pisos</p><p style="color:var(--muted)">Debes seleccionar al menos 1 piso para generar el link</p></div>';
+    }
+  }
+  contentHtml+='<div class="footer-brand">Presentado por '+(_colab.empresa||colabName)+' en colaboraci\u00F3n con ONOMA Homes</div>';
+  document.getElementById('main-content').innerHTML=contentHtml;
+
+  var bar=document.getElementById('fixed-bar');
+  if(!bar){bar=document.createElement('div');bar.id='fixed-bar';bar.className='fixed-bar';document.body.appendChild(bar)}
   var allValored=pendientes===0&&selCount>0;
-  bar.innerHTML='<button class="btn btn-primary" style="flex:1;max-width:420px" onclick="generarLinkCliente()" '+(allValored?'':'disabled')+'>'+(allValored?'Generar link para mi cliente ('+selCount+' pisos)':'Valora todos los pisos para continuar ('+pendientes+' pendientes)')+'</button>';
+  bar.innerHTML='<button class="btn btn-primary" style="flex:1;max-width:420px" onclick="generarLinkCliente()" '+(allValored?'':'disabled')+'>'+(allValored?'Generar link para mi cliente ('+selCount+' pisos)':pendientes>0?'Valora todos los pisos ('+pendientes+' pendientes)':'Selecciona al menos 1 piso')+'</button>';
 }
 
 function renderCard(m,idx){
@@ -299,14 +331,20 @@ function renderCard(m,idx){
   // Info content
   var infoHtml='';
   if(mode==='info'){
-    var desc=m.texto_recomendacion||p.descripcion_ia||'';
-    if(desc)infoHtml+='<div class="desc-ia">'+desc+'</div>';
+    var aiText=_aiTexts[m.id]||'';
+    if(aiText){
+      infoHtml+='<div class="desc-ia" id="ai-text-'+m.id+'" style="white-space:pre-line">'+aiText+'</div>';
+    }else{
+      infoHtml+='<div id="ai-skel-'+m.id+'" style="background:#f3f2ef;border-radius:10px;padding:16px;margin-bottom:14px"><div style="font-family:var(--font-ui);font-size:12px;color:var(--gold-dark);margin-bottom:10px;font-weight:600">\u2B50 Analizando piso...</div><div style="height:12px;background:linear-gradient(90deg,#e8e7e4 25%,#f3f2ef 50%,#e8e7e4 75%);background-size:200%;border-radius:4px;margin-bottom:8px;animation:shimmer 1.5s infinite"></div><div style="height:12px;background:linear-gradient(90deg,#e8e7e4 25%,#f3f2ef 50%,#e8e7e4 75%);background-size:200%;border-radius:4px;margin-bottom:8px;animation:shimmer 1.5s infinite"></div><div style="height:12px;width:60%;background:linear-gradient(90deg,#e8e7e4 25%,#f3f2ef 50%,#e8e7e4 75%);background-size:200%;border-radius:4px;animation:shimmer 1.5s infinite"></div></div>';
+      infoHtml+='<div class="desc-ia" id="ai-text-'+m.id+'" style="display:none;white-space:pre-line"></div>';
+    }
     var docs=[];
     if(p.ite)docs.push({icon:'\uD83D\uDCC4',label:'ITE',url:p.ite});
     if(p.catastro)docs.push({icon:'\uD83D\uDCD0',label:'Catastro',url:p.catastro});
     if(p.memoria_calidades)docs.push({icon:'\uD83D\uDCCB',label:'Memoria de calidades',url:p.memoria_calidades});
     if(p.video)docs.push({icon:'\uD83C\uDFA5',label:'Video',url:p.video});
     if(p.planos)docs.push({icon:'\uD83D\uDCD0',label:'Planos',url:p.planos});
+    if(p.encargo_venta)docs.push({icon:'\uD83D\uDCDD',label:'Encargo de venta',url:p.encargo_venta});
     if(docs.length)infoHtml+='<div class="docs-section"><div class="docs-title">Documentaci\u00F3n disponible</div><div class="docs-row">'+docs.map(function(d){return '<a class="doc-chip" href="'+(typeof d.url==='string'?d.url:'#')+'" target="_blank">'+d.icon+' '+d.label+'</a>'}).join('')+'</div></div>';
   }
 
@@ -363,7 +401,14 @@ function openLB(idx){var p=_pisos[idx]&&_pisos[idx].pisoData;var fotos=p&&p.foto
 function closeLB(){document.getElementById('lightbox').classList.remove('open')}
 function lbNav(dir){_lbIdx=(_lbIdx+dir+_lbPhotos.length)%_lbPhotos.length;document.getElementById('lb-img').src=_lbPhotos[_lbIdx]}
 
-function toggleSelect(id){if(_selected.has(id))_selected.delete(id);else _selected.add(id);render();toast(_selected.has(id)?'\u2705 Seleccionado':'\u274C Deseleccionado')}
+function toggleSelect(id){
+  _selected.add(id);
+  toast('\u2705 Piso seleccionado');
+  // Animate out
+  var card=document.getElementById('card-'+id);
+  if(card){card.style.transition='opacity 0.3s, transform 0.3s';card.style.opacity='0';card.style.transform='translateX(30px)';setTimeout(function(){render()},350)}
+  else render();
+}
 
 function openDiscard(id){
   _discardingId=id;_discardReason='';
@@ -382,7 +427,10 @@ async function confirmDiscard(){
     var prevFb=_envio.feedback_descarte||{};prevFb[_discardingId]=feedback;
     await sb.from('envios_matching').update({matchings_descartados:Array.from(_discarded),feedback_descarte:prevFb}).eq('link_hash',_envio.link_hash);
   }catch(e){console.warn(e)}
-  closeModal('discard-modal');toast('\u274C Piso eliminado');render();
+  closeModal('discard-modal');toast('\u274C Piso eliminado');
+  var card=document.getElementById('card-'+_discardingId);
+  if(card){card.style.transition='opacity 0.3s, transform 0.3s';card.style.opacity='0';card.style.transform='translateX(-30px)';setTimeout(function(){render()},350)}
+  else render();
 }
 
 async function generarLinkCliente(){
