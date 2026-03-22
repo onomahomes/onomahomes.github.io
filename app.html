@@ -528,26 +528,34 @@ const TAB_PLACEHOLDERS = {
 
 // ─── AUTH ─────────────────────────────────────────────
 async function handleLogin(e) {
-  e.preventDefault();
+  if (e && e.preventDefault) e.preventDefault();
+  console.log('[LOGIN] handleLogin called');
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
+  console.log('[LOGIN] email:', email, 'password length:', password.length);
   const btn = document.getElementById('btn-login');
   const errEl = document.getElementById('login-error');
+  if (!email || !password) { errEl.textContent = 'Introduce email y contraseña'; errEl.style.display = 'block'; return; }
   btn.disabled = true; btn.textContent = 'Entrando…'; errEl.style.display = 'none';
   try {
     // Try Supabase SDK first
     let authUserId = null;
+    console.log('[LOGIN] Supabase client:', typeof sb, sb ? 'exists' : 'null');
     try {
+      console.log('[LOGIN] Trying SDK signInWithPassword...');
       const { data: authData, error: authErr } = await sb.auth.signInWithPassword({ email, password });
+      console.log('[LOGIN] SDK result:', authErr ? 'ERROR: '+authErr.message : 'OK uid='+authData?.user?.id);
       if (authErr) throw authErr;
       authUserId = authData.user.id;
     } catch(sdkErr) {
+      console.log('[LOGIN] SDK failed:', sdkErr.message, '— trying REST fallback...');
       // Fallback: direct REST API call
       const resp = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
         method: 'POST', headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
       const authJson = await resp.json();
+      console.log('[LOGIN] REST result:', resp.status, authJson.user ? 'OK' : 'FAIL');
       if (!resp.ok || !authJson.user) throw new Error(authJson.error_description || authJson.msg || 'Credenciales incorrectas');
       authUserId = authJson.user.id;
     }
