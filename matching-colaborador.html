@@ -238,12 +238,10 @@ function getEscenario(m){
 
 async function generateAIText(m,idx){
   var p=m.pisoData;
-  var prompt='Eres un asesor inmobiliario de lujo de ONOMA Homes en Madrid. Genera una recomendaci\u00F3n detallada de este piso para un colaborador inmobiliario.\n\n';
-  prompt+='PISO:\n- Direcci\u00F3n: '+(p.direccion||'')+'\n- Barrio: '+(p.barrio||'')+'\n- Precio: '+eur(p.precio)+'\n- Habitaciones: '+(p.habitaciones||'?')+', Metros: '+(p.metros||'?')+' m\u00B2\n- Planta: '+(p.planta||'?')+', Ascensor: '+(p.ascensor?'S\u00ED':'No')+'\n- Terraza: '+(p.terraza?'S\u00ED':'No')+', Garaje: '+(p.garaje?'S\u00ED':'No')+'\n- Estado: '+(p.estado_inmueble||'No especificado')+'\n';
-  if(p.urban_flip)prompt+='- EXCLUSIVO ONOMA (Urban Flip)\n';
-  prompt+='\nCLIENTE:\n- Zona deseada: '+(_demanda.zona_preferida||'No especificada')+'\n- Presupuesto: '+eur(_demanda.presupuesto_max)+'\n- Habitaciones m\u00EDnimas: '+(_demanda.habitaciones_min||'?')+'\n- Notas del asesor: '+(_demanda.notas_asesor||'Sin notas')+'\n- Qu\u00E9 valora: '+(_demanda.perfil_valoran||'No especificado')+'\n- Qu\u00E9 no quiere: '+(_demanda.perfil_no_quieren||'No especificado')+'\n';
-  prompt+='\nScore de compatibilidad: '+Math.round(m.score_matching||0)+'%\n';
-  prompt+='\nEstructura obligatoria:\n1. Descripci\u00F3n del piso (2-3 p\u00E1rrafos: ubicaci\u00F3n, caracter\u00EDsticas, extras, relaci\u00F3n calidad/precio)\n2. Por qu\u00E9 encaja con este cliente (1-2 p\u00E1rrafos)\n3. Puntos fuertes destacados (3-5 bullets con \u2022)\n\nTono profesional dirigido al colaborador. Responde SOLO con el texto, sin comillas ni encabezados.';
+  var prompt='Eres un asesor inmobiliario de ONOMA Homes en Madrid. Escribe una recomendaci\u00F3n MUY BREVE (m\u00E1ximo 100 palabras, 2 p\u00E1rrafos cortos) de este piso para un colaborador.\n\n';
+  prompt+='PISO: '+(p.direccion||'')+', '+(p.barrio||'')+'. '+eur(p.precio)+'. '+(p.habitaciones||'?')+' hab, '+(p.metros||'?')+' m\u00B2, planta '+(p.planta||'?')+'. '+(p.ascensor?'Con ascensor. ':'')+''+(p.terraza?'Terraza. ':'')+''+(p.garaje?'Garaje. ':'')+'Estado: '+(p.estado_inmueble||'?')+'.'+(p.urban_flip?' EXCLUSIVO ONOMA.':'')+'\n';
+  prompt+='CLIENTE: Busca en '+(_demanda.zona_preferida||'?')+', hasta '+eur(_demanda.presupuesto_max)+', '+(_demanda.habitaciones_min||'?')+'+ hab. Valora: '+(_demanda.perfil_valoran||'no especificado')+'. No quiere: '+(_demanda.perfil_no_quieren||'no especificado')+'. Score: '+Math.round(m.score_matching||0)+'%.\n';
+  prompt+='\nP\u00E1rrafo 1: descripci\u00F3n breve del piso (ubicaci\u00F3n, caracter\u00EDsticas clave, estado).\nP\u00E1rrafo 2: una frase de por qu\u00E9 encaja con este cliente.\nM\u00E1ximo 100 palabras. Tono profesional. Sin comillas ni encabezados.';
 
   try{
     var resp=await fetch(N8N+'/generate-piso-text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,pisoId:m.pisoId,demandaId:_envio.demanda_id})});
@@ -450,13 +448,8 @@ async function generarLinkCliente(){
   var selPisos=_pisos.filter(function(m){return selIds.indexOf(m.id)>=0});
   var pisosList=selPisos.map(function(m,i){var p=m.pisoData;return '  '+(i+1)+'. '+(p.direccion||'')+' \u2014 '+eur(p.precio)+' \u00B7 '+(p.habitaciones||'?')+' hab \u00B7 '+(p.metros||'?')+' m\u00B2 ('+(p.barrio||'')+')'}).join('\n');
 
-  var aiMsg='';
-  try{
-    var prompt='Genera un mensaje breve (5-8 l\u00EDneas) de un asesor inmobiliario a un comprador explicando pisos seleccionados. Perfil: zona '+(_demanda.zona_preferida||'')+', presupuesto '+eur(_demanda.presupuesto_max)+', '+(_demanda.habitaciones_min||'')+'+ hab. Pisos:\n'+pisosList+'\n\nTono cercano. Incluye link: '+clienteLink+'\nResponde SOLO el mensaje.';
-    var resp=await fetch(N8N+'/generate-piso-text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt})});
-    if(resp.ok){var data=await resp.json();var item=Array.isArray(data)?data[0]:data;aiMsg=item&&item.text||''}
-  }catch(e){}
-  if(!aiMsg)aiMsg='Hola '+clienteNombre+',\n\n'+colabName+' ha seleccionado '+selIds.length+' pisos que encajan con lo que buscas:\n\n'+pisosList+'\n\nRev\u00EDsalos aqu\u00ED:\n'+clienteLink+'\n\nUn saludo';
+  var zona=_demanda.zona_preferida||'tu zona';
+  var aiMsg='Hola '+clienteNombre+',\n\nHemos seleccionado '+selIds.length+' pisos que encajan con lo que buscas en '+zona+' con tu presupuesto.\n\n\uD83D\uDC49 Entra aqu\u00ED para verlos: '+clienteLink+'\n\n\u00A1Te sorprender\u00E1 lo que hemos encontrado para ti!';
 
   var emailTo=_demanda.email_dir||'';
   var emailSubject=encodeURIComponent('Selecci\u00F3n de pisos \u2014 '+colabName);
