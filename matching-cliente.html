@@ -39,7 +39,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .carousel{position:relative;width:100%;height:280px;overflow:hidden;background:#f3f2ef;border-radius:12px 12px 0 0;cursor:pointer}
 .carousel img{width:100%;height:100%;object-fit:cover;display:none}
 .carousel img.active{display:block}
-.carousel-ph{width:100%;height:280px;display:flex;align-items:center;justify-content:center;background:#f3f2ef;font-size:56px;border-radius:12px 12px 0 0}
+.carousel-ph{width:100%;height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#f3f2ef 0%,#e8e7e4 100%);font-size:48px;border-radius:12px 12px 0 0;color:var(--muted);gap:8px}
+.carousel-ph span{font-size:12px;font-family:var(--font-ui);font-weight:500}
 .carousel-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.9);border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center}
 .carousel-prev{left:10px}
 .carousel-next{right:10px}
@@ -327,7 +328,9 @@ Responde SOLO con el texto de recomendaci\u00F3n, sin comillas ni encabezados.`;
     });
     if (resp.ok) {
       const data = await resp.json();
-      _aiTexts[m.id] = data.text || data.output || data.message || '';
+      // n8n returns array: [{text:'...'}]
+      const item = Array.isArray(data) ? data[0] : data;
+      _aiTexts[m.id] = item?.text || item?.output || item?.message || '';
     }
   } catch(e) {
     // Fallback to existing texto_recomendacion or descripcion_ia
@@ -415,7 +418,7 @@ function renderCurrent() {
   } else if (fotoUrls.length === 1) {
     carouselHtml = `<div class="carousel" onclick="openLightbox(${_currentIdx})"><img src="${fotoUrls[0]}" class="active" onerror="this.outerHTML='<div class=carousel-ph>\uD83C\uDFE0</div>'"></div>`;
   } else {
-    carouselHtml = '<div class="carousel-ph">\uD83C\uDFE0</div>';
+    carouselHtml = '<div class="carousel-ph">\uD83C\uDFE0<span>Foto no disponible</span></div>';
   }
 
   // Completed badge if already done
