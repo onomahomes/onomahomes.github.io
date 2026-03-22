@@ -171,7 +171,7 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px
 .completed-badge{display:flex;align-items:center;gap:8px;padding:12px;border-radius:10px;font-family:var(--font-ui);font-size:13px;font-weight:600;margin-top:12px}
 /* Toggle switch */
 input[type="checkbox"]:checked + span { background: var(--gold) !important; }
-input[type="checkbox"]:checked ~ span:last-child { left: 22px !important; }
+input[type="checkbox"]:checked ~ span:last-child { left: 20px !important; }
 .completed-badge.visit{background:rgba(44,95,46,0.08);color:var(--success)}
 .completed-badge.discard{background:rgba(139,32,32,0.06);color:var(--error)}
 .completed-badge.saved{background:rgba(201,168,76,0.1);color:var(--gold-dark)}
@@ -257,7 +257,7 @@ async function init() {
       const p = Array.isArray(m.piso) ? m.piso[0] : m.piso;
       return p ? String(p).replace(/[{}]/g, '') : null;
     }).filter(Boolean);
-    const { data: pisosData, error: pisoErr } = await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,planta,ascensor,terraza,garaje,trastero,estado_inmueble,fotos,descripcion_ia,urban_flip,video,planos,documentos,ite,catastro,memoria_calidades').in('id', pisoIds);
+    const { data: pisosData, error: pisoErr } = await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,planta,ascensor,terraza,garaje,trastero,estado_inmueble,fotos,descripcion_ia,urban_flip,video,planos,documentos,ite,catastro,memoria_calidades,encargo_venta').in('id', pisoIds);
     if (pisoErr) console.error('[CLIENTE] Piso query error:', pisoErr);
     const pisosMap = {};
     (pisosData||[]).forEach(p => { pisosMap[p.id] = p; });
@@ -395,13 +395,14 @@ function renderCurrent() {
     p.trastero ? 'Trastero' : '',
   ].filter(Boolean);
 
-  // Docs
+  // Docs — only show if field has a value
   const docs = [];
   if (p.ite) docs.push({ icon: '\uD83D\uDCC4', label: 'ITE', url: p.ite });
   if (p.catastro) docs.push({ icon: '\uD83D\uDCD0', label: 'Catastro', url: p.catastro });
-  if (p.memoria_calidades) docs.push({ icon: '\uD83D\uDCCB', label: 'Memoria calidades', url: p.memoria_calidades });
+  if (p.memoria_calidades) docs.push({ icon: '\uD83D\uDCCB', label: 'Memoria de calidades', url: p.memoria_calidades });
   if (p.video) docs.push({ icon: '\uD83C\uDFA5', label: 'Video', url: p.video });
-  if (p.planos) docs.push({ icon: '\uD83D\uDCD0', label: 'Planos', url: typeof p.planos === 'string' ? p.planos : '#' });
+  if (p.planos) docs.push({ icon: '\uD83D\uDCD0', label: 'Planos', url: p.planos });
+  if (p.encargo_venta) docs.push({ icon: '\uD83D\uDCDD', label: 'Encargo de venta', url: p.encargo_venta });
 
   // Costs breakdown
   const precio = p.precio || 0;
@@ -482,20 +483,21 @@ function renderCurrent() {
         </button>
         <div class="costs-panel" id="costs-${m.id}">
           <div class="costs-row"><span class="label">Precio del piso</span><span class="value">${eur(precio)}</span></div>
-          <div class="costs-row">
-            <span class="label" id="itp-label-${m.id}">ITP (6%)</span>
-            <span class="value" id="itp-val-${m.id}">${eur(Math.round(precio * 0.06))}</span>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 10px;border-bottom:1px solid rgba(0,0,0,0.05);margin-bottom:4px">
-            <div>
-              <div style="font-size:12px;color:var(--text);font-weight:500">\u00BFSer\u00E1 tu vivienda habitual?</div>
-              <div style="font-size:10px;color:var(--muted);font-style:italic;margin-top:2px">Para aplicar la bonificaci\u00F3n fiscal correspondiente</div>
+          <div style="padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.05)">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span class="label" id="itp-label-${m.id}">ITP (6%)</span>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span class="value" id="itp-val-${m.id}">${eur(Math.round(precio * 0.06))}</span>
+                <label style="position:relative;display:inline-block;width:40px;height:22px;cursor:pointer;flex-shrink:0">
+                  <input type="checkbox" id="vh-${m.id}" onchange="recalcCosts('${m.id}',${precio})" style="opacity:0;width:0;height:0;position:absolute">
+                  <span style="position:absolute;inset:0;background:#ccc;border-radius:22px;transition:0.2s"></span>
+                  <span style="position:absolute;top:2px;left:2px;width:18px;height:18px;background:white;border-radius:50%;transition:0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)"></span>
+                </label>
+              </div>
             </div>
-            <label style="position:relative;width:44px;height:24px;cursor:pointer;flex-shrink:0;margin-left:12px">
-              <input type="checkbox" id="vh-${m.id}" onchange="recalcCosts('${m.id}',${precio})" style="opacity:0;width:0;height:0">
-              <span style="position:absolute;inset:0;background:#ccc;border-radius:24px;transition:0.2s"></span>
-              <span style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)"></span>
-            </label>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+              <span style="font-size:10px;color:var(--muted);font-style:italic">\u00BFSer\u00E1 tu vivienda habitual? Te lo preguntamos para aplicar la bonificaci\u00F3n fiscal correspondiente</span>
+            </div>
           </div>
           <div class="costs-row"><span class="label">Notar\u00EDa</span><span class="value">${eur(Math.round(precio * 0.003 + 300))}</span></div>
           <div class="costs-row"><span class="label">Registro</span><span class="value">${eur(Math.round(precio * 0.002 + 200))}</span></div>
