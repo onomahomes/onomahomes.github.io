@@ -3,24 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ONOMA — Selecci&oacute;n de pisos</title>
+<title>ONOMA &mdash; Selecci&oacute;n de pisos</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#F8F7F4;--card:#FFF;--text:#2D2D2D;--muted:#7A6E66;--border:#D7D6D4;--gold:#C9A84C;--gold-dark:#B8962E;--gold-bg:rgba(201,168,76,.10);--success:#2C5F2E;--error:#8B2020;--warning:#B8860B;--accent:var(--gold);--font:'Barlow',sans-serif;--font-ui:'Jost',sans-serif}
+:root{--bg:#F8F7F4;--card:#FFF;--text:#2D2D2D;--muted:#7A6E66;--border:#D7D6D4;--gold:#C9A84C;--gold-dark:#B8962E;--gold-bg:rgba(201,168,76,.10);--success:#2C5F2E;--success-bright:#1B8A2E;--error:#8B2020;--warning:#B8860B;--accent:var(--gold);--font:'Barlow',sans-serif;--font-ui:'Jost',sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* Header */
 .header{background:#232320;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
 .header svg{height:28px;width:120px}
 .header-right{display:flex;align-items:center;gap:10px}
 .header-right img{height:32px;border-radius:6px}
+.close-btn{position:fixed;top:14px;right:14px;z-index:150;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.9);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.close-btn:hover{background:white;border-color:var(--gold)}
+
 .container{max-width:680px;margin:0 auto;padding:20px 16px 120px}
 .hero{text-align:center;padding:24px 0 20px}
 .hero h1{font-family:var(--font-ui);font-size:20px;font-weight:700;margin-bottom:6px;line-height:1.3}
 .hero p{font-size:14px;color:var(--muted)}
-.counter{text-align:center;font-size:13px;color:var(--muted);margin-bottom:20px;font-family:var(--font-ui)}
-.counter strong{color:var(--text)}
+.counter{text-align:center;font-size:14px;color:var(--muted);margin-bottom:20px;font-family:var(--font-ui)}
+.counter strong{color:var(--text);font-size:16px}
 
 /* Carousel */
 .carousel{position:relative;width:100%;height:220px;overflow:hidden;background:#f3f2ef;cursor:pointer}
@@ -38,49 +43,61 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 /* Lightbox */
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;align-items:center;justify-content:center;flex-direction:column}
 .lightbox.open{display:flex}
-.lightbox img{max-width:95vw;max-height:80vh;object-fit:contain;border-radius:4px}
+.lightbox img{max-width:95vw;max-height:80vh;object-fit:contain}
 .lightbox-close{position:absolute;top:16px;right:16px;background:none;border:none;color:white;font-size:28px;cursor:pointer;z-index:501}
 .lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:white;font-size:22px;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .lightbox-prev{left:12px}.lightbox-next{right:12px}
 
 /* Piso card */
 .piso-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;transition:all .2s}
-.piso-card.urban-flip{border-color:var(--gold)}
-.piso-card.selected{border-color:var(--success);box-shadow:0 0 0 1px var(--success)}
-.piso-card.eliminado{opacity:.35;pointer-events:none}
+.piso-card.urban-flip{border-color:var(--gold);border-width:2px}
+.piso-card.is-selected{border-color:var(--success);box-shadow:0 0 0 1px var(--success)}
+.piso-card.eliminado{opacity:.3;pointer-events:none}
 .piso-body{padding:16px}
-.piso-dir{font-weight:700;font-size:16px;margin-bottom:4px}
+.piso-dir{font-weight:700;font-size:17px;margin-bottom:4px}
 .piso-barrio{font-size:13px;color:var(--muted);margin-bottom:8px}
 .piso-precio{font-family:var(--font-ui);font-size:24px;font-weight:700;margin-bottom:10px}
+
+/* Badges */
 .uf-badge{background:var(--gold);color:#1C1C1C;font-family:var(--font-ui);font-size:10px;font-weight:700;padding:4px 10px;border-radius:4px;display:inline-block;margin-bottom:8px}
-.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.pill{display:inline-flex;padding:3px 10px;border-radius:100px;font-family:var(--font-ui);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;background:rgba(0,0,0,.05);color:var(--muted)}
-.score-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.esc-badge{font-family:var(--font-ui);font-size:10px;font-weight:600;padding:4px 10px;border-radius:4px;display:inline-block;margin-bottom:8px;margin-left:6px}
+.esc-badge.tripartita{background:rgba(44,95,46,.08);color:var(--success);border:1px solid rgba(44,95,46,.2)}
+.esc-badge.broker-onoma{background:rgba(184,134,11,.08);color:var(--warning);border:1px solid rgba(184,134,11,.2)}
+
+/* Pills - BIGGER */
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.pill{display:inline-flex;padding:6px 14px;border-radius:100px;font-family:var(--font-ui);font-size:12px;font-weight:600;letter-spacing:.03em;background:rgba(0,0,0,.05);color:var(--text)}
+
+.score-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .score-row span{font-size:12px;color:var(--muted)}
 
 /* Per-card toggle */
 .card-toggle{display:flex;background:#e8e7e4;border-radius:100px;padding:2px;margin-bottom:14px}
-.card-toggle button{flex:1;padding:7px 12px;border:none;border-radius:100px;font-family:var(--font-ui);font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s}
+.card-toggle button{flex:1;padding:8px 14px;border:none;border-radius:100px;font-family:var(--font-ui);font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s}
 .card-toggle button.active{background:white;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1)}
 
 /* Docs */
-.docs-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.doc-chip{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);font-size:11px;font-family:var(--font-ui);font-weight:500;color:var(--text);background:white;cursor:pointer;text-decoration:none}
+.docs-section{margin-bottom:14px}
+.docs-title{font-family:var(--font-ui);font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.docs-row{display:flex;gap:8px;flex-wrap:wrap}
+.doc-chip{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:8px;border:1px solid var(--border);font-size:12px;font-family:var(--font-ui);font-weight:500;color:var(--text);background:white;cursor:pointer;text-decoration:none;transition:all .15s}
 .doc-chip:hover{border-color:var(--gold);background:var(--gold-bg)}
 
-/* Commission */
-.comision-box{background:var(--gold-bg);border:1px solid rgba(201,168,76,.3);border-radius:10px;padding:14px;margin-bottom:12px}
-.comision-big{font-family:var(--font-ui);font-size:28px;font-weight:700;color:var(--gold-dark)}
-.comision-detail{font-size:12px;color:var(--muted);margin-top:4px}
-.comision-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0}
-.comision-row .label{color:var(--muted)}.comision-row .val{font-weight:600}
+/* Commission - BIG and exciting */
+.comision-box{background:linear-gradient(135deg,rgba(44,95,46,.06),rgba(27,138,46,.04));border:1.5px solid rgba(27,138,46,.2);border-radius:14px;padding:20px;margin-bottom:14px;text-align:center}
+.comision-amount{font-family:var(--font-ui);font-size:42px;font-weight:700;color:var(--success-bright);line-height:1}
+.comision-pct{font-family:var(--font-ui);font-size:18px;font-weight:700;color:var(--success-bright);margin-top:4px}
+.comision-label{font-size:12px;color:var(--success);margin-top:6px;font-weight:500}
+.comision-breakdown{margin-top:14px;padding-top:12px;border-top:1px solid rgba(44,95,46,.15);text-align:left}
+.comision-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;color:var(--muted)}
+.comision-row .val{font-weight:600;color:var(--text)}
 
 /* Description */
-.desc-ia{font-size:13px;line-height:1.6;color:var(--text);background:#f9f8f6;padding:12px;border-radius:8px;border-left:3px solid var(--gold);margin-bottom:12px}
+.desc-ia{font-size:13px;line-height:1.6;color:var(--text);background:#f9f8f6;padding:12px;border-radius:8px;border-left:3px solid var(--gold);margin-bottom:14px}
 
-/* Action buttons */
-.actions{display:flex;gap:8px;margin-top:12px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:8px;font-family:var(--font-ui);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;text-transform:uppercase;letter-spacing:.05em}
+/* Actions */
+.actions{display:flex;gap:8px;margin-top:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 20px;border-radius:8px;font-family:var(--font-ui);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
 .btn-select{background:var(--gold);color:#1C1C1C;flex:1}
 .btn-select.selected{background:var(--success);color:white}
 .btn-remove{background:transparent;color:var(--error);border:1.5px solid rgba(139,32,32,.25);flex:1}
@@ -105,7 +122,6 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px
 .reason-opt:hover{border-color:var(--gold)}
 .reason-opt.selected{border-color:var(--gold);background:var(--gold-bg)}
 
-/* States */
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px}
 .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -121,98 +137,76 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px
   <div class="header-right" id="header-right"></div>
 </div>
 
+<button class="close-btn" onclick="window.close();history.back()" title="Cerrar">&times;</button>
+
 <div class="container" id="main-content">
   <div class="loading"><div class="spinner"></div><p style="margin-top:12px;color:var(--muted)">Cargando pisos...</p></div>
 </div>
 
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+<div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLB()">
+  <button class="lightbox-close" onclick="closeLB()">&times;</button>
   <button class="lightbox-nav lightbox-prev" onclick="lbNav(-1)">&lsaquo;</button>
   <img id="lb-img" src="">
   <button class="lightbox-nav lightbox-next" onclick="lbNav(1)">&rsaquo;</button>
 </div>
 
-<!-- Discard modal -->
-<div class="modal-overlay" id="discard-modal">
-  <div class="modal" id="discard-modal-content"></div>
-</div>
-
-<!-- Envio modal -->
-<div class="modal-overlay" id="envio-modal">
-  <div class="modal" id="envio-modal-content"></div>
-</div>
-
+<div class="modal-overlay" id="discard-modal"><div class="modal" id="discard-modal-content"></div></div>
+<div class="modal-overlay" id="envio-modal"><div class="modal" id="envio-modal-content"></div></div>
 <div class="toast" id="toast-el"></div>
 
 <script>
-const SB_URL='https://wwaytwudfbwxttyyojjx.supabase.co';
-const SB_KEY='sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
-const sb=supabase.createClient(SB_URL,SB_KEY);
-const GH_PAGES='https://onomahomes.github.io';
-const N8N='https://onomahomes.app.n8n.cloud/webhook';
+var SB_URL='https://wwaytwudfbwxttyyojjx.supabase.co';
+var SB_KEY='sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
+var sb=supabase.createClient(SB_URL,SB_KEY);
+var GH_PAGES='https://onomahomes.github.io';
+var N8N='https://onomahomes.app.n8n.cloud/webhook';
 
-let _envio=null,_pisos=[],_colab={},_demanda={},_comisiones={};
-let _selected=new Set(),_discarded=new Set(),_discardingId=null;
-let _cardModes={}; // {matchingId: 'info'|'comision'}
-let _lbPhotos=[],_lbIdx=0;
+var _envio=null,_pisos=[],_colab={},_demanda={},_comisiones={};
+var _selected=new Set(),_discarded=new Set(),_discardingId=null;
+var _cardModes={};
+var _lbPhotos=[],_lbIdx=0;
 
 function eur(n){return n?Number(n).toLocaleString('es-ES')+' \u20AC':'\u2014'}
-function toast(msg){const el=document.getElementById('toast-el');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500)}
+function toast(msg){var el=document.getElementById('toast-el');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},2500)}
 
 async function init(){
-  const params=new URLSearchParams(location.search);
-  const linkHash=params.get('id')||params.get('h');
+  var params=new URLSearchParams(location.search);
+  var linkHash=params.get('id')||params.get('h');
   if(!linkHash){showError('Link inv\u00E1lido');return}
-
   try{
-    const {data:envios}=await sb.from('envios_matching').select('*').eq('link_hash',linkHash).limit(1);
-    if(!envios||!envios.length){showError('Este enlace no es v\u00E1lido o ha expirado');return}
-    _envio=envios[0];
+    var r1=await sb.from('envios_matching').select('*').eq('link_hash',linkHash).limit(1);
+    if(!r1.data||!r1.data.length){showError('Este enlace no es v\u00E1lido o ha expirado');return}
+    _envio=r1.data[0];
+    if(_envio.estado==='seleccion_completada'){showError('Ya has completado la selecci\u00F3n para este env\u00EDo.');return}
+    if(!_envio.abierto_at)await sb.from('envios_matching').update({abierto_at:new Date().toISOString()}).eq('link_hash',linkHash);
 
-    if(_envio.estado==='seleccion_completada'){
-      showError('Ya has completado la selecci\u00F3n de pisos para este env\u00EDo.');return;
-    }
-
-    if(!_envio.abierto_at){
-      await sb.from('envios_matching').update({abierto_at:new Date().toISOString()}).eq('link_hash',linkHash);
-    }
-
-    // Load collaborator
     if(_envio.colaborador_id){
-      const {data:cd}=await sb.from('colaboradores').select('nombre,apellido,empresa,email,logo_empresa,brand_color,tipo_colaboracion').eq('id',_envio.colaborador_id).limit(1);
-      if(cd&&cd[0])_colab=cd[0];
+      var r2=await sb.from('colaboradores').select('nombre,apellido,empresa,email,logo_empresa,brand_color,tipo_colaboracion').eq('id',_envio.colaborador_id).limit(1);
+      if(r2.data&&r2.data[0])_colab=r2.data[0];
     }
+    var r3=await sb.from('demandas').select('*').eq('id',_envio.demanda_id).limit(1);
+    if(r3.data&&r3.data[0])_demanda=r3.data[0];
 
-    // Load demanda
-    const {data:dd}=await sb.from('demandas').select('*').eq('id',_envio.demanda_id).limit(1);
-    if(dd&&dd[0])_demanda=dd[0];
+    var r4=await sb.from('comisiones_config').select('*');
+    (r4.data||[]).forEach(function(c){_comisiones[c.tipo_operacion]=c});
 
-    // Load comisiones_config
-    const {data:cc}=await sb.from('comisiones_config').select('*');
-    (cc||[]).forEach(c=>{_comisiones[c.tipo_operacion]=c});
-
-    // Load matchings + pisos
-    const matchIds=_envio.matchings_ids||[];
+    var matchIds=_envio.matchings_ids||[];
     if(!matchIds.length){showError('No hay pisos en este env\u00EDo');return}
-    const {data:matchings}=await sb.from('matchings').select('id,piso,score_matching,texto_recomendacion,tipo_operacion,split_calculado,estado').in('id',matchIds);
+    var r5=await sb.from('matchings').select('id,piso,score_matching,texto_recomendacion,tipo_operacion,estado').in('id',matchIds);
+    var pisoIds=(r5.data||[]).map(function(m){var p=Array.isArray(m.piso)?m.piso[0]:m.piso;return p?String(p).replace(/[{}]/g,''):null}).filter(Boolean);
+    var r6=await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,planta,ascensor,terraza,garaje,trastero,estado_inmueble,fotos,descripcion_ia,urban_flip,video,planos,ite,catastro,memoria_calidades,encargo_venta,honorarios_vendedor_pct,tipo_colaboracion').in('id',pisoIds);
+    if(r6.error)console.error('Piso query error:',r6.error);
+    var pisosMap={};
+    (r6.data||[]).forEach(function(p){pisosMap[p.id]=p});
 
-    const pisoIds=(matchings||[]).map(m=>{const p=Array.isArray(m.piso)?m.piso[0]:m.piso;return p?String(p).replace(/[{}]/g,''):null}).filter(Boolean);
-    const {data:pisosData,error:pisoErr}=await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,planta,ascensor,terraza,garaje,trastero,estado_inmueble,fotos,descripcion_ia,urban_flip,video,planos,ite,catastro,memoria_calidades,encargo_venta,honorarios_vendedor_pct').in('id',pisoIds);
-    if(pisoErr)console.error('Piso query error:',pisoErr);
-    const pisosMap={};
-    (pisosData||[]).forEach(p=>{pisosMap[p.id]=p});
-
-    _pisos=(matchings||[]).map(m=>{
-      const pid=Array.isArray(m.piso)?m.piso[0]:m.piso;
-      const pisoId=pid?String(pid).replace(/[{}]/g,''):'';
+    _pisos=(r5.data||[]).map(function(m){
+      var pid=Array.isArray(m.piso)?m.piso[0]:m.piso;
+      var pisoId=pid?String(pid).replace(/[{}]/g,''):'';
       _cardModes[m.id]='info';
-      return {...m,pisoData:pisosMap[pisoId]||{},pisoId};
-    }).sort((a,b)=>(b.score_matching||0)-(a.score_matching||0));
+      return Object.assign({},m,{pisoData:pisosMap[pisoId]||{},pisoId:pisoId});
+    }).sort(function(a,b){return(b.score_matching||0)-(a.score_matching||0)});
 
-    // All selected by default
-    _pisos.forEach(m=>_selected.add(m.id));
-
+    _pisos.forEach(function(m){_selected.add(m.id)});
     applyBrand();
     render();
   }catch(e){
@@ -222,202 +216,198 @@ async function init(){
 }
 
 function applyBrand(){
-  const hdr=document.getElementById('header-right');
+  var hdr=document.getElementById('header-right');
   if(_colab.logo_empresa){
-    const logo=Array.isArray(_colab.logo_empresa)?_colab.logo_empresa[0]?.url:_colab.logo_empresa;
-    if(logo)hdr.innerHTML='<img src="'+logo+'">';
+    var logo=Array.isArray(_colab.logo_empresa)?(_colab.logo_empresa[0]?_colab.logo_empresa[0].url:''):_colab.logo_empresa;
+    if(logo&&typeof logo==='string'&&logo.startsWith('http'))hdr.innerHTML='<img src="'+logo+'">';
   }
-  if(_colab.brand_color){
-    document.documentElement.style.setProperty('--accent',_colab.brand_color);
-  }
+  if(_colab.brand_color)document.documentElement.style.setProperty('--accent',_colab.brand_color);
+}
+
+function getEscenario(m){
+  var p=m.pisoData;
+  if(p.urban_flip)return 'urban_flip';
+  var tipo=m.tipo_operacion||p.tipo_colaboracion||'';
+  if(tipo.toLowerCase().indexOf('tripartita')>=0)return 'tripartita';
+  return 'broker_onoma';
 }
 
 function render(){
-  const selCount=_selected.size;
-  const total=_pisos.filter(m=>!_discarded.has(m.id)).length;
-  const colabName=[_colab.nombre,_colab.apellido].filter(Boolean).join(' ')||'Colaborador';
-  const clienteNombre=_envio.cliente_nombre||_demanda.nombre||'tu cliente';
+  var selCount=_selected.size;
+  var total=_pisos.filter(function(m){return!_discarded.has(m.id)}).length;
+  var colabName=[_colab.nombre,_colab.apellido].filter(Boolean).join(' ')||'Colaborador';
+  var clienteNombre=_envio.cliente_nombre||_demanda.nombre||'tu cliente';
 
-  document.getElementById('main-content').innerHTML=`
-    <div class="hero">
-      <h1>Hola ${colabName}, tienes ${_pisos.length} pisos seleccionados para ${clienteNombre}</h1>
-      <p>${_demanda.zona_preferida||''} \u00B7 Hasta ${eur(_demanda.presupuesto_max)} \u00B7 ${_demanda.habitaciones_min||''}+ habitaciones</p>
-    </div>
-    <div class="counter"><strong>${selCount}</strong> de ${total} pisos seleccionados para enviar</div>
-    ${_pisos.map((m,i)=>renderCard(m,i)).join('')}
-    <div class="footer-brand">Presentado por ${_colab.empresa||colabName} en colaboraci\u00F3n con ONOMA Homes</div>
-  `;
+  document.getElementById('main-content').innerHTML=
+    '<div class="hero"><h1>Hola '+colabName+', tienes '+_pisos.length+' pisos seleccionados para '+clienteNombre+'</h1><p>'+(_demanda.zona_preferida||'')+' \u00B7 Hasta '+eur(_demanda.presupuesto_max)+' \u00B7 '+(_demanda.habitaciones_min||'')+'+ habitaciones</p></div>'+
+    '<div class="counter"><strong>'+selCount+'</strong> de '+total+' pisos seleccionados para enviar</div>'+
+    _pisos.map(function(m,i){return renderCard(m,i)}).join('')+
+    '<div class="footer-brand">Presentado por '+(_colab.empresa||colabName)+' en colaboraci\u00F3n con ONOMA Homes</div>';
 
-  let bar=document.getElementById('fixed-bar');
+  var bar=document.getElementById('fixed-bar');
   if(!bar){bar=document.createElement('div');bar.id='fixed-bar';bar.className='fixed-bar';document.body.appendChild(bar)}
   bar.innerHTML='<button class="btn btn-primary" style="flex:1;max-width:420px" onclick="generarLinkCliente()" '+(selCount>0?'':'disabled')+'>Generar link para mi cliente ('+selCount+' pisos)</button>';
 }
 
 function renderCard(m,idx){
-  const p=m.pisoData;
-  const isUF=p.urban_flip;
-  const isElim=_discarded.has(m.id);
-  const isSel=_selected.has(m.id);
-  const score=Math.round(m.score_matching||0);
-  const mode=_cardModes[m.id]||'info';
+  var p=m.pisoData;
+  var isUF=p.urban_flip;
+  var isElim=_discarded.has(m.id);
+  var isSel=_selected.has(m.id);
+  var score=Math.round(m.score_matching||0);
+  var mode=_cardModes[m.id]||'info';
+  var esc=getEscenario(m);
 
   // Photos
-  let fotos=p.fotos||[];
+  var fotos=p.fotos||[];
   if(typeof fotos==='string'){try{fotos=JSON.parse(fotos)}catch(e){fotos=[]}}
   if(!Array.isArray(fotos))fotos=[];
-  const fotoUrls=fotos.map(f=>typeof f==='object'?(f.url||''):String(f)).filter(u=>u.startsWith('http'));
+  var fotoUrls=fotos.map(function(f){return typeof f==='object'?(f.url||''):String(f)}).filter(function(u){return u.startsWith('http')});
 
-  let carouselHtml;
+  var carouselHtml;
   if(fotoUrls.length>1){
-    const imgs=fotoUrls.map((u,i)=>'<img src="'+u+'" class="'+(i===0?'active':'')+'" onerror="this.style.display=\'none\'">').join('');
-    const dots=fotoUrls.map((_,i)=>'<button class="carousel-dot '+(i===0?'active':'')+'" onclick="event.stopPropagation();cSlide(\''+m.id+'\','+i+')"></button>').join('');
-    carouselHtml='<div class="carousel" id="carousel-'+m.id+'" onclick="openLightbox('+idx+')">'+imgs+'<span class="carousel-counter">1 / '+fotoUrls.length+'</span><button class="carousel-btn carousel-prev" onclick="event.stopPropagation();cDir(\''+m.id+'\',-1)">\u2039</button><button class="carousel-btn carousel-next" onclick="event.stopPropagation();cDir(\''+m.id+'\',1)">\u203A</button><div class="carousel-dots">'+dots+'</div></div>';
+    var imgs=fotoUrls.map(function(u,i){return '<img src="'+u+'" class="'+(i===0?'active':'')+'" onerror="this.style.display=\'none\'">'}).join('');
+    var dots=fotoUrls.map(function(_,i){return '<button class="carousel-dot '+(i===0?'active':'')+'" onclick="event.stopPropagation();cSlide(\''+m.id+'\','+i+')"></button>'}).join('');
+    carouselHtml='<div class="carousel" id="carousel-'+m.id+'" onclick="openLB('+idx+')">'+imgs+'<span class="carousel-counter">1 / '+fotoUrls.length+'</span><button class="carousel-btn carousel-prev" onclick="event.stopPropagation();cDir(\''+m.id+'\',-1)">\u2039</button><button class="carousel-btn carousel-next" onclick="event.stopPropagation();cDir(\''+m.id+'\',1)">\u203A</button><div class="carousel-dots">'+dots+'</div></div>';
   }else if(fotoUrls.length===1){
-    carouselHtml='<div class="carousel" onclick="openLightbox('+idx+')"><img src="'+fotoUrls[0]+'" class="active" onerror="this.outerHTML=\'<div class=carousel-ph>\uD83C\uDFE0<span>Foto no disponible</span></div>\'"></div>';
+    carouselHtml='<div class="carousel" onclick="openLB('+idx+')"><img src="'+fotoUrls[0]+'" class="active" onerror="this.outerHTML=\'<div class=carousel-ph>\uD83C\uDFE0<span>Foto no disponible</span></div>\'"></div>';
   }else{
     carouselHtml='<div class="carousel-ph">\uD83C\uDFE0<span>Foto no disponible</span></div>';
   }
 
   // Pills
-  const pills=[
+  var pills=[
     p.habitaciones?p.habitaciones+' hab':'',
     p.metros?p.metros+' m\u00B2':'',
     p.planta?'Planta '+p.planta:'',
     p.ascensor?'Ascensor':'',
     p.terraza?'Terraza':'',
     p.garaje?'Garaje':'',
-    p.trastero?'Trastero':'',
-  ].filter(Boolean).map(t=>'<span class="pill">'+t+'</span>').join('');
+    p.trastero?'Trastero':''
+  ].filter(Boolean).map(function(t){return '<span class="pill">'+t+'</span>'}).join('');
+
+  // Escenario badge
+  var escBadgeHtml='';
+  if(isUF)escBadgeHtml='<span class="uf-badge">\u2B50 URBAN FLIP</span>';
+  else if(esc==='tripartita')escBadgeHtml='<span class="esc-badge tripartita">Tripartita</span>';
+  else escBadgeHtml='<span class="esc-badge broker-onoma">Broker-ONOMA</span>';
 
   // Info content
-  let infoHtml='';
+  var infoHtml='';
   if(mode==='info'){
-    // Description
-    const desc=m.texto_recomendacion||p.descripcion_ia||'';
+    var desc=m.texto_recomendacion||p.descripcion_ia||'';
     if(desc)infoHtml+='<div class="desc-ia">'+desc+'</div>';
-
-    // Docs
-    const docs=[];
+    var docs=[];
     if(p.ite)docs.push({icon:'\uD83D\uDCC4',label:'ITE',url:p.ite});
     if(p.catastro)docs.push({icon:'\uD83D\uDCD0',label:'Catastro',url:p.catastro});
     if(p.memoria_calidades)docs.push({icon:'\uD83D\uDCCB',label:'Memoria de calidades',url:p.memoria_calidades});
     if(p.video)docs.push({icon:'\uD83C\uDFA5',label:'Video',url:p.video});
     if(p.planos)docs.push({icon:'\uD83D\uDCD0',label:'Planos',url:p.planos});
-    if(p.encargo_venta)docs.push({icon:'\uD83D\uDCDD',label:'Encargo de venta',url:p.encargo_venta});
-    if(docs.length)infoHtml+='<div class="docs-row">'+docs.map(d=>'<a class="doc-chip" href="'+(typeof d.url==='string'?d.url:'#')+'" target="_blank">'+d.icon+' '+d.label+'</a>').join('')+'</div>';
+    if(docs.length)infoHtml+='<div class="docs-section"><div class="docs-title">Documentaci\u00F3n disponible</div><div class="docs-row">'+docs.map(function(d){return '<a class="doc-chip" href="'+(typeof d.url==='string'?d.url:'#')+'" target="_blank">'+d.icon+' '+d.label+'</a>'}).join('')+'</div></div>';
   }
 
   // Commission content
-  let comisionHtml='';
+  var comisionHtml='';
   if(mode==='comision'){
-    const tipo=m.tipo_operacion||'A';
-    const precio=p.precio||0;
-    const honVend=p.honorarios_vendedor_pct||3;
-    const comTotal=precio*(honVend/100);
-    const cfg=_comisiones[tipo]||{};
+    var precio=p.precio||0;
+    var honVendPct=p.honorarios_vendedor_pct||3;
+    var totalVend=precio*(honVendPct/100);
+    var miComision=0,miPct=0,escLabel='',detailHtml='';
 
-    let miPct=0,miComision=0,escLabel='',escColor='';
-    if(isUF){
-      miComision=precio*0.02*1.21;miPct=2;escLabel='Urban Flip 2%+IVA';escColor='var(--gold)';
-    }else if(tipo==='A'){
-      miPct=0;miComision=0;escLabel='Escenario A \u2014 ONOMA directo';escColor='#6B7F9E';
-    }else if(tipo==='B'){
-      miPct=cfg.pct_broker_demanda||50;miComision=comTotal*(miPct/100);escLabel='Escenario B \u2014 '+miPct+'% broker demanda';escColor='var(--success)';
-    }else if(tipo==='C'){
-      miPct=cfg.pct_colaborador_piso||50;miComision=comTotal*(miPct/100);escLabel='Escenario C \u2014 '+miPct+'% broker piso';escColor='var(--warning)';
-    }else if(tipo==='D'){
-      miPct=cfg.pct_broker_demanda||33;miComision=comTotal*(miPct/100);escLabel='Escenario D \u2014 '+miPct+'% tripartita';escColor='var(--muted)';
+    if(esc==='urban_flip'){
+      var ufComVend=precio*0.02*1.21;
+      miComision=0;
+      escLabel='Urban Flip \u2014 ONOMA directo';
+      detailHtml='<div class="comision-row"><span>Comisi\u00F3n vendedor (2%+IVA)</span><span class="val">'+eur(Math.round(ufComVend))+'</span></div><div class="comision-row"><span>Va \u00EDntegra a ONOMA</span><span class="val">\u2014</span></div><div class="comision-row"><span style="font-style:italic">Si aportas comprador: aplica Escenario 2</span><span></span></div>';
+    }else if(esc==='tripartita'){
+      var cfg=_comisiones['tripartita']||{pct_onoma:25,pct_broker_demanda:37.5,pct_colaborador_piso:37.5};
+      miPct=Number(cfg.pct_broker_demanda)||37.5;
+      miComision=totalVend*(miPct/100);
+      escLabel='Tripartita \u2014 '+miPct+'% para ti';
+      detailHtml='<div class="comision-row"><span>Total vendedor ('+honVendPct+'% de '+eur(precio)+')</span><span class="val">'+eur(Math.round(totalVend))+'</span></div><div class="comision-row"><span>Tu parte ('+miPct+'%)</span><span class="val" style="color:var(--success-bright);font-weight:700">'+eur(Math.round(miComision))+'</span></div><div class="comision-row"><span>Broker vendedor ('+Number(cfg.pct_colaborador_piso)+'%)</span><span class="val">'+eur(Math.round(totalVend*(Number(cfg.pct_colaborador_piso)/100)))+'</span></div><div class="comision-row"><span>ONOMA ('+Number(cfg.pct_onoma)+'%)</span><span class="val">'+eur(Math.round(totalVend*(Number(cfg.pct_onoma)/100)))+'</span></div>';
+    }else{
+      var cfg2=_comisiones['broker_onoma']||{pct_onoma:45.8,pct_broker_demanda:54.2};
+      miPct=Number(cfg2.pct_broker_demanda)||54.2;
+      var honCompPct=3;
+      var totalComb=precio*(honVendPct/100)+precio*(honCompPct/100);
+      miComision=totalComb*(miPct/100);
+      escLabel='Broker-ONOMA \u2014 '+miPct+'% para ti';
+      detailHtml='<div class="comision-row"><span>Vendedor paga ('+honVendPct+'%)</span><span class="val">'+eur(Math.round(precio*(honVendPct/100)))+'</span></div><div class="comision-row"><span>Comprador paga ('+honCompPct+'%)</span><span class="val">'+eur(Math.round(precio*(honCompPct/100)))+'</span></div><div class="comision-row"><span>Total combinado</span><span class="val">'+eur(Math.round(totalComb))+'</span></div><div class="comision-row"><span>Tu parte ('+miPct+'%)</span><span class="val" style="color:var(--success-bright);font-weight:700">'+eur(Math.round(miComision))+'</span></div><div class="comision-row"><span>ONOMA ('+Number(cfg2.pct_onoma)+'%)</span><span class="val">'+eur(Math.round(totalComb*(Number(cfg2.pct_onoma)/100)))+'</span></div>';
     }
 
-    comisionHtml='<div class="comision-box"><div style="font-size:11px;color:'+escColor+';font-weight:600;margin-bottom:6px">'+escLabel+'</div><div class="comision-big">'+eur(Math.round(miComision))+'</div><div class="comision-detail">Comisi\u00F3n total: '+eur(Math.round(comTotal))+' ('+honVend+'% de '+eur(precio)+')</div><div style="margin-top:10px;border-top:1px solid rgba(201,168,76,.2);padding-top:8px"><div class="comision-row"><span class="label">Tu parte ('+miPct+'%)</span><span class="val">'+eur(Math.round(miComision))+'</span></div><div class="comision-row"><span class="label">ONOMA ('+(cfg.pct_onoma||0)+'%)</span><span class="val">'+eur(Math.round(comTotal*((cfg.pct_onoma||0)/100)))+'</span></div></div></div>';
+    comisionHtml='<div class="comision-box">'+(esc!=='urban_flip'?'<div class="comision-amount">'+eur(Math.round(miComision))+'</div><div class="comision-pct">'+miPct+'% del total</div>':'')+'<div class="comision-label">'+escLabel+'</div><div class="comision-breakdown">'+detailHtml+'</div></div>';
   }
 
-  // Action buttons
-  let actionsHtml='';
+  // Actions
+  var actionsHtml='';
   if(!isElim){
     actionsHtml='<div class="actions"><button class="btn '+(isSel?'btn-select selected':'btn-select')+'" onclick="toggleSelect(\''+m.id+'\')">'+(isSel?'\u2705 Seleccionado':'Seleccionar')+'</button>'+(!isUF?'<button class="btn btn-remove" onclick="openDiscard(\''+m.id+'\')">\u274C Eliminar</button>':'')+'</div>';
-    if(isUF)actionsHtml+='<div style="font-size:11px;color:var(--muted);margin-top:6px">Este piso se incluye autom\u00E1ticamente por ser exclusivo de nuestra cartera</div>';
+    if(isUF)actionsHtml+='<div style="font-size:11px;color:var(--muted);margin-top:6px">Este piso se incluye autom\u00E1ticamente por ser exclusivo ONOMA</div>';
   }else{
-    actionsHtml='<div style="text-align:center;padding:10px;color:var(--error);font-size:13px">\u274C Eliminado</div>';
+    actionsHtml='<div style="text-align:center;padding:10px;color:var(--error);font-size:13px;font-weight:600">\u274C Eliminado</div>';
   }
 
-  return '<div class="piso-card '+(isUF?'urban-flip':'')+' '+(isSel&&!isElim?'selected':'')+' '+(isElim?'eliminado':'')+'" id="card-'+m.id+'">'+carouselHtml+'<div class="piso-body">'+(isUF?'<div class="uf-badge">\u2B50 EXCLUSIVO ONOMA</div>':'')+'<div class="piso-dir">'+(p.direccion||'\u2014')+'</div><div class="piso-barrio">'+(p.barrio||'')+' '+(p.estado_inmueble?'\u00B7 '+p.estado_inmueble:'')+'</div><div class="piso-precio">'+eur(p.precio)+'</div><div class="score-row"><svg width="40" height="40" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="#e5e3df" stroke-width="4"/><circle cx="30" cy="30" r="26" fill="none" stroke="var(--gold)" stroke-width="4" stroke-dasharray="'+((score/100)*163)+' 163" transform="rotate(-90 30 30)" stroke-linecap="round"/><text x="30" y="34" text-anchor="middle" font-size="14" font-weight="700" fill="var(--gold)">'+score+'</text></svg><span>Compatibilidad</span></div><div class="pills">'+pills+'</div><div class="card-toggle"><button class="'+(mode==='info'?'active':'')+'" onclick="_cardModes[\''+m.id+'\']=\'info\';render()">Info del piso</button><button class="'+(mode==='comision'?'active':'')+'" onclick="_cardModes[\''+m.id+'\']=\'comision\';render()">Mi comisi\u00F3n</button></div>'+infoHtml+comisionHtml+actionsHtml+'</div></div>';
+  return '<div class="piso-card '+(isUF?'urban-flip':'')+' '+(isSel&&!isElim?'is-selected':'')+' '+(isElim?'eliminado':'')+'" id="card-'+m.id+'">'+carouselHtml+'<div class="piso-body">'+escBadgeHtml+'<div class="piso-dir">'+(p.direccion||'\u2014')+'</div><div class="piso-barrio">'+(p.barrio||'')+' '+(p.estado_inmueble?'\u00B7 '+p.estado_inmueble:'')+'</div><div class="piso-precio">'+eur(p.precio)+'</div><div class="score-row"><svg width="40" height="40" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="#e5e3df" stroke-width="4"/><circle cx="30" cy="30" r="26" fill="none" stroke="var(--gold)" stroke-width="4" stroke-dasharray="'+((score/100)*163)+' 163" transform="rotate(-90 30 30)" stroke-linecap="round"/><text x="30" y="34" text-anchor="middle" font-size="14" font-weight="700" fill="var(--gold)">'+score+'</text></svg><span>Compatibilidad</span></div><div class="pills">'+pills+'</div><div class="card-toggle"><button class="'+(mode==='info'?'active':'')+'" onclick="_cardModes[\''+m.id+'\']=\'info\';render()">Info del piso</button><button class="'+(mode==='comision'?'active':'')+'" onclick="_cardModes[\''+m.id+'\']=\'comision\';render()">Mi comisi\u00F3n</button></div>'+infoHtml+comisionHtml+actionsHtml+'</div></div>';
 }
 
 // Carousel
-function cDir(mid,dir){const c=document.getElementById('carousel-'+mid);if(!c)return;const imgs=c.querySelectorAll('img');const dots=c.querySelectorAll('.carousel-dot');const counter=c.querySelector('.carousel-counter');let cur=[...imgs].findIndex(i=>i.classList.contains('active'));imgs[cur].classList.remove('active');if(dots[cur])dots[cur].classList.remove('active');cur=(cur+dir+imgs.length)%imgs.length;imgs[cur].classList.add('active');if(dots[cur])dots[cur].classList.add('active');if(counter)counter.textContent=(cur+1)+' / '+imgs.length}
-function cSlide(mid,idx){const c=document.getElementById('carousel-'+mid);if(!c)return;c.querySelectorAll('img').forEach((img,i)=>img.classList.toggle('active',i===idx));c.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));const counter=c.querySelector('.carousel-counter');if(counter)counter.textContent=(idx+1)+' / '+c.querySelectorAll('img').length}
+function cDir(mid,dir){var c=document.getElementById('carousel-'+mid);if(!c)return;var imgs=c.querySelectorAll('img');var dots=c.querySelectorAll('.carousel-dot');var counter=c.querySelector('.carousel-counter');var cur=Array.from(imgs).findIndex(function(i){return i.classList.contains('active')});imgs[cur].classList.remove('active');if(dots[cur])dots[cur].classList.remove('active');cur=(cur+dir+imgs.length)%imgs.length;imgs[cur].classList.add('active');if(dots[cur])dots[cur].classList.add('active');if(counter)counter.textContent=(cur+1)+' / '+imgs.length}
+function cSlide(mid,idx){var c=document.getElementById('carousel-'+mid);if(!c)return;c.querySelectorAll('img').forEach(function(img,i){img.classList.toggle('active',i===idx)});c.querySelectorAll('.carousel-dot').forEach(function(d,i){d.classList.toggle('active',i===idx)});var counter=c.querySelector('.carousel-counter');if(counter)counter.textContent=(idx+1)+' / '+c.querySelectorAll('img').length}
 
 // Lightbox
-function openLightbox(pisoIdx){const p=_pisos[pisoIdx]?.pisoData;let fotos=p?.fotos||[];if(typeof fotos==='string'){try{fotos=JSON.parse(fotos)}catch(e){fotos=[]}}if(!Array.isArray(fotos))fotos=[];_lbPhotos=fotos.map(f=>typeof f==='object'?(f.url||''):String(f)).filter(u=>u.startsWith('http'));if(!_lbPhotos.length)return;_lbIdx=0;document.getElementById('lb-img').src=_lbPhotos[0];document.getElementById('lightbox').classList.add('open')}
-function closeLightbox(){document.getElementById('lightbox').classList.remove('open')}
+function openLB(idx){var p=_pisos[idx]&&_pisos[idx].pisoData;var fotos=p&&p.fotos||[];if(typeof fotos==='string'){try{fotos=JSON.parse(fotos)}catch(e){fotos=[]}}if(!Array.isArray(fotos))fotos=[];_lbPhotos=fotos.map(function(f){return typeof f==='object'?(f.url||''):String(f)}).filter(function(u){return u.startsWith('http')});if(!_lbPhotos.length)return;_lbIdx=0;document.getElementById('lb-img').src=_lbPhotos[0];document.getElementById('lightbox').classList.add('open')}
+function closeLB(){document.getElementById('lightbox').classList.remove('open')}
 function lbNav(dir){_lbIdx=(_lbIdx+dir+_lbPhotos.length)%_lbPhotos.length;document.getElementById('lb-img').src=_lbPhotos[_lbIdx]}
 
-// Select / Discard
 function toggleSelect(id){if(_selected.has(id))_selected.delete(id);else _selected.add(id);render();toast(_selected.has(id)?'\u2705 Seleccionado':'\u274C Deseleccionado')}
 
 function openDiscard(id){
-  _discardingId=id;
-  document.getElementById('discard-modal-content').innerHTML='<h3>\u274C \u00BFPor qu\u00E9 eliminas este piso?</h3><div id="discard-reasons"><div class="reason-opt" onclick="selectReason(this,\'Fuera de presupuesto\')">Fuera de presupuesto del cliente</div><div class="reason-opt" onclick="selectReason(this,\'Zona no interesa\')">Zona no interesa al cliente</div><div class="reason-opt" onclick="selectReason(this,\'No cumple requisitos\')">No cumple requisitos</div><div class="reason-opt" onclick="selectReason(this,\'Otro\')">Otro</div></div><textarea id="discard-notes" rows="2" placeholder="Notas adicionales..." style="margin-top:8px"></textarea><div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end"><button class="btn btn-secondary" onclick="closeModal(\'discard-modal\')">Cancelar</button><button class="btn" style="background:var(--error);color:white" id="btn-confirm-discard" onclick="confirmDiscard()" disabled>Confirmar</button></div>';
+  _discardingId=id;_discardReason='';
+  document.getElementById('discard-modal-content').innerHTML='<h3>\u274C \u00BFPor qu\u00E9 eliminas este piso?</h3><div id="discard-reasons"><div class="reason-opt" onclick="selReason(this,\'Fuera de presupuesto\')">Fuera de presupuesto del cliente</div><div class="reason-opt" onclick="selReason(this,\'Zona no interesa\')">Zona no interesa al cliente</div><div class="reason-opt" onclick="selReason(this,\'No cumple requisitos\')">No cumple los requisitos</div><div class="reason-opt" onclick="selReason(this,\'Otro\')">Otro</div></div><textarea id="discard-notes" rows="2" placeholder="Motivo detallado (obligatorio)..." style="margin-top:8px"></textarea><div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end"><button class="btn btn-secondary" onclick="closeModal(\'discard-modal\')">Cancelar</button><button class="btn" style="background:var(--error);color:white" id="btn-cd" onclick="confirmDiscard()" disabled>Confirmar</button></div>';
   document.getElementById('discard-modal').classList.add('open');
 }
-let _discardReason='';
-function selectReason(el,reason){document.querySelectorAll('#discard-reasons .reason-opt').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');_discardReason=reason;document.getElementById('btn-confirm-discard').disabled=false}
+var _discardReason='';
+function selReason(el,r){document.querySelectorAll('#discard-reasons .reason-opt').forEach(function(e){e.classList.remove('selected')});el.classList.add('selected');_discardReason=r;document.getElementById('btn-cd').disabled=false}
 
 async function confirmDiscard(){
-  const notes=document.getElementById('discard-notes').value.trim();
-  const feedback=_discardReason+(notes?': '+notes:'');
-  _discarded.add(_discardingId);
-  _selected.delete(_discardingId);
+  var notes=document.getElementById('discard-notes').value.trim();
+  var feedback=_discardReason+(notes?': '+notes:'');
+  _discarded.add(_discardingId);_selected.delete(_discardingId);
   try{
     await sb.from('matchings').update({estado:'descartado_colaborador',feedback_descarte_asesor:feedback}).eq('id',_discardingId);
-    const prevFb=_envio.feedback_descarte||{};
-    prevFb[_discardingId]=feedback;
-    await sb.from('envios_matching').update({matchings_descartados:[..._discarded],feedback_descarte:prevFb}).eq('link_hash',_envio.link_hash);
+    var prevFb=_envio.feedback_descarte||{};prevFb[_discardingId]=feedback;
+    await sb.from('envios_matching').update({matchings_descartados:Array.from(_discarded),feedback_descarte:prevFb}).eq('link_hash',_envio.link_hash);
   }catch(e){console.warn(e)}
-  closeModal('discard-modal');
-  toast('\u274C Piso eliminado');
-  render();
+  closeModal('discard-modal');toast('\u274C Piso eliminado');render();
 }
 
-// Generate client link
 async function generarLinkCliente(){
-  const selIds=[..._selected];
-  if(!selIds.length)return;
-
-  const btn=document.querySelector('.fixed-bar .btn');
-  btn.disabled=true;btn.textContent='Generando...';
-
-  const newHash=Math.random().toString(36).substring(2,14);
+  var selIds=Array.from(_selected);if(!selIds.length)return;
+  var btn=document.querySelector('.fixed-bar .btn');btn.disabled=true;btn.textContent='Generando...';
+  var newHash=Math.random().toString(36).substring(2,14);
   try{
     await sb.from('envios_matching').update({matchings_seleccionados:selIds,estado:'seleccion_completada',completado_at:new Date().toISOString()}).eq('link_hash',_envio.link_hash);
     await sb.from('envios_matching').insert({link_hash:newHash,tipo:'colaborador_a_cliente',asesor_id:_envio.asesor_id,colaborador_id:_envio.colaborador_id,demanda_id:_envio.demanda_id,cliente_nombre:_demanda.nombre,cliente_email:_demanda.email_dir||null,matchings_ids:selIds,estado:'enviado'});
     await sb.from('demandas').update({ultimo_matching_enviado:new Date().toISOString()}).eq('id',_envio.demanda_id);
-    await sb.from('acciones_pendientes').insert({asesor_id:_envio.asesor_id,tipo:'matching_enviado_cliente',titulo:'Matchings enviados al cliente \u2014 '+(_demanda.nombre||''),descripcion:([_colab.nombre,_colab.apellido].filter(Boolean).join(' ')||'Colaborador')+' seleccion\u00F3 '+selIds.length+' pisos y los envi\u00F3 al comprador.',referencia_id:_envio.demanda_id,estado:'pendiente',prioridad:'normal'});
+    await sb.from('acciones_pendientes').insert({asesor_id:_envio.asesor_id,tipo:'matching_enviado_cliente',titulo:'Matchings enviados al cliente \u2014 '+(_demanda.nombre||''),descripcion:([_colab.nombre,_colab.apellido].filter(Boolean).join(' ')||'Colaborador')+' seleccion\u00F3 '+selIds.length+' pisos.',referencia_id:_envio.demanda_id,estado:'pendiente',prioridad:'normal'});
   }catch(e){console.warn(e)}
 
-  // Generate AI message
-  const clienteLink=GH_PAGES+'/matching-cliente.html?id='+newHash;
-  const colabName=[_colab.nombre,_colab.apellido].filter(Boolean).join(' ')||'Tu asesor';
-  const clienteNombre=_demanda.nombre||'tu cliente';
+  var clienteLink=GH_PAGES+'/matching-cliente.html?id='+newHash;
+  var colabName=[_colab.nombre,_colab.apellido].filter(Boolean).join(' ')||'Tu asesor';
+  var clienteNombre=_demanda.nombre||'tu cliente';
+  var selPisos=_pisos.filter(function(m){return selIds.indexOf(m.id)>=0});
+  var pisosList=selPisos.map(function(m,i){var p=m.pisoData;return '  '+(i+1)+'. '+(p.direccion||'')+' \u2014 '+eur(p.precio)+' \u00B7 '+(p.habitaciones||'?')+' hab \u00B7 '+(p.metros||'?')+' m\u00B2 ('+(p.barrio||'')+')'}).join('\n');
 
-  const selPisos=_pisos.filter(m=>selIds.includes(m.id));
-  const pisosList=selPisos.map((m,i)=>{const p=m.pisoData;return '  '+(i+1)+'. '+(p.direccion||'')+' \u2014 '+eur(p.precio)+' \u00B7 '+(p.habitaciones||'?')+' hab \u00B7 '+(p.metros||'?')+' m\u00B2 ('+(p.barrio||'')+')';}).join('\n');
-
-  let aiMsg='';
+  var aiMsg='';
   try{
-    const prompt='Genera un mensaje breve (5-8 l\u00EDneas) de un asesor inmobiliario a un comprador explicando por qu\u00E9 se han seleccionado estos pisos para \u00E9l. Perfil: zona '+(_demanda.zona_preferida||'')+', presupuesto '+eur(_demanda.presupuesto_max)+', '+((_demanda.habitaciones_min||'')+' hab m\u00EDnimo')+'. Pisos:\n'+pisosList+'\n\nTono cercano y profesional. Incluye el link al final: '+clienteLink+'\nResponde SOLO con el mensaje, sin comillas.';
-    const resp=await fetch(N8N+'/generate-piso-text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
-    if(resp.ok){const data=await resp.json();const item=Array.isArray(data)?data[0]:data;aiMsg=item?.text||''}
+    var prompt='Genera un mensaje breve (5-8 l\u00EDneas) de un asesor inmobiliario a un comprador explicando pisos seleccionados. Perfil: zona '+(_demanda.zona_preferida||'')+', presupuesto '+eur(_demanda.presupuesto_max)+', '+(_demanda.habitaciones_min||'')+'+ hab. Pisos:\n'+pisosList+'\n\nTono cercano. Incluye link: '+clienteLink+'\nResponde SOLO el mensaje.';
+    var resp=await fetch(N8N+'/generate-piso-text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt})});
+    if(resp.ok){var data=await resp.json();var item=Array.isArray(data)?data[0]:data;aiMsg=item&&item.text||''}
   }catch(e){}
+  if(!aiMsg)aiMsg='Hola '+clienteNombre+',\n\n'+colabName+' ha seleccionado '+selIds.length+' pisos que encajan con lo que buscas:\n\n'+pisosList+'\n\nRev\u00EDsalos aqu\u00ED:\n'+clienteLink+'\n\nUn saludo';
 
-  if(!aiMsg){
-    aiMsg='Hola '+clienteNombre+',\n\n'+colabName+' ha seleccionado '+selIds.length+' pisos que encajan con lo que buscas:\n\n'+pisosList+'\n\nRev\u00EDsalos aqu\u00ED:\n'+clienteLink+'\n\nSi alguno te interesa, agenda una visita directamente desde el enlace.\n\nUn saludo';
-  }
-
-  const emailTo=_demanda.email_dir||'';
-  const emailSubject=encodeURIComponent('Selecci\u00F3n de pisos para ti \u2014 '+colabName);
-
+  var emailTo=_demanda.email_dir||'';
+  var emailSubject=encodeURIComponent('Selecci\u00F3n de pisos \u2014 '+colabName);
   document.getElementById('envio-modal-content').innerHTML='<h3>Link para tu cliente</h3><p style="font-size:13px;color:var(--muted);margin-bottom:12px">'+selIds.length+' pisos seleccionados para '+clienteNombre+'</p><textarea id="client-msg" rows="10">'+aiMsg+'</textarea><div class="link-box"><span class="link-text">'+clienteLink+'</span><button class="btn btn-secondary" style="font-size:11px;padding:6px 12px" onclick="navigator.clipboard.writeText(\''+clienteLink+'\');toast(\'Link copiado\')">Copiar</button></div><div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button class="btn btn-secondary" onclick="navigator.clipboard.writeText(document.getElementById(\'client-msg\').value);toast(\'Mensaje copiado\')">Copiar mensaje</button><button class="btn btn-primary" onclick="window.open(\'mailto:'+emailTo+'?subject='+emailSubject+'&body=\'+encodeURIComponent(document.getElementById(\'client-msg\').value))">Enviar por Email</button></div><button class="btn btn-primary" style="width:100%;margin-top:14px;padding:14px" onclick="closeModal(\'envio-modal\');toast(\'\u2705 Env\u00EDo completado\')">\u2705 Listo</button>';
   document.getElementById('envio-modal').classList.add('open');
   btn.disabled=false;btn.textContent='Generar link para mi cliente ('+selIds.length+' pisos)';
@@ -425,9 +415,7 @@ async function generarLinkCliente(){
 
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 function showError(msg){document.getElementById('main-content').innerHTML='<div style="text-align:center;padding:80px 20px"><div style="font-size:48px;margin-bottom:12px">\u26A0\uFE0F</div><p style="font-size:16px;color:var(--muted)">'+msg+'</p></div>'}
-
-document.addEventListener('keydown',e=>{if(!document.getElementById('lightbox').classList.contains('open'))return;if(e.key==='Escape')closeLightbox();if(e.key==='ArrowLeft')lbNav(-1);if(e.key==='ArrowRight')lbNav(1)});
-
+document.addEventListener('keydown',function(e){if(!document.getElementById('lightbox').classList.contains('open'))return;if(e.key==='Escape')closeLB();if(e.key==='ArrowLeft')lbNav(-1);if(e.key==='ArrowRight')lbNav(1)});
 init();
 </script>
 </body>
