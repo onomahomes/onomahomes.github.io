@@ -169,6 +169,9 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px
 
 /* Completed piso badge */
 .completed-badge{display:flex;align-items:center;gap:8px;padding:12px;border-radius:10px;font-family:var(--font-ui);font-size:13px;font-weight:600;margin-top:12px}
+/* Toggle switch */
+input[type="checkbox"]:checked + span { background: var(--gold) !important; }
+input[type="checkbox"]:checked ~ span:last-child { left: 22px !important; }
 .completed-badge.visit{background:rgba(44,95,46,0.08);color:var(--success)}
 .completed-badge.discard{background:rgba(139,32,32,0.06);color:var(--error)}
 .completed-badge.saved{background:rgba(201,168,76,0.1);color:var(--gold-dark)}
@@ -254,7 +257,7 @@ async function init() {
       const p = Array.isArray(m.piso) ? m.piso[0] : m.piso;
       return p ? String(p).replace(/[{}]/g, '') : null;
     }).filter(Boolean);
-    const { data: pisosData, error: pisoErr } = await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,planta,ascensor,terraza,garaje,trastero,estado_inmueble,fotos,descripcion_ia,urban_flip,video,planos,documentos').in('id', pisoIds);
+    const { data: pisosData, error: pisoErr } = await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,planta,ascensor,terraza,garaje,trastero,estado_inmueble,fotos,descripcion_ia,urban_flip,video,planos,documentos,ite,catastro,memoria_calidades').in('id', pisoIds);
     if (pisoErr) console.error('[CLIENTE] Piso query error:', pisoErr);
     const pisosMap = {};
     (pisosData||[]).forEach(p => { pisosMap[p.id] = p; });
@@ -389,18 +392,14 @@ function renderCurrent() {
 
   // Docs
   const docs = [];
+  if (p.ite) docs.push({ icon: '\uD83D\uDCC4', label: 'ITE', url: p.ite });
+  if (p.catastro) docs.push({ icon: '\uD83D\uDCD0', label: 'Catastro', url: p.catastro });
+  if (p.memoria_calidades) docs.push({ icon: '\uD83D\uDCCB', label: 'Memoria calidades', url: p.memoria_calidades });
   if (p.video) docs.push({ icon: '\uD83C\uDFA5', label: 'Video', url: p.video });
   if (p.planos) docs.push({ icon: '\uD83D\uDCD0', label: 'Planos', url: typeof p.planos === 'string' ? p.planos : '#' });
-  if (p.documentos) docs.push({ icon: '\uD83D\uDCC4', label: 'Documentos', url: typeof p.documentos === 'string' ? p.documentos : '#' });
 
   // Costs breakdown
   const precio = p.precio || 0;
-  const itp = Math.round(precio * 0.06);
-  const notaria = Math.round(precio * 0.003 + 300);
-  const registro = Math.round(precio * 0.002 + 200);
-  const gestoria = 800;
-  const honorarios = Math.round(precio * 0.03);
-  const total = precio + itp + notaria + registro + gestoria + honorarios;
 
   // AI text
   const aiText = _aiTexts[m.id];
@@ -469,17 +468,25 @@ function renderCurrent() {
         ${docs.length ? `<div class="docs-row">${docs.map(d => `<a class="doc-chip" href="${typeof d.url === 'string' ? d.url : '#'}" target="_blank">${d.icon} ${d.label}</a>`).join('')}</div>` : ''}
 
         <!-- Costs breakdown -->
-        <button class="costs-toggle" onclick="document.getElementById('costs-${m.id}').classList.toggle('open');this.querySelector('.arrow').textContent=document.getElementById('costs-${m.id}').classList.contains('open')?'\u25B2':'\u25BC'">
-          <span>\uD83D\uDCB0 Ver gastos totales</span><span class="arrow">\u25BC</span>
+        <button class="costs-toggle" onclick="toggleCosts('${m.id}')">
+          <span>\uD83D\uDCB0 Ver gastos totales</span><span class="arrow" id="costs-arrow-${m.id}">\u25BC</span>
         </button>
         <div class="costs-panel" id="costs-${m.id}">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 12px;border-bottom:1px solid rgba(0,0,0,0.05);margin-bottom:8px">
+            <label for="vh-${m.id}" style="font-size:13px;color:var(--text);cursor:pointer">\u00BFEs tu vivienda habitual?</label>
+            <label style="position:relative;width:44px;height:24px;cursor:pointer">
+              <input type="checkbox" id="vh-${m.id}" onchange="recalcCosts('${m.id}',${precio})" style="opacity:0;width:0;height:0">
+              <span style="position:absolute;inset:0;background:#ccc;border-radius:24px;transition:0.2s"></span>
+              <span style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)" id="vh-knob-${m.id}"></span>
+            </label>
+          </div>
           <div class="costs-row"><span class="label">Precio del piso</span><span class="value">${eur(precio)}</span></div>
-          <div class="costs-row"><span class="label">ITP (6%)</span><span class="value">${eur(itp)}</span></div>
+          <div class="costs-row"><span class="label" id="itp-label-${m.id}">ITP (6%)</span><span class="value" id="itp-val-${m.id}">${eur(Math.round(precio * 0.06))}</span></div>
           <div class="costs-row"><span class="label">Notar\u00EDa</span><span class="value">${eur(notaria)}</span></div>
           <div class="costs-row"><span class="label">Registro</span><span class="value">${eur(registro)}</span></div>
           <div class="costs-row"><span class="label">Gestor\u00EDa</span><span class="value">${eur(gestoria)}</span></div>
           <div class="costs-row"><span class="label">Honorarios ONOMA (3%)</span><span class="value">${eur(honorarios)}</span></div>
-          <div class="costs-row"><span class="label">Total inversi\u00F3n</span><span class="value" style="color:var(--gold-dark);font-size:15px">${eur(total)}</span></div>
+          <div class="costs-row"><span class="label">Total inversi\u00F3n</span><span class="value" id="total-val-${m.id}" style="color:var(--gold-dark);font-size:15px">${eur(precio + Math.round(precio*0.06) + notaria + registro + gestoria + honorarios)}</span></div>
         </div>
 
         ${completedHtml}
@@ -752,6 +759,27 @@ function showState(icon, title, msg) {
   document.getElementById('main-content').innerHTML = `
     <div class="state-msg"><div class="state-icon">${icon}</div><h2>${title}</h2><p>${msg}</p></div>
     <div class="footer-brand">ONOMA Homes \u00B7 onoma.es</div>`;
+}
+
+// Costs toggle + recalc
+function toggleCosts(mid) {
+  const panel = document.getElementById('costs-' + mid);
+  const arrow = document.getElementById('costs-arrow-' + mid);
+  panel.classList.toggle('open');
+  arrow.textContent = panel.classList.contains('open') ? '\u25B2' : '\u25BC';
+}
+function recalcCosts(mid, precio) {
+  const vh = document.getElementById('vh-' + mid).checked;
+  const rate = vh ? 0.054 : 0.06;
+  const itp = Math.round(precio * rate);
+  const notaria = Math.round(precio * 0.003 + 300);
+  const registro = Math.round(precio * 0.002 + 200);
+  const gestoria = 800;
+  const honorarios = Math.round(precio * 0.03);
+  const total = precio + itp + notaria + registro + gestoria + honorarios;
+  document.getElementById('itp-label-' + mid).textContent = 'ITP (' + (vh ? '5,4%' : '6%') + ')';
+  document.getElementById('itp-val-' + mid).textContent = eur(itp);
+  document.getElementById('total-val-' + mid).textContent = eur(total);
 }
 
 // Keyboard nav for lightbox
