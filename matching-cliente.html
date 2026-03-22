@@ -285,12 +285,15 @@ async function init() {
     } catch(e) {}
 
     _currentIdx = 0;
+    console.log('[CLIENTE] Ready to render', _pisos.length, 'pisos');
+    console.log('[CLIENTE] First piso:', _pisos[0]?.pisoData?.direccion, _pisos[0]?.pisoData?.precio);
     renderCurrent();
 
     // Pre-generate AI texts for all pisos
     _pisos.forEach((m, i) => generateAIText(m, i));
   } catch(e) {
-    showState('\u26A0\uFE0F', 'Error', 'No se pudieron cargar los datos: ' + e.message);
+    console.error('[CLIENTE] Init error:', e);
+    showState('\u26A0\uFE0F', 'Error', e.message + ' (l\u00EDnea: ' + (e.stack?.match(/:(\d+):/)?.[1] || '?') + ')');
   }
 }
 
@@ -364,10 +367,12 @@ Responde SOLO con el texto de recomendaci\u00F3n, sin comillas ni encabezados.`;
 
 // ─── RENDER CURRENT PISO ───
 function renderCurrent() {
+  try {
   if (_currentIdx >= _pisos.length) { finalize(); return; }
 
   const m = _pisos[_currentIdx];
   const p = m.pisoData;
+  console.log('[RENDER]', _currentIdx, 'dir:', p.direccion, 'precio:', p.precio, 'fotos type:', typeof p.fotos);
   const score = Math.round(m.score_matching || 0);
   const isUF = p.urban_flip;
   const done = _actions[m.id];
@@ -517,6 +522,10 @@ function renderCurrent() {
     <div class="footer-brand">ONOMA Homes \u00B7 onoma.es</div>
   `;
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch(renderErr) {
+    console.error('[RENDER ERROR]', renderErr);
+    document.getElementById('main-content').innerHTML = '<div style="padding:40px;text-align:center;color:red"><p>Error rendering: ' + renderErr.message + '</p><p style="font-size:11px;color:#999;margin-top:8px">' + (renderErr.stack||'').substring(0,200) + '</p></div>';
+  }
 }
 
 function goNext() {
