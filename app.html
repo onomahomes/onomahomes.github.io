@@ -1429,7 +1429,7 @@ async function openDirColabDetail(id) {
   const logoHtml = logoSrc
     ? `<img src="${logoSrc}" style="max-height:72px;max-width:140px;object-fit:contain;border-radius:8px;border:1px solid #eee">`
     : `<div style="width:56px;height:56px;border-radius:50%;background:${c.brand_color||'var(--accent)'};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:24px">${(c.nombre||'?').charAt(0)}</div>`;
-  const acuerdos = [c.acepta_broker_broker&&'Inter-Agencia 50/50',c.acepta_urban_flip&&'Urban Flip 2%+IVA',c.acepta_tripartita&&'Tripartita 33.33%'].filter(Boolean);
+  const acuerdos = [c.acepta_tripartita&&'Tripartita (25/37.5/37.5)',c.acepta_broker_broker&&'Broker-ONOMA (54.2/45.8)',c.acepta_urban_flip&&'Urban Flip 2%+IVA'].filter(Boolean);
   openModal(`Ficha: ${c.nombre||''} ${c.apellido||''}`,`
     <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:18px">
       ${logoHtml}
@@ -3058,9 +3058,9 @@ function openColabForm() {
     <div class="form-section">
       <div class="form-section-title">Tipo de acuerdo</div>
       <div class="checkbox-group">
-        <label class="checkbox-item"><input type="checkbox" name="acuerdo_inter"><div><div class="cb-label">Inter-Agencia 50/50</div><div class="cb-desc">Comisión compartida broker + ONOMA a partes iguales</div></div></label>
+        <label class="checkbox-item"><input type="checkbox" name="acuerdo_inter"><div><div class="cb-label">Broker cobra vendedor / ONOMA cobra comprador</div><div class="cb-desc">Escenario 2: Broker 54.2% / ONOMA 45.8% del total combinado</div></div></label>
         <label class="checkbox-item"><input type="checkbox" name="acuerdo_uf"><div><div class="cb-label">Urban Flip 2% + IVA</div><div class="cb-desc">Comisión fija en pisos Urban Flip</div></div></label>
-        <label class="checkbox-item"><input type="checkbox" name="acuerdo_trip"><div><div class="cb-label">Tripartita 33.33%</div><div class="cb-desc">Broker piso + broker demanda + ONOMA</div></div></label>
+        <label class="checkbox-item"><input type="checkbox" name="acuerdo_trip"><div><div class="cb-label">Tripartita</div><div class="cb-desc">Escenario 1: ONOMA 25% / Broker vendedor 37.5% / Broker comprador 37.5%</div></div></label>
       </div>
     </div>
   </form>`, 'lg', `
@@ -3145,9 +3145,9 @@ function generateAndShowContrato(colab, clausulas) {
   if (!clausulas.inter && !clausulas.uf && !clausulas.trip) {
     clausulasHtml = '<p><em>Colaboración general bajo las condiciones habituales de ONOMA Real Estate.</em></p>';
   }
-  if (clausulas.inter) clausulasHtml += `<h3 style="font-size:14px;margin:16px 0 8px;color:#333">Cláusula A — Inter-Agencia 50/50</h3><p>Las partes acuerdan distribuir los honorarios de intermediación al cincuenta por ciento (50%) en todas las operaciones en las que ambas partes aporten al comprador o al vendedor. La comisión se calculará sobre el total de honorarios percibidos, netos de IVA.</p>`;
-  if (clausulas.uf) clausulasHtml += `<h3 style="font-size:14px;margin:16px 0 8px;color:#333">Cláusula B — Urban Flip Capital 2% + IVA</h3><p>Para inmuebles incluidos en el programa Urban Flip de ONOMA Real Estate, el colaborador percibirá una comisión fija equivalente al dos por ciento (2%) del precio de venta, más el IVA correspondiente, con independencia del importe total de honorarios pactados con el vendedor.</p>`;
-  if (clausulas.trip) clausulasHtml += `<h3 style="font-size:14px;margin:16px 0 8px;color:#333">Cláusula C — Tripartita 33,33%</h3><p>En operaciones en las que intervengan tres partes diferenciadas (broker aportante del vendedor, broker aportante del comprador y ONOMA Real Estate como coordinador), los honorarios netos se distribuirán en tres partes iguales, correspondiendo un treinta y tres coma treinta y tres por ciento (33,33%) a cada una.</p>`;
+  if (clausulas.trip) clausulasHtml += `<h3 style="font-size:14px;margin:16px 0 8px;color:#333">Escenario 1 — Tripartita</h3><p>En operaciones tripartitas (broker vendedor + broker comprador + ONOMA), los honorarios cobrados al vendedor se distribuirán de la siguiente forma: ONOMA Real Estate percibe el veinticinco por ciento (25%), el broker aportante del vendedor percibe el treinta y siete coma cinco por ciento (37,5%), y el broker aportante del comprador percibe el treinta y siete coma cinco por ciento (37,5%) restante. Esta proporción es fija independientemente del porcentaje total pactado con el vendedor.</p>`;
+  if (clausulas.inter) clausulasHtml += `<h3 style="font-size:14px;margin:16px 0 8px;color:#333">Escenario 2 — Broker cobra vendedor / ONOMA cobra comprador</h3><p>En operaciones donde ambas partes (vendedor y comprador) abonan honorarios, el total combinado se distribuye de la siguiente forma: el colaborador (broker) percibe el cincuenta y cuatro coma dos por ciento (54,2%) y ONOMA Real Estate percibe el cuarenta y cinco coma ocho por ciento (45,8%). Esta proporción es fija independientemente de los porcentajes individuales cobrados a cada parte.</p>`;
+  if (clausulas.uf) clausulasHtml += `<h3 style="font-size:14px;margin:16px 0 8px;color:#333">Urban Flip Capital</h3><p>Para inmuebles incluidos en el programa Urban Flip de ONOMA Real Estate, la comisión del vendedor (2% + IVA) corresponde íntegramente a ONOMA. Si el colaborador aporta al comprador, se aplica el Escenario 2 sobre la parte del comprador.</p>`;
 
   const contratoHtml = `<div style="font-family:Georgia,serif;font-size:13px;line-height:1.7;color:#222">
     <div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #222">
