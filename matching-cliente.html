@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ONOMA — Tus pisos v3</title>
+<title>ONOMA — Pisos seleccionados para ti</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -181,7 +181,7 @@ textarea{width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px
 </div>
 
 <div class="container" id="main-content">
-  <div class="loading"><div class="spinner"></div><p style="margin-top:12px;color:var(--muted)">Cargando tus pisos... (v3)</p></div>
+  <div class="loading"><div class="spinner"></div><p style="margin-top:12px;color:var(--muted)">Cargando tus pisos...</p></div>
 </div>
 
 <!-- Lightbox -->
@@ -254,7 +254,8 @@ async function init() {
       const p = Array.isArray(m.piso) ? m.piso[0] : m.piso;
       return p ? String(p).replace(/[{}]/g, '') : null;
     }).filter(Boolean);
-    const { data: pisosData } = await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,planta,ascensor,terraza,garaje,trastero,piscina,jardin,parking,estado_inmueble,fotos,descripcion_ia,urban_flip,video,ite,catastro,memoria_calidades').in('id', pisoIds);
+    const { data: pisosData, error: pisoErr } = await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,planta,ascensor,terraza,garaje,trastero,estado_inmueble,fotos,descripcion_ia,urban_flip,video,planos,documentos').in('id', pisoIds);
+    if (pisoErr) console.error('[CLIENTE] Piso query error:', pisoErr);
     const pisosMap = {};
     (pisosData||[]).forEach(p => { pisosMap[p.id] = p; });
     console.log('[CLIENTE] Pisos loaded:', (pisosData||[]).length, 'IDs:', pisoIds);
@@ -382,18 +383,15 @@ function renderCurrent() {
     p.planta ? 'Planta ' + p.planta : '',
     p.ascensor ? 'Ascensor' : '',
     p.terraza ? 'Terraza' : '',
-    p.garaje || p.parking ? 'Parking' : '',
+    p.garaje ? 'Garaje' : '',
     p.trastero ? 'Trastero' : '',
-    p.piscina ? 'Piscina' : '',
-    p.jardin ? 'Jard\u00EDn' : '',
   ].filter(Boolean);
 
   // Docs
   const docs = [];
-  if (p.ite) docs.push({ icon: '\uD83D\uDCC4', label: 'ITE', url: p.ite });
-  if (p.catastro) docs.push({ icon: '\uD83D\uDCD0', label: 'Catastro', url: p.catastro });
-  if (p.memoria_calidades) docs.push({ icon: '\uD83D\uDCCB', label: 'Memoria calidades', url: p.memoria_calidades });
   if (p.video) docs.push({ icon: '\uD83C\uDFA5', label: 'Video', url: p.video });
+  if (p.planos) docs.push({ icon: '\uD83D\uDCD0', label: 'Planos', url: typeof p.planos === 'string' ? p.planos : '#' });
+  if (p.documentos) docs.push({ icon: '\uD83D\uDCC4', label: 'Documentos', url: typeof p.documentos === 'string' ? p.documentos : '#' });
 
   // Costs breakdown
   const precio = p.precio || 0;
