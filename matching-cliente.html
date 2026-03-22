@@ -491,11 +491,11 @@ function renderCurrent() {
           </div>
           <div class="costs-row"><span class="label">Precio del piso</span><span class="value">${eur(precio)}</span></div>
           <div class="costs-row"><span class="label" id="itp-label-${m.id}">ITP (6%)</span><span class="value" id="itp-val-${m.id}">${eur(Math.round(precio * 0.06))}</span></div>
-          <div class="costs-row"><span class="label">Notar\u00EDa</span><span class="value">${eur(notaria)}</span></div>
-          <div class="costs-row"><span class="label">Registro</span><span class="value">${eur(registro)}</span></div>
-          <div class="costs-row"><span class="label">Gestor\u00EDa</span><span class="value">${eur(gestoria)}</span></div>
-          <div class="costs-row"><span class="label">Honorarios ONOMA (3%)</span><span class="value">${eur(honorarios)}</span></div>
-          <div class="costs-row"><span class="label">Total inversi\u00F3n</span><span class="value" id="total-val-${m.id}" style="color:var(--gold-dark);font-size:15px">${eur(precio + Math.round(precio*0.06) + notaria + registro + gestoria + honorarios)}</span></div>
+          <div class="costs-row"><span class="label">Notar\u00EDa</span><span class="value">${eur(Math.round(precio * 0.003 + 300))}</span></div>
+          <div class="costs-row"><span class="label">Registro</span><span class="value">${eur(Math.round(precio * 0.002 + 200))}</span></div>
+          <div class="costs-row"><span class="label">Gestor\u00EDa</span><span class="value">${eur(800)}</span></div>
+          <div class="costs-row"><span class="label">Honorarios ONOMA (3%)</span><span class="value">${eur(Math.round(precio * 0.03))}</span></div>
+          <div class="costs-row"><span class="label">Total inversi\u00F3n</span><span class="value" id="total-val-${m.id}" style="color:var(--gold-dark);font-size:15px">${eur(precio + Math.round(precio*0.06) + Math.round(precio*0.003+300) + Math.round(precio*0.002+200) + 800 + Math.round(precio*0.03))}</span></div>
         </div>
 
         ${completedHtml}
