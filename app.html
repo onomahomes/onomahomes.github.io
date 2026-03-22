@@ -1474,7 +1474,26 @@ TAB_LOADERS.demandas = async function() {
       asesoresOpts = '<option value="">Todos los asesores</option>' + (ases||[]).map(a=>`<option value="${a.id}">${a.nombre}</option>`).join('');
     }
 
-    const demandasRows = (data||[]).map(d => `<tr data-tipo_origen="${d.tipo_origen||''}" data-asesor_id="${d.asesor_id||''}">
+    // Fetch stats: visitas + envios per demanda
+    const demIds = (data||[]).map(d => d.id);
+    const visitasMap = {}, enviosMap = {};
+    if (demIds.length) {
+      const { data: allV } = await sb.from('visitas').select('id,demanda,demanda_2');
+      (allV||[]).forEach(v => {
+        [v.demanda, v.demanda_2].forEach(ref => {
+          if (!ref) return;
+          const ids = Array.isArray(ref) ? ref : [ref];
+          ids.forEach(rid => { const k = String(rid).replace(/[{}]/g,''); visitasMap[k] = (visitasMap[k]||0)+1; });
+        });
+      });
+      const { data: allE } = await sb.from('envios_matching').select('id,demanda_id,estado').in('estado', ['enviado','seleccion_completada']);
+      (allE||[]).forEach(e => { if (e.demanda_id) enviosMap[e.demanda_id] = (enviosMap[e.demanda_id]||0)+1; });
+    }
+
+    const demandasRows = (data||[]).map(d => {
+      const vCount = visitasMap[d.id] || 0;
+      const eCount = enviosMap[d.id] || 0;
+      return `<tr data-tipo_origen="${d.tipo_origen||''}" data-asesor_id="${d.asesor_id||''}">
       <td class="name-cell" style="font-weight:600">${d.nombre||'—'}</td>
       ${isDir ? `<td style="font-size:13px;color:var(--text-muted)">${asesoresMap[d.asesor_id]||'—'}</td>` : ''}
       <td style="color:var(--text-muted)">${d.zona_preferida||'—'}</td>
@@ -1482,8 +1501,10 @@ TAB_LOADERS.demandas = async function() {
       <td style="text-align:center">${d.habitaciones_min||'—'}</td>
       <td><span class="pill ${d.tipo_origen==='colaborador'?'pill-blue':'pill-green'}">${d.tipo_origen==='colaborador'?'Colab.':'Directo'}</span></td>
       <td><span class="pill ${d.estado_matching==='enviado'?'pill-green':d.estado_matching==='pendiente'?'pill-yellow':'pill-gray'}">${d.estado_matching||'pendiente'}</span></td>
+      <td style="text-align:center;font-weight:600">${vCount||'—'}</td>
+      <td style="text-align:center;font-weight:600">${eCount||'—'}</td>
       <td><button class="btn btn-secondary btn-sm" onclick="openDemandaDetail('${d.id}')">Ver Ficha</button></td>
-    </tr>`).join('');
+    </tr>`;}).join('');
 
     pane.innerHTML = `
       <div class="tab-toolbar">
@@ -1501,7 +1522,7 @@ TAB_LOADERS.demandas = async function() {
       </div>
       ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">📋</span><p>Aún no hay demandas registradas.</p><button class="btn btn-primary" onclick="newDemandaModal()">➕ Crear primera demanda</button></div>` : `
       <div class="data-table"><table>
-        <thead><tr><th>Cliente</th>${isDir?'<th>Asesor</th>':''}<th>Zona</th><th>Presupuesto</th><th>Hab.</th><th>Origen</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>Cliente</th>${isDir?'<th>Asesor</th>':''}<th>Zona</th><th>Presupuesto</th><th>Hab.</th><th>Origen</th><th>Estado</th><th>Visitas</th><th>Envíos</th><th>Acciones</th></tr></thead>
         <tbody>${demandasRows}</tbody>
       </table></div>`}`;
   } catch(e) { tabError(pane, e); }
