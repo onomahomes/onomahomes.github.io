@@ -2074,9 +2074,7 @@ function openMatchReview(demandaId) {
   }).join('');
 
   const approvedIds = dMatches.filter(m => m.estado === 'aprobado').map(m => m.id);
-  const canGenerate = approvedIds.length > 0;
-
-  const canGenerate = approved.length > 0;
+  const canGenerate = approvedIds.length > 0 || approved.length > 0;
 
   openModal(`Revisar matchings: ${d.nombre||'—'}`, `
     <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
@@ -2281,7 +2279,6 @@ async function generateEnvio(demandaId) {
 
   const linkHash = Math.random().toString(36).substring(2,14);
   const isDirecto = d.tipo_origen === 'comprador_directo' || d.tipo_origen === 'directo';
-  const linkUrl = GH_PAGES + '/matchings-cliente.html?h=' + linkHash;
 
   // Build piso details for the message
   const pisosDetails = approved.map(m => {
