@@ -535,19 +535,43 @@ async function handleLogin(e) {
   const errEl = document.getElementById('login-error');
   btn.disabled = true; btn.textContent = 'Entrando…'; errEl.style.display = 'none';
   try {
-    const { data: authData, error: authErr } = await sb.auth.signInWithPassword({ email, password });
-    if (authErr) throw new Error(authErr.message);
+    // Try Supabase SDK first
+    let authUserId = null;
+    try {
+      const { data: authData, error: authErr } = await sb.auth.signInWithPassword({ email, password });
+      if (authErr) throw authErr;
+      authUserId = authData.user.id;
+    } catch(sdkErr) {
+      // Fallback: direct REST API call
+      const resp = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+        method: 'POST', headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const authJson = await resp.json();
+      if (!resp.ok || !authJson.user) throw new Error(authJson.error_description || authJson.msg || 'Credenciales incorrectas');
+      authUserId = authJson.user.id;
+    }
+    // Query asesor by supabase_auth_id
     const { data: rows, error: dbErr } = await sb.from('asesores')
       .select('id, nombre, email, rol, supabase_auth_id')
-      .eq('supabase_auth_id', authData.user.id).limit(1);
+      .eq('supabase_auth_id', authUserId).limit(1);
     if (dbErr) throw new Error(dbErr.message);
-    if (!rows || rows.length === 0) throw new Error('Perfil de asesor no encontrado. Contacta con administración.');
-    const p = rows[0];
-    currentUser = { id: p.id, nombre: p.nombre || email.split('@')[0], email: p.email || email, rol: p.rol || 'asesor', supabase_auth_id: p.supabase_auth_id };
+    // Fallback: try by email if supabase_auth_id not found
+    let p = rows && rows[0] ? rows[0] : null;
+    if (!p) {
+      const { data: rows2 } = await sb.from('asesores').select('id, nombre, email, rol, supabase_auth_id').eq('email', email).limit(1);
+      p = rows2 && rows2[0] ? rows2[0] : null;
+      // Update supabase_auth_id if found by email
+      if (p && authUserId) {
+        sb.from('asesores').update({ supabase_auth_id: authUserId }).eq('id', p.id).then(() => {});
+      }
+    }
+    if (!p) throw new Error('Perfil de asesor no encontrado. Contacta con administración.');
+    currentUser = { id: p.id, nombre: p.nombre || email.split('@')[0], email: p.email || email, rol: p.rol || 'asesor', supabase_auth_id: authUserId };
     sessionStorage.setItem('crm_user', JSON.stringify(currentUser));
     showApp();
   } catch (err) {
-    errEl.textContent = err.message; errEl.style.display = 'block';
+    errEl.textContent = err.message || 'Error de conexión'; errEl.style.display = 'block';
     btn.disabled = false; btn.textContent = 'Entrar';
   }
 }
