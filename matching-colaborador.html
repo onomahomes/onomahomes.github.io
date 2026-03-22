@@ -3,102 +3,139 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ONOMA — Selección de pisos</title>
+<title>ONOMA — Selecci&oacute;n de pisos</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --bg: #F5F4F1; --card: #FFFFFF; --text: #1C1C1C; --muted: #7A6E66; --border: #D7D6D4;
-  --gold: #C9A84C; --gold-dark: #B8962E; --gold-bg: rgba(201,168,76,0.10);
-  --success: #2C5F2E; --error: #8B2020; --warning: #B8860B;
-  --accent: var(--gold); --font: 'Barlow', sans-serif; --font-ui: 'Jost', sans-serif;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
-.header { background: #232320; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
-.header-logo { height: 28px; }
-.header-colab { display: flex; align-items: center; gap: 10px; }
-.header-colab img { height: 32px; border-radius: 6px; }
-.header-colab span { color: rgba(255,255,255,0.6); font-size: 12px; font-family: var(--font-ui); }
-.container { max-width: 680px; margin: 0 auto; padding: 20px 16px 100px; }
-.hero { text-align: center; padding: 28px 0 20px; }
-.hero h1 { font-family: var(--font-ui); font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-.hero p { font-size: 14px; color: var(--muted); }
-.toggle { display: flex; background: #e8e7e4; border-radius: 100px; padding: 3px; margin: 0 auto 24px; max-width: 320px; }
-.toggle button { flex: 1; padding: 10px 16px; border: none; border-radius: 100px; font-family: var(--font-ui); font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: var(--muted); transition: all 0.2s; }
-.toggle button.active { background: white; color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
-.counter { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 20px; }
-.counter strong { color: var(--text); }
-.piso-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; margin-bottom: 16px; overflow: hidden; transition: border-color 0.2s; }
-.piso-card.urban-flip { border-color: var(--gold); }
-.piso-card.eliminado { opacity: 0.4; }
-.piso-img { width: 100%; height: 200px; object-fit: cover; }
-.piso-img-ph { width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; background: #f3f2ef; font-size: 56px; }
-.piso-body { padding: 16px; }
-.piso-dir { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
-.piso-meta { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-.piso-precio { font-family: var(--font-ui); font-size: 22px; font-weight: 700; margin-bottom: 10px; }
-.pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-.pill { display: inline-flex; padding: 3px 10px; border-radius: 100px; font-family: var(--font-ui); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(0,0,0,0.05); color: var(--muted); }
-.pill-gold { background: var(--gold-bg); color: var(--gold-dark); border: 1px solid rgba(201,168,76,0.3); }
-.pill-green { background: rgba(44,95,46,0.08); color: var(--success); }
-.score-ring { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; }
-.desc-ia { font-size: 13px; line-height: 1.6; color: var(--text); background: #f9f8f6; padding: 12px; border-radius: 8px; border-left: 3px solid var(--gold); margin-bottom: 12px; }
-.uf-badge { background: var(--gold); color: #1C1C1C; font-family: var(--font-ui); font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
-.comision-box { background: var(--gold-bg); border: 1px solid rgba(201,168,76,0.3); border-radius: 10px; padding: 14px; margin-top: 10px; }
-.comision-big { font-family: var(--font-ui); font-size: 28px; font-weight: 700; color: var(--gold-dark); }
-.comision-detail { font-size: 12px; color: var(--muted); margin-top: 4px; }
-.actions { display: flex; gap: 8px; margin-top: 12px; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 18px; border-radius: 6px; font-family: var(--font-ui); font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
-.btn-select { background: var(--gold); color: #1C1C1C; flex: 1; }
-.btn-select.selected { background: var(--success); color: white; }
-.btn-remove { background: transparent; color: var(--error); border: 1.5px solid rgba(139,32,32,0.25); flex: 1; }
-.btn-remove:disabled { opacity: 0.3; cursor: not-allowed; }
-.btn-primary { background: var(--gold); color: #1C1C1C; }
-.btn-secondary { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
-.fixed-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1.5px solid var(--border); padding: 14px 20px; display: flex; gap: 10px; justify-content: center; z-index: 100; box-shadow: 0 -4px 16px rgba(0,0,0,0.08); }
-.fixed-bar .btn { padding: 14px 24px; font-size: 14px; }
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(35,35,32,0.6); backdrop-filter: blur(3px); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
-.modal-overlay.open { display: flex; }
-.modal { background: white; border-radius: 12px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 28px; }
-.modal h3 { font-family: var(--font-ui); font-size: 17px; font-weight: 700; margin-bottom: 12px; }
-textarea { width: 100%; font-family: inherit; font-size: 13px; padding: 10px; border: 1.5px solid var(--border); border-radius: 8px; resize: vertical; }
-.link-box { display: flex; gap: 8px; align-items: center; background: #f3f2ef; border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin: 10px 0; }
-.link-text { flex: 1; font-size: 11px; color: var(--gold-dark); word-break: break-all; font-family: monospace; }
-.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; }
-.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.footer-brand { text-align: center; font-size: 11px; color: var(--muted); padding: 20px; margin-bottom: 80px; }
-.expand-btn { font-size: 12px; color: var(--gold-dark); cursor: pointer; margin-top: 8px; background: none; border: none; font-family: var(--font-ui); font-weight: 500; }
+:root{--bg:#F8F7F4;--card:#FFF;--text:#2D2D2D;--muted:#7A6E66;--border:#D7D6D4;--gold:#C9A84C;--gold-dark:#B8962E;--gold-bg:rgba(201,168,76,.10);--success:#2C5F2E;--error:#8B2020;--warning:#B8860B;--accent:var(--gold);--font:'Barlow',sans-serif;--font-ui:'Jost',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+.header{background:#232320;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+.header svg{height:28px;width:120px}
+.header-right{display:flex;align-items:center;gap:10px}
+.header-right img{height:32px;border-radius:6px}
+.container{max-width:680px;margin:0 auto;padding:20px 16px 120px}
+.hero{text-align:center;padding:24px 0 20px}
+.hero h1{font-family:var(--font-ui);font-size:20px;font-weight:700;margin-bottom:6px;line-height:1.3}
+.hero p{font-size:14px;color:var(--muted)}
+.counter{text-align:center;font-size:13px;color:var(--muted);margin-bottom:20px;font-family:var(--font-ui)}
+.counter strong{color:var(--text)}
+
+/* Carousel */
+.carousel{position:relative;width:100%;height:220px;overflow:hidden;background:#f3f2ef;cursor:pointer}
+.carousel img{width:100%;height:100%;object-fit:cover;display:none}
+.carousel img.active{display:block}
+.carousel-ph{width:100%;height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#f3f2ef,#e8e7e4);font-size:48px;color:var(--muted);gap:6px}
+.carousel-ph span{font-size:11px;font-family:var(--font-ui)}
+.carousel-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.9);border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;z-index:2;box-shadow:0 1px 6px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center}
+.carousel-prev{left:8px}.carousel-next{right:8px}
+.carousel-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:2}
+.carousel-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);border:none;cursor:pointer;padding:0}
+.carousel-dot.active{background:white}
+.carousel-counter{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);color:white;font-size:10px;padding:2px 7px;border-radius:10px;font-family:var(--font-ui);z-index:2}
+
+/* Lightbox */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;align-items:center;justify-content:center;flex-direction:column}
+.lightbox.open{display:flex}
+.lightbox img{max-width:95vw;max-height:80vh;object-fit:contain;border-radius:4px}
+.lightbox-close{position:absolute;top:16px;right:16px;background:none;border:none;color:white;font-size:28px;cursor:pointer;z-index:501}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:white;font-size:22px;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lightbox-prev{left:12px}.lightbox-next{right:12px}
+
+/* Piso card */
+.piso-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;transition:all .2s}
+.piso-card.urban-flip{border-color:var(--gold)}
+.piso-card.selected{border-color:var(--success);box-shadow:0 0 0 1px var(--success)}
+.piso-card.eliminado{opacity:.35;pointer-events:none}
+.piso-body{padding:16px}
+.piso-dir{font-weight:700;font-size:16px;margin-bottom:4px}
+.piso-barrio{font-size:13px;color:var(--muted);margin-bottom:8px}
+.piso-precio{font-family:var(--font-ui);font-size:24px;font-weight:700;margin-bottom:10px}
+.uf-badge{background:var(--gold);color:#1C1C1C;font-family:var(--font-ui);font-size:10px;font-weight:700;padding:4px 10px;border-radius:4px;display:inline-block;margin-bottom:8px}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.pill{display:inline-flex;padding:3px 10px;border-radius:100px;font-family:var(--font-ui);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;background:rgba(0,0,0,.05);color:var(--muted)}
+.score-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.score-row span{font-size:12px;color:var(--muted)}
+
+/* Per-card toggle */
+.card-toggle{display:flex;background:#e8e7e4;border-radius:100px;padding:2px;margin-bottom:14px}
+.card-toggle button{flex:1;padding:7px 12px;border:none;border-radius:100px;font-family:var(--font-ui);font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s}
+.card-toggle button.active{background:white;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+
+/* Docs */
+.docs-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.doc-chip{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);font-size:11px;font-family:var(--font-ui);font-weight:500;color:var(--text);background:white;cursor:pointer;text-decoration:none}
+.doc-chip:hover{border-color:var(--gold);background:var(--gold-bg)}
+
+/* Commission */
+.comision-box{background:var(--gold-bg);border:1px solid rgba(201,168,76,.3);border-radius:10px;padding:14px;margin-bottom:12px}
+.comision-big{font-family:var(--font-ui);font-size:28px;font-weight:700;color:var(--gold-dark)}
+.comision-detail{font-size:12px;color:var(--muted);margin-top:4px}
+.comision-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0}
+.comision-row .label{color:var(--muted)}.comision-row .val{font-weight:600}
+
+/* Description */
+.desc-ia{font-size:13px;line-height:1.6;color:var(--text);background:#f9f8f6;padding:12px;border-radius:8px;border-left:3px solid var(--gold);margin-bottom:12px}
+
+/* Action buttons */
+.actions{display:flex;gap:8px;margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:8px;font-family:var(--font-ui);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;text-transform:uppercase;letter-spacing:.05em}
+.btn-select{background:var(--gold);color:#1C1C1C;flex:1}
+.btn-select.selected{background:var(--success);color:white}
+.btn-remove{background:transparent;color:var(--error);border:1.5px solid rgba(139,32,32,.25);flex:1}
+.btn-primary{background:var(--gold);color:#1C1C1C}
+.btn-primary:hover{background:var(--gold-dark)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-secondary{background:transparent;color:var(--text);border:1.5px solid var(--border)}
+
+/* Fixed bar */
+.fixed-bar{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1.5px solid var(--border);padding:14px 20px;display:flex;gap:10px;justify-content:center;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.08)}
+.fixed-bar .btn{padding:14px 24px;font-size:14px}
+
+/* Modals */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(35,35,32,.6);backdrop-filter:blur(3px);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:14px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;padding:24px}
+.modal h3{font-family:var(--font-ui);font-size:17px;font-weight:700;margin-bottom:12px}
+textarea{width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px solid var(--border);border-radius:8px;resize:vertical}
+.link-box{display:flex;gap:8px;align-items:center;background:#f3f2ef;border:1px solid var(--border);border-radius:8px;padding:10px;margin:10px 0}
+.link-text{flex:1;font-size:11px;color:var(--gold-dark);word-break:break-all;font-family:monospace}
+.reason-opt{display:flex;align-items:center;gap:8px;padding:11px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;margin-bottom:6px;transition:border-color .15s}
+.reason-opt:hover{border-color:var(--gold)}
+.reason-opt.selected{border-color:var(--gold);background:var(--gold-bg)}
+
+/* States */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.footer-brand{text-align:center;font-size:11px;color:var(--muted);padding:20px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#232320;color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-family:var(--font-ui);z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <svg viewBox="0 0 1911 312" xmlns="http://www.w3.org/2000/svg" class="header-logo" style="width:120px;height:auto" fill="#FFFFFF"><path d="M250.74,41.54c-12.01-13.34-26.94-23.61-44.79-30.78C188.09,3.59,167.15,0,143.14,0c-31.7,0-58.23,6.26-79.58,18.77-21.35,12.51-37.28,30.36-47.8,53.55C5.25,95.52,0,123.12,0,155.15c0,24.02,2.91,45.63,8.75,64.82,5.84,19.18,14.68,35.53,26.53,49.04,11.84,13.52,26.78,23.94,44.79,31.29,18.02,7.33,39.04,11.01,63.07,11.01,32.36,0,59.05-6.35,80.08-19.02,21.02-12.68,36.78-30.7,47.29-54.06,10.51-23.36,15.77-51.05,15.77-83.08,0-24.02-2.92-45.62-8.76-64.81-5.83-19.19-14.76-35.45-26.77-48.8ZM239.73,220.96c-7.01,18.86-18.35,33.45-34.03,43.79-15.68,10.36-36.54,15.52-62.56,15.52s-46.88-5.16-62.57-15.52c-15.68-10.33-27.02-24.92-34.03-43.79-7.01-18.84-10.52-40.78-10.52-65.81s3.59-47.29,10.76-65.81c7.17-18.52,18.6-32.79,34.28-42.79,15.68-10.01,36.37-15.01,62.06-15.01s46.79,5,62.31,15.01c15.51,10.01,26.85,24.19,34.03,42.55,7.17,18.35,10.76,40.38,10.76,66.06s-3.5,46.98-10.51,65.81Z"/><path d="M622.59,91.09c0,16.02.33,33.04,1,51.05.66,18.01,1.5,35.95,2.5,53.81,1,17.84,2.16,34.62,3.5,50.29.86,10.15,1.72,18.95,2.59,27.15l-21.24.61c-2.02-5.54-4.24-11.42-6.87-18-4.33-10.84-9.18-22.43-14.51-34.79-5.34-12.33-11.26-24.85-17.77-37.53-6.51-12.67-13.26-25.03-20.27-37.03L468.94,5.51h-57.55v300.28h34.03v-85.58c0-12.68-.08-26.11-.25-40.29-.17-14.19-.5-28.53-1-43.04-.5-14.53-1.17-28.78-2-42.79-.83-14.02-1.75-27.2-2.75-39.54-.5-6.11-1.04-11.9-1.62-17.36l22.11-1.1c2.01,5.13,3.93,10.05,6.03,15.45,4,10.35,8.26,20.86,12.76,31.53,4.5,10.69,9.34,21.28,14.51,31.78,5.17,10.5,10.43,20.61,15.77,30.28l93.59,160.65h54.06V5.51h-34.03v85.58Z"/><path d="M1032.48,41.54c-12.01-13.34-26.94-23.61-44.79-30.78-17.85-7.17-38.79-10.76-62.81-10.76-31.7,0-58.23,6.26-79.58,18.77-21.35,12.51-37.28,30.36-47.8,53.55-10.51,23.2-15.76,50.8-15.76,82.83,0,24.02,2.91,45.63,8.75,64.82,5.84,19.18,14.68,35.53,26.53,49.04,11.84,13.52,26.78,23.94,44.79,31.29,18.02,7.33,39.04,11.01,63.06,11.01,32.36,0,59.06-6.35,80.08-19.02,21.02-12.68,36.78-30.7,47.29-54.06,10.51-23.36,15.77-51.05,15.77-83.08,0-24.02-2.92-45.62-8.76-64.81-5.83-19.19-14.76-35.45-26.77-48.8ZM828.54,89.34c7.17-18.52,18.6-32.79,34.28-42.79,15.68-10.01,36.37-15.01,62.06-15.01s46.79,5,62.31,15.01c15.51,10.01,26.85,24.19,34.03,42.55,7.17,18.35,10.76,40.38,10.76,66.06,0,10.75-.97,20.65-2.26,30.27l-104.12-69.03-105.36,71.86c-1.55-10.4-2.47-21.35-2.47-33.1,0-25.36,3.59-47.29,10.76-65.81ZM987.44,264.75c-12.17,8.03-27.53,12.85-45.92,14.66v-72.57h-.08l-16.05-10.65-15.7,10.65h-.09v72.63c-18.97-1.7-34.82-6.51-47.27-14.72-15.58-10.27-26.85-24.75-33.87-43.43l97.41-66.45,96.22,63.79c-.26.72-.33,1.61-.6,2.31-7.01,18.86-18.35,33.45-34.03,43.79Z"/><path d="M1393.33,143.64c-2.68,7-5.76,15.6-9.26,25.77-3.5,10.19-6.93,20.77-10.26,31.78-3.34,11.01-6.51,21.51-9.51,31.52-.27.9-.48,1.63-.74,2.51h-18.28c-3.01-10.01-6.43-20.77-10.26-32.28-3.84-11.51-7.51-22.52-11.01-33.04-3.51-10.5-6.43-19.09-8.76-25.77l-53.55-138.63h-68.57v300.28h34.03V54.81c0-7.12-.08-13.68-.22-19.78h16.96c1.69,6.05,3.44,12.27,5.28,18.77,4,14.19,8.52,29.03,13.52,44.55,5,15.51,10.34,30.78,16.01,45.79l50.55,124.13h43.54l52.05-122.13c6-14.34,11.59-29.18,16.77-44.55,5.17-15.34,10.09-30.52,14.77-45.54,2.26-7.29,4.36-14.28,6.31-21.02h19.05c-.08,5.93-.2,12.31-.34,19.27-.34,15.52-.68,31.7-1,48.54-.34,16.85-.5,32.12-.5,45.8v157.15h36.03V5.51h-66.06l-56.55,138.13Z"/><path d="M1794.71,5.51h-55.05l-115.61,300.28h37.54l32.36-88.58h145.18l32.66,88.58h38.54L1794.71,5.51ZM1703.63,190.68l15-41.04c5.34-15.01,10.68-30.52,16.02-46.54,5.33-16,10.34-31.52,15.01-46.54,2.44-7.86,4.63-15.15,6.62-22.01h21.93c1.72,6.45,3.63,13.46,5.73,21.02,4.17,15.02,8.92,30.7,14.26,47.04,5.33,16.36,10.68,32.03,16.01,47.04l15.13,41.04h-125.71Z"/></svg>
-  <div class="header-colab" id="header-colab"></div>
+  <svg viewBox="0 0 1911 312" xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF"><path d="M250.74,41.54c-12.01-13.34-26.94-23.61-44.79-30.78C188.09,3.59,167.15,0,143.14,0c-31.7,0-58.23,6.26-79.58,18.77-21.35,12.51-37.28,30.36-47.8,53.55C5.25,95.52,0,123.12,0,155.15c0,24.02,2.91,45.63,8.75,64.82,5.84,19.18,14.68,35.53,26.53,49.04,11.84,13.52,26.78,23.94,44.79,31.29,18.02,7.33,39.04,11.01,63.07,11.01,32.36,0,59.05-6.35,80.08-19.02,21.02-12.68,36.78-30.7,47.29-54.06,10.51-23.36,15.77-51.05,15.77-83.08,0-24.02-2.92-45.62-8.76-64.81-5.83-19.19-14.76-35.45-26.77-48.8ZM239.73,220.96c-7.01,18.86-18.35,33.45-34.03,43.79-15.68,10.36-36.54,15.52-62.56,15.52s-46.88-5.16-62.57-15.52c-15.68-10.33-27.02-24.92-34.03-43.79-7.01-18.84-10.52-40.78-10.52-65.81s3.59-47.29,10.76-65.81c7.17-18.52,18.6-32.79,34.28-42.79,15.68-10.01,36.37-15.01,62.06-15.01s46.79,5,62.31,15.01c15.51,10.01,26.85,24.19,34.03,42.55,7.17,18.35,10.76,40.38,10.76,66.06s-3.5,46.98-10.51,65.81Z"/><path d="M622.59,91.09c0,16.02.33,33.04,1,51.05.66,18.01,1.5,35.95,2.5,53.81,1,17.84,2.16,34.62,3.5,50.29.86,10.15,1.72,18.95,2.59,27.15l-21.24.61c-2.02-5.54-4.24-11.42-6.87-18-4.33-10.84-9.18-22.43-14.51-34.79-5.34-12.33-11.26-24.85-17.77-37.53-6.51-12.67-13.26-25.03-20.27-37.03L468.94,5.51h-57.55v300.28h34.03v-85.58c0-12.68-.08-26.11-.25-40.29-.17-14.19-.5-28.53-1-43.04-.5-14.53-1.17-28.78-2-42.79-.83-14.02-1.75-27.2-2.75-39.54-.5-6.11-1.04-11.9-1.62-17.36l22.11-1.1c2.01,5.13,3.93,10.05,6.03,15.45,4,10.35,8.26,20.86,12.76,31.53,4.5,10.69,9.34,21.28,14.51,31.78,5.17,10.5,10.43,20.61,15.77,30.28l93.59,160.65h54.06V5.51h-34.03v85.58Z"/><path d="M1032.48,41.54c-12.01-13.34-26.94-23.61-44.79-30.78-17.85-7.17-38.79-10.76-62.81-10.76-31.7,0-58.23,6.26-79.58,18.77-21.35,12.51-37.28,30.36-47.8,53.55-10.51,23.2-15.76,50.8-15.76,82.83,0,24.02,2.91,45.63,8.75,64.82,5.84,19.18,14.68,35.53,26.53,49.04,11.84,13.52,26.78,23.94,44.79,31.29,18.02,7.33,39.04,11.01,63.06,11.01,32.36,0,59.06-6.35,80.08-19.02,21.02-12.68,36.78-30.7,47.29-54.06,10.51-23.36,15.77-51.05,15.77-83.08,0-24.02-2.92-45.62-8.76-64.81-5.83-19.19-14.76-35.45-26.77-48.8ZM828.54,89.34c7.17-18.52,18.6-32.79,34.28-42.79,15.68-10.01,36.37-15.01,62.06-15.01s46.79,5,62.31,15.01c15.51,10.01,26.85,24.19,34.03,42.55,7.17,18.35,10.76,40.38,10.76,66.06,0,10.75-.97,20.65-2.26,30.27l-104.12-69.03-105.36,71.86c-1.55-10.4-2.47-21.35-2.47-33.1,0-25.36,3.59-47.29,10.76-65.81ZM987.44,264.75c-12.17,8.03-27.53,12.85-45.92,14.66v-72.57h-.08l-16.05-10.65-15.7,10.65h-.09v72.63c-18.97-1.7-34.82-6.51-47.27-14.72-15.58-10.27-26.85-24.75-33.87-43.43l97.41-66.45,96.22,63.79c-.26.72-.33,1.61-.6,2.31-7.01,18.86-18.35,33.45-34.03,43.79Z"/><path d="M1393.33,143.64c-2.68,7-5.76,15.6-9.26,25.77-3.5,10.19-6.93,20.77-10.26,31.78-3.34,11.01-6.51,21.51-9.51,31.52-.27.9-.48,1.63-.74,2.51h-18.28c-3.01-10.01-6.43-20.77-10.26-32.28-3.84-11.51-7.51-22.52-11.01-33.04-3.51-10.5-6.43-19.09-8.76-25.77l-53.55-138.63h-68.57v300.28h34.03V54.81c0-7.12-.08-13.68-.22-19.78h16.96c1.69,6.05,3.44,12.27,5.28,18.77,4,14.19,8.52,29.03,13.52,44.55,5,15.51,10.34,30.78,16.01,45.79l50.55,124.13h43.54l52.05-122.13c6-14.34,11.59-29.18,16.77-44.55,5.17-15.34,10.09-30.52,14.77-45.54,2.26-7.29,4.36-14.28,6.31-21.02h19.05c-.08,5.93-.2,12.31-.34,19.27-.34,15.52-.68,31.7-1,48.54-.34,16.85-.5,32.12-.5,45.8v157.15h36.03V5.51h-66.06l-56.55,138.13Z"/><path d="M1794.71,5.51h-55.05l-115.61,300.28h37.54l32.36-88.58h145.18l32.66,88.58h38.54L1794.71,5.51ZM1703.63,190.68l15-41.04c5.34-15.01,10.68-30.52,16.02-46.54,5.33-16,10.34-31.52,15.01-46.54,2.44-7.86,4.63-15.15,6.62-22.01h21.93c1.72,6.45,3.63,13.46,5.73,21.02,4.17,15.02,8.92,30.7,14.26,47.04,5.33,16.36,10.68,32.03,16.01,47.04l15.13,41.04h-125.71Z"/></svg>
+  <div class="header-right" id="header-right"></div>
 </div>
 
 <div class="container" id="main-content">
   <div class="loading"><div class="spinner"></div><p style="margin-top:12px;color:var(--muted)">Cargando pisos...</p></div>
 </div>
 
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <button class="lightbox-nav lightbox-prev" onclick="lbNav(-1)">&lsaquo;</button>
+  <img id="lb-img" src="">
+  <button class="lightbox-nav lightbox-next" onclick="lbNav(1)">&rsaquo;</button>
+</div>
+
 <!-- Discard modal -->
 <div class="modal-overlay" id="discard-modal">
-  <div class="modal">
-    <h3>¿Por qué eliminas este piso?</h3>
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px" id="discard-reasons">
-      <label style="display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px"><input type="radio" name="dr" value="Fuera de presupuesto del cliente"> Fuera de presupuesto del cliente</label>
-      <label style="display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px"><input type="radio" name="dr" value="Zona no interesa"> Zona no interesa</label>
-      <label style="display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px"><input type="radio" name="dr" value="No cumple requisitos"> No cumple requisitos</label>
-      <label style="display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px"><input type="radio" name="dr" value="Otro"> Otro</label>
-    </div>
-    <textarea id="discard-notes" rows="2" placeholder="Notas adicionales..."></textarea>
-    <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end">
-      <button class="btn btn-secondary" onclick="closeDiscardModal()">Cancelar</button>
-      <button class="btn" style="background:var(--error);color:white" onclick="confirmDiscard()">Confirmar</button>
-    </div>
-  </div>
+  <div class="modal" id="discard-modal-content"></div>
 </div>
 
 <!-- Envio modal -->
@@ -106,267 +143,290 @@ textarea { width: 100%; font-family: inherit; font-size: 13px; padding: 10px; bo
   <div class="modal" id="envio-modal-content"></div>
 </div>
 
+<div class="toast" id="toast-el"></div>
+
 <script>
-const SB_URL = 'https://wwaytwudfbwxttyyojjx.supabase.co';
-const SB_KEY = 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
-const sb = supabase.createClient(SB_URL, SB_KEY);
-const GH_PAGES = 'https://onomahomes.github.io';
+const SB_URL='https://wwaytwudfbwxttyyojjx.supabase.co';
+const SB_KEY='sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const GH_PAGES='https://onomahomes.github.io';
+const N8N='https://onomahomes.app.n8n.cloud/webhook';
 
-let _envio = null, _pisos = [], _colab = {}, _demanda = {}, _selected = new Set(), _discarded = new Set();
-let _discardingId = null, _viewMode = 'cliente';
+let _envio=null,_pisos=[],_colab={},_demanda={},_comisiones={};
+let _selected=new Set(),_discarded=new Set(),_discardingId=null;
+let _cardModes={}; // {matchingId: 'info'|'comision'}
+let _lbPhotos=[],_lbIdx=0;
 
-function eur(n) { return n ? '€' + Number(n).toLocaleString('es-ES') : '—'; }
+function eur(n){return n?Number(n).toLocaleString('es-ES')+' \u20AC':'\u2014'}
+function toast(msg){const el=document.getElementById('toast-el');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500)}
 
-async function init() {
-  const params = new URLSearchParams(location.search);
-  const linkHash = params.get('id') || params.get('h');
-  if (!linkHash) { showError('Link inválido'); return; }
+async function init(){
+  const params=new URLSearchParams(location.search);
+  const linkHash=params.get('id')||params.get('h');
+  if(!linkHash){showError('Link inv\u00E1lido');return}
 
-  try {
-    // Load envio
-    const { data: envios } = await sb.from('envios_matching').select('*').eq('link_hash', linkHash).limit(1);
-    if (!envios || !envios.length) { showError('Este enlace no es válido o ha expirado'); return; }
-    _envio = envios[0];
+  try{
+    const {data:envios}=await sb.from('envios_matching').select('*').eq('link_hash',linkHash).limit(1);
+    if(!envios||!envios.length){showError('Este enlace no es v\u00E1lido o ha expirado');return}
+    _envio=envios[0];
 
-    // Mark as opened
-    if (!_envio.abierto_at) {
-      await sb.from('envios_matching').update({ abierto_at: new Date().toISOString() }).eq('link_hash', linkHash);
+    if(_envio.estado==='seleccion_completada'){
+      showError('Ya has completado la selecci\u00F3n de pisos para este env\u00EDo.');return;
+    }
+
+    if(!_envio.abierto_at){
+      await sb.from('envios_matching').update({abierto_at:new Date().toISOString()}).eq('link_hash',linkHash);
     }
 
     // Load collaborator
-    if (_envio.colaborador_id) {
-      const { data: cd } = await sb.from('colaboradores').select('nombre,apellido,empresa,email,logo_empresa,brand_color').eq('id', _envio.colaborador_id).limit(1);
-      if (cd && cd[0]) _colab = cd[0];
+    if(_envio.colaborador_id){
+      const {data:cd}=await sb.from('colaboradores').select('nombre,apellido,empresa,email,logo_empresa,brand_color,tipo_colaboracion').eq('id',_envio.colaborador_id).limit(1);
+      if(cd&&cd[0])_colab=cd[0];
     }
 
     // Load demanda
-    const { data: dd } = await sb.from('demandas').select('*').eq('id', _envio.demanda_id).limit(1);
-    if (dd && dd[0]) _demanda = dd[0];
+    const {data:dd}=await sb.from('demandas').select('*').eq('id',_envio.demanda_id).limit(1);
+    if(dd&&dd[0])_demanda=dd[0];
+
+    // Load comisiones_config
+    const {data:cc}=await sb.from('comisiones_config').select('*');
+    (cc||[]).forEach(c=>{_comisiones[c.tipo_operacion]=c});
 
     // Load matchings + pisos
-    const matchIds = _envio.matchings_ids || [];
-    if (!matchIds.length) { showError('No hay pisos en este envío'); return; }
-    const { data: matchings } = await sb.from('matchings').select('id,piso,score_matching,texto_recomendacion,tipo_operacion,split_calculado,estado').in('id', matchIds);
+    const matchIds=_envio.matchings_ids||[];
+    if(!matchIds.length){showError('No hay pisos en este env\u00EDo');return}
+    const {data:matchings}=await sb.from('matchings').select('id,piso,score_matching,texto_recomendacion,tipo_operacion,split_calculado,estado').in('id',matchIds);
 
-    const pisoIds = (matchings||[]).map(m => { const p = Array.isArray(m.piso)?m.piso[0]:m.piso; return p?String(p).replace(/[{}]/g,''):null; }).filter(Boolean);
-    const { data: pisosData } = await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,ascensor,terraza,garaje,trastero,estado_inmueble,fotos,descripcion_ia,urban_flip,planos,video,documentos,encargo_venta,honorarios_vendedor_pct').in('id', pisoIds);
-    const pisosMap = {};
-    (pisosData||[]).forEach(p => { pisosMap[p.id] = p; });
+    const pisoIds=(matchings||[]).map(m=>{const p=Array.isArray(m.piso)?m.piso[0]:m.piso;return p?String(p).replace(/[{}]/g,''):null}).filter(Boolean);
+    const {data:pisosData,error:pisoErr}=await sb.from('pisos').select('id,direccion,barrio,precio,habitaciones,metros,planta,ascensor,terraza,garaje,trastero,estado_inmueble,fotos,descripcion_ia,urban_flip,video,planos,ite,catastro,memoria_calidades,encargo_venta,honorarios_vendedor_pct').in('id',pisoIds);
+    if(pisoErr)console.error('Piso query error:',pisoErr);
+    const pisosMap={};
+    (pisosData||[]).forEach(p=>{pisosMap[p.id]=p});
 
-    _pisos = (matchings||[]).map(m => {
-      const pid = Array.isArray(m.piso)?m.piso[0]:m.piso;
-      const pisoId = pid?String(pid).replace(/[{}]/g,''):'';
-      return { ...m, pisoData: pisosMap[pisoId]||{}, pisoId };
-    }).sort((a,b) => (b.score_matching||0)-(a.score_matching||0));
+    _pisos=(matchings||[]).map(m=>{
+      const pid=Array.isArray(m.piso)?m.piso[0]:m.piso;
+      const pisoId=pid?String(pid).replace(/[{}]/g,''):'';
+      _cardModes[m.id]='info';
+      return {...m,pisoData:pisosMap[pisoId]||{},pisoId};
+    }).sort((a,b)=>(b.score_matching||0)-(a.score_matching||0));
 
-    // Init selected (all selected by default)
-    _pisos.forEach(m => _selected.add(m.id));
+    // All selected by default
+    _pisos.forEach(m=>_selected.add(m.id));
 
-    // Apply brand
     applyBrand();
     render();
-  } catch(e) { showError('Error: ' + e.message); }
-}
-
-function applyBrand() {
-  const hdr = document.getElementById('header-colab');
-  if (_colab.logo_empresa) {
-    const logo = Array.isArray(_colab.logo_empresa) ? _colab.logo_empresa[0]?.url : _colab.logo_empresa;
-    if (logo) hdr.innerHTML = `<img src="${logo}">`;
-  }
-  if (_colab.brand_color) {
-    document.documentElement.style.setProperty('--accent', _colab.brand_color);
+  }catch(e){
+    console.error('Init error:',e);
+    showError('Error: '+e.message);
   }
 }
 
-function render() {
-  const selCount = _selected.size;
-  const total = _pisos.length;
-  const clienteNombre = _demanda.nombre || 'tu cliente';
+function applyBrand(){
+  const hdr=document.getElementById('header-right');
+  if(_colab.logo_empresa){
+    const logo=Array.isArray(_colab.logo_empresa)?_colab.logo_empresa[0]?.url:_colab.logo_empresa;
+    if(logo)hdr.innerHTML='<img src="'+logo+'">';
+  }
+  if(_colab.brand_color){
+    document.documentElement.style.setProperty('--accent',_colab.brand_color);
+  }
+}
 
-  document.getElementById('main-content').innerHTML = `
+function render(){
+  const selCount=_selected.size;
+  const total=_pisos.filter(m=>!_discarded.has(m.id)).length;
+  const colabName=[_colab.nombre,_colab.apellido].filter(Boolean).join(' ')||'Colaborador';
+  const clienteNombre=_envio.cliente_nombre||_demanda.nombre||'tu cliente';
+
+  document.getElementById('main-content').innerHTML=`
     <div class="hero">
-      <h1>Pisos para ${clienteNombre}</h1>
-      <p>${_demanda.zona_preferida||''} · ${eur(_demanda.presupuesto_max)} · ${_demanda.habitaciones_min||''}+ hab</p>
-    </div>
-    <div class="toggle">
-      <button class="${_viewMode==='cliente'?'active':''}" onclick="_viewMode='cliente';render()">📋 Info Cliente</button>
-      <button class="${_viewMode==='honorarios'?'active':''}" onclick="_viewMode='honorarios';render()">💰 Mis Honorarios</button>
+      <h1>Hola ${colabName}, tienes ${_pisos.length} pisos seleccionados para ${clienteNombre}</h1>
+      <p>${_demanda.zona_preferida||''} \u00B7 Hasta ${eur(_demanda.presupuesto_max)} \u00B7 ${_demanda.habitaciones_min||''}+ habitaciones</p>
     </div>
     <div class="counter"><strong>${selCount}</strong> de ${total} pisos seleccionados para enviar</div>
-    ${_pisos.map(m => renderCard(m)).join('')}
-    <div class="footer-brand">Presentado por ${_colab.empresa || [_colab.nombre,_colab.apellido].filter(Boolean).join(' ') || 'ONOMA Homes'} en colaboración con ONOMA Homes</div>
+    ${_pisos.map((m,i)=>renderCard(m,i)).join('')}
+    <div class="footer-brand">Presentado por ${_colab.empresa||colabName} en colaboraci\u00F3n con ONOMA Homes</div>
   `;
 
-  // Fixed bar
-  let bar = document.getElementById('fixed-bar');
-  if (!bar) { bar = document.createElement('div'); bar.id='fixed-bar'; bar.className='fixed-bar'; document.body.appendChild(bar); }
-  bar.innerHTML = `<button class="btn btn-primary" style="flex:1;max-width:400px" onclick="generarLinkCliente()" ${selCount>0?'':'disabled'}>📧 Generar link para mi cliente (${selCount} pisos)</button>`;
+  let bar=document.getElementById('fixed-bar');
+  if(!bar){bar=document.createElement('div');bar.id='fixed-bar';bar.className='fixed-bar';document.body.appendChild(bar)}
+  bar.innerHTML='<button class="btn btn-primary" style="flex:1;max-width:420px" onclick="generarLinkCliente()" '+(selCount>0?'':'disabled')+'>Generar link para mi cliente ('+selCount+' pisos)</button>';
 }
 
-function renderCard(m) {
-  const p = m.pisoData;
-  const isUF = p.urban_flip;
-  const isElim = _discarded.has(m.id);
-  const isSel = _selected.has(m.id);
-  let fotos = p.fotos || [];
-  if (typeof fotos === 'string') { try { fotos = JSON.parse(fotos); } catch(e) { fotos = []; } }
-  if (!Array.isArray(fotos)) fotos = [];
-  const fotoUrl = fotos.length > 0 ? (typeof fotos[0]==='object' ? (fotos[0].url||'') : String(fotos[0])) : '';
-  const score = Math.round(m.score_matching||0);
+function renderCard(m,idx){
+  const p=m.pisoData;
+  const isUF=p.urban_flip;
+  const isElim=_discarded.has(m.id);
+  const isSel=_selected.has(m.id);
+  const score=Math.round(m.score_matching||0);
+  const mode=_cardModes[m.id]||'info';
 
-  const imgHtml = fotoUrl && fotoUrl.startsWith('http')
-    ? `<img src="${fotoUrl}" class="piso-img" onerror="this.outerHTML='<div class=piso-img-ph>🏠</div>'">`
-    : '<div class="piso-img-ph">🏠</div>';
+  // Photos
+  let fotos=p.fotos||[];
+  if(typeof fotos==='string'){try{fotos=JSON.parse(fotos)}catch(e){fotos=[]}}
+  if(!Array.isArray(fotos))fotos=[];
+  const fotoUrls=fotos.map(f=>typeof f==='object'?(f.url||''):String(f)).filter(u=>u.startsWith('http'));
 
-  const pills = [
-    p.habitaciones ? p.habitaciones + ' hab' : '',
-    p.metros ? p.metros + ' m²' : '',
-    p.ascensor ? 'Ascensor' : '',
-    p.terraza ? 'Terraza' : '',
-    p.garaje ? 'Garaje' : '',
-    p.trastero ? 'Trastero' : '',
-  ].filter(Boolean).map(t => `<span class="pill">${t}</span>`).join('');
-
-  // Comision calc for honorarios mode
-  let comisionHtml = '';
-  if (_viewMode === 'honorarios') {
-    const tipo = m.tipo_operacion || 'A';
-    const precio = p.precio || 0;
-    const comTotal = precio * 0.03;
-    let miComision = 0, escLabel = '', escColor = '';
-    if (isUF) { miComision = precio * 0.02 * 1.21; escLabel = 'Urban Flip 2%+IVA'; escColor = 'var(--gold)'; }
-    else if (tipo === 'A') { miComision = 0; escLabel = 'Escenario A — ONOMA directo'; escColor = '#6B7F9E'; }
-    else if (tipo === 'B') { miComision = comTotal * 0.6; escLabel = 'Escenario B — 60% broker'; escColor = 'var(--success)'; }
-    else if (tipo === 'C') { miComision = comTotal * 0.6; escLabel = 'Escenario C — 60% broker piso'; escColor = 'var(--warning)'; }
-    else if (tipo === 'D') { miComision = comTotal * 0.33; escLabel = 'Escenario D — 33% tripartita'; escColor = 'var(--muted)'; }
-    comisionHtml = `<div class="comision-box">
-      <div style="font-size:11px;color:${escColor};font-weight:600;margin-bottom:6px">${escLabel}</div>
-      <div class="comision-big">${eur(Math.round(miComision))}</div>
-      <div class="comision-detail">Comisión total: ${eur(Math.round(comTotal))} (3% de ${eur(precio)})</div>
-    </div>`;
+  let carouselHtml;
+  if(fotoUrls.length>1){
+    const imgs=fotoUrls.map((u,i)=>'<img src="'+u+'" class="'+(i===0?'active':'')+'" onerror="this.style.display=\'none\'">').join('');
+    const dots=fotoUrls.map((_,i)=>'<button class="carousel-dot '+(i===0?'active':'')+'" onclick="event.stopPropagation();cSlide(\''+m.id+'\','+i+')"></button>').join('');
+    carouselHtml='<div class="carousel" id="carousel-'+m.id+'" onclick="openLightbox('+idx+')">'+imgs+'<span class="carousel-counter">1 / '+fotoUrls.length+'</span><button class="carousel-btn carousel-prev" onclick="event.stopPropagation();cDir(\''+m.id+'\',-1)">\u2039</button><button class="carousel-btn carousel-next" onclick="event.stopPropagation();cDir(\''+m.id+'\',1)">\u203A</button><div class="carousel-dots">'+dots+'</div></div>';
+  }else if(fotoUrls.length===1){
+    carouselHtml='<div class="carousel" onclick="openLightbox('+idx+')"><img src="'+fotoUrls[0]+'" class="active" onerror="this.outerHTML=\'<div class=carousel-ph>\uD83C\uDFE0<span>Foto no disponible</span></div>\'"></div>';
+  }else{
+    carouselHtml='<div class="carousel-ph">\uD83C\uDFE0<span>Foto no disponible</span></div>';
   }
 
-  return `<div class="piso-card ${isUF?'urban-flip':''} ${isElim?'eliminado':''}" id="card-${m.id}">
-    ${imgHtml}
-    <div class="piso-body">
-      ${isUF ? '<div class="uf-badge">⭐ EXCLUSIVO ONOMA</div>' : ''}
-      <div class="piso-dir">${p.direccion||'—'}</div>
-      <div class="piso-meta">${p.barrio||''} · ${p.estado_inmueble||''}</div>
-      <div class="piso-precio">${eur(p.precio)}</div>
-      <div class="score-ring">
-        <svg width="40" height="40" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="#e5e3df" stroke-width="4"/><circle cx="30" cy="30" r="26" fill="none" stroke="var(--gold)" stroke-width="4" stroke-dasharray="${(score/100)*163} 163" transform="rotate(-90 30 30)" stroke-linecap="round"/><text x="30" y="34" text-anchor="middle" font-size="14" font-weight="700" fill="var(--gold)">${score}</text></svg>
-        <span style="font-size:12px;color:var(--muted)">Compatibilidad</span>
-      </div>
-      <div class="pills">${pills}</div>
-      ${m.texto_recomendacion ? `<div class="desc-ia">${m.texto_recomendacion}</div>` : (p.descripcion_ia ? `<div class="desc-ia">${p.descripcion_ia}</div>` : '')}
-      ${comisionHtml}
-      ${!isElim ? `<div class="actions">
-        <button class="btn ${isSel?'btn-select selected':'btn-select'}" onclick="toggleSelect('${m.id}')">${isSel?'✅ Seleccionado':'Seleccionar'}</button>
-        ${!isUF ? `<button class="btn btn-remove" onclick="openDiscard('${m.id}')">❌ Eliminar</button>` : ''}
-      </div>` : '<div style="text-align:center;padding:10px;color:var(--error);font-size:13px">❌ Eliminado</div>'}
-      ${isUF ? '<div style="font-size:11px;color:var(--muted);margin-top:6px">Este piso se incluye automáticamente por ser exclusivo de nuestra cartera</div>' : ''}
-    </div>
-  </div>`;
+  // Pills
+  const pills=[
+    p.habitaciones?p.habitaciones+' hab':'',
+    p.metros?p.metros+' m\u00B2':'',
+    p.planta?'Planta '+p.planta:'',
+    p.ascensor?'Ascensor':'',
+    p.terraza?'Terraza':'',
+    p.garaje?'Garaje':'',
+    p.trastero?'Trastero':'',
+  ].filter(Boolean).map(t=>'<span class="pill">'+t+'</span>').join('');
+
+  // Info content
+  let infoHtml='';
+  if(mode==='info'){
+    // Description
+    const desc=m.texto_recomendacion||p.descripcion_ia||'';
+    if(desc)infoHtml+='<div class="desc-ia">'+desc+'</div>';
+
+    // Docs
+    const docs=[];
+    if(p.ite)docs.push({icon:'\uD83D\uDCC4',label:'ITE',url:p.ite});
+    if(p.catastro)docs.push({icon:'\uD83D\uDCD0',label:'Catastro',url:p.catastro});
+    if(p.memoria_calidades)docs.push({icon:'\uD83D\uDCCB',label:'Memoria de calidades',url:p.memoria_calidades});
+    if(p.video)docs.push({icon:'\uD83C\uDFA5',label:'Video',url:p.video});
+    if(p.planos)docs.push({icon:'\uD83D\uDCD0',label:'Planos',url:p.planos});
+    if(p.encargo_venta)docs.push({icon:'\uD83D\uDCDD',label:'Encargo de venta',url:p.encargo_venta});
+    if(docs.length)infoHtml+='<div class="docs-row">'+docs.map(d=>'<a class="doc-chip" href="'+(typeof d.url==='string'?d.url:'#')+'" target="_blank">'+d.icon+' '+d.label+'</a>').join('')+'</div>';
+  }
+
+  // Commission content
+  let comisionHtml='';
+  if(mode==='comision'){
+    const tipo=m.tipo_operacion||'A';
+    const precio=p.precio||0;
+    const honVend=p.honorarios_vendedor_pct||3;
+    const comTotal=precio*(honVend/100);
+    const cfg=_comisiones[tipo]||{};
+
+    let miPct=0,miComision=0,escLabel='',escColor='';
+    if(isUF){
+      miComision=precio*0.02*1.21;miPct=2;escLabel='Urban Flip 2%+IVA';escColor='var(--gold)';
+    }else if(tipo==='A'){
+      miPct=0;miComision=0;escLabel='Escenario A \u2014 ONOMA directo';escColor='#6B7F9E';
+    }else if(tipo==='B'){
+      miPct=cfg.pct_broker_demanda||50;miComision=comTotal*(miPct/100);escLabel='Escenario B \u2014 '+miPct+'% broker demanda';escColor='var(--success)';
+    }else if(tipo==='C'){
+      miPct=cfg.pct_colaborador_piso||50;miComision=comTotal*(miPct/100);escLabel='Escenario C \u2014 '+miPct+'% broker piso';escColor='var(--warning)';
+    }else if(tipo==='D'){
+      miPct=cfg.pct_broker_demanda||33;miComision=comTotal*(miPct/100);escLabel='Escenario D \u2014 '+miPct+'% tripartita';escColor='var(--muted)';
+    }
+
+    comisionHtml='<div class="comision-box"><div style="font-size:11px;color:'+escColor+';font-weight:600;margin-bottom:6px">'+escLabel+'</div><div class="comision-big">'+eur(Math.round(miComision))+'</div><div class="comision-detail">Comisi\u00F3n total: '+eur(Math.round(comTotal))+' ('+honVend+'% de '+eur(precio)+')</div><div style="margin-top:10px;border-top:1px solid rgba(201,168,76,.2);padding-top:8px"><div class="comision-row"><span class="label">Tu parte ('+miPct+'%)</span><span class="val">'+eur(Math.round(miComision))+'</span></div><div class="comision-row"><span class="label">ONOMA ('+(cfg.pct_onoma||0)+'%)</span><span class="val">'+eur(Math.round(comTotal*((cfg.pct_onoma||0)/100)))+'</span></div></div></div>';
+  }
+
+  // Action buttons
+  let actionsHtml='';
+  if(!isElim){
+    actionsHtml='<div class="actions"><button class="btn '+(isSel?'btn-select selected':'btn-select')+'" onclick="toggleSelect(\''+m.id+'\')">'+(isSel?'\u2705 Seleccionado':'Seleccionar')+'</button>'+(!isUF?'<button class="btn btn-remove" onclick="openDiscard(\''+m.id+'\')">\u274C Eliminar</button>':'')+'</div>';
+    if(isUF)actionsHtml+='<div style="font-size:11px;color:var(--muted);margin-top:6px">Este piso se incluye autom\u00E1ticamente por ser exclusivo de nuestra cartera</div>';
+  }else{
+    actionsHtml='<div style="text-align:center;padding:10px;color:var(--error);font-size:13px">\u274C Eliminado</div>';
+  }
+
+  return '<div class="piso-card '+(isUF?'urban-flip':'')+' '+(isSel&&!isElim?'selected':'')+' '+(isElim?'eliminado':'')+'" id="card-'+m.id+'">'+carouselHtml+'<div class="piso-body">'+(isUF?'<div class="uf-badge">\u2B50 EXCLUSIVO ONOMA</div>':'')+'<div class="piso-dir">'+(p.direccion||'\u2014')+'</div><div class="piso-barrio">'+(p.barrio||'')+' '+(p.estado_inmueble?'\u00B7 '+p.estado_inmueble:'')+'</div><div class="piso-precio">'+eur(p.precio)+'</div><div class="score-row"><svg width="40" height="40" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="none" stroke="#e5e3df" stroke-width="4"/><circle cx="30" cy="30" r="26" fill="none" stroke="var(--gold)" stroke-width="4" stroke-dasharray="'+((score/100)*163)+' 163" transform="rotate(-90 30 30)" stroke-linecap="round"/><text x="30" y="34" text-anchor="middle" font-size="14" font-weight="700" fill="var(--gold)">'+score+'</text></svg><span>Compatibilidad</span></div><div class="pills">'+pills+'</div><div class="card-toggle"><button class="'+(mode==='info'?'active':'')+'" onclick="_cardModes[\''+m.id+'\']=\'info\';render()">Info del piso</button><button class="'+(mode==='comision'?'active':'')+'" onclick="_cardModes[\''+m.id+'\']=\'comision\';render()">Mi comisi\u00F3n</button></div>'+infoHtml+comisionHtml+actionsHtml+'</div></div>';
 }
 
-function toggleSelect(id) {
-  if (_selected.has(id)) _selected.delete(id); else _selected.add(id);
-  render();
-}
+// Carousel
+function cDir(mid,dir){const c=document.getElementById('carousel-'+mid);if(!c)return;const imgs=c.querySelectorAll('img');const dots=c.querySelectorAll('.carousel-dot');const counter=c.querySelector('.carousel-counter');let cur=[...imgs].findIndex(i=>i.classList.contains('active'));imgs[cur].classList.remove('active');if(dots[cur])dots[cur].classList.remove('active');cur=(cur+dir+imgs.length)%imgs.length;imgs[cur].classList.add('active');if(dots[cur])dots[cur].classList.add('active');if(counter)counter.textContent=(cur+1)+' / '+imgs.length}
+function cSlide(mid,idx){const c=document.getElementById('carousel-'+mid);if(!c)return;c.querySelectorAll('img').forEach((img,i)=>img.classList.toggle('active',i===idx));c.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));const counter=c.querySelector('.carousel-counter');if(counter)counter.textContent=(idx+1)+' / '+c.querySelectorAll('img').length}
 
-function openDiscard(id) {
-  _discardingId = id;
+// Lightbox
+function openLightbox(pisoIdx){const p=_pisos[pisoIdx]?.pisoData;let fotos=p?.fotos||[];if(typeof fotos==='string'){try{fotos=JSON.parse(fotos)}catch(e){fotos=[]}}if(!Array.isArray(fotos))fotos=[];_lbPhotos=fotos.map(f=>typeof f==='object'?(f.url||''):String(f)).filter(u=>u.startsWith('http'));if(!_lbPhotos.length)return;_lbIdx=0;document.getElementById('lb-img').src=_lbPhotos[0];document.getElementById('lightbox').classList.add('open')}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open')}
+function lbNav(dir){_lbIdx=(_lbIdx+dir+_lbPhotos.length)%_lbPhotos.length;document.getElementById('lb-img').src=_lbPhotos[_lbIdx]}
+
+// Select / Discard
+function toggleSelect(id){if(_selected.has(id))_selected.delete(id);else _selected.add(id);render();toast(_selected.has(id)?'\u2705 Seleccionado':'\u274C Deseleccionado')}
+
+function openDiscard(id){
+  _discardingId=id;
+  document.getElementById('discard-modal-content').innerHTML='<h3>\u274C \u00BFPor qu\u00E9 eliminas este piso?</h3><div id="discard-reasons"><div class="reason-opt" onclick="selectReason(this,\'Fuera de presupuesto\')">Fuera de presupuesto del cliente</div><div class="reason-opt" onclick="selectReason(this,\'Zona no interesa\')">Zona no interesa al cliente</div><div class="reason-opt" onclick="selectReason(this,\'No cumple requisitos\')">No cumple requisitos</div><div class="reason-opt" onclick="selectReason(this,\'Otro\')">Otro</div></div><textarea id="discard-notes" rows="2" placeholder="Notas adicionales..." style="margin-top:8px"></textarea><div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end"><button class="btn btn-secondary" onclick="closeModal(\'discard-modal\')">Cancelar</button><button class="btn" style="background:var(--error);color:white" id="btn-confirm-discard" onclick="confirmDiscard()" disabled>Confirmar</button></div>';
   document.getElementById('discard-modal').classList.add('open');
-  document.querySelectorAll('input[name="dr"]').forEach(r => r.checked = false);
-  document.getElementById('discard-notes').value = '';
 }
-function closeDiscardModal() { document.getElementById('discard-modal').classList.remove('open'); _discardingId = null; }
+let _discardReason='';
+function selectReason(el,reason){document.querySelectorAll('#discard-reasons .reason-opt').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');_discardReason=reason;document.getElementById('btn-confirm-discard').disabled=false}
 
-async function confirmDiscard() {
-  const reason = document.querySelector('input[name="dr"]:checked')?.value;
-  if (!reason) { alert('Selecciona un motivo'); return; }
-  const notes = document.getElementById('discard-notes').value;
-  const feedback = reason + (notes ? ': ' + notes : '');
+async function confirmDiscard(){
+  const notes=document.getElementById('discard-notes').value.trim();
+  const feedback=_discardReason+(notes?': '+notes:'');
   _discarded.add(_discardingId);
   _selected.delete(_discardingId);
-
-  // Save to Supabase
-  try {
-    await sb.from('matchings').update({ estado: 'descartado_colaborador', feedback_descarte_asesor: feedback }).eq('id', _discardingId);
-    const prevFb = _envio.feedback_descarte || {};
-    prevFb[_discardingId] = feedback;
-    const descArr = [..._discarded];
-    await sb.from('envios_matching').update({ matchings_descartados: descArr, feedback_descarte: prevFb }).eq('link_hash', _envio.link_hash);
-  } catch(e) {}
-
-  closeDiscardModal();
+  try{
+    await sb.from('matchings').update({estado:'descartado_colaborador',feedback_descarte_asesor:feedback}).eq('id',_discardingId);
+    const prevFb=_envio.feedback_descarte||{};
+    prevFb[_discardingId]=feedback;
+    await sb.from('envios_matching').update({matchings_descartados:[..._discarded],feedback_descarte:prevFb}).eq('link_hash',_envio.link_hash);
+  }catch(e){console.warn(e)}
+  closeModal('discard-modal');
+  toast('\u274C Piso eliminado');
   render();
 }
 
-async function generarLinkCliente() {
-  const selIds = [..._selected];
-  if (!selIds.length) return;
+// Generate client link
+async function generarLinkCliente(){
+  const selIds=[..._selected];
+  if(!selIds.length)return;
 
-  // Save selection
-  const newHash = Math.random().toString(36).substring(2,14);
-  try {
-    // Update current envio
-    await sb.from('envios_matching').update({
-      matchings_seleccionados: selIds,
-      estado: 'seleccion_completada',
-      completado_at: new Date().toISOString()
-    }).eq('link_hash', _envio.link_hash);
+  const btn=document.querySelector('.fixed-bar .btn');
+  btn.disabled=true;btn.textContent='Generando...';
 
-    // Create new envio for client
-    await sb.from('envios_matching').insert({
-      link_hash: newHash,
-      tipo: 'colaborador_a_cliente',
-      colaborador_id: _envio.colaborador_id,
-      demanda_id: _envio.demanda_id,
-      cliente_nombre: _demanda.nombre,
-      cliente_email: _demanda.email_dir || null,
-      matchings_ids: selIds,
-      estado: 'enviado'
-    });
+  const newHash=Math.random().toString(36).substring(2,14);
+  try{
+    await sb.from('envios_matching').update({matchings_seleccionados:selIds,estado:'seleccion_completada',completado_at:new Date().toISOString()}).eq('link_hash',_envio.link_hash);
+    await sb.from('envios_matching').insert({link_hash:newHash,tipo:'colaborador_a_cliente',asesor_id:_envio.asesor_id,colaborador_id:_envio.colaborador_id,demanda_id:_envio.demanda_id,cliente_nombre:_demanda.nombre,cliente_email:_demanda.email_dir||null,matchings_ids:selIds,estado:'enviado'});
+    await sb.from('demandas').update({ultimo_matching_enviado:new Date().toISOString()}).eq('id',_envio.demanda_id);
+    await sb.from('acciones_pendientes').insert({asesor_id:_envio.asesor_id,tipo:'matching_enviado_cliente',titulo:'Matchings enviados al cliente \u2014 '+(_demanda.nombre||''),descripcion:([_colab.nombre,_colab.apellido].filter(Boolean).join(' ')||'Colaborador')+' seleccion\u00F3 '+selIds.length+' pisos y los envi\u00F3 al comprador.',referencia_id:_envio.demanda_id,estado:'pendiente',prioridad:'normal'});
+  }catch(e){console.warn(e)}
 
-    // Update demanda
-    await sb.from('demandas').update({ ultimo_matching_enviado: new Date().toISOString() }).eq('id', _envio.demanda_id);
+  // Generate AI message
+  const clienteLink=GH_PAGES+'/matching-cliente.html?id='+newHash;
+  const colabName=[_colab.nombre,_colab.apellido].filter(Boolean).join(' ')||'Tu asesor';
+  const clienteNombre=_demanda.nombre||'tu cliente';
 
-    // Create accion for asesor
-    await sb.from('acciones_pendientes').insert({
-      asesor_id: _envio.asesor_id,
-      tipo: 'matching_enviado_cliente',
-      titulo: '📧 Matchings enviados al cliente — ' + (_demanda.nombre||''),
-      descripcion: (_colab.nombre||'Colaborador') + ' seleccionó ' + selIds.length + ' pisos y los envió al comprador.',
-      referencia_id: _envio.demanda_id,
-      estado: 'pendiente',
-      prioridad: 'normal'
-    });
-  } catch(e) { console.warn(e); }
+  const selPisos=_pisos.filter(m=>selIds.includes(m.id));
+  const pisosList=selPisos.map((m,i)=>{const p=m.pisoData;return '  '+(i+1)+'. '+(p.direccion||'')+' \u2014 '+eur(p.precio)+' \u00B7 '+(p.habitaciones||'?')+' hab \u00B7 '+(p.metros||'?')+' m\u00B2 ('+(p.barrio||'')+')';}).join('\n');
 
-  const clienteLink = GH_PAGES + '/matching-cliente.html?id=' + newHash;
-  const colabName = [_colab.nombre, _colab.apellido].filter(Boolean).join(' ') || 'Tu asesor';
-  const clienteNombre = _demanda.nombre || 'tu cliente';
-  const msg = 'Hola ' + clienteNombre + ',\n\n' + colabName + ' ha seleccionado ' + selIds.length + ' pisos que encajan con lo que buscas.\n\nRevísalos aquí:\n' + clienteLink + '\n\nSi alguno te interesa, agenda una visita directamente desde el enlace.\n\nUn saludo';
+  let aiMsg='';
+  try{
+    const prompt='Genera un mensaje breve (5-8 l\u00EDneas) de un asesor inmobiliario a un comprador explicando por qu\u00E9 se han seleccionado estos pisos para \u00E9l. Perfil: zona '+(_demanda.zona_preferida||'')+', presupuesto '+eur(_demanda.presupuesto_max)+', '+((_demanda.habitaciones_min||'')+' hab m\u00EDnimo')+'. Pisos:\n'+pisosList+'\n\nTono cercano y profesional. Incluye el link al final: '+clienteLink+'\nResponde SOLO con el mensaje, sin comillas.';
+    const resp=await fetch(N8N+'/generate-piso-text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    if(resp.ok){const data=await resp.json();const item=Array.isArray(data)?data[0]:data;aiMsg=item?.text||''}
+  }catch(e){}
 
-  document.getElementById('envio-modal-content').innerHTML = `
-    <h3>📧 Link para tu cliente</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">${selIds.length} pisos seleccionados para ${clienteNombre}</p>
-    <textarea id="client-msg" rows="8">${msg}</textarea>
-    <div class="link-box"><span class="link-text">${clienteLink}</span><button class="btn btn-secondary" style="font-size:11px;padding:6px 12px" onclick="navigator.clipboard.writeText('${clienteLink}');alert('Link copiado')">Copiar</button></div>
-    <div style="display:flex;gap:8px;margin-top:14px">
-      <button class="btn btn-secondary" onclick="navigator.clipboard.writeText(document.getElementById('client-msg').value);alert('Mensaje copiado')">📋 Copiar mensaje</button>
-      <button class="btn btn-primary" onclick="window.open('mailto:${_demanda.email_dir||''}?subject='+encodeURIComponent('Selección de pisos para ti — '+colabName)+'&body='+encodeURIComponent(document.getElementById('client-msg').value))">📧 Enviar por Email</button>
-    </div>
-    <button class="btn btn-primary" style="width:100%;margin-top:14px;padding:14px" onclick="document.getElementById('envio-modal').classList.remove('open')">✅ Listo</button>
-  `;
+  if(!aiMsg){
+    aiMsg='Hola '+clienteNombre+',\n\n'+colabName+' ha seleccionado '+selIds.length+' pisos que encajan con lo que buscas:\n\n'+pisosList+'\n\nRev\u00EDsalos aqu\u00ED:\n'+clienteLink+'\n\nSi alguno te interesa, agenda una visita directamente desde el enlace.\n\nUn saludo';
+  }
+
+  const emailTo=_demanda.email_dir||'';
+  const emailSubject=encodeURIComponent('Selecci\u00F3n de pisos para ti \u2014 '+colabName);
+
+  document.getElementById('envio-modal-content').innerHTML='<h3>Link para tu cliente</h3><p style="font-size:13px;color:var(--muted);margin-bottom:12px">'+selIds.length+' pisos seleccionados para '+clienteNombre+'</p><textarea id="client-msg" rows="10">'+aiMsg+'</textarea><div class="link-box"><span class="link-text">'+clienteLink+'</span><button class="btn btn-secondary" style="font-size:11px;padding:6px 12px" onclick="navigator.clipboard.writeText(\''+clienteLink+'\');toast(\'Link copiado\')">Copiar</button></div><div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button class="btn btn-secondary" onclick="navigator.clipboard.writeText(document.getElementById(\'client-msg\').value);toast(\'Mensaje copiado\')">Copiar mensaje</button><button class="btn btn-primary" onclick="window.open(\'mailto:'+emailTo+'?subject='+emailSubject+'&body=\'+encodeURIComponent(document.getElementById(\'client-msg\').value))">Enviar por Email</button></div><button class="btn btn-primary" style="width:100%;margin-top:14px;padding:14px" onclick="closeModal(\'envio-modal\');toast(\'\u2705 Env\u00EDo completado\')">\u2705 Listo</button>';
   document.getElementById('envio-modal').classList.add('open');
+  btn.disabled=false;btn.textContent='Generar link para mi cliente ('+selIds.length+' pisos)';
 }
 
-function showError(msg) {
-  document.getElementById('main-content').innerHTML = `<div style="text-align:center;padding:80px 20px"><div style="font-size:48px;margin-bottom:12px">⚠️</div><p style="font-size:16px;color:var(--muted)">${msg}</p></div>`;
-}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function showError(msg){document.getElementById('main-content').innerHTML='<div style="text-align:center;padding:80px 20px"><div style="font-size:48px;margin-bottom:12px">\u26A0\uFE0F</div><p style="font-size:16px;color:var(--muted)">'+msg+'</p></div>'}
+
+document.addEventListener('keydown',e=>{if(!document.getElementById('lightbox').classList.contains('open'))return;if(e.key==='Escape')closeLightbox();if(e.key==='ArrowLeft')lbNav(-1);if(e.key==='ArrowRight')lbNav(1)});
 
 init();
 </script>
