@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registra tu Búsqueda — ONOMA Homes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --gold: #C9A84C; --gold-dark: #B8962E; --gold-bg: rgba(201,168,76,0.10); --gold-border: rgba(201,168,76,0.35);
+  --dark: #232320; --bg: #F5F4F1; --card: #FFFFFF; --text: #1C1C1C; --text-muted: #7A6E66; --text-tertiary: #A09890;
+  --border: #D7D6D4; --success: #2C5F2E; --success-bg: rgba(44,95,46,0.08);
+  --danger: #8B2020; --danger-bg: rgba(139,32,32,0.06);
+  --font-ui: 'Jost', sans-serif; --font-body: 'Barlow', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;}
+.header{background:var(--dark);padding:18px 24px;text-align:center;}
+.logo{font-family:var(--font-ui);font-size:20px;font-weight:800;letter-spacing:0.2em;color:#fff;}
+.logo span{color:var(--gold);}
+.header-sub{font-family:var(--font-ui);font-size:11px;font-weight:500;letter-spacing:0.2em;color:rgba(255,255,255,0.45);margin-top:4px;text-transform:uppercase;}
+.container{max-width:640px;margin:0 auto;padding:28px 16px 60px;}
+.page-title{font-family:var(--font-ui);font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.page-subtitle{font-size:14px;color:var(--text-muted);margin-bottom:28px;line-height:1.6;}
+
+.section-card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.section-num{width:28px;height:28px;border-radius:50%;background:var(--dark);color:var(--gold);font-family:var(--font-ui);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.section-title{font-family:var(--font-ui);font-size:15px;font-weight:700;color:var(--text);}
+
+.form-row{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;}
+.form-row.two{grid-template-columns:1fr 1fr;}
+.form-row.three{grid-template-columns:repeat(3,1fr);}
+@media(max-width:480px){.form-row.two,.form-row.three{grid-template-columns:1fr;}}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group label{font-size:12px;font-weight:700;font-family:var(--font-ui);letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);}
+.form-group label .req{color:var(--gold-dark);}
+.form-group input,.form-group select,.form-group textarea{padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font-body);color:var(--text);background:var(--card);transition:border-color 0.2s;width:100%;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--gold);}
+.form-group input.error,.form-group select.error{border-color:var(--danger);}
+.field-error{font-size:11px;color:var(--danger);font-family:var(--font-ui);display:none;}
+.field-error.show{display:block;}
+
+/* RANGE SLIDER */
+.range-wrap{position:relative;padding-top:8px;}
+.range-slider{-webkit-appearance:none;appearance:none;width:100%;height:5px;background:linear-gradient(to right, var(--gold-dark) 0%, var(--gold-dark) var(--pct, 10%), var(--border) var(--pct, 10%));border-radius:3px;outline:none;cursor:pointer;transition:background 0.1s;}
+.range-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;background:var(--dark);border:3px solid var(--gold);border-radius:50%;cursor:pointer;transition:transform 0.15s;}
+.range-slider::-webkit-slider-thumb:hover{transform:scale(1.1);}
+.range-slider::-moz-range-thumb{width:22px;height:22px;background:var(--dark);border:3px solid var(--gold);border-radius:50%;cursor:pointer;border:none;background:var(--dark);box-shadow:0 0 0 3px var(--gold);}
+.range-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text-tertiary);font-family:var(--font-ui);margin-top:6px;}
+.range-value-display{background:var(--dark);color:#fff;padding:6px 14px;border-radius:100px;font-family:var(--font-ui);font-size:14px;font-weight:700;display:inline-block;margin-bottom:12px;letter-spacing:0.02em;}
+.range-value-display span{color:var(--gold);}
+
+/* CHIPS */
+.chips-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px;}
+.chip{padding:7px 14px;border-radius:100px;border:1.5px solid var(--border);font-size:12px;font-family:var(--font-ui);font-weight:600;cursor:pointer;transition:all 0.18s;background:var(--bg);color:var(--text-muted);user-select:none;}
+.chip:hover{border-color:var(--gold-dark);color:var(--gold-dark);}
+.chip.active{background:var(--gold-dark);border-color:var(--gold-dark);color:#fff;}
+
+/* RADIO GROUP */
+.radio-group{display:flex;flex-direction:column;gap:10px;}
+.radio-option{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.18s;}
+.radio-option:hover{border-color:var(--gold-dark);}
+.radio-option input[type=radio]{margin-top:2px;accent-color:var(--gold-dark);width:16px;height:16px;flex-shrink:0;}
+.radio-option.selected{border-color:var(--gold);background:var(--gold-bg);}
+.radio-label{font-size:14px;font-weight:500;}
+.radio-sub{font-size:12px;color:var(--text-muted);}
+
+/* CHECKBOX */
+.checkbox-group{display:flex;flex-direction:column;gap:12px;}
+.checkbox-item{display:flex;align-items:flex-start;gap:12px;cursor:pointer;}
+.checkbox-item input[type=checkbox]{margin-top:2px;accent-color:var(--gold-dark);width:16px;height:16px;flex-shrink:0;cursor:pointer;}
+.checkbox-text{font-size:13px;color:var(--text-muted);line-height:1.5;}
+.checkbox-text a{color:var(--gold-dark);text-decoration:none;}
+.checkbox-text a:hover{text-decoration:underline;}
+.checkbox-item.required .checkbox-text{color:var(--text);}
+
+.btn-submit{width:100%;padding:17px;background:var(--dark);color:#fff;border:none;border-radius:12px;font-family:var(--font-ui);font-size:15px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.btn-submit:hover{background:var(--gold-dark);}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+.btn-submit.loading .btn-spinner{display:block;}
+.btn-submit.loading .btn-text{display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.form-error-banner{background:var(--danger-bg);border:1.5px solid rgba(139,32,32,0.25);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--danger);display:none;font-family:var(--font-ui);}
+.form-error-banner.show{display:block;}
+
+.success-screen{display:none;text-align:center;padding:60px 20px;}
+.success-screen.show{display:block;}
+.success-icon{font-size:64px;margin-bottom:16px;}
+.success-title{font-family:var(--font-ui);font-size:24px;font-weight:700;color:var(--text);margin-bottom:12px;}
+.success-text{font-size:15px;color:var(--text-muted);line-height:1.7;max-width:440px;margin:0 auto 28px;}
+.next-steps{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:24px;text-align:left;max-width:440px;margin:0 auto;}
+.next-steps h4{font-family:var(--font-ui);font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:14px;}
+.step-item{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
+.step-item:last-child{margin-bottom:0;}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--dark);color:var(--gold);font-size:11px;font-weight:700;font-family:var(--font-ui);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.step-text{font-size:13px;color:var(--text-muted);line-height:1.5;}
+
+.hp-field{position:absolute;left:-9999px;opacity:0;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">ON<span>O</span>MA Homes</div>
+  <div class="header-sub">Registra tu búsqueda</div>
+</div>
+
+<div id="mainForm">
+<div class="container">
+  <div class="page-title">Encuentra tu piso ideal</div>
+  <p class="page-subtitle">Cuéntanos qué buscas y te enviaremos propiedades que encajan exactamente con tus necesidades.</p>
+
+  <div class="form-error-banner" id="formErrorBanner"></div>
+
+  <form id="demandaForm" novalidate>
+    <div class="hp-field" aria-hidden="true">
+      <input type="text" name="website_url" id="hpField" tabindex="-1" autocomplete="off">
+    </div>
+
+    <!-- SECCIÓN 1: DATOS COMPRADOR -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <div class="section-title">Tus datos</div>
+      </div>
+
+      <div class="form-row two">
+        <div class="form-group">
+          <label>Nombre completo <span class="req">*</span></label>
+          <input type="text" id="nombre" placeholder="Tu nombre y apellidos" required>
+          <span class="field-error" id="err-nombre">Campo requerido</span>
+        </div>
+        <div class="form-group">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="tu@email.com" required>
+          <span class="field-error" id="err-email">Email no válido</span>
+        </div>
+      </div>
+      <div class="form-row two">
+        <div class="form-group">
+          <label>Teléfono <span class="req">*</span></label>
+          <input type="tel" id="telefono" placeholder="+34 6XX XXX XXX" required>
+          <span class="field-error" id="err-telefono">Teléfono no válido</span>
+        </div>
+        <div class="form-group">
+          <label>Nacionalidad</label>
+          <select id="nacionalidad">
+            <option value="">Selecciona...</option>
+            <option value="es">Española</option>
+            <option value="de">Alemana</option>
+            <option value="fr">Francesa</option>
+            <option value="gb">Británica</option>
+            <option value="us">Americana (EEUU)</option>
+            <option value="it">Italiana</option>
+            <option value="pt">Portuguesa</option>
+            <option value="nl">Holandesa</option>
+            <option value="be">Belga</option>
+            <option value="ch">Suiza</option>
+            <option value="se">Sueca</option>
+            <option value="dk">Danesa</option>
+            <option value="no">Noruega</option>
+            <option value="mx">Mexicana</option>
+            <option value="ar">Argentina</option>
+            <option value="co">Colombiana</option>
+            <option value="cn">China</option>
+            <option value="ru">Rusa</option>
+            <option value="ae">Emiratos Árabes</option>
+            <option value="other">Otra</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: CRITERIOS DE BÚSQUEDA -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <div class="section-title">¿Qué buscas?</div>
+      </div>
+
+      <div class="form-row two">
+        <div class="form-group">
+          <label>Tipo de inmueble <span class="req">*</span></label>
+          <select id="tipoInmueble" required>
+            <option value="">Selecciona...</option>
+            <option value="piso">Piso</option>
+            <option value="atico">Ático</option>
+            <option value="duplex">Dúplex</option>
+            <option value="chalet">Chalet</option>
+            <option value="adosado">Adosado</option>
+            <option value="estudio">Estudio</option>
+            <option value="loft">Loft</option>
+            <option value="indiferente">Indiferente</option>
+          </select>
+          <span class="field-error" id="err-tipoInmueble">Selecciona un tipo</span>
+        </div>
+        <div class="form-group">
+          <label>Mínimo metros útiles</label>
+          <input type="number" id="metros" placeholder="ej. 80" min="20" max="1000">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:20px;">
+        <label>Presupuesto máximo <span class="req">*</span></label>
+        <div class="range-value-display" id="presupuestoDisplay"><span id="presupuestoVal">300.000</span> €</div>
+        <div class="range-wrap">
+          <input type="range" class="range-slider" id="presupuesto" min="50000" max="2000000" step="10000" value="300000" oninput="updatePresupuesto(this)">
+        </div>
+        <div class="range-labels"><span>50.000 €</span><span>1M €</span><span>2M €</span></div>
+      </div>
+
+      <div class="form-row three">
+        <div class="form-group">
+          <label>Habitaciones</label>
+          <select id="habitaciones">
+            <option value="">Indiferente</option>
+            <option value="1">1 hab.</option>
+            <option value="2">2 hab.</option>
+            <option value="3">3 hab.</option>
+            <option value="4">4 hab.</option>
+            <option value="5+">5+ hab.</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Baños</label>
+          <select id="banos">
+            <option value="">Indiferente</option>
+            <option value="1">1 baño</option>
+            <option value="2">2 baños</option>
+            <option value="3+">3+ baños</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <div style="padding:11px 14px;background:var(--gold-bg);border:1.5px solid var(--gold-border);border-radius:8px;font-size:12px;color:var(--gold-dark);font-family:var(--font-ui);font-weight:600;">Máximo presupuesto</div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:18px;">
+        <label>Zonas de interés <span class="req">*</span></label>
+        <div class="chips-wrap" id="zonasChips">
+          <div class="chip" data-value="salamanca">Salamanca</div>
+          <div class="chip" data-value="chamberi">Chamberí</div>
+          <div class="chip" data-value="retiro">Retiro</div>
+          <div class="chip" data-value="centro">Centro</div>
+          <div class="chip" data-value="moncloa">Moncloa</div>
+          <div class="chip" data-value="tetuan">Tetuán</div>
+          <div class="chip" data-value="chamartin">Chamartín</div>
+          <div class="chip" data-value="hortaleza">Hortaleza</div>
+          <div class="chip" data-value="fuencarral">Fuencarral</div>
+          <div class="chip" data-value="latina">Latina</div>
+          <div class="chip" data-value="carabanchel">Carabanchel</div>
+          <div class="chip" data-value="vallecas">Vallecas</div>
+          <div class="chip" data-value="pozuelo">Pozuelo</div>
+          <div class="chip" data-value="majadahonda">Majadahonda</div>
+          <div class="chip" data-value="las_rozas">Las Rozas</div>
+          <div class="chip" data-value="indiferente">Indiferente (toda Madrid)</div>
+        </div>
+        <span class="field-error" id="err-zonas">Selecciona al menos una zona</span>
+      </div>
+
+      <div class="form-group">
+        <label>Características deseadas</label>
+        <div class="chips-wrap" id="caracteristicasChips">
+          <div class="chip" data-value="terraza">Terraza</div>
+          <div class="chip" data-value="jardin">Jardín</div>
+          <div class="chip" data-value="garaje">Garaje</div>
+          <div class="chip" data-value="trastero">Trastero</div>
+          <div class="chip" data-value="ascensor">Ascensor</div>
+          <div class="chip" data-value="exterior">Exterior</div>
+          <div class="chip" data-value="reformado">Reformado</div>
+          <div class="chip" data-value="lujo">Alta calidad / Lujo</div>
+          <div class="chip" data-value="calefaccion">Calefacción central</div>
+          <div class="chip" data-value="ac">Aire acondicionado</div>
+          <div class="chip" data-value="portero">Portero / Concierge</div>
+          <div class="chip" data-value="piscina">Piscina comunitaria</div>
+          <div class="chip" data-value="gym">Gimnasio comunitario</div>
+          <div class="chip" data-value="seguridad">Seguridad 24h</div>
+          <div class="chip" data-value="armarios">Armarios empotrados</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: SITUACIÓN COMPRADORA -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <div class="section-title">Tu situación</div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:20px;">
+        <label>¿Con qué urgencia buscas? <span class="req">*</span></label>
+        <div class="radio-group" id="urgenciaGroup">
+          <label class="radio-option" onclick="selectRadio(this,'urgencia','inmediata')">
+            <input type="radio" name="urgencia" value="inmediata">
+            <div>
+              <div class="radio-label">Urgente — lo antes posible</div>
+              <div class="radio-sub">Necesito cerrar en 1-2 meses</div>
+            </div>
+          </label>
+          <label class="radio-option" onclick="selectRadio(this,'urgencia','normal')">
+            <input type="radio" name="urgencia" value="normal">
+            <div>
+              <div class="radio-label">En los próximos 3-6 meses</div>
+              <div class="radio-sub">Busco con calma pero tengo una fecha</div>
+            </div>
+          </label>
+          <label class="radio-option" onclick="selectRadio(this,'urgencia','flexible')">
+            <input type="radio" name="urgencia" value="flexible">
+            <div>
+              <div class="radio-label">Sin prisa, buscando la oportunidad</div>
+              <div class="radio-sub">Compro cuando aparezca el piso ideal</div>
+            </div>
+          </label>
+        </div>
+        <span class="field-error" id="err-urgencia">Selecciona una opción</span>
+      </div>
+
+      <div class="form-group" style="margin-bottom:20px;">
+        <label>Situación financiera <span class="req">*</span></label>
+        <div class="radio-group" id="financiacionGroup">
+          <label class="radio-option" onclick="selectRadio(this,'financiacion','efectivo')">
+            <input type="radio" name="financiacion" value="efectivo">
+            <div>
+              <div class="radio-label">Pago en efectivo / fondos propios</div>
+            </div>
+          </label>
+          <label class="radio-option" onclick="selectRadio(this,'financiacion','hipoteca_aprobada')">
+            <input type="radio" name="financiacion" value="hipoteca_aprobada">
+            <div>
+              <div class="radio-label">Hipoteca pre-aprobada</div>
+              <div class="radio-sub">Ya tengo aprobación del banco</div>
+            </div>
+          </label>
+          <label class="radio-option" onclick="selectRadio(this,'financiacion','hipoteca_pendiente')">
+            <input type="radio" name="financiacion" value="hipoteca_pendiente">
+            <div>
+              <div class="radio-label">Pendiente de aprobación hipotecaria</div>
+              <div class="radio-sub">Estoy en proceso de solicitud</div>
+            </div>
+          </label>
+          <label class="radio-option" onclick="selectRadio(this,'financiacion','sin_definir')">
+            <input type="radio" name="financiacion" value="sin_definir">
+            <div>
+              <div class="radio-label">Aún no lo tengo claro</div>
+            </div>
+          </label>
+        </div>
+        <span class="field-error" id="err-financiacion">Selecciona una opción</span>
+      </div>
+
+      <div class="form-group" style="margin-bottom:20px;">
+        <label>¿Es para vivienda habitual?</label>
+        <div class="radio-group" id="viviendaGroup">
+          <label class="radio-option" onclick="selectRadio(this,'vivienda','si')">
+            <input type="radio" name="vivienda" value="si">
+            <div><div class="radio-label">Sí, será mi residencia principal</div></div>
+          </label>
+          <label class="radio-option" onclick="selectRadio(this,'vivienda','no')">
+            <input type="radio" name="vivienda" value="no">
+            <div><div class="radio-label">No, es inversión o segunda residencia</div></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Comentarios adicionales</label>
+        <textarea id="notas" rows="3" placeholder="Cuéntanos más sobre lo que buscas, zona específica, estilo, etc."></textarea>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4: LEGAL -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <div class="section-title">Consentimiento y Legal</div>
+      </div>
+      <div class="checkbox-group">
+        <label class="checkbox-item required">
+          <input type="checkbox" id="chkPrivacidad" required>
+          <span class="checkbox-text">He leído y acepto la <a href="#" target="_blank">Política de Privacidad</a> de ONOMA Homes. <span style="color:var(--gold-dark);">*</span></span>
+        </label>
+        <label class="checkbox-item required">
+          <input type="checkbox" id="chkDatos" required>
+          <span class="checkbox-text">Consiento el tratamiento de mis datos para recibir información sobre propiedades que se ajusten a mi búsqueda. <span style="color:var(--gold-dark);">*</span></span>
+        </label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="chkComunicaciones">
+          <span class="checkbox-text">Acepto recibir comunicaciones sobre el mercado inmobiliario, nuevas propiedades y noticias de ONOMA. (Opcional)</span>
+        </label>
+      </div>
+      <span class="field-error" id="err-legal" style="margin-top:8px;">Debes aceptar los términos obligatorios</span>
+    </div>
+
+    <button type="submit" class="btn-submit" id="submitBtn">
+      <span class="btn-text">Registrar mi búsqueda</span>
+      <div class="btn-spinner"></div>
+    </button>
+  </form>
+</div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div class="container success-screen" id="successScreen">
+  <div class="success-icon">🏠</div>
+  <div class="success-title">¡Búsqueda registrada!</div>
+  <p class="success-text">Hemos recibido tu solicitud. Un asesor de ONOMA se pondrá en contacto contigo en las próximas horas para confirmar los detalles.</p>
+  <div class="next-steps">
+    <h4>¿Qué pasa ahora?</h4>
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-text">Recibirás un email de confirmación con el resumen de tu búsqueda.</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-text">Tu asesor asignado te llamará para conocerte mejor y afinar los criterios.</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-text">Recibirás propiedades seleccionadas a medida que aparezcan en el mercado.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://wwaytwudfbwxttyyojjx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
+const N8N_BASE = 'https://onomahomes.app.n8n.cloud/webhook';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const formStartTime = Date.now();
+
+let selectedZonas = [];
+let selectedCaracteristicas = [];
+let selectedUrgencia = null;
+let selectedFinanciacion = null;
+let selectedVivienda = null;
+
+// Range slider
+function updatePresupuesto(input) {
+  const val = parseInt(input.value);
+  const min = parseInt(input.min);
+  const max = parseInt(input.max);
+  const pct = ((val - min) / (max - min) * 100).toFixed(1);
+  input.style.setProperty('--pct', pct + '%');
+  document.getElementById('presupuestoVal').textContent = val.toLocaleString('es-ES');
+}
+// Init slider
+(function() {
+  const s = document.getElementById('presupuesto');
+  updatePresupuesto(s);
+})();
+
+// Chips — zonas
+document.querySelectorAll('#zonasChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.classList.toggle('active');
+    const val = chip.dataset.value;
+    if (chip.classList.contains('active')) {
+      if (!selectedZonas.includes(val)) selectedZonas.push(val);
+    } else {
+      selectedZonas = selectedZonas.filter(z => z !== val);
+    }
+    hideError('zonas');
+  });
+});
+
+// Chips — características
+document.querySelectorAll('#caracteristicasChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.classList.toggle('active');
+    const val = chip.dataset.value;
+    if (chip.classList.contains('active')) {
+      if (!selectedCaracteristicas.includes(val)) selectedCaracteristicas.push(val);
+    } else {
+      selectedCaracteristicas = selectedCaracteristicas.filter(c => c !== val);
+    }
+  });
+});
+
+// Radio selectors
+function selectRadio(el, group, val) {
+  const groupEl = el.closest('.radio-group') || document.getElementById(group + 'Group');
+  groupEl.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  if (group === 'urgencia') { selectedUrgencia = val; hideError('urgencia'); }
+  if (group === 'financiacion') { selectedFinanciacion = val; hideError('financiacion'); }
+  if (group === 'vivienda') { selectedVivienda = val; }
+  el.querySelector('input[type=radio]').checked = true;
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(`err-${id}`);
+  const input = document.getElementById(id);
+  if (el) { if (msg) el.textContent = msg; el.classList.add('show'); }
+  if (input) input.classList.add('error');
+}
+function hideError(id) {
+  const el = document.getElementById(`err-${id}`);
+  const input = document.getElementById(id);
+  if (el) el.classList.remove('show');
+  if (input) input.classList.remove('error');
+}
+function validateEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function validatePhone(p) { return /^[\+\d\s\-\(\)]{7,16}$/.test(p.trim()); }
+
+async function checkRateLimit(email) {
+  const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+  const { data } = await supabase
+    .from('form_submissions_log')
+    .select('id')
+    .eq('email', email)
+    .eq('form_type', 'demanda')
+    .gte('created_at', oneHourAgo);
+  return data && data.length >= 3;
+}
+
+// Round-robin asesor assignment
+async function assignAsesor() {
+  try {
+    // Get active asesores
+    const { data: asesores } = await supabase
+      .from('asesores')
+      .select('id')
+      .eq('activo', true);
+    if (!asesores || asesores.length === 0) return null;
+
+    // Count active demandas per asesor
+    const counts = await Promise.all(
+      asesores.map(async a => {
+        const { count } = await supabase
+          .from('demandas')
+          .select('id', { count: 'exact', head: true })
+          .eq('asesor_id', a.id)
+          .eq('estado', 'activa');
+        return { id: a.id, count: count || 0 };
+      })
+    );
+    // Assign to asesor with fewest active demandas
+    counts.sort((a, b) => a.count - b.count);
+    return counts[0].id;
+  } catch (e) {
+    return null;
+  }
+}
+
+document.getElementById('demandaForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  if (document.getElementById('hpField').value) return;
+  if (Date.now() - formStartTime < 10000) {
+    showBanner('Por favor, completa el formulario con calma.');
+    return;
+  }
+
+  let valid = true;
+
+  const nombre = document.getElementById('nombre').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const telefono = document.getElementById('telefono').value.trim();
+  const nacionalidad = document.getElementById('nacionalidad').value;
+  const tipoInmueble = document.getElementById('tipoInmueble').value;
+  const presupuesto = parseInt(document.getElementById('presupuesto').value);
+  const habitaciones = document.getElementById('habitaciones').value;
+  const banos = document.getElementById('banos').value;
+  const metros = document.getElementById('metros').value ? parseInt(document.getElementById('metros').value) : null;
+  const notas = document.getElementById('notas').value.trim();
+
+  ['nombre','email','telefono','tipoInmueble','zonas','urgencia','financiacion','legal'].forEach(id => hideError(id));
+
+  if (!nombre) { showError('nombre','Campo requerido'); valid = false; }
+  if (!email || !validateEmail(email)) { showError('email','Email no válido'); valid = false; }
+  if (!telefono || !validatePhone(telefono)) { showError('telefono','Teléfono no válido'); valid = false; }
+  if (!tipoInmueble) { showError('tipoInmueble','Selecciona un tipo'); valid = false; }
+  if (selectedZonas.length === 0) { showError('zonas','Selecciona al menos una zona'); valid = false; }
+  if (!selectedUrgencia) { showError('urgencia','Selecciona una opción'); valid = false; }
+  if (!selectedFinanciacion) { showError('financiacion','Selecciona una opción'); valid = false; }
+  if (!document.getElementById('chkPrivacidad').checked || !document.getElementById('chkDatos').checked) {
+    showError('legal','Debes aceptar los términos obligatorios'); valid = false;
+  }
+
+  if (!valid) { showBanner('Revisa los campos marcados en rojo.'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  hideBanner();
+
+  try {
+    const limited = await checkRateLimit(email);
+    if (limited) { showBanner('Has enviado demasiadas solicitudes. Espera una hora.'); btn.disabled=false; btn.classList.remove('loading'); return; }
+
+    // Upsert cliente
+    let clienteId = null;
+    const { data: clienteExist } = await supabase.from('clientes').select('id').eq('email', email).maybeSingle();
+    if (clienteExist) {
+      clienteId = clienteExist.id;
+    } else {
+      const { data: newCliente, error: cErr } = await supabase.from('clientes').insert({
+        nombre, email, telefono,
+        nacionalidad: nacionalidad || null,
+        tipo: 'comprador',
+        acepta_comunicaciones: document.getElementById('chkComunicaciones').checked,
+      }).select().single();
+      if (cErr) throw cErr;
+      clienteId = newCliente.id;
+    }
+
+    // Assign asesor
+    const asesorId = await assignAsesor();
+
+    // INSERT demanda
+    const { data: demanda, error: dErr } = await supabase.from('demandas').insert({
+      cliente_id: clienteId,
+      asesor_id: asesorId,
+      tipo_inmueble: tipoInmueble,
+      presupuesto_max: presupuesto,
+      habitaciones: habitaciones || null,
+      banos: banos || null,
+      metros_min: metros,
+      zonas: selectedZonas,
+      caracteristicas: selectedCaracteristicas.length ? selectedCaracteristicas : null,
+      urgencia: selectedUrgencia,
+      financiacion: selectedFinanciacion,
+      vivienda_habitual: selectedVivienda === 'si',
+      notas: notas || null,
+      tipo_origen: 'formulario_web',
+      estado: 'activa',
+    }).select().single();
+    if (dErr) throw dErr;
+
+    // Log
+    await supabase.from('form_submissions_log').insert({
+      form_type: 'demanda', email,
+      datos: { nombre, tipo_inmueble: tipoInmueble, presupuesto_max: presupuesto, zonas: selectedZonas },
+    });
+    await supabase.from('actividad_log').insert({
+      tipo: 'nueva_demanda',
+      descripcion: `Nueva demanda web: ${nombre} — ${tipoInmueble} hasta ${presupuesto.toLocaleString('es-ES')} €`,
+      entidad_tipo: 'demandas', entidad_id: demanda.id,
+    });
+
+    // Accion pendiente para asesor
+    if (asesorId) {
+      await supabase.from('acciones_pendientes').insert({
+        asesor_id: asesorId,
+        tipo: 'contactar_nueva_demanda',
+        descripcion: `Nuevo cliente de web: ${nombre} (${email}) busca ${tipoInmueble}`,
+        entidad_tipo: 'demandas', entidad_id: demanda.id,
+        prioridad: 'alta',
+      });
+    }
+
+    // Webhook
+    try {
+      await fetch(`${N8N_BASE}/email-confirmacion-demanda`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ demanda_id: demanda.id, cliente_id: clienteId, nombre, email, tipo_inmueble: tipoInmueble, presupuesto_max: presupuesto, zonas: selectedZonas }),
+      });
+    } catch(_) {}
+
+    document.getElementById('mainForm').style.display = 'none';
+    document.getElementById('successScreen').classList.add('show');
+    window.scrollTo(0, 0);
+
+  } catch(err) {
+    console.error(err);
+    showBanner('Ha ocurrido un error. Por favor, inténtalo de nuevo.');
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  }
+});
+
+function showBanner(msg) {
+  const b = document.getElementById('formErrorBanner');
+  b.textContent = msg;
+  b.classList.add('show');
+  b.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function hideBanner() { document.getElementById('formErrorBanner').classList.remove('show'); }
+</script>
+</body>
+</html>
