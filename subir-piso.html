@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subir Propiedad — ONOMA Homes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --gold: #C9A84C; --gold-dark: #B8962E; --gold-bg: rgba(201,168,76,0.10); --gold-border: rgba(201,168,76,0.35);
+  --dark: #232320; --bg: #F5F4F1; --card: #FFFFFF; --text: #1C1C1C; --text-muted: #7A6E66; --text-tertiary: #A09890;
+  --border: #D7D6D4; --success: #2C5F2E; --success-bg: rgba(44,95,46,0.08);
+  --danger: #8B2020; --danger-bg: rgba(139,32,32,0.06);
+  --font-ui: 'Jost', sans-serif; --font-body: 'Barlow', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;}
+.header{background:var(--dark);padding:18px 24px;text-align:center;}
+.logo{font-family:var(--font-ui);font-size:20px;font-weight:800;letter-spacing:0.2em;color:#fff;}
+.logo span{color:var(--gold);}
+.header-sub{font-family:var(--font-ui);font-size:11px;font-weight:500;letter-spacing:0.2em;color:rgba(255,255,255,0.45);margin-top:4px;text-transform:uppercase;}
+.container{max-width:680px;margin:0 auto;padding:28px 16px 60px;}
+.page-title{font-family:var(--font-ui);font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.page-subtitle{font-size:14px;color:var(--text-muted);margin-bottom:28px;line-height:1.6;}
+.colab-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gold-bg);border:1.5px solid var(--gold-border);border-radius:100px;padding:8px 16px;margin-bottom:20px;}
+.colab-badge-text{font-size:12px;font-family:var(--font-ui);font-weight:600;color:var(--gold-dark);}
+
+.section-card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.section-num{width:28px;height:28px;border-radius:50%;background:var(--dark);color:var(--gold);font-family:var(--font-ui);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.section-title{font-family:var(--font-ui);font-size:15px;font-weight:700;color:var(--text);}
+
+.form-row{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;}
+.form-row.two{grid-template-columns:1fr 1fr;}
+.form-row.three{grid-template-columns:repeat(3,1fr);}
+.form-row.four{grid-template-columns:repeat(4,1fr);}
+@media(max-width:520px){.form-row.two,.form-row.three,.form-row.four{grid-template-columns:1fr 1fr;}}
+@media(max-width:360px){.form-row.two,.form-row.three,.form-row.four{grid-template-columns:1fr;}}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group label{font-size:12px;font-weight:700;font-family:var(--font-ui);letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);}
+.form-group label .req{color:var(--gold-dark);}
+.form-group input,.form-group select,.form-group textarea{padding:11px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font-body);color:var(--text);background:var(--card);transition:border-color 0.2s;width:100%;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--gold);}
+.form-group input.error,.form-group select.error{border-color:var(--danger);}
+.field-error{font-size:11px;color:var(--danger);font-family:var(--font-ui);display:none;}
+.field-error.show{display:block;}
+.form-hint{font-size:11px;color:var(--text-tertiary);}
+
+/* CHIPS */
+.chips-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px;}
+.chip{padding:7px 14px;border-radius:100px;border:1.5px solid var(--border);font-size:12px;font-family:var(--font-ui);font-weight:600;cursor:pointer;transition:all 0.18s;background:var(--bg);color:var(--text-muted);user-select:none;}
+.chip:hover{border-color:var(--gold-dark);color:var(--gold-dark);}
+.chip.active{background:var(--gold-dark);border-color:var(--gold-dark);color:#fff;}
+
+/* RADIO */
+.radio-group-inline{display:flex;flex-wrap:wrap;gap:10px;margin-top:2px;}
+.radio-pill{display:flex;align-items:center;gap:8px;padding:9px 16px;border:1.5px solid var(--border);border-radius:100px;cursor:pointer;transition:all 0.18s;font-size:13px;font-family:var(--font-ui);font-weight:600;}
+.radio-pill:hover{border-color:var(--gold-dark);}
+.radio-pill input[type=radio]{accent-color:var(--gold-dark);width:14px;height:14px;}
+.radio-pill.selected{border-color:var(--gold);background:var(--gold-bg);color:var(--gold-dark);}
+
+/* PHOTOS UPLOAD */
+.photos-zone{border:2px dashed var(--border);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg);}
+.photos-zone:hover,.photos-zone.dragover{border-color:var(--gold);background:var(--gold-bg);}
+.photos-zone-icon{font-size:36px;margin-bottom:8px;}
+.photos-zone-text{font-size:13px;color:var(--text-muted);}
+.photos-zone-text strong{color:var(--gold-dark);}
+.photos-zone-hint{font-size:11px;color:var(--text-tertiary);margin-top:4px;}
+.photos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:14px;}
+.photo-thumb{position:relative;border-radius:10px;overflow:hidden;background:var(--border);aspect-ratio:4/3;}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;}
+.photo-thumb-progress{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(0,0,0,0.2);}
+.photo-thumb-progress-bar{height:100%;background:var(--gold);transition:width 0.3s;width:0%;}
+.photo-thumb-remove{position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.65);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background 0.15s;}
+.photo-thumb-remove:hover{background:var(--danger);}
+.photo-thumb-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;}
+.photo-thumb-uploading .photo-thumb-overlay{opacity:1;}
+.spinner-sm{width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;}
+.photos-count{font-family:var(--font-ui);font-size:12px;color:var(--text-muted);margin-top:8px;}
+.photos-count strong{color:var(--gold-dark);}
+
+/* DOCS UPLOAD */
+.doc-upload-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:10px;transition:border-color 0.2s;}
+.doc-upload-item:hover{border-color:var(--gold-border);}
+.doc-upload-icon{font-size:22px;flex-shrink:0;}
+.doc-upload-label{flex:1;}
+.doc-upload-label strong{font-size:13px;font-weight:600;font-family:var(--font-ui);display:block;}
+.doc-upload-label span{font-size:11px;color:var(--text-tertiary);}
+.doc-upload-btn{padding:8px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--font-ui);font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.doc-upload-btn:hover{border-color:var(--gold);color:var(--gold-dark);}
+.doc-upload-name{font-size:11px;color:var(--success);font-family:var(--font-ui);margin-top:3px;display:none;}
+.doc-upload-name.show{display:block;}
+
+/* CHECKBOX */
+.checkbox-group{display:flex;flex-direction:column;gap:12px;}
+.checkbox-item{display:flex;align-items:flex-start;gap:12px;cursor:pointer;}
+.checkbox-item input[type=checkbox]{margin-top:2px;accent-color:var(--gold-dark);width:16px;height:16px;flex-shrink:0;cursor:pointer;}
+.checkbox-text{font-size:13px;color:var(--text-muted);line-height:1.5;}
+.checkbox-text a{color:var(--gold-dark);text-decoration:none;}
+.checkbox-item.required .checkbox-text{color:var(--text);}
+
+/* BTN */
+.btn-submit{width:100%;padding:17px;background:var(--dark);color:#fff;border:none;border-radius:12px;font-family:var(--font-ui);font-size:15px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.btn-submit:hover{background:var(--gold-dark);}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+.btn-submit.loading .btn-spinner{display:block;}
+.btn-submit.loading .btn-text{display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Upload status */
+.upload-status{background:var(--gold-bg);border:1.5px solid var(--gold-border);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--gold-dark);font-family:var(--font-ui);display:none;text-align:center;}
+.upload-status.show{display:block;}
+
+.form-error-banner{background:var(--danger-bg);border:1.5px solid rgba(139,32,32,0.25);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--danger);display:none;font-family:var(--font-ui);}
+.form-error-banner.show{display:block;}
+
+/* Error / Loading screens */
+.error-screen{display:none;text-align:center;padding:60px 20px;}
+.error-screen.show{display:block;}
+.error-screen-icon{font-size:52px;margin-bottom:16px;}
+.error-screen-title{font-family:var(--font-ui);font-size:20px;font-weight:700;color:var(--danger);margin-bottom:10px;}
+.error-screen-text{font-size:14px;color:var(--text-muted);max-width:380px;margin:0 auto;}
+
+.success-screen{display:none;text-align:center;padding:60px 20px;}
+.success-screen.show{display:block;}
+.success-icon{font-size:64px;margin-bottom:16px;}
+.success-title{font-family:var(--font-ui);font-size:24px;font-weight:700;color:var(--text);margin-bottom:12px;}
+.success-text{font-size:15px;color:var(--text-muted);line-height:1.7;max-width:440px;margin:0 auto 28px;}
+.next-steps{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:24px;text-align:left;max-width:440px;margin:0 auto;}
+.next-steps h4{font-family:var(--font-ui);font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:14px;}
+.step-item{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
+.step-item:last-child{margin-bottom:0;}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--dark);color:var(--gold);font-size:11px;font-weight:700;font-family:var(--font-ui);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.step-text{font-size:13px;color:var(--text-muted);line-height:1.5;}
+
+.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;text-align:center;}
+.loading-screen.hidden{display:none;}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--gold-dark);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:16px;}
+.loading-text{font-family:var(--font-ui);font-size:14px;color:var(--text-muted);}
+
+.hp-field{position:absolute;left:-9999px;opacity:0;pointer-events:none;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">ON<span>O</span>MA Homes</div>
+  <div class="header-sub">Portal de Colaboradores — Subir Propiedad</div>
+</div>
+
+<!-- LOADING -->
+<div class="container loading-screen" id="loadingScreen">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Verificando acceso...</div>
+</div>
+
+<!-- ERROR SCREEN -->
+<div class="container error-screen" id="errorScreen">
+  <div class="error-screen-icon">🔒</div>
+  <div class="error-screen-title">Acceso no autorizado</div>
+  <p class="error-screen-text" id="errorScreenMsg">Este enlace no es válido o tu cuenta de colaborador no está activa. Contacta con ONOMA Homes si crees que es un error.</p>
+</div>
+
+<!-- MAIN FORM -->
+<div id="mainForm" style="display:none;">
+<div class="container">
+  <div class="colab-badge">
+    <span class="colab-badge-text" id="colabBadgeText">Colaborador verificado</span>
+  </div>
+  <div class="page-title">Subir nueva propiedad</div>
+  <p class="page-subtitle">Completa todos los datos de la propiedad. Nuestro equipo la revisará antes de publicarla.</p>
+
+  <div class="form-error-banner" id="formErrorBanner"></div>
+  <div class="upload-status" id="uploadStatus"></div>
+
+  <form id="pisoForm" novalidate>
+    <div class="hp-field" aria-hidden="true">
+      <input type="text" name="website_url" id="hpField" tabindex="-1" autocomplete="off">
+    </div>
+
+    <!-- SEC 1: DATOS INMUEBLE -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <div class="section-title">Datos del Inmueble</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Dirección <span class="req">*</span></label>
+          <input type="text" id="direccion" placeholder="Calle, número, piso, puerta" required>
+          <span class="field-error" id="err-direccion">Campo requerido</span>
+        </div>
+      </div>
+      <div class="form-row two">
+        <div class="form-group">
+          <label>Código Postal <span class="req">*</span></label>
+          <input type="text" id="cp" placeholder="28XXX" maxlength="5" required>
+          <span class="field-error" id="err-cp">Debe ser 28000-28999</span>
+        </div>
+        <div class="form-group">
+          <label>Zona / Barrio <span class="req">*</span></label>
+          <select id="zona" required>
+            <option value="">Selecciona...</option>
+            <option value="salamanca">Salamanca</option>
+            <option value="chamberi">Chamberí</option>
+            <option value="retiro">Retiro</option>
+            <option value="centro">Centro</option>
+            <option value="moncloa">Moncloa - Aravaca</option>
+            <option value="tetuan">Tetuán</option>
+            <option value="chamartin">Chamartín</option>
+            <option value="hortaleza">Hortaleza</option>
+            <option value="fuencarral">Fuencarral - El Pardo</option>
+            <option value="latina">Latina</option>
+            <option value="carabanchel">Carabanchel</option>
+            <option value="vallecas">Vallecas</option>
+            <option value="moratalaz">Moratalaz</option>
+            <option value="vicalvaro">Vicálvaro</option>
+            <option value="ciudad_lineal">Ciudad Lineal</option>
+            <option value="san_blas">San Blas - Canillejas</option>
+            <option value="pozuelo">Pozuelo de Alarcón</option>
+            <option value="majadahonda">Majadahonda</option>
+            <option value="las_rozas">Las Rozas</option>
+          </select>
+          <span class="field-error" id="err-zona">Selecciona una zona</span>
+        </div>
+      </div>
+      <div class="form-row two">
+        <div class="form-group">
+          <label>Referencia Catastral <span style="text-transform:none;font-size:10px;">(opcional)</span></label>
+          <input type="text" id="refCatastral" placeholder="ej. 1234567VK4713A0001TT" maxlength="20">
+          <span class="field-error" id="err-refCatastral">Referencia ya registrada</span>
+        </div>
+        <div class="form-group">
+          <label>Tipo de inmueble <span class="req">*</span></label>
+          <select id="tipo" required>
+            <option value="">Selecciona...</option>
+            <option value="piso">Piso</option>
+            <option value="atico">Ático</option>
+            <option value="duplex">Dúplex</option>
+            <option value="chalet_independiente">Chalet independiente</option>
+            <option value="chalet_adosado">Chalet adosado</option>
+            <option value="estudio">Estudio</option>
+            <option value="loft">Loft</option>
+            <option value="planta_baja">Planta baja</option>
+          </select>
+          <span class="field-error" id="err-tipo">Selecciona un tipo</span>
+        </div>
+      </div>
+      <div class="form-row three">
+        <div class="form-group">
+          <label>Precio (€) <span class="req">*</span></label>
+          <input type="number" id="precio" placeholder="ej. 450000" min="10000" required>
+          <span class="field-error" id="err-precio">Precio no válido</span>
+        </div>
+        <div class="form-group">
+          <label>Metros útiles (m²) <span class="req">*</span></label>
+          <input type="number" id="metros" placeholder="ej. 95" min="10" required>
+          <span class="field-error" id="err-metros">Metros no válidos</span>
+        </div>
+        <div class="form-group">
+          <label>Año construcción</label>
+          <input type="number" id="anno" placeholder="ej. 1985" min="1800" max="2030">
+        </div>
+      </div>
+      <div class="form-row three">
+        <div class="form-group">
+          <label>Habitaciones <span class="req">*</span></label>
+          <select id="habitaciones" required>
+            <option value="">N.º hab.</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6+">6+</option>
+          </select>
+          <span class="field-error" id="err-habitaciones">Selecciona</span>
+        </div>
+        <div class="form-group">
+          <label>Baños <span class="req">*</span></label>
+          <select id="banos" required>
+            <option value="">N.º baños</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4+">4+</option>
+          </select>
+          <span class="field-error" id="err-banos">Selecciona</span>
+        </div>
+        <div class="form-group">
+          <label>Planta</label>
+          <select id="planta">
+            <option value="">Planta</option>
+            <option value="ss">Semisótano</option>
+            <option value="pb">Planta baja</option>
+            <option value="1">1ª</option>
+            <option value="2">2ª</option>
+            <option value="3">3ª</option>
+            <option value="4">4ª</option>
+            <option value="5">5ª</option>
+            <option value="6">6ª</option>
+            <option value="7">7ª</option>
+            <option value="8+">8ª o superior</option>
+            <option value="atico">Ático</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEC 2: CARACTERÍSTICAS -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <div class="section-title">Características</div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:18px;">
+        <label>Extras y características</label>
+        <div class="chips-wrap" id="caracteristicasChips">
+          <div class="chip" data-value="terraza">Terraza</div>
+          <div class="chip" data-value="jardin">Jardín</div>
+          <div class="chip" data-value="piscina">Piscina</div>
+          <div class="chip" data-value="garaje">Garaje</div>
+          <div class="chip" data-value="trastero">Trastero</div>
+          <div class="chip" data-value="ascensor">Ascensor</div>
+          <div class="chip" data-value="portero">Portero / Conserjería</div>
+          <div class="chip" data-value="exterior">Exterior</div>
+          <div class="chip" data-value="luminoso">Muy luminoso</div>
+          <div class="chip" data-value="reformado">Reformado</div>
+          <div class="chip" data-value="obra_nueva">Obra nueva</div>
+          <div class="chip" data-value="calefaccion">Calefacción central</div>
+          <div class="chip" data-value="ac">Aire acondicionado</div>
+          <div class="chip" data-value="armarios">Armarios empotrados</div>
+          <div class="chip" data-value="suelo_radiante">Suelo radiante</div>
+          <div class="chip" data-value="domótica">Domótica</div>
+          <div class="chip" data-value="seguridad">Seguridad / Alarma</div>
+          <div class="chip" data-value="gym">Gimnasio comunitario</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Estado de la propiedad <span class="req">*</span></label>
+        <div class="radio-group-inline" id="estadoGroup">
+          <label class="radio-pill" onclick="selectEstado(this,'excelente')"><input type="radio" name="estado_piso" value="excelente">Excelente</label>
+          <label class="radio-pill" onclick="selectEstado(this,'bueno')"><input type="radio" name="estado_piso" value="bueno">Buen estado</label>
+          <label class="radio-pill" onclick="selectEstado(this,'a_reformar')"><input type="radio" name="estado_piso" value="a_reformar">A reformar</label>
+          <label class="radio-pill" onclick="selectEstado(this,'reformado')"><input type="radio" name="estado_piso" value="reformado">Reformado</label>
+          <label class="radio-pill" onclick="selectEstado(this,'obra_nueva')"><input type="radio" name="estado_piso" value="obra_nueva">Obra nueva</label>
+        </div>
+        <span class="field-error" id="err-estadoPiso">Selecciona el estado</span>
+      </div>
+    </div>
+
+    <!-- SEC 3: FOTOS -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <div class="section-title">Fotos <span style="font-weight:400;color:var(--text-muted);font-size:13px;">(mínimo 3)</span></div>
+      </div>
+
+      <div class="photos-zone" id="photosZone" onclick="document.getElementById('photosInput').click()">
+        <div class="photos-zone-icon">📷</div>
+        <div class="photos-zone-text">Arrastra aquí o <strong>selecciona fotos</strong></div>
+        <div class="photos-zone-hint">JPG, PNG, WEBP · Mínimo 3 fotos · Máx. 10MB por imagen</div>
+      </div>
+      <input type="file" id="photosInput" accept="image/*" multiple style="display:none">
+
+      <div class="photos-grid" id="photosGrid"></div>
+      <div class="photos-count" id="photosCount"></div>
+      <span class="field-error" id="err-fotos" style="margin-top:8px;">Sube al menos 3 fotos</span>
+    </div>
+
+    <!-- SEC 4: DOCUMENTACIÓN -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <div class="section-title">Documentación <span style="font-weight:400;color:var(--text-muted);font-size:13px;">(opcional)</span></div>
+      </div>
+
+      <div id="docsContainer">
+        <div class="doc-upload-item">
+          <div class="doc-upload-icon">📋</div>
+          <div class="doc-upload-label">
+            <strong>ITE (Inspección Técnica del Edificio)</strong>
+            <span>PDF · max 10MB</span>
+            <div class="doc-upload-name" id="doc-ite-name"></div>
+          </div>
+          <button type="button" class="doc-upload-btn" onclick="document.getElementById('docIte').click()">Subir</button>
+          <input type="file" id="docIte" accept=".pdf,.PDF" style="display:none" onchange="handleDocFile(this,'ite')">
+        </div>
+        <div class="doc-upload-item">
+          <div class="doc-upload-icon">🏛</div>
+          <div class="doc-upload-label">
+            <strong>Nota Simple del Catastro</strong>
+            <span>PDF · max 10MB</span>
+            <div class="doc-upload-name" id="doc-catastro-name"></div>
+          </div>
+          <button type="button" class="doc-upload-btn" onclick="document.getElementById('docCatastro').click()">Subir</button>
+          <input type="file" id="docCatastro" accept=".pdf,.PDF" style="display:none" onchange="handleDocFile(this,'catastro')">
+        </div>
+        <div class="doc-upload-item">
+          <div class="doc-upload-icon">📄</div>
+          <div class="doc-upload-label">
+            <strong>Memoria de calidades</strong>
+            <span>PDF · max 10MB</span>
+            <div class="doc-upload-name" id="doc-memoria-name"></div>
+          </div>
+          <button type="button" class="doc-upload-btn" onclick="document.getElementById('docMemoria').click()">Subir</button>
+          <input type="file" id="docMemoria" accept=".pdf,.PDF" style="display:none" onchange="handleDocFile(this,'memoria')">
+        </div>
+        <div class="doc-upload-item">
+          <div class="doc-upload-icon">📐</div>
+          <div class="doc-upload-label">
+            <strong>Planos</strong>
+            <span>PDF, JPG, PNG · max 10MB</span>
+            <div class="doc-upload-name" id="doc-planos-name"></div>
+          </div>
+          <button type="button" class="doc-upload-btn" onclick="document.getElementById('docPlanos').click()">Subir</button>
+          <input type="file" id="docPlanos" accept=".pdf,.jpg,.jpeg,.png,.PDF" style="display:none" onchange="handleDocFile(this,'planos')">
+        </div>
+        <div class="doc-upload-item">
+          <div class="doc-upload-icon">🎬</div>
+          <div class="doc-upload-label">
+            <strong>Vídeo / Tour virtual</strong>
+            <span>MP4, MOV o URL externa · max 100MB</span>
+            <div class="doc-upload-name" id="doc-video-name"></div>
+          </div>
+          <button type="button" class="doc-upload-btn" onclick="document.getElementById('docVideo').click()">Subir</button>
+          <input type="file" id="docVideo" accept="video/*" style="display:none" onchange="handleDocFile(this,'video')">
+        </div>
+      </div>
+    </div>
+
+    <!-- SEC 5: DATOS PROPIETARIO -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">5</div>
+        <div class="section-title">Datos del Propietario</div>
+      </div>
+
+      <div class="form-row two">
+        <div class="form-group">
+          <label>Nombre propietario <span class="req">*</span></label>
+          <input type="text" id="propietarioNombre" placeholder="Nombre completo" required>
+          <span class="field-error" id="err-propietarioNombre">Campo requerido</span>
+        </div>
+        <div class="form-group">
+          <label>Teléfono propietario <span class="req">*</span></label>
+          <input type="tel" id="propietarioTel" placeholder="+34 6XX XXX XXX" required>
+          <span class="field-error" id="err-propietarioTel">Teléfono no válido</span>
+        </div>
+      </div>
+      <div class="form-row two">
+        <div class="form-group">
+          <label>Email propietario <span style="text-transform:none;font-size:10px;">(opcional)</span></label>
+          <input type="email" id="propietarioEmail" placeholder="propietario@email.com">
+        </div>
+        <div class="form-group">
+          <label>Relación colaborador-propietario <span class="req">*</span></label>
+          <select id="relacion" required>
+            <option value="">Selecciona...</option>
+            <option value="propietario_directo">Es el propietario directo</option>
+            <option value="familiar">Familiar del propietario</option>
+            <option value="gestor">Gestor / Apoderado</option>
+            <option value="otro_agente">Otro agente con acuerdo</option>
+          </select>
+          <span class="field-error" id="err-relacion">Selecciona una opción</span>
+        </div>
+      </div>
+      <div class="form-row two">
+        <div class="form-group">
+          <label>Motivo de venta</label>
+          <select id="motivoVenta">
+            <option value="">Selecciona...</option>
+            <option value="cambio_residencia">Cambio de residencia</option>
+            <option value="divorcio">Divorcio / Separación</option>
+            <option value="herencia">Herencia</option>
+            <option value="inversion">Liquidar inversión</option>
+            <option value="necesidad_liquidez">Necesidad de liquidez</option>
+            <option value="traslado_laboral">Traslado laboral</option>
+            <option value="jubilacion">Jubilación</option>
+            <option value="no_indica">Prefiere no indicarlo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Disponibilidad para visitas</label>
+          <div class="chips-wrap" id="disponibilidadChips">
+            <div class="chip" data-value="mananas">Mañanas</div>
+            <div class="chip" data-value="tardes">Tardes</div>
+            <div class="chip" data-value="fines_semana">Fines de semana</div>
+            <div class="chip" data-value="flexible">Flexible</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEC 6: LEGAL -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">6</div>
+        <div class="section-title">Consentimiento</div>
+      </div>
+      <div class="checkbox-group">
+        <label class="checkbox-item required">
+          <input type="checkbox" id="chkPrivacidad" required>
+          <span class="checkbox-text">Confirmo que tengo autorización del propietario para publicar esta propiedad y que los datos facilitados son correctos. <span style="color:var(--gold-dark);">*</span></span>
+        </label>
+        <label class="checkbox-item required">
+          <input type="checkbox" id="chkDatos" required>
+          <span class="checkbox-text">He leído y acepto los <a href="#" target="_blank">Términos de colaboración</a> de ONOMA Homes. <span style="color:var(--gold-dark);">*</span></span>
+        </label>
+      </div>
+      <span class="field-error" id="err-legal" style="margin-top:8px;">Debes aceptar los términos obligatorios</span>
+    </div>
+
+    <button type="submit" class="btn-submit" id="submitBtn">
+      <span class="btn-text">Enviar propiedad</span>
+      <div class="btn-spinner"></div>
+    </button>
+  </form>
+</div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div class="container success-screen" id="successScreen">
+  <div class="success-icon">🏡</div>
+  <div class="success-title">¡Propiedad enviada!</div>
+  <p class="success-text">Hemos recibido la propiedad. Nuestro equipo la revisará y te confirmaremos en 24-48h si está todo correcto para publicarla.</p>
+  <div class="next-steps">
+    <h4>¿Qué pasa ahora?</h4>
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-text">Recibirás un email de confirmación con el resumen de la propiedad enviada.</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-text">Nuestro equipo verificará los datos, fotos y documentación aportada.</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-text">Si todo está correcto, la propiedad se activará y recibirás notificaciones de demandas que encajan.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://wwaytwudfbwxttyyojjx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
+const CLOUDINARY_CLOUD = 'duy8wxcrq';
+const CLOUDINARY_PRESET = 'onoma_pisos';
+const N8N_BASE = 'https://onomahomes.app.n8n.cloud/webhook';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const formStartTime = Date.now();
+
+let colabId = null;
+let colabData = null;
+let photoFiles = []; // {file, url, status, id}
+let docFiles = {}; // {ite, catastro, memoria, planos, video}
+let selectedCaracteristicas = [];
+let selectedEstado = null;
+let selectedDisponibilidad = [];
+
+// --- VERIFY COLABORADOR ---
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  colabId = params.get('colab');
+
+  if (!colabId) {
+    showErrorScreen('Falta el parámetro de colaborador. Usa el enlace que te proporcionó ONOMA.');
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('colaboradores')
+      .select('id, nombre, empresa, estado')
+      .eq('id', colabId)
+      .maybeSingle();
+
+    if (error || !data) {
+      showErrorScreen('No se encontró tu cuenta de colaborador. Verifica el enlace.');
+      return;
+    }
+    if (data.estado !== 'aprobado') {
+      showErrorScreen(`Tu solicitud de colaboración está en estado "${data.estado}". Solo los colaboradores aprobados pueden subir propiedades.`);
+      return;
+    }
+
+    colabData = data;
+    document.getElementById('colabBadgeText').textContent = data.empresa ? `${data.empresa} · Colaborador verificado` : `${data.nombre} · Colaborador verificado`;
+    document.getElementById('loadingScreen').classList.add('hidden');
+    document.getElementById('mainForm').style.display = '';
+
+  } catch(e) {
+    showErrorScreen('Error de conexión. Por favor, recarga la página.');
+  }
+}
+
+function showErrorScreen(msg) {
+  document.getElementById('loadingScreen').classList.add('hidden');
+  document.getElementById('errorScreenMsg').textContent = msg;
+  document.getElementById('errorScreen').classList.add('show');
+}
+
+// --- CHIPS ---
+document.querySelectorAll('#caracteristicasChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.classList.toggle('active');
+    const val = chip.dataset.value;
+    if (chip.classList.contains('active')) {
+      if (!selectedCaracteristicas.includes(val)) selectedCaracteristicas.push(val);
+    } else {
+      selectedCaracteristicas = selectedCaracteristicas.filter(c => c !== val);
+    }
+  });
+});
+
+document.querySelectorAll('#disponibilidadChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.classList.toggle('active');
+    const val = chip.dataset.value;
+    if (chip.classList.contains('active')) {
+      if (!selectedDisponibilidad.includes(val)) selectedDisponibilidad.push(val);
+    } else {
+      selectedDisponibilidad = selectedDisponibilidad.filter(d => d !== val);
+    }
+  });
+});
+
+// --- RADIO ESTADO ---
+function selectEstado(el, val) {
+  document.querySelectorAll('#estadoGroup .radio-pill').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedEstado = val;
+  el.querySelector('input[type=radio]').checked = true;
+  hideError('estadoPiso');
+}
+
+// --- PHOTOS ---
+const photosZone = document.getElementById('photosZone');
+photosZone.addEventListener('dragover', e => { e.preventDefault(); photosZone.classList.add('dragover'); });
+photosZone.addEventListener('dragleave', () => photosZone.classList.remove('dragover'));
+photosZone.addEventListener('drop', e => {
+  e.preventDefault();
+  photosZone.classList.remove('dragover');
+  handlePhotoFiles(Array.from(e.dataTransfer.files));
+});
+document.getElementById('photosInput').addEventListener('change', e => {
+  handlePhotoFiles(Array.from(e.target.files));
+  e.target.value = '';
+});
+
+function handlePhotoFiles(files) {
+  files.forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > 10 * 1024 * 1024) { alert(`"${file.name}" supera los 10MB`); return; }
+    const id = 'photo_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    photoFiles.push({ file, url: null, status: 'pending', id });
+    addPhotoThumb(file, id);
+  });
+  updatePhotosCount();
+  hideError('fotos');
+}
+
+function addPhotoThumb(file, id) {
+  const grid = document.getElementById('photosGrid');
+  const thumb = document.createElement('div');
+  thumb.className = 'photo-thumb';
+  thumb.id = 'thumb_' + id;
+  thumb.innerHTML = `
+    <img id="img_${id}" src="" alt="">
+    <div class="photo-thumb-overlay"><div class="spinner-sm"></div></div>
+    <div class="photo-thumb-progress"><div class="photo-thumb-progress-bar" id="bar_${id}"></div></div>
+    <button type="button" class="photo-thumb-remove" onclick="removePhoto('${id}')">✕</button>
+  `;
+  grid.appendChild(thumb);
+  const reader = new FileReader();
+  reader.onload = e => { document.getElementById('img_' + id).src = e.target.result; };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto(id) {
+  photoFiles = photoFiles.filter(p => p.id !== id);
+  const el = document.getElementById('thumb_' + id);
+  if (el) el.remove();
+  updatePhotosCount();
+}
+
+function updatePhotosCount() {
+  const c = document.getElementById('photosCount');
+  const n = photoFiles.length;
+  c.innerHTML = n === 0 ? '' : `<strong>${n}</strong> foto${n !== 1 ? 's' : ''} seleccionada${n !== 1 ? 's' : ''} ${n < 3 ? `— <span style="color:var(--danger);">necesitas al menos 3</span>` : '— <span style="color:var(--success);">✓ suficientes</span>'}`;
+}
+
+async function uploadPhotoToCloudinary(file, id) {
+  const thumb = document.getElementById('thumb_' + id);
+  if (thumb) thumb.classList.add('photo-thumb-uploading');
+
+  return new Promise((resolve, reject) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', CLOUDINARY_PRESET);
+    fd.append('folder', 'onoma/pisos');
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`);
+    xhr.upload.onprogress = e => {
+      if (e.lengthComputable) {
+        const bar = document.getElementById('bar_' + id);
+        if (bar) bar.style.width = Math.round(e.loaded / e.total * 100) + '%';
+      }
+    };
+    xhr.onload = () => {
+      if (thumb) thumb.classList.remove('photo-thumb-uploading');
+      if (xhr.status === 200) resolve(JSON.parse(xhr.responseText).secure_url);
+      else reject(new Error('Upload failed'));
+    };
+    xhr.onerror = () => reject(new Error('Network error'));
+    xhr.send(fd);
+  });
+}
+
+// --- DOCS ---
+function handleDocFile(input, key) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 100 * 1024 * 1024) { alert('El archivo supera el límite de 100MB'); return; }
+  docFiles[key] = file;
+  const nameEl = document.getElementById(`doc-${key}-name`);
+  if (nameEl) { nameEl.textContent = '✓ ' + file.name; nameEl.classList.add('show'); }
+}
+
+async function uploadDocToCloudinary(file, key) {
+  return new Promise((resolve, reject) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', CLOUDINARY_PRESET);
+    fd.append('folder', `onoma/docs/${key}`);
+    const isVideo = file.type.startsWith('video/');
+    const endpoint = isVideo ? 'video' : 'raw';
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${endpoint}/upload`);
+    xhr.onload = () => {
+      if (xhr.status === 200) resolve(JSON.parse(xhr.responseText).secure_url);
+      else reject(new Error('Doc upload failed'));
+    };
+    xhr.onerror = () => reject(new Error('Network error'));
+    xhr.send(fd);
+  });
+}
+
+// --- VALIDATION HELPERS ---
+function showError(id, msg) {
+  const el = document.getElementById(`err-${id}`);
+  const input = document.getElementById(id);
+  if (el) { if (msg) el.textContent = msg; el.classList.add('show'); }
+  if (input) input.classList.add('error');
+}
+function hideError(id) {
+  const el = document.getElementById(`err-${id}`);
+  const input = document.getElementById(id);
+  if (el) el.classList.remove('show');
+  if (input) input.classList.remove('error');
+}
+function validatePhone(p) { return /^[\+\d\s\-\(\)]{7,16}$/.test(p.trim()); }
+
+async function checkRateLimit() {
+  const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+  const { data } = await supabase
+    .from('form_submissions_log')
+    .select('id')
+    .eq('form_type', 'subir_piso')
+    .eq('datos->>colaborador_id', colabId)
+    .gte('created_at', oneHourAgo);
+  return data && data.length >= 10;
+}
+
+async function checkRefCatastral(ref) {
+  if (!ref) return false;
+  const { data } = await supabase.from('pisos').select('id').eq('ref_catastral', ref).maybeSingle();
+  return !!data;
+}
+
+// --- FORM SUBMIT ---
+document.getElementById('pisoForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!colabId || !colabData) return;
+  if (document.getElementById('hpField').value) return;
+  if (Date.now() - formStartTime < 10000) { showBanner('Completa el formulario con calma.'); return; }
+
+  let valid = true;
+
+  const direccion = document.getElementById('direccion').value.trim();
+  const cp = document.getElementById('cp').value.trim();
+  const zona = document.getElementById('zona').value;
+  const refCatastral = document.getElementById('refCatastral').value.trim().toUpperCase();
+  const tipo = document.getElementById('tipo').value;
+  const precio = parseInt(document.getElementById('precio').value);
+  const metros = parseInt(document.getElementById('metros').value);
+  const anno = document.getElementById('anno').value ? parseInt(document.getElementById('anno').value) : null;
+  const habitaciones = document.getElementById('habitaciones').value;
+  const banos = document.getElementById('banos').value;
+  const planta = document.getElementById('planta').value;
+  const propietarioNombre = document.getElementById('propietarioNombre').value.trim();
+  const propietarioTel = document.getElementById('propietarioTel').value.trim();
+  const propietarioEmail = document.getElementById('propietarioEmail').value.trim();
+  const relacion = document.getElementById('relacion').value;
+  const motivoVenta = document.getElementById('motivoVenta').value;
+
+  const errIds = ['direccion','cp','zona','tipo','precio','metros','habitaciones','banos','estadoPiso','fotos','propietarioNombre','propietarioTel','relacion','legal','refCatastral'];
+  errIds.forEach(id => hideError(id));
+
+  if (!direccion) { showError('direccion','Campo requerido'); valid = false; }
+  if (!cp || !/^28\d{3}$/.test(cp)) { showError('cp','Debe ser un código postal de Madrid (28000-28999)'); valid = false; }
+  if (!zona) { showError('zona','Selecciona una zona'); valid = false; }
+  if (!tipo) { showError('tipo','Selecciona un tipo'); valid = false; }
+  if (!precio || precio < 10000) { showError('precio','Precio no válido'); valid = false; }
+  if (!metros || metros < 10) { showError('metros','Metros no válidos'); valid = false; }
+  if (!habitaciones) { showError('habitaciones','Selecciona'); valid = false; }
+  if (!banos) { showError('banos','Selecciona'); valid = false; }
+  if (!selectedEstado) { showError('estadoPiso','Selecciona el estado'); valid = false; }
+  if (photoFiles.length < 3) { showError('fotos','Sube al menos 3 fotos'); valid = false; }
+  if (!propietarioNombre) { showError('propietarioNombre','Campo requerido'); valid = false; }
+  if (!propietarioTel || !validatePhone(propietarioTel)) { showError('propietarioTel','Teléfono no válido'); valid = false; }
+  if (!relacion) { showError('relacion','Selecciona una opción'); valid = false; }
+  if (!document.getElementById('chkPrivacidad').checked || !document.getElementById('chkDatos').checked) {
+    showError('legal','Debes aceptar los términos obligatorios'); valid = false;
+  }
+
+  if (!valid) { showBanner('Revisa los campos marcados en rojo.'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  hideBanner();
+
+  try {
+    // Rate limit
+    const limited = await checkRateLimit();
+    if (limited) { showBanner('Has enviado demasiadas propiedades en la última hora.'); btn.disabled=false; btn.classList.remove('loading'); return; }
+
+    // Ref catastral unique check
+    if (refCatastral) {
+      const dupRef = await checkRefCatastral(refCatastral);
+      if (dupRef) { showError('refCatastral','Referencia ya registrada'); showBanner('La referencia catastral ya existe en el sistema.'); btn.disabled=false; btn.classList.remove('loading'); return; }
+    }
+
+    // Upload photos
+    showUploadStatus('Subiendo fotos... 0/' + photoFiles.length);
+    const photoUrls = [];
+    for (let i = 0; i < photoFiles.length; i++) {
+      showUploadStatus(`Subiendo fotos... ${i + 1}/${photoFiles.length}`);
+      const url = await uploadPhotoToCloudinary(photoFiles[i].file, photoFiles[i].id);
+      photoUrls.push(url);
+      photoFiles[i].url = url;
+    }
+
+    // Upload docs
+    const docUrls = {};
+    const docKeys = Object.keys(docFiles);
+    if (docKeys.length > 0) {
+      showUploadStatus('Subiendo documentación...');
+      for (const key of docKeys) {
+        if (docFiles[key]) {
+          docUrls[key] = await uploadDocToCloudinary(docFiles[key], key);
+        }
+      }
+    }
+
+    showUploadStatus('Guardando propiedad...');
+
+    // INSERT piso
+    const pisoPayload = {
+      colaborador_origen_id: colabId,
+      direccion,
+      cp,
+      zona,
+      ref_catastral: refCatastral || null,
+      tipo,
+      precio,
+      metros,
+      habitaciones,
+      banos,
+      planta: planta || null,
+      anno_construccion: anno,
+      estado_conservacion: selectedEstado,
+      caracteristicas: selectedCaracteristicas.length ? selectedCaracteristicas : null,
+      fotos: photoUrls,
+      doc_ite: docUrls.ite || null,
+      doc_catastro: docUrls.catastro || null,
+      doc_memoria: docUrls.memoria || null,
+      doc_planos: docUrls.planos || null,
+      doc_video: docUrls.video || null,
+      propietario_nombre: propietarioNombre,
+      propietario_tel: propietarioTel,
+      propietario_email: propietarioEmail || null,
+      relacion_colaborador: relacion,
+      motivo_venta: motivoVenta || null,
+      disponibilidad_visitas: selectedDisponibilidad.length ? selectedDisponibilidad : null,
+      estado_sistema: 'pendiente_revision',
+      origen: 'formulario_colaborador',
+    };
+
+    const { data: piso, error: pisoErr } = await supabase.from('pisos').insert(pisoPayload).select().single();
+    if (pisoErr) throw pisoErr;
+
+    // Logs
+    await supabase.from('form_submissions_log').insert({
+      form_type: 'subir_piso',
+      datos: { colaborador_id: colabId, tipo, direccion, precio },
+    });
+    await supabase.from('actividad_log').insert({
+      tipo: 'piso_colaborador_recibido',
+      descripcion: `Nuevo piso de colaborador ${colabData.nombre}: ${tipo} en ${zona} — ${precio.toLocaleString('es-ES')} €`,
+      entidad_tipo: 'pisos', entidad_id: piso.id,
+    });
+
+    // Acción pendiente para equipo
+    await supabase.from('acciones_pendientes').insert({
+      tipo: 'revisar_piso_colaborador',
+      descripcion: `Revisar piso enviado por colaborador: ${tipo} en ${direccion} — ${precio.toLocaleString('es-ES')} €`,
+      entidad_tipo: 'pisos', entidad_id: piso.id,
+      prioridad: 'media',
+    });
+
+    // Webhook
+    try {
+      await fetch(`${N8N_BASE}/email-confirmacion-piso`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          piso_id: piso.id, colaborador_id: colabId, colaborador_nombre: colabData.nombre,
+          tipo, direccion, zona, precio, fotos_count: photoUrls.length,
+        }),
+      });
+    } catch(_) {}
+
+    hideUploadStatus();
+    document.getElementById('mainForm').style.display = 'none';
+    document.getElementById('successScreen').classList.add('show');
+    window.scrollTo(0, 0);
+
+  } catch(err) {
+    console.error(err);
+    showBanner('Ha ocurrido un error al guardar. Por favor, inténtalo de nuevo.');
+    hideUploadStatus();
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  }
+});
+
+function showBanner(msg) {
+  const b = document.getElementById('formErrorBanner');
+  b.textContent = msg;
+  b.classList.add('show');
+  b.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+function hideBanner() { document.getElementById('formErrorBanner').classList.remove('show'); }
+function showUploadStatus(msg) {
+  const s = document.getElementById('uploadStatus');
+  s.textContent = msg;
+  s.classList.add('show');
+}
+function hideUploadStatus() { document.getElementById('uploadStatus').classList.remove('show'); }
+
+// Init
+init();
+</script>
+</body>
+</html>
