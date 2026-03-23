@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback de Visita — ONOMA Homes</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --gold: #C9A84C; --gold-dark: #B8962E; --gold-bg: rgba(201,168,76,0.10); --gold-border: rgba(201,168,76,0.35);
+  --bg: #F5F4F1; --card: #FFFFFF; --text: #1C1C1C; --text-muted: #7A6E66; --text-tertiary: #A09890;
+  --border: #D7D6D4; --success: #2C5F2E; --success-bg: rgba(44,95,46,0.08); --danger: #8B2020;
+  --font-ui: 'Jost', sans-serif; --font-body: 'Barlow', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+.header { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 20px 24px; background: var(--card); border-bottom: 1px solid var(--border); }
+.logo { font-family: var(--font-ui); font-size: 22px; font-weight: 700; letter-spacing: 0.15em; color: var(--text); }
+.colab-logo { height: 32px; border-radius: 6px; }
+.container { max-width: 640px; margin: 0 auto; padding: 24px 16px 100px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.card-title { font-family: var(--font-ui); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold-dark); margin-bottom: 16px; }
+.piso-card { display: flex; gap: 16px; align-items: flex-start; }
+.piso-img { width: 100px; height: 75px; border-radius: 8px; object-fit: cover; background: var(--border); flex-shrink: 0; }
+.piso-info h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.piso-info p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.piso-precio { font-family: var(--font-ui); font-size: 16px; font-weight: 700; color: var(--gold-dark); margin-top: 4px; }
+.resumen-box { background: var(--gold-bg); border: 1px solid var(--gold-border); border-radius: 10px; padding: 14px 16px; margin-top: 14px; }
+.resumen-box .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold-dark); margin-bottom: 6px; }
+.resumen-box .value { font-size: 14px; color: var(--text); }
+.stars-display { color: var(--gold); font-size: 18px; letter-spacing: 2px; }
+.form-col { margin-bottom: 16px; }
+.form-col label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+.form-col textarea, .form-col input[type="number"], .form-col input[type="date"] {
+  width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px;
+  font-family: var(--font-body); color: var(--text); background: var(--card); transition: border-color 0.15s; resize: vertical;
+}
+.form-col textarea:focus, .form-col input:focus { outline: none; border-color: var(--gold); }
+.required { color: var(--danger); font-weight: 700; }
+.radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.radio-opt { display: flex; align-items: center; gap: 6px; padding: 10px 18px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.15s; user-select: none; }
+.radio-opt:hover { border-color: var(--gold); }
+.radio-opt:has(input:checked) { border-color: var(--gold); background: var(--gold-bg); font-weight: 600; }
+.radio-opt input { display: none; }
+.stars-input { display: flex; gap: 4px; }
+.star-btn { font-size: 30px; cursor: pointer; color: var(--border); transition: color 0.15s; user-select: none; }
+.star-btn.active { color: var(--gold); }
+.checkbox-row { display: flex; align-items: flex-start; gap: 10px; padding: 14px; background: var(--gold-bg); border: 1px solid var(--gold-border); border-radius: 10px; cursor: pointer; }
+.checkbox-row input { width: 18px; height: 18px; accent-color: var(--gold); margin-top: 2px; flex-shrink: 0; }
+.checkbox-row span { font-size: 13px; color: var(--text); line-height: 1.5; }
+.btn-submit { display: block; width: 100%; padding: 16px; background: var(--gold); color: var(--text); border: none; border-radius: 10px; font-size: 15px; font-weight: 700; font-family: var(--font-ui); cursor: pointer; letter-spacing: 0.05em; text-transform: uppercase; transition: background 0.15s; }
+.btn-submit:hover { background: var(--gold-dark); }
+.btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+.conditional { display: none; margin-top: 14px; animation: fadeIn 0.25s; }
+.conditional.visible { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.success-screen { text-align: center; padding: 60px 20px; }
+.success-icon { font-size: 64px; margin-bottom: 16px; }
+.success-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--success); }
+.success-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+.error-screen { text-align: center; padding: 60px 20px; }
+.error-icon { font-size: 48px; margin-bottom: 12px; }
+.error-title { font-size: 18px; font-weight: 700; color: var(--danger); margin-bottom: 8px; }
+.error-text { font-size: 14px; color: var(--text-muted); }
+.loading-screen { text-align: center; padding: 80px 20px; color: var(--text-muted); }
+.spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 16px; background: var(--card); border-top: 1px solid var(--border); display: none; }
+@media (max-width: 600px) {
+  .radio-group { flex-direction: column; }
+  .piso-card { flex-direction: column; }
+  .piso-img { width: 100%; height: 180px; }
+  .bottom-bar { display: block; }
+  .btn-desktop { display: none; }
+}
+@media (min-width: 601px) { .bottom-bar { display: none; } }
+.footer { text-align: center; font-size: 11px; color: var(--text-tertiary); padding: 32px 0 16px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="logo">ONOMA</span>
+  <span id="colab-logo-area"></span>
+</div>
+
+<div class="container">
+  <!-- Loading -->
+  <div id="screen-loading" class="loading-screen">
+    <div class="spinner"></div>
+    <p>Cargando datos de la visita...</p>
+  </div>
+
+  <!-- Error -->
+  <div id="screen-error" style="display:none">
+    <div class="error-screen">
+      <div class="error-icon">⚠️</div>
+      <div class="error-title" id="error-title">Enlace no válido</div>
+      <div class="error-text" id="error-text">Este enlace no es válido o ha expirado.</div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div id="screen-form" style="display:none">
+
+    <!-- Section A: Resumen de la visita (read-only) -->
+    <div class="card">
+      <div class="card-title">Resumen de la visita</div>
+      <div class="piso-card">
+        <img class="piso-img" id="piso-foto" src="" alt="Piso">
+        <div class="piso-info">
+          <h3 id="piso-dir">—</h3>
+          <p id="piso-barrio">—</p>
+          <div class="piso-precio" id="piso-precio">—</div>
+        </div>
+      </div>
+      <div class="resumen-box" id="resumen-asesor">
+        <div class="label">Feedback del asesor</div>
+        <div class="value" id="resumen-interes">—</div>
+        <div class="value" style="margin-top:6px;font-size:13px;color:var(--text-muted)" id="resumen-paso">—</div>
+      </div>
+    </div>
+
+    <!-- Section B: Feedback del colaborador -->
+    <div class="card">
+      <div class="card-title">Tu feedback</div>
+
+      <div class="form-col">
+        <label>¿Tu cliente te ha comentado algo después de la visita? <span class="required">*</span></label>
+        <textarea id="fb-comentario" rows="3" placeholder="¿Qué impresión tiene tu cliente del piso?"></textarea>
+      </div>
+
+      <div class="form-col">
+        <label>Nivel de interés real del cliente <span class="required">*</span></label>
+        <div class="stars-input" id="fb-stars">
+          <span class="star-btn" onclick="setStars(1)">★</span>
+          <span class="star-btn" onclick="setStars(2)">★</span>
+          <span class="star-btn" onclick="setStars(3)">★</span>
+          <span class="star-btn" onclick="setStars(4)">★</span>
+          <span class="star-btn" onclick="setStars(5)">★</span>
+        </div>
+        <input type="hidden" id="fb-stars-val" value="">
+      </div>
+
+      <div class="form-col">
+        <label>¿El cliente quiere avanzar? <span class="required">*</span></label>
+        <div class="radio-group">
+          <label class="radio-opt"><input type="radio" name="quiere_avanzar" value="segunda_visita" onchange="updateConditionals()"><span>Sí, segunda visita</span></label>
+          <label class="radio-opt"><input type="radio" name="quiere_avanzar" value="hacer_oferta" onchange="updateConditionals()"><span>Sí, hacer oferta</span></label>
+          <label class="radio-opt"><input type="radio" name="quiere_avanzar" value="necesita_pensarlo" onchange="updateConditionals()"><span>Necesita pensarlo</span></label>
+          <label class="radio-opt"><input type="radio" name="quiere_avanzar" value="descarta" onchange="updateConditionals()"><span>No, descarta</span></label>
+        </div>
+      </div>
+
+      <!-- Conditional: Oferta -->
+      <div class="conditional" id="cond-oferta">
+        <div class="form-col">
+          <label>Precio que el cliente ofrecería <span class="required">*</span></label>
+          <div style="position:relative"><input type="number" id="fb-precio-oferta" placeholder="Ej: 285000" style="padding-right:30px"><span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text-muted)">€</span></div>
+        </div>
+      </div>
+
+      <!-- Conditional: Pensarlo -->
+      <div class="conditional" id="cond-pensarlo">
+        <div class="form-col">
+          <label>Fecha estimada de decisión</label>
+          <input type="date" id="fb-fecha-decision">
+        </div>
+      </div>
+
+      <div class="form-col">
+        <label>Notas adicionales para ONOMA</label>
+        <textarea id="fb-notas" rows="2" placeholder="Cualquier contexto adicional..."></textarea>
+      </div>
+    </div>
+
+    <!-- Section C: Próximo paso -->
+    <div class="card">
+      <div class="card-title">Siguiente paso</div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="fb-enviar-cliente" checked>
+        <span>¿Quieres que enviemos el feedback al cliente para que confirme?</span>
+      </label>
+    </div>
+
+    <button class="btn-submit btn-desktop" id="btn-submit" onclick="submitColabFeedback()">Enviar feedback</button>
+  </div>
+
+  <!-- Success -->
+  <div id="screen-success" style="display:none">
+    <div class="success-screen">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Gracias, tu feedback ha sido registrado</div>
+      <div class="success-text" id="success-text">ONOMA procesará tu feedback y continuará con el siguiente paso.</div>
+    </div>
+  </div>
+
+  <div class="footer">ONOMA Real Estate SL — CIF B19368547</div>
+</div>
+
+<!-- Mobile bottom bar -->
+<div class="bottom-bar" id="bottom-bar">
+  <button class="btn-submit" onclick="submitColabFeedback()">Enviar feedback</button>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://wwaytwudfbwxttyyojjx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let envioData = null, pisoData = null, feedbackAsesor = null, colabData = null;
+
+function eur(n) { return n ? new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n) : '—'; }
+
+function setStars(val) {
+  document.getElementById('fb-stars-val').value = val;
+  document.querySelectorAll('#fb-stars .star-btn').forEach((s, i) => s.classList.toggle('active', i < val));
+}
+
+function updateConditionals() {
+  const v = document.querySelector('input[name="quiere_avanzar"]:checked');
+  if (!v) return;
+  document.getElementById('cond-oferta').classList.toggle('visible', v.value === 'hacer_oferta');
+  document.getElementById('cond-pensarlo').classList.toggle('visible', v.value === 'necesita_pensarlo');
+  document.getElementById('bottom-bar').style.display = 'block';
+}
+
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const hash = params.get('id') || params.get('h');
+
+  if (!hash) { showError('Enlace no válido', 'Falta el identificador en la URL.'); return; }
+
+  try {
+    // Load envio_matching
+    const { data: envios } = await sb.from('envios_matching').select('*').eq('link_hash', hash).limit(1);
+    if (!envios || !envios[0]) { showError('Enlace no válido', 'Este enlace no existe o ha expirado.'); return; }
+    envioData = envios[0];
+
+    // Check if already used
+    if (envioData.usado) { showError('Feedback ya enviado', 'Ya has enviado tu feedback para esta visita.'); return; }
+
+    // Check expiration
+    if (envioData.fecha_expiracion && new Date(envioData.fecha_expiracion) < new Date()) {
+      showError('Enlace expirado', 'Este enlace ha caducado. Contacta con tu asesor.'); return;
+    }
+
+    // Load piso data from the feedback
+    if (envioData.demanda_id) {
+      // Get the visita + piso info through feedbacks
+      const { data: fbs } = await sb.from('feedbacks').select('*').eq('demanda_id', envioData.demanda_id).eq('tipo', 'asesor').order('fecha_creacion', { ascending: false }).limit(1);
+      if (fbs && fbs[0]) {
+        feedbackAsesor = fbs[0];
+        if (feedbackAsesor.piso_id) {
+          const { data: pd } = await sb.from('pisos').select('id,nombre,direccion,barrio,precio,fotos,descripcion_ia').eq('id', feedbackAsesor.piso_id).limit(1);
+          if (pd && pd[0]) pisoData = pd[0];
+        }
+      }
+    }
+
+    // Load collaborator info
+    if (envioData.colaborador_id) {
+      const { data: cd } = await sb.from('colaboradores').select('id,nombre,logo,brand_color').eq('id', envioData.colaborador_id).limit(1);
+      if (cd && cd[0]) colabData = cd[0];
+    }
+
+    renderForm();
+  } catch(e) {
+    console.error(e);
+    showError('Error', 'No se pudieron cargar los datos. Inténtalo de nuevo.');
+  }
+}
+
+function showError(title, text) {
+  document.getElementById('screen-loading').style.display = 'none';
+  document.getElementById('error-title').textContent = title;
+  document.getElementById('error-text').textContent = text;
+  document.getElementById('screen-error').style.display = 'block';
+}
+
+function renderForm() {
+  document.getElementById('screen-loading').style.display = 'none';
+  document.getElementById('screen-form').style.display = 'block';
+
+  // Apply collaborator branding
+  if (colabData) {
+    if (colabData.logo) {
+      document.getElementById('colab-logo-area').innerHTML = `<img class="colab-logo" src="${colabData.logo}" alt="${colabData.nombre}">`;
+    }
+    if (colabData.brand_color) {
+      document.documentElement.style.setProperty('--gold', colabData.brand_color);
+    }
+  }
+
+  // Piso info
+  if (pisoData) {
+    document.getElementById('piso-dir').textContent = pisoData.direccion || pisoData.nombre || '—';
+    document.getElementById('piso-barrio').textContent = pisoData.barrio || '';
+    document.getElementById('piso-precio').textContent = eur(pisoData.precio);
+    // Photo
+    let photoUrl = '';
+    if (pisoData.fotos) {
+      try {
+        const fotosArr = typeof pisoData.fotos === 'string' ? JSON.parse(pisoData.fotos) : pisoData.fotos;
+        if (fotosArr && fotosArr[0]) photoUrl = fotosArr[0].thumbnails ? fotosArr[0].thumbnails.large : fotosArr[0].url;
+      } catch(e) {}
+    }
+    if (photoUrl) document.getElementById('piso-foto').src = photoUrl;
+  }
+
+  // Asesor feedback summary
+  if (feedbackAsesor && feedbackAsesor.datos) {
+    const d = feedbackAsesor.datos;
+    const interes = d.seccion1_comprador ? d.seccion1_comprador.interes : null;
+    if (interes) {
+      const starsHtml = '★'.repeat(interes) + '☆'.repeat(5 - interes);
+      document.getElementById('resumen-interes').innerHTML = `Interés del comprador: <span class="stars-display">${starsHtml}</span> (${interes}/5)`;
+    }
+    const paso = d.seccion5_paso ? d.seccion5_paso.proximo_paso : null;
+    if (paso) {
+      const pasoLabels = { enviar_feedback_colaborador: 'El asesor solicita tu feedback', programar_segunda_visita: 'Se propone segunda visita', preparar_oferta: 'Se propone hacer oferta', descartar_piso: 'Piso descartado', seguimiento_post_visita: 'En seguimiento' };
+      document.getElementById('resumen-paso').textContent = pasoLabels[paso] || paso;
+    }
+  }
+
+  document.getElementById('bottom-bar').style.display = 'block';
+}
+
+async function submitColabFeedback() {
+  // Validate
+  const comentario = document.getElementById('fb-comentario').value.trim();
+  if (!comentario) { alert('Escribe un comentario sobre la impresión del cliente.'); return; }
+  const stars = document.getElementById('fb-stars-val').value;
+  if (!stars) { alert('Selecciona el nivel de interés del cliente.'); return; }
+  const avanzar = document.querySelector('input[name="quiere_avanzar"]:checked');
+  if (!avanzar) { alert('Selecciona si el cliente quiere avanzar.'); return; }
+
+  if (avanzar.value === 'hacer_oferta' && !document.getElementById('fb-precio-oferta').value) {
+    alert('Indica el precio que ofrecería el cliente.'); return;
+  }
+
+  const btns = document.querySelectorAll('.btn-submit');
+  btns.forEach(b => { b.disabled = true; b.textContent = 'Enviando...'; });
+
+  try {
+    const datos = {
+      comentario_cliente: comentario,
+      interes_cliente: parseInt(stars),
+      quiere_avanzar: avanzar.value,
+      precio_oferta: avanzar.value === 'hacer_oferta' ? parseFloat(document.getElementById('fb-precio-oferta').value) : null,
+      fecha_decision: avanzar.value === 'necesita_pensarlo' ? document.getElementById('fb-fecha-decision').value : null,
+      notas: document.getElementById('fb-notas').value.trim() || null,
+      enviar_feedback_cliente: document.getElementById('fb-enviar-cliente').checked,
+    };
+
+    // 1. Insert feedback
+    await sb.from('feedbacks').insert({
+      visita_id: feedbackAsesor ? feedbackAsesor.visita_id : null,
+      demanda_id: envioData.demanda_id,
+      piso_id: feedbackAsesor ? feedbackAsesor.piso_id : null,
+      autor_tipo: 'colaborador',
+      autor_id: envioData.colaborador_id,
+      colaborador_id: envioData.colaborador_id,
+      tipo: 'colaborador',
+      datos: datos,
+      estado_cadena: 'colaborador_completado',
+      valoracion_general: parseInt(stars),
+      decision_cliente: avanzar.value,
+    });
+
+    // 2. Update visita
+    if (feedbackAsesor && feedbackAsesor.visita_id) {
+      await sb.from('visitas').update({ estado_feedback: 'colaborador_completado' }).eq('id', feedbackAsesor.visita_id);
+    }
+
+    // 3. Mark envio as used
+    await sb.from('envios_matching').update({ usado: true, fecha_uso: new Date().toISOString() }).eq('id', envioData.id);
+
+    // 4. If send to client checkbox is checked, create client link
+    if (datos.enviar_feedback_cliente) {
+      const clientHash = crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).substr(2,8));
+      await sb.from('envios_matching').insert({
+        tipo: 'feedback_cliente',
+        link_hash: clientHash,
+        asesor_id: envioData.asesor_id,
+        colaborador_id: envioData.colaborador_id,
+        demanda_id: envioData.demanda_id,
+        estado: 'enviado',
+        fecha_envio: new Date().toISOString(),
+        fecha_expiracion: new Date(Date.now() + 30*24*60*60*1000).toISOString(),
+        cliente_nombre: envioData.cliente_nombre || null,
+      });
+      // Create action for asesor
+      await sb.from('acciones_pendientes').insert({
+        asesor_id: envioData.asesor_id,
+        tipo: 'enviar_feedback_cliente',
+        referencia_id: feedbackAsesor ? feedbackAsesor.visita_id : null,
+        piso_id: feedbackAsesor ? feedbackAsesor.piso_id : null,
+        titulo: 'Enviar feedback al cliente (vía colaborador)',
+        descripcion: 'Link: https://onomahomes.github.io/feedback-cliente.html?id=' + clientHash,
+        estado: 'pendiente',
+        prioridad: 'normal',
+        metadata: JSON.stringify({ link: 'https://onomahomes.github.io/feedback-cliente.html?id=' + clientHash, hash: clientHash }),
+      });
+    }
+
+    // 5. If "hacer_oferta", create urgent action
+    if (avanzar.value === 'hacer_oferta') {
+      await sb.from('acciones_pendientes').insert({
+        asesor_id: envioData.asesor_id,
+        tipo: 'preparar_oferta',
+        referencia_id: feedbackAsesor ? feedbackAsesor.visita_id : null,
+        piso_id: feedbackAsesor ? feedbackAsesor.piso_id : null,
+        titulo: 'URGENTE: Oferta del cliente (vía colaborador)',
+        descripcion: 'Precio propuesto: ' + eur(datos.precio_oferta),
+        estado: 'pendiente',
+        prioridad: 'urgente',
+      });
+    }
+
+    // Show success
+    document.getElementById('screen-form').style.display = 'none';
+    document.getElementById('bottom-bar').style.display = 'none';
+    document.getElementById('screen-success').style.display = 'block';
+
+  } catch(e) {
+    console.error(e);
+    alert('Error al enviar: ' + e.message);
+    btns.forEach(b => { b.disabled = false; b.textContent = 'Enviar feedback'; });
+  }
+}
+
+init();
+</script>
+</body>
+</html>
