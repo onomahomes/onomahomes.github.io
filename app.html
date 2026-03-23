@@ -317,6 +317,25 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px;
 }
 
 
+
+/* ACCIONES PENDIENTES — Fase 7 */
+.ap-card { position: relative; }
+.ap-pulse { animation: apPulse 2s ease-in-out infinite; }
+@keyframes apPulse { 0%,100% { box-shadow: none; } 50% { box-shadow: 0 0 0 3px rgba(139,32,32,0.15); } }
+.ap-pulse-dot { display: inline-block; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; margin-left: 6px; animation: apPulse 1.5s ease-in-out infinite; vertical-align: middle; }
+/* Director notification banner */
+.director-bell { position: relative; cursor: pointer; padding: 6px; border-radius: 6px; transition: background 0.15s; }
+.director-bell:hover { background: var(--color-hover-dark); }
+.director-bell-badge { position: absolute; top: 2px; right: 2px; background: var(--danger); color: #fff; font-size: 9px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 100px; display: flex; align-items: center; justify-content: center; font-family: var(--font-ui); }
+.notif-dropdown { position: absolute; top: 100%; right: 0; width: 360px; max-height: 420px; overflow-y: auto; background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,0.12); z-index: 300; display: none; }
+.notif-dropdown.open { display: block; }
+.notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+.notif-item:hover { background: var(--bg); }
+.notif-item:last-child { border-bottom: none; }
+.notif-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.notif-detail { font-size: 11px; color: var(--text-muted); }
+.notif-time { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+
 /* TOAST */
 #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
 .toast { padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 500; color: white; box-shadow: 0 4px 16px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; max-width: 320px; pointer-events: all; }
@@ -672,6 +691,14 @@ function showApp() {
   checkDemandaAlarmas(); // Check for stale demandas
   switchTab(nav[0].id);
   showHelpFab();
+  setupRealtime();
+
+  // Show director bell
+  if (currentUser && currentUser.rol === 'director') {
+    const bellArea = document.getElementById('director-bell-area');
+    if (bellArea) bellArea.style.display = 'block';
+    loadDirectorNotifications();
+  }
 }
 
 function renderSidebar(nav) {
@@ -1166,81 +1193,250 @@ TAB_LOADERS.dashboard = async function() {
   } catch(e) { tabError(pane, e); }
 };
 
-// ACCIONES PENDIENTES (asesor) — acordeón colapsable
+// ─── ACCIONES PENDIENTES — Fase 7 Refactor ─────────────────
+const PRIORIDAD_ORDER = { critica: 0, urgente: 1, alta: 2, normal: 3, baja: 4 };
+const PRIORIDAD_COLORS = { critica: { bg: '#8B2020', text: '#fff' }, urgente: { bg: '#C0392B', text: '#fff' }, alta: { bg: '#E67E22', text: '#fff' }, normal: { bg: '#2980B9', text: '#fff' }, baja: { bg: '#95A5A6', text: '#fff' } };
+const CATEGORIA_ICONS = { comunicacion: '💬', visitas: '📅', operaciones: '💼', admin: '⚙️' };
+const TIPO_LABELS = {
+  feedback_visita: 'Feedback de visita', matching_revisar: 'Matchings por revisar', visita_confirmar: 'Visitas por confirmar',
+  llamada_sin_visita: 'Seguimiento — sin visitas', llamada_sin_actividad: 'Seguimiento — sin respuesta',
+  enviar_feedback_colaborador: 'Enviar feedback al colaborador', enviar_feedback_cliente: 'Enviar feedback al cliente',
+  programar_segunda_visita: 'Programar segunda visita', seguimiento_post_visita: 'Seguimiento post-visita',
+  actualizar_fotos_piso: 'Actualizar fotos del piso', descartar_piso: 'Descartar piso',
+  llamar_reserva: 'Llamar — RESERVA', preparar_oferta: 'Preparar oferta',
+  seguimiento_demanda_inactiva: 'Demanda inactiva', seguimiento_envios_sin_respuesta: 'Envíos sin respuesta',
+  escalado_director: 'Escalado al director', informar_descarte_cliente: 'Cliente descartó piso',
+};
+
+function accionTimeBar(a) {
+  if (!a.fecha_creacion || !a.fecha_limite) return '';
+  const now = Date.now();
+  const start = new Date(a.fecha_creacion).getTime();
+  const end = new Date(a.fecha_limite).getTime();
+  const total = end - start;
+  const elapsed = now - start;
+  const pct = total > 0 ? Math.min(100, Math.max(0, (elapsed / total) * 100)) : 100;
+  const remaining = end - now;
+  let color = 'var(--color-success)';
+  if (pct > 75) color = 'var(--danger)';
+  else if (pct > 50) color = 'var(--color-warning)';
+
+  let timeText = '';
+  if (remaining <= 0) {
+    const overdue = Math.abs(remaining);
+    const hrs = Math.floor(overdue / 3600000);
+    timeText = hrs > 24 ? Math.floor(hrs/24) + 'd vencida' : hrs + 'h vencida';
+    color = 'var(--danger)';
+  } else {
+    const hrs = Math.floor(remaining / 3600000);
+    timeText = hrs > 24 ? Math.floor(hrs/24) + 'd ' + (hrs%24) + 'h restantes' : hrs + 'h restantes';
+  }
+  return `<div style="margin-top:6px">
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-tertiary);margin-bottom:2px"><span>${timeText}</span></div>
+    <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(pct,100)}%;background:${color};border-radius:2px;transition:width 0.3s"></div></div>
+  </div>`;
+}
+
+function accionCard(a) {
+  const pri = a.prioridad || 'normal';
+  const priColor = PRIORIDAD_COLORS[pri] || PRIORIDAD_COLORS.normal;
+  const catIcon = CATEGORIA_ICONS[a.categoria] || '📋';
+  const isOverdue = a.fecha_limite && new Date(a.fecha_limite) < new Date();
+  const isEscalated = a.estado_escalado && a.estado_escalado !== 'pendiente';
+  const isCritical = pri === 'critica';
+  const borderLeft = isCritical ? 'border-left:4px solid var(--danger)' : isOverdue ? 'border-left:4px solid var(--color-warning)' : '';
+
+  return `<div class="data-card ap-card ${isCritical ? 'ap-pulse' : ''}" data-accion-id="${a.id}" style="padding:16px;margin-bottom:10px;${borderLeft};transition:border-color 0.15s" onmouseenter="this.style.borderColor='var(--gold)'" onmouseleave="this.style.borderColor=''">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <span style="font-size:16px">${catIcon}</span>
+      <span style="font-size:14px;font-weight:600;flex:1">${a.titulo || TIPO_LABELS[a.tipo] || a.tipo}</span>
+      <span style="background:${priColor.bg};color:${priColor.text};font-family:var(--font-ui);font-weight:700;font-size:10px;padding:2px 8px;border-radius:100px;letter-spacing:0.05em;text-transform:uppercase">${pri}</span>
+    </div>
+    ${a.descripcion ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">${a.descripcion}</div>` : ''}
+    ${accionTimeBar(a)}
+    ${isEscalated ? `<div style="margin-top:6px;padding:6px 10px;background:var(--color-error-bg);border-radius:6px;font-size:11px;font-weight:600;color:var(--danger)">⚠ ESCALADA — ${a.estado_escalado.replace(/_/g,' ')}</div>` : ''}
+    ${a.speech_ia_generado ? `<button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="event.stopPropagation();showSpeechModal('${a.id}')">📞 Ver guía de llamada</button>` : ''}
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();atenderAccion('${a.id}','${a.tipo}','${a.referencia_id||''}')">Atender</button>
+      <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();completarAccion('${a.id}')">Completar</button>
+    </div>
+  </div>`;
+}
+
 TAB_LOADERS.pendientes = async function() {
   const pane = document.getElementById('tab-pendientes');
   tabLoad(pane);
   try {
-    let q = sb.from('acciones_pendientes').select('*').eq('estado', 'pendiente').order('fecha_creacion', { ascending: false });
+    let q = sb.from('acciones_pendientes').select('*').eq('estado', 'pendiente').order('fecha_limite', { ascending: true });
     if (currentUser.rol !== 'director') q = q.eq('asesor_id', currentUser.id);
     const { data, error } = await q;
     if (error) throw error;
     const items = data || [];
-    // Sync badge with real count
     pendingCount = items.length; updateBadge();
-    const grouped = {};
-    items.forEach(a => { const t = a.tipo || 'otro'; if (!grouped[t]) grouped[t] = []; grouped[t].push(a); });
-    const tipoLabels = { feedback_visita: '📝 Feedback de visita', matching_revisar: '🤝 Matchings por revisar', visita_confirmar: '📅 Visitas por confirmar', llamada_sin_visita: '📞 Seguimiento — sin visitas', llamada_sin_actividad: '📞 Seguimiento — sin respuesta', otro: '📋 Otros' };
+
+    // Group into 3 blocks
+    const vencidas = items.filter(a => a.fecha_limite && new Date(a.fecha_limite) < new Date());
+    const criticas = items.filter(a => !vencidas.includes(a) && (a.prioridad === 'critica' || a.prioridad === 'urgente'));
+    const resto = items.filter(a => !vencidas.includes(a) && !criticas.includes(a));
+
+    // Sort each by priority then fecha_limite
+    const sortFn = (a,b) => (PRIORIDAD_ORDER[a.prioridad]||3) - (PRIORIDAD_ORDER[b.prioridad]||3) || new Date(a.fecha_limite||0) - new Date(b.fecha_limite||0);
+    vencidas.sort(sortFn); criticas.sort(sortFn); resto.sort(sortFn);
+
+    // Count max priority for badge color
+    const hasCritical = items.some(a => a.prioridad === 'critica' || (a.estado_escalado && a.estado_escalado !== 'pendiente'));
+    const hasUrgent = items.some(a => a.prioridad === 'urgente');
+    updateBadgeColor(hasCritical ? 'danger' : hasUrgent ? 'warning' : 'normal');
+
+    // Active filter state
+    const activeFilter = window._apFilter || 'todas';
+    const filterItems = (list) => activeFilter === 'todas' ? list : list.filter(a => a.categoria === activeFilter);
+
+    function renderSection(title, list, bgStyle) {
+      const filtered = filterItems(list);
+      if (!filtered.length) return '';
+      return `<div style="margin-bottom:20px;${bgStyle}padding:16px;border-radius:12px">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:10px;font-family:var(--font-ui)">${title} (${filtered.length})</div>
+        ${filtered.map(a => accionCard(a)).join('')}
+      </div>`;
+    }
+
+    const chipClass = (val) => `filter-chip ${activeFilter === val ? 'active' : ''}`;
 
     pane.innerHTML = `
-      <div class="tab-toolbar"><div><h2>Acciones Pendientes</h2><p>${items.length} acciones pendientes</p></div></div>
-      ${!items.length ? '<div class="empty-state"><span class="empty-icon">✅</span><p>No tienes acciones pendientes. ¡Todo al día!</p></div>' :
-      Object.entries(grouped).map(([tipo, acciones]) => `
-        <div class="accion-group" style="margin-bottom:16px">
-          <div class="accion-group-header" onclick="this.classList.toggle('collapsed');this.nextElementSibling.style.display=this.classList.contains('collapsed')?'none':'block'" style="display:flex;align-items:center;gap:10px;padding:14px 18px;background:#f9f8f6;border:1.5px solid var(--color-gris);border-radius:10px;cursor:pointer;user-select:none;transition:background 0.15s">
-            <span class="toggle-icon" style="font-size:12px;transition:transform 0.2s">▼</span>
-            <span style="font-size:14px;font-weight:700;flex:1">${tipoLabels[tipo]||tipo}</span>
-            <span style="background:#8B2020;color:#FFF;font-family:var(--font-ui);font-weight:700;font-size:12px;border-radius:100px;padding:2px 10px;min-width:26px;text-align:center">${acciones.length}</span>
-          </div>
-          <div class="accion-group-body" style="display:block;padding-top:8px">
-            ${acciones.map(a => {
-              let onclick = '';
-              if (a.tipo === 'feedback_visita') onclick = `handleAccionClick('feedback_visita','${a.referencia_id}')`;
-              else if (a.tipo === 'visita_confirmar') onclick = `handleAccionClick('visita_confirmar','${a.referencia_id}')`;
-              else if (a.tipo === 'matching_revisar') onclick = `handleAccionClick('matching_revisar','${a.referencia_id}')`;
-              else if (a.tipo === 'llamada_sin_visita' || a.tipo === 'llamada_sin_actividad') onclick = `handleAccionClick('${a.tipo}','${a.referencia_id}')`;
-              else if (a.tipo === 'escalado_director') onclick = `openDemandaDetail('${a.referencia_id}')`;
-              return `<div class="data-card" style="padding:14px;margin-bottom:8px;cursor:pointer;transition:border-color 0.15s" ${onclick ? `onclick="${onclick}"` : ''} onmouseenter="this.style.borderColor='var(--gold)'" onmouseleave="this.style.borderColor=''">
-              <div>
-                <div style="font-size:14px;font-weight:500">${a.titulo||a.descripcion||'Acción pendiente'}</div>
-                ${a.descripcion && a.titulo ? `<div style="font-size:12px;color:var(--text-muted);margin-top:1px">${a.descripcion}</div>` : ''}
-                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${a.fecha_creacion ? fdate(a.fecha_creacion) : ''}</div>
-              </div>
-            </div>`;}).join('')}
-          </div>
-        </div>`).join('')}`;
+      <div class="tab-toolbar" style="flex-wrap:wrap;gap:12px">
+        <div><h2>Acciones Pendientes ${hasCritical ? '<span class="ap-pulse-dot"></span>' : ''}</h2><p>${items.length} acciones pendientes${vencidas.length ? ` · <span style="color:var(--danger);font-weight:600">${vencidas.length} vencidas</span>` : ''}</p></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">
+        <span class="${chipClass('todas')}" onclick="window._apFilter='todas';loadedTabs.delete('pendientes');TAB_LOADERS.pendientes()">Todas</span>
+        <span class="${chipClass('comunicacion')}" onclick="window._apFilter='comunicacion';loadedTabs.delete('pendientes');TAB_LOADERS.pendientes()">💬 Comunicación</span>
+        <span class="${chipClass('visitas')}" onclick="window._apFilter='visitas';loadedTabs.delete('pendientes');TAB_LOADERS.pendientes()">📅 Visitas</span>
+        <span class="${chipClass('operaciones')}" onclick="window._apFilter='operaciones';loadedTabs.delete('pendientes');TAB_LOADERS.pendientes()">💼 Operaciones</span>
+        <span class="${chipClass('admin')}" onclick="window._apFilter='admin';loadedTabs.delete('pendientes');TAB_LOADERS.pendientes()">⚙️ Admin</span>
+      </div>
+      ${!items.length ? '<div class="empty-state"><span class="empty-icon">✅</span><p>No tienes acciones pendientes. ¡Todo al día!</p></div>' : `
+        ${renderSection('Vencidas y escaladas', vencidas, 'background:rgba(139,32,32,0.04);')}
+        ${renderSection('Críticas y urgentes', criticas, 'background:rgba(230,126,34,0.04);')}
+        ${renderSection('Pendientes', resto, '')}
+      `}`;
   } catch(e) { tabError(pane, e); }
 };
 
-function handleAccionClick(tipo, refId) {
-  if (tipo === 'feedback_visita') {
-    // Force reload visitas tab then open feedback modal
-    loadedTabs.delete('visitas');
-    switchTab('visitas');
-    setTimeout(() => { try { openFeedbackModal(refId); } catch(e) { toast('No se pudo abrir el feedback','error'); } }, 600);
-  } else if (tipo === 'visita_confirmar') {
-    // Force reload visitas tab, filter to solicitada, scroll to specific visita
-    loadedTabs.delete('visitas');
-    switchTab('visitas');
-    setTimeout(() => {
-      // Click the "Por confirmar" filter chip
-      const chips = document.querySelectorAll('#tab-visitas .filter-chip');
-      chips.forEach(c => { if (c.textContent.includes('Por confirmar')) c.click(); });
-      // Scroll to the specific visita card
-      setTimeout(() => {
-        const card = document.querySelector(`#tab-visitas .visita-card[data-visita-id="${refId}"]`);
-        if (card) { card.scrollIntoView({ behavior:'smooth', block:'center' }); card.style.boxShadow='0 0 0 3px var(--gold)'; setTimeout(()=>card.style.boxShadow='',3000); }
-      }, 200);
-    }, 600);
-  } else if (tipo === 'matching_revisar') {
-    // Force reload matchings tab then open review for specific demanda
-    loadedTabs.delete('matchings');
-    switchTab('matchings');
-    setTimeout(() => { try { openMatchReview(refId); } catch(e) { toast('No se pudo abrir el matching','error'); } }, 600);
-  } else if (tipo === 'llamada_sin_visita' || tipo === 'llamada_sin_actividad') {
-    openSeguimientoModal(tipo, refId);
+function updateBadgeColor(level) {
+  ['pendientes','notificaciones'].forEach(id => {
+    const badge = document.getElementById('badge-' + id);
+    if (!badge) return;
+    if (level === 'danger') { badge.style.background = '#8B2020'; badge.classList.add('ap-pulse'); }
+    else if (level === 'warning') { badge.style.background = '#E67E22'; badge.classList.remove('ap-pulse'); }
+    else { badge.style.background = 'var(--gold)'; badge.classList.remove('ap-pulse'); }
+  });
+}
+
+// ── Atender acción ──
+async function atenderAccion(accionId, tipo, refId) {
+  if (tipo === 'feedback_visita') { handleAccionClick('feedback_visita', refId); return; }
+  if (tipo === 'visita_confirmar') { handleAccionClick('visita_confirmar', refId); return; }
+  if (tipo === 'matching_revisar') { handleAccionClick('matching_revisar', refId); return; }
+  if (tipo === 'llamada_sin_visita' || tipo === 'llamada_sin_actividad') { handleAccionClick(tipo, refId); return; }
+
+  // Load action details
+  const { data } = await sb.from('acciones_pendientes').select('*').eq('id', accionId).limit(1);
+  const a = data && data[0] ? data[0] : {};
+  const meta = a.metadata ? (typeof a.metadata === 'string' ? JSON.parse(a.metadata) : a.metadata) : {};
+
+  if (tipo === 'enviar_feedback_colaborador' || tipo === 'enviar_feedback_cliente') {
+    const link = meta.link || '';
+    const target = tipo === 'enviar_feedback_colaborador' ? 'colaborador' : 'cliente';
+    showLinkModal('Enviar feedback al ' + target, 'Envía este enlace:', link);
+  } else if (tipo === 'llamar_reserva') {
+    openModal('Llamar — RESERVA', `
+      <div style="background:var(--color-error-bg);padding:16px;border-radius:10px;margin-bottom:16px;border:1.5px solid rgba(139,32,32,0.2)">
+        <div style="font-size:15px;font-weight:700;color:var(--danger);margin-bottom:4px">⚡ Acción urgente</div>
+        <div style="font-size:13px;color:var(--text)">${a.descripcion || 'El comprador quiere reservar'}</div>
+      </div>
+      ${a.speech_ia_texto ? `<div style="background:var(--bg);padding:16px;border-radius:10px;margin-bottom:16px;border:1px solid var(--border)"><div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--gold-dark);margin-bottom:8px">Guía de llamada</div><div style="font-size:14px;line-height:1.7;white-space:pre-line">${a.speech_ia_texto}</div></div>` : ''}
+    `, 'md', `<button class="btn btn-secondary" onclick="closeModal()">Cerrar</button><button class="btn btn-primary" onclick="completarAccion('${accionId}');closeModal()">Marcar completada</button>`);
+  } else if (tipo === 'preparar_oferta') {
+    openModal('Preparar oferta', `
+      <div style="background:var(--color-gold-bg);padding:16px;border-radius:10px;margin-bottom:16px;border:1px solid var(--color-gold-border)">
+        <div style="font-size:13px;color:var(--text)">${a.descripcion || 'Preparar oferta para el cliente'}</div>
+      </div>
+      ${a.speech_ia_texto ? `<div style="background:var(--bg);padding:16px;border-radius:10px;border:1px solid var(--border);margin-bottom:16px"><div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--gold-dark);margin-bottom:8px">Guía</div><div style="font-size:14px;line-height:1.7;white-space:pre-line">${a.speech_ia_texto}</div></div>` : ''}
+    `, 'md', `<button class="btn btn-secondary" onclick="closeModal()">Cerrar</button><button class="btn btn-primary" onclick="completarAccion('${accionId}');closeModal()">Marcar completada</button>`);
+  } else if (tipo === 'programar_segunda_visita') {
+    openModal('Programar segunda visita', `<p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">${a.descripcion || ''}</p><p style="font-size:14px">Navega a la pestaña Calendario para agendar la segunda visita.</p>`, 'sm', `<button class="btn btn-secondary" onclick="closeModal()">Cerrar</button><button class="btn btn-primary" onclick="closeModal();switchTab('calendario')">Ir al Calendario</button>`);
+  } else if (tipo === 'seguimiento_post_visita' || tipo === 'seguimiento_demanda_inactiva' || tipo === 'seguimiento_envios_sin_respuesta') {
+    openModal('Seguimiento', `
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">${a.descripcion || 'Contactar para seguimiento'}</div>
+      ${a.speech_ia_texto ? `<div style="background:var(--bg);padding:16px;border-radius:10px;border:1px solid var(--border)"><div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--gold-dark);margin-bottom:8px">Guía de llamada</div><div style="font-size:14px;line-height:1.7;white-space:pre-line">${a.speech_ia_texto}</div></div>` : ''}
+    `, 'md', `<button class="btn btn-secondary" onclick="closeModal()">Cerrar</button><button class="btn btn-primary" onclick="completarAccion('${accionId}');closeModal()">Marcar completada</button>`);
+  } else if (tipo === 'actualizar_fotos_piso') {
+    openModal('Actualizar fotos', `<p style="font-size:14px">${a.descripcion || 'Las fotos actuales no reflejan la realidad. Navega a la ficha del piso para actualizarlas.'}</p>`, 'sm', `<button class="btn btn-secondary" onclick="closeModal()">Cerrar</button><button class="btn btn-primary" onclick="completarAccion('${accionId}');closeModal()">Marcar completada</button>`);
+  } else {
+    // Generic
+    openModal('Acción pendiente', `<p style="font-size:14px">${a.titulo || ''}</p><p style="font-size:13px;color:var(--text-muted)">${a.descripcion || ''}</p>`, 'sm', `<button class="btn btn-secondary" onclick="closeModal()">Cerrar</button><button class="btn btn-primary" onclick="completarAccion('${accionId}');closeModal()">Marcar completada</button>`);
   }
 }
+
+// ── Completar acción ──
+async function completarAccion(accionId) {
+  openModal('Completar acción', `
+    <div class="form-col"><label>Notas (opcional)</label>
+      <textarea id="notas-completar" rows="2" placeholder="Añade notas si lo deseas..."></textarea></div>
+  `, 'sm', `
+    <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="confirmarCompletar('${accionId}')">Confirmar</button>
+  `);
+}
+
+async function confirmarCompletar(accionId) {
+  const notas = document.getElementById('notas-completar')?.value?.trim() || null;
+  try {
+    await sb.from('acciones_pendientes').update({
+      estado: 'completada',
+      fecha_completada: new Date().toISOString(),
+      notas_asesor: notas,
+    }).eq('id', accionId);
+    toast('Acción completada');
+    closeModal();
+    loadPendingCount();
+    loadedTabs.delete('pendientes');
+    if (activeTab === 'pendientes') TAB_LOADERS.pendientes();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+// ── Speech IA modal ──
+async function showSpeechModal(accionId) {
+  const { data } = await sb.from('acciones_pendientes').select('titulo,descripcion,speech_ia_texto').eq('id', accionId).limit(1);
+  const a = data && data[0] ? data[0] : {};
+  openModal('Guía de llamada', `
+    <div style="font-size:15px;font-weight:600;margin-bottom:12px">${a.titulo || ''}</div>
+    <div style="background:var(--bg);padding:20px;border-radius:10px;border:1px solid var(--border);font-size:14px;line-height:1.8;white-space:pre-line">${a.speech_ia_texto || 'No hay guía disponible.'}</div>
+  `, 'md', `
+    <button class="btn btn-secondary" onclick="navigator.clipboard.writeText(document.querySelector('.modal-body div[style*=pre-line]')?.textContent||'');toast('Copiado')">Copiar</button>
+    <button class="btn btn-secondary" onclick="regenerarSpeech('${accionId}')">Regenerar</button>
+    <button class="btn btn-primary" onclick="closeModal()">Cerrar</button>
+  `);
+}
+
+async function regenerarSpeech(accionId) {
+  toast('Regenerando guía...');
+  try {
+    await fetch(N8N + '/speech-ia', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ accion_id: accionId, regenerar: true }) });
+    // Reload after a moment
+    setTimeout(async () => {
+      const { data } = await sb.from('acciones_pendientes').select('speech_ia_texto').eq('id', accionId).limit(1);
+      if (data && data[0] && data[0].speech_ia_texto) {
+        const pre = document.querySelector('.modal-body div[style*="pre-line"]');
+        if (pre) pre.textContent = data[0].speech_ia_texto;
+        toast('Guía regenerada');
+      }
+    }, 5000);
+  } catch(e) { toast('Error regenerando', 'error'); }
+}
+
+
+
 
 async function openSeguimientoModal(tipo, demandaId) {
   // Load demanda + contact info
@@ -4325,7 +4521,83 @@ document.addEventListener('click', function(e) {
 // ─── INIT ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('login-screen').style.display = 'none';
-  checkSession();
+  
+
+// ─── DIRECTOR NOTIFICATIONS — Fase 7 ─────────────────
+let directorNotifCount = 0;
+async function loadDirectorNotifications() {
+  if (!currentUser || currentUser.rol !== 'director') return;
+  try {
+    const { count } = await sb.from('notificaciones_director').select('id', { count: 'exact', head: true }).eq('leida', false);
+    directorNotifCount = count || 0;
+    const bell = document.getElementById('director-bell-badge');
+    if (bell) { bell.textContent = directorNotifCount > 0 ? directorNotifCount : ''; bell.style.display = directorNotifCount > 0 ? 'flex' : 'none'; }
+  } catch(e) {}
+}
+
+async function toggleDirectorNotifs() {
+  const dd = document.getElementById('notif-dropdown');
+  if (!dd) return;
+  if (dd.classList.contains('open')) { dd.classList.remove('open'); return; }
+  // Load notifications
+  const { data } = await sb.from('notificaciones_director').select('*').order('fecha', { ascending: false }).limit(10);
+  const items = data || [];
+  dd.innerHTML = items.length ? items.map(n => `<div class="notif-item" onclick="handleNotifClick('${n.id}','${n.accion_id||''}')">
+    <div class="notif-title">${n.titulo}</div>
+    <div class="notif-detail">${n.detalle||''}</div>
+    <div class="notif-time">${n.fecha ? timeAgo(n.fecha) : ''}</div>
+  </div>`).join('') + '<div style="padding:10px;text-align:center"><button class="btn btn-secondary btn-sm" onclick="markAllNotifsRead()">Marcar todas como leídas</button></div>'
+  : '<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">Sin notificaciones</div>';
+  dd.classList.add('open');
+}
+
+async function handleNotifClick(notifId, accionId) {
+  await sb.from('notificaciones_director').update({ leida: true }).eq('id', notifId);
+  document.getElementById('notif-dropdown').classList.remove('open');
+  loadDirectorNotifications();
+  if (accionId) { switchTab('pendientes'); }
+}
+
+async function markAllNotifsRead() {
+  await sb.from('notificaciones_director').update({ leida: true }).eq('leida', false);
+  document.getElementById('notif-dropdown').classList.remove('open');
+  loadDirectorNotifications();
+  toast('Notificaciones marcadas como leídas');
+}
+
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return mins + ' min';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h';
+  return Math.floor(hrs / 24) + 'd';
+}
+
+// ─── SUPABASE REALTIME — Fase 7 ─────────────────
+function setupRealtime() {
+  if (!currentUser) return;
+  const filter = currentUser.rol === 'director' ? {} : { filter: 'asesor_id=eq.' + currentUser.id };
+  sb.channel('acciones-rt')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'acciones_pendientes', ...filter }, (payload) => {
+      console.log('Realtime:', payload.eventType, payload.new?.tipo);
+      loadPendingCount();
+      if (activeTab === 'pendientes') { loadedTabs.delete('pendientes'); TAB_LOADERS.pendientes(); }
+      if (payload.eventType === 'INSERT' && payload.new && (payload.new.prioridad === 'critica' || payload.new.prioridad === 'urgente')) {
+        toast('⚡ Nueva acción: ' + (payload.new.titulo || payload.new.tipo));
+      }
+    }).subscribe();
+
+  if (currentUser.rol === 'director') {
+    sb.channel('notif-rt')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notificaciones_director' }, (payload) => {
+        loadDirectorNotifications();
+        toast('🔔 Nueva notificación del sistema');
+      }).subscribe();
+  }
+}
+
+checkSession();
 });
 </script>
 </body>
