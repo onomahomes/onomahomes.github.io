@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONOMA Homes — Inmobiliaria Inteligente en Madrid</title>
+<meta name="description" content="ONOMA Homes: Encuentra tu piso en Madrid, colabora como broker o vende tu propiedad. Inmobiliaria inteligente con tecnología y trato personal.">
+<meta property="og:title" content="ONOMA Homes — Inmobiliaria Inteligente en Madrid">
+<meta property="og:description" content="Encuentra tu piso en Madrid, colabora como broker o vende tu propiedad. Tecnología + trato personal.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://onomahomes.com">
+<meta property="og:image" content="https://onomahomes.com/og-image.jpg">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ONOMA Homes — Inmobiliaria Inteligente en Madrid">
+<meta name="twitter:description" content="Tecnología + trato personal para encontrar, vender o colaborar en el mercado inmobiliario de Madrid.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C; --gold-dark: #B8962E; --gold-bg: rgba(201,168,76,0.10); --gold-border: rgba(201,168,76,0.35);
+  --dark: #232320; --bg: #F5F4F1; --card: #FFFFFF; --text: #1C1C1C; --text-muted: #7A6E66; --text-tertiary: #A09890;
+  --border: #D7D6D4; --font-ui: 'Jost', sans-serif; --font-body: 'Barlow', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;}
+
+/* HERO */
+.hero{background:var(--dark);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px 80px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 30%, rgba(201,168,76,0.12) 0%, transparent 70%);pointer-events:none;}
+.hero-logo{font-family:var(--font-ui);font-size:clamp(28px,6vw,44px);font-weight:800;letter-spacing:0.2em;color:#fff;text-transform:uppercase;margin-bottom:12px;}
+.hero-logo span{color:var(--gold);}
+.hero-tagline{font-family:var(--font-ui);font-size:clamp(11px,2vw,13px);font-weight:500;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);margin-bottom:40px;}
+.hero-title{font-family:var(--font-ui);font-size:clamp(26px,5vw,52px);font-weight:700;color:#fff;line-height:1.15;max-width:700px;margin:0 auto 20px;}
+.hero-subtitle{font-size:clamp(14px,2.5vw,18px);color:rgba(255,255,255,0.65);max-width:480px;margin:0 auto 56px;line-height:1.7;}
+.hero-scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.35);font-size:12px;font-family:var(--font-ui);letter-spacing:0.1em;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.scroll-arrow{width:20px;height:20px;border-right:2px solid rgba(255,255,255,0.3);border-bottom:2px solid rgba(255,255,255,0.3);transform:rotate(45deg);animation:bounce 2s infinite;}
+@keyframes bounce{0%,100%{transform:rotate(45deg) translateY(0);}50%{transform:rotate(45deg) translateY(4px);}}
+
+/* CARDS SECTION */
+.cards-section{padding:clamp(40px,8vw,80px) 20px;max-width:960px;margin:0 auto;}
+.cards-title{font-family:var(--font-ui);font-size:clamp(13px,2vw,15px);font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold-dark);text-align:center;margin-bottom:40px;}
+.cards-grid{display:grid;grid-template-columns:1fr;gap:20px;}
+@media(min-width:600px){.cards-grid{grid-template-columns:repeat(3,1fr);gap:24px;}}
+
+.action-card{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:36px 28px;text-align:center;transition:all 0.25s;cursor:pointer;text-decoration:none;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;}
+.action-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--gold-bg) 0%,transparent 60%);opacity:0;transition:opacity 0.25s;}
+.action-card:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.1);}
+.action-card:hover::before{opacity:1;}
+.action-card:active{transform:translateY(-2px);}
+
+.card-icon{width:64px;height:64px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;transition:background 0.25s;flex-shrink:0;}
+.action-card:hover .card-icon{background:var(--gold-dark);}
+.card-icon svg{width:28px;height:28px;fill:var(--gold);}
+.action-card:hover .card-icon svg{fill:#fff;}
+
+.card-label{font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:8px;}
+.card-title{font-family:var(--font-ui);font-size:20px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.2;}
+.card-desc{font-size:13.5px;color:var(--text-muted);line-height:1.65;margin-bottom:24px;}
+.card-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--dark);color:#fff;border-radius:100px;font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;transition:all 0.2s;border:none;cursor:pointer;text-decoration:none;}
+.action-card:hover .card-cta{background:var(--gold-dark);}
+.card-cta svg{width:14px;height:14px;fill:currentColor;transition:transform 0.2s;}
+.action-card:hover .card-cta svg{transform:translateX(3px);}
+
+/* TRUST STRIP */
+.trust-strip{background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:28px 24px;}
+.trust-inner{max-width:800px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:center;gap:28px 40px;}
+.trust-item{display:flex;align-items:center;gap:10px;font-family:var(--font-ui);font-size:13px;font-weight:500;color:var(--text-muted);}
+.trust-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+
+/* FOOTER */
+footer{background:var(--dark);padding:32px 24px;text-align:center;}
+.footer-inner{max-width:600px;margin:0 auto;}
+.footer-logo{font-family:var(--font-ui);font-size:18px;font-weight:700;letter-spacing:0.2em;color:#fff;margin-bottom:14px;}
+.footer-logo span{color:var(--gold);}
+.footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 20px;margin-bottom:20px;}
+.footer-links a{font-size:12px;color:rgba(255,255,255,0.45);text-decoration:none;font-family:var(--font-ui);letter-spacing:0.05em;}
+.footer-links a:hover{color:var(--gold);}
+.footer-copy{font-size:11px;color:rgba(255,255,255,0.25);font-family:var(--font-ui);line-height:1.7;}
+.footer-legal{font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px;line-height:1.6;}
+.footer-legal a{color:rgba(255,255,255,0.45);text-decoration:none;}
+.footer-legal a:hover{color:var(--gold);}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-logo">ON<span>O</span>MA</div>
+  <div class="hero-tagline">Homes Madrid</div>
+  <h1 class="hero-title">Inmobiliaria Inteligente en Madrid</h1>
+  <p class="hero-subtitle">Tecnología y trato personal para comprar, vender y colaborar en el mercado residencial de Madrid.</p>
+  <div class="hero-scroll-hint">
+    <span>Descubre más</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ACTION CARDS -->
+<section class="cards-section">
+  <div class="cards-title">¿Qué necesitas?</div>
+  <div class="cards-grid">
+
+    <!-- BUSCO PISO -->
+    <a href="demanda.html" class="action-card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      </div>
+      <div class="card-label">Comprador</div>
+      <h2 class="card-title">Busco piso</h2>
+      <p class="card-desc">Registra tu búsqueda y recibe propiedades que se ajustan exactamente a lo que necesitas.</p>
+      <span class="card-cta">
+        Registrar búsqueda
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+      </span>
+    </a>
+
+    <!-- QUIERO COLABORAR -->
+    <a href="registro-colaborador.html" class="action-card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      </div>
+      <div class="card-label">Broker / Agente</div>
+      <h2 class="card-title">Quiero colaborar</h2>
+      <p class="card-desc">Únete a nuestra red de colaboradores y accede a demandas, propiedades y comisiones atractivas.</p>
+      <span class="card-cta">
+        Solicitar colaboración
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+      </span>
+    </a>
+
+    <!-- QUIERO VENDER -->
+    <a href="mailto:rmichelena@onomahomes.com?subject=Quiero%20vender%20mi%20propiedad&body=Hola%2C%20me%20gustar%C3%ADa%20obtener%20m%C3%A1s%20informaci%C3%B3n%20sobre%20c%C3%B3mo%20vender%20mi%20propiedad%20con%20ONOMA%20Homes." class="action-card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+      </div>
+      <div class="card-label">Vendedor</div>
+      <h2 class="card-title">Quiero vender</h2>
+      <p class="card-desc">Vende tu propiedad con ONOMA. Valoración gratuita, marketing premium y gestión completa.</p>
+      <span class="card-cta">
+        Contactar ahora
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+      </span>
+    </a>
+
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<div class="trust-strip">
+  <div class="trust-inner">
+    <div class="trust-item"><div class="trust-dot"></div>Especialistas en Madrid</div>
+    <div class="trust-item"><div class="trust-dot"></div>Tecnología + trato personal</div>
+    <div class="trust-item"><div class="trust-dot"></div>Red de colaboradores activos</div>
+    <div class="trust-item"><div class="trust-dot"></div>Proceso transparente</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">ON<span>O</span>MA Homes</div>
+    <div class="footer-links">
+      <a href="demanda.html">Buscar piso</a>
+      <a href="registro-colaborador.html">Colaborar</a>
+      <a href="mailto:rmichelena@onomahomes.com">Vender</a>
+      <a href="mailto:info@onomahomes.com">Contacto</a>
+    </div>
+    <div class="footer-copy">
+      © 2026 ONOMA Homes S.L. · CIF B-XXXXXXXX · Calle Ejemplo 1, 28001 Madrid<br>
+      Agencia Inmobiliaria registrada en la Comunidad de Madrid
+    </div>
+    <div class="footer-legal">
+      <a href="#">Política de Privacidad</a> · <a href="#">Aviso Legal</a> · <a href="#">Cookies</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
