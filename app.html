@@ -1221,7 +1221,9 @@ const TIPO_LABELS = {
   actualizar_fotos_piso: 'Actualizar fotos del piso', descartar_piso: 'Descartar piso',
   llamar_reserva: 'Llamar — RESERVA', preparar_oferta: 'Preparar oferta',
   seguimiento_demanda_inactiva: 'Demanda inactiva', seguimiento_envios_sin_respuesta: 'Envíos sin respuesta',
-  escalado_director: 'Escalado al director', informar_descarte_cliente: 'Cliente descartó piso',
+  escalado_director: 'Escalado al director',
+  aprobar_colaborador: 'Aprobar colaborador', revisar_piso_colaborador: 'Revisar piso (colaborador)', revisar_demanda_web: 'Revisar demanda web',
+  informar_descarte_cliente: 'Cliente descartó piso', nuevo_colaborador_registro: 'Nuevo registro colaborador', informar_descarte_cliente: 'Cliente descartó piso',
 };
 
 function accionTimeBar(a) {
@@ -1350,6 +1352,9 @@ function updateBadgeColor(level) {
 
 // ── Atender acción ──
 async function atenderAccion(accionId, tipo, refId) {
+  if (tipo === 'aprobar_colaborador') { openApproveColaboradorModal(accionId); return; }
+  if (tipo === 'revisar_piso_colaborador') { openRevisarPisoModal(accionId); return; }
+  if (tipo === 'revisar_demanda_web') { toast('Navega a Demandas para revisar'); switchTab('demandas'); return; }
   if (tipo === 'feedback_visita') { handleAccionClick('feedback_visita', refId); return; }
   if (tipo === 'visita_confirmar') { handleAccionClick('visita_confirmar', refId); return; }
   if (tipo === 'matching_revisar') { handleAccionClick('matching_revisar', refId); return; }
@@ -5091,6 +5096,145 @@ async function generateReport(tipo) {
 
   doc.save('ONOMA_' + tipo + '_' + now.toISOString().split('T')[0] + '.pdf');
   toast('Informe descargado');
+}
+
+
+
+// ─── FASE 9: Approval flows for web form submissions ─────────────────
+
+async function openApproveColaboradorModal(accionId) {
+  const { data: accion } = await sb.from('acciones_pendientes').select('*').eq('id', accionId).limit(1);
+  const a = accion && accion[0] ? accion[0] : {};
+  const meta = a.metadata ? (typeof a.metadata === 'string' ? JSON.parse(a.metadata) : a.metadata) : {};
+  const colabId = a.referencia_id || meta.colaborador_id;
+
+  let colab = {};
+  if (colabId) {
+    const { data } = await sb.from('colaboradores').select('*').eq('id', colabId).limit(1);
+    if (data && data[0]) colab = data[0];
+  }
+
+  openModal('Aprobar Colaborador', `
+    <div style="background:var(--bg);padding:16px;border-radius:10px;margin-bottom:16px">
+      <div style="display:flex;gap:16px;align-items:center;margin-bottom:12px">
+        ${colab.logo ? '<img src="'+colab.logo+'" style="width:48px;height:48px;border-radius:8px;object-fit:cover">' : ''}
+        <div>
+          <div style="font-size:16px;font-weight:700">${colab.nombre || '—'}</div>
+          <div style="font-size:13px;color:var(--text-muted)">${colab.empresa || colab.nombre_empresa || '—'}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+        <div><strong>Email:</strong> ${colab.email || '—'}</div>
+        <div><strong>Tel:</strong> ${colab.telefono || '—'}</div>
+        <div><strong>NIF:</strong> ${colab.nif_cif || '—'}</div>
+        <div><strong>Experiencia:</strong> ${colab.experiencia || '—'}</div>
+        <div><strong>Volumen:</strong> ${colab.volumen_mensual || '—'}</div>
+        <div><strong>Origen:</strong> ${colab.origen || '—'}</div>
+      </div>
+      ${colab.zonas_operacion ? '<div style="margin-top:8px;font-size:12px"><strong>Zonas:</strong> '+colab.zonas_operacion.join(', ')+'</div>' : ''}
+      ${colab.notas_registro ? '<div style="margin-top:8px;font-size:12px;color:var(--text-muted)"><strong>Notas:</strong> '+colab.notas_registro+'</div>' : ''}
+    </div>
+  `, 'md', `
+    <button class="btn btn-danger btn-sm" onclick="rejectColaborador('${colabId}','${accionId}')">Rechazar</button>
+    <div style="flex:1"></div>
+    <button class="btn btn-secondary btn-sm" onclick="requestInfoColaborador('${colabId}','${accionId}')">Pedir más info</button>
+    <button class="btn btn-primary" onclick="approveColaborador('${colabId}','${accionId}')">Aprobar</button>
+  `);
+}
+
+async function approveColaborador(colabId, accionId) {
+  try {
+    await sb.from('colaboradores').update({ estado: 'aprobado', aprobado: true, aprobado_por: currentUser.id, fecha_aprobacion: new Date().toISOString() }).eq('id', colabId);
+    await sb.from('acciones_pendientes').update({ estado: 'completada', fecha_completada: new Date().toISOString() }).eq('id', accionId);
+    // Send welcome email via n8n
+    try { await fetch(N8N + '/email-colaborador-aprobado', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ colaborador_id: colabId }) }); } catch(e) {}
+    logActivity('colaborador_aprobado', 'Colaborador aprobado por ' + currentUser.nombre, { colaborador_id: colabId });
+    toast('Colaborador aprobado');
+    closeModal(); loadPendingCount();
+    loadedTabs.delete('pendientes'); if (activeTab === 'pendientes') TAB_LOADERS.pendientes();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function rejectColaborador(colabId, accionId) {
+  const motivo = prompt('Motivo del rechazo:');
+  if (!motivo) return;
+  try {
+    await sb.from('colaboradores').update({ estado: 'rechazado' }).eq('id', colabId);
+    await sb.from('acciones_pendientes').update({ estado: 'completada', fecha_completada: new Date().toISOString(), notas_asesor: 'Rechazado: ' + motivo }).eq('id', accionId);
+    try { await fetch(N8N + '/email-colaborador-rechazado', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ colaborador_id: colabId, motivo }) }); } catch(e) {}
+    toast('Colaborador rechazado'); closeModal(); loadPendingCount();
+    loadedTabs.delete('pendientes'); if (activeTab === 'pendientes') TAB_LOADERS.pendientes();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function requestInfoColaborador(colabId, accionId) {
+  toast('Se notificará al colaborador para que complete su información');
+  closeModal();
+}
+
+async function openRevisarPisoModal(accionId) {
+  const { data: accion } = await sb.from('acciones_pendientes').select('*').eq('id', accionId).limit(1);
+  const a = accion && accion[0] ? accion[0] : {};
+  const pisoId = a.piso_id || a.referencia_id;
+
+  let piso = {};
+  if (pisoId) {
+    const { data } = await sb.from('pisos').select('*').eq('id', pisoId).limit(1);
+    if (data && data[0]) piso = data[0];
+  }
+
+  const fotos = piso.fotos ? (typeof piso.fotos === 'string' ? JSON.parse(piso.fotos) : piso.fotos) : [];
+  const fotosHtml = fotos.length ? '<div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:12px">' + fotos.slice(0, 8).map(f => {
+    const url = typeof f === 'string' ? f : (f.thumbnails ? f.thumbnails.large : f.url);
+    return '<img src="' + url + '" style="width:120px;height:90px;border-radius:8px;object-fit:cover;flex-shrink:0">';
+  }).join('') + '</div>' : '';
+
+  const vendedor = piso.datos_vendedor || {};
+
+  openModal('Revisar Piso', `
+    ${fotosHtml}
+    <div style="background:var(--bg);padding:16px;border-radius:10px;margin-bottom:12px">
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px">${piso.direccion || piso.nombre || '—'}</div>
+      <div style="font-size:20px;font-weight:700;color:var(--color-gold-dark);margin-bottom:8px">${piso.precio ? eur(piso.precio) : '—'}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:13px">
+        <div>${piso.habitaciones || '—'} hab.</div>
+        <div>${piso.metros || '—'} m²</div>
+        <div>${piso.banos || '—'} baños</div>
+        <div>Barrio: ${piso.barrio || '—'}</div>
+        <div>Estado: ${piso.estado_inmueble || '—'}</div>
+        <div>Planta: ${piso.planta || '—'}</div>
+      </div>
+    </div>
+    ${Object.keys(vendedor).length ? '<div style="background:var(--bg);padding:12px;border-radius:8px;margin-bottom:12px;font-size:13px"><strong>Vendedor:</strong> '+(vendedor.nombre||'—')+' · '+(vendedor.telefono||'—')+' · '+(vendedor.relacion||'')+'</div>' : ''}
+  `, 'lg', `
+    <button class="btn btn-danger btn-sm" onclick="rejectPiso('${pisoId}','${accionId}')">Rechazar</button>
+    <div style="flex:1"></div>
+    <button class="btn btn-secondary btn-sm" onclick="closeModal();toast('Navega a Pisos para editar')">Editar antes de aprobar</button>
+    <button class="btn btn-primary" onclick="approvePiso('${pisoId}','${accionId}')">Aprobar y publicar</button>
+  `);
+}
+
+async function approvePiso(pisoId, accionId) {
+  try {
+    await sb.from('pisos').update({ estado_sistema: 'Activo' }).eq('id', pisoId);
+    await sb.from('acciones_pendientes').update({ estado: 'completada', fecha_completada: new Date().toISOString() }).eq('id', accionId);
+    try { await fetch(N8N + '/email-piso-aprobado', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ piso_id: pisoId }) }); } catch(e) {}
+    logActivity('piso_aprobado', 'Piso aprobado y publicado', { piso_id: pisoId });
+    toast('Piso aprobado y publicado'); closeModal(); loadPendingCount();
+    loadedTabs.delete('pendientes'); if (activeTab === 'pendientes') TAB_LOADERS.pendientes();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function rejectPiso(pisoId, accionId) {
+  const motivo = prompt('Motivo del rechazo:');
+  if (!motivo) return;
+  try {
+    await sb.from('pisos').update({ estado_sistema: 'rechazado' }).eq('id', pisoId);
+    await sb.from('acciones_pendientes').update({ estado: 'completada', fecha_completada: new Date().toISOString(), notas_asesor: 'Rechazado: ' + motivo }).eq('id', accionId);
+    try { await fetch(N8N + '/email-piso-rechazado', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ piso_id: pisoId, motivo }) }); } catch(e) {}
+    toast('Piso rechazado'); closeModal(); loadPendingCount();
+    loadedTabs.delete('pendientes'); if (activeTab === 'pendientes') TAB_LOADERS.pendientes();
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
 }
 
 
