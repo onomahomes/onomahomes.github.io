@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=Jost:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root {
   /* Estructura */
@@ -336,6 +338,16 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px;
 .notif-detail { font-size: 11px; color: var(--text-muted); }
 .notif-time { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
 
+
+/* CALENDAR GRID — Fase 8 */
+.cal-grid { display: grid; grid-template-columns: 60px repeat(7, 1fr); grid-auto-rows: minmax(48px, auto); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; position: relative; }
+.cal-header-cell { background: var(--card); padding: 8px 4px; text-align: center; font-size: 12px; font-weight: 600; color: var(--text-muted); font-family: var(--font-ui); }
+.cal-hour-cell { background: #fafaf8; padding: 4px 8px; font-size: 10px; color: var(--text-tertiary); font-family: var(--font-ui); text-align: right; }
+.cal-cell { background: var(--card); min-height: 48px; }
+.cal-block { padding: 4px 6px; border-radius: 4px; cursor: pointer; transition: opacity 0.15s; overflow: hidden; z-index: 1; }
+.cal-block:hover { opacity: 0.8; }
+@media (max-width: 768px) { .cal-grid { grid-template-columns: 40px repeat(7, 1fr); } .cal-header-cell { font-size: 10px; } }
+
 /* TOAST */
 #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
 .toast { padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 500; color: white; box-shadow: 0 4px 16px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; max-width: 320px; pointer-events: all; }
@@ -568,15 +580,18 @@ const NAV_ASESOR = [
   { id: 'kpis',          icon: '📊', label: 'Mis KPIs' },
 ];
 const NAV_DIRECTOR = [
-  { id: 'dashboard',      icon: '🏠', label: 'Dashboard KPIs' },
-  { id: 'notificaciones', icon: '🔔', label: 'Notificaciones', badge: true },
-  { id: 'equipo',         icon: '👔', label: 'Equipo', section: 'Gestión' },
-  { id: 'colaboradores',  icon: '🤝', label: 'Colaboradores' },
-  { id: 'pisos',          icon: '🏘️', label: 'Pisos' },
-  { id: 'demandas',       icon: '📋', label: 'Demandas' },
-  { id: 'pipeline',       icon: '📊', label: 'Pipeline' },
-  { id: 'agenda',         icon: '📅', label: 'Agenda' },
-  { id: 'informes',       icon: '📈', label: 'Informes' },
+  { id: 'dir-dashboard',   icon: '🏠', label: 'Dashboard', badge: true },
+  { id: 'dir-agenda',      icon: '📅', label: 'Agenda' },
+  { id: 'dir-pipeline',    icon: '💰', label: 'Pipeline' },
+  { id: 'dir-rendimiento', icon: '📊', label: 'Rendimiento' },
+  { id: 'dir-informes',    icon: '📄', label: 'Informes' },
+  { id: 'separator', icon: '', label: '─────────', section: 'Supervisión' },
+  { id: 'pendientes',      icon: '⚡', label: 'Acciones', badge: true },
+  { id: 'matchings',       icon: '🤝', label: 'Matchings' },
+  { id: 'demandas',        icon: '📋', label: 'Demandas' },
+  { id: 'pisos',           icon: '🏢', label: 'Pisos' },
+  { id: 'equipo',          icon: '👔', label: 'Equipo' },
+  { id: 'colaboradores',   icon: '🤝', label: 'Colaboradores' },
 ];
 const TAB_PLACEHOLDERS = {
   dashboard:      { icon: '🏠', title: 'Dashboard', desc: 'Resumen del día: actividad, próximas visitas, alertas y métricas personales.' },
@@ -706,6 +721,7 @@ function renderSidebar(nav) {
   nav.forEach(item => {
     if (item.section !== lastSection) { if (item.section) html += `<div class="sidebar-section-title">${item.section}</div>`; lastSection = item.section; }
     const badgeHtml = item.badge ? `<span class="badge" id="badge-${item.id}" style="display:none">0</span>` : '';
+    if (item.id === 'separator') { html += '<div style="padding:0 18px;margin:8px 0"><div style="border-top:1px solid rgba(255,255,255,0.1)"></div></div>'; return; }
     html += `<div class="sidebar-section"><div class="sidebar-item" id="nav-${item.id}" onclick="switchTab('${item.id}')"><span class="icon">${item.icon}</span><span class="label">${item.label}</span>${badgeHtml}</div></div>`;
   });
   document.getElementById('app-sidebar').innerHTML = html;
@@ -3422,6 +3438,7 @@ async function submitFeedback(visitaId) {
     loadPendingCount();
     _fbDirty = false;
     toast('Feedback guardado correctamente');
+    logActivity('feedback_completado', asesorName(currentUser.id) + ' completó feedback: ' + (_fbPiso.direccion||''), { visita_id: visitaId, piso_id: pisoId });
     closeModal();
 
     // 7. Show link modal if applicable
@@ -4573,6 +4590,509 @@ function timeAgo(dateStr) {
   if (hrs < 24) return hrs + 'h';
   return Math.floor(hrs / 24) + 'd';
 }
+
+// ═══════════════════════════════════════════════════════════════
+// FASE 8 — DIRECTOR DASHBOARD (5 tabs)
+// ═══════════════════════════════════════════════════════════════
+
+// ── Helper: log activity (non-blocking) ──
+async function logActivity(tipo, desc, meta) {
+  try { await sb.from('actividad_log').insert({ tipo_evento: tipo, asesor_id: currentUser ? currentUser.id : null, descripcion: desc, metadata: meta || {} }); } catch(e) {}
+}
+
+// ── Helper: asesor color map ──
+let _asesorColorMap = {};
+async function loadAsesorColors() {
+  if (Object.keys(_asesorColorMap).length) return;
+  const { data } = await sb.from('asesores').select('id,nombre,color,email').eq('activo', true);
+  (data || []).forEach(a => { _asesorColorMap[a.id] = { nombre: a.nombre, color: a.color || '#999', email: a.email }; });
+}
+function asesorColor(id) { return (_asesorColorMap[id] || {}).color || '#999'; }
+function asesorName(id) { return (_asesorColorMap[id] || {}).nombre || id || '—'; }
+
+// ════════════════════════════════════════════════════════════════
+// TAB: DASHBOARD DIRECTOR
+// ════════════════════════════════════════════════════════════════
+TAB_LOADERS['dir-dashboard'] = async function() {
+  const pane = document.getElementById('tab-dir-dashboard');
+  if (!pane) return;
+  tabLoad(pane);
+  await loadAsesorColors();
+
+  try {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+    const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).toISOString();
+
+    const [rVisitas, rVisitasPrev, rOps, rDemandas, rDemandasPrev, rAcciones, rLog] = await Promise.all([
+      sb.from('visitas').select('id', { count: 'exact', head: true }).gte('fecha_hora', monthStart),
+      sb.from('visitas').select('id', { count: 'exact', head: true }).gte('fecha_hora', prevMonthStart).lte('fecha_hora', prevMonthEnd),
+      sb.from('operaciones').select('id,precio_venta,honorarios_onoma,estado').neq('estado', 'cerrada').neq('estado', 'caida'),
+      sb.from('demandas').select('id', { count: 'exact', head: true }).eq('estado', 'Activa'),
+      sb.from('demandas').select('id', { count: 'exact', head: true }).eq('estado', 'Activa').gte('created_time', prevMonthStart).lte('created_time', prevMonthEnd),
+      sb.from('acciones_pendientes').select('id,prioridad,estado_escalado', { count: 'exact' }).eq('estado', 'pendiente'),
+      sb.from('actividad_log').select('*').order('fecha', { ascending: false }).limit(15),
+    ]);
+
+    const visitasMes = rVisitas.count || 0;
+    const visitasPrev = rVisitasPrev.count || 0;
+    const opsActivas = (rOps.data || []).length;
+    const comisionTotal = (rOps.data || []).reduce((s, o) => s + (o.honorarios_onoma || 0), 0);
+    const demandasAct = rDemandas.count || 0;
+    const accionesPend = rAcciones.count || 0;
+    const escaladas = (rAcciones.data || []).filter(a => a.estado_escalado && a.estado_escalado !== 'pendiente').length;
+
+    function kpiDelta(current, prev) {
+      if (!prev) return '';
+      const pct = Math.round(((current - prev) / prev) * 100);
+      const color = pct >= 0 ? 'var(--color-success)' : 'var(--danger)';
+      const arrow = pct >= 0 ? '↑' : '↓';
+      return `<span style="font-size:12px;color:${color};font-weight:600">${arrow} ${Math.abs(pct)}% vs mes ant.</span>`;
+    }
+
+    function kpi(value, label, delta, accent) {
+      return `<div class="data-card" style="padding:20px;text-align:center;${accent ? 'border-top:3px solid ' + accent : ''}">
+        <div style="font-size:28px;font-weight:700;font-family:var(--font-ui);color:var(--text)">${value}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${label}</div>
+        ${delta ? `<div style="margin-top:4px">${delta}</div>` : ''}
+      </div>`;
+    }
+
+    // Timeline
+    const logs = rLog.data || [];
+    const typeIcons = { visita_programada: '📅', feedback_completado: '✅', accion_escalada: '⚠️', reserva: '🌟', matching_enviado: '📨', nueva_demanda: '📝', nuevo_piso: '🏢', operacion_cambio: '💰' };
+    const timelineHtml = logs.length ? logs.map(l => `<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:18px;flex-shrink:0">${typeIcons[l.tipo_evento] || '📋'}</span>
+      <div style="flex:1"><div style="font-size:13px">${l.descripcion || l.tipo_evento}</div><div style="font-size:11px;color:var(--text-tertiary)">${timeAgo(l.fecha)}</div></div>
+    </div>`).join('') : '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Sin actividad reciente</div>';
+
+    // Alerts
+    let alertsHtml = '';
+    if (escaladas > 0) alertsHtml += `<div style="padding:12px;background:var(--color-error-bg);border-radius:8px;margin-bottom:8px;cursor:pointer" onclick="switchTab('pendientes')"><span style="font-weight:600;color:var(--danger)">⚠️ ${escaladas} acciones escaladas</span> — requieren atención inmediata</div>`;
+
+    // Demandas inactivas
+    const { count: inactiveCount } = await sb.from('acciones_pendientes').select('id', { count: 'exact', head: true }).eq('tipo', 'seguimiento_demanda_inactiva').eq('estado', 'pendiente');
+    if (inactiveCount > 0) alertsHtml += `<div style="padding:12px;background:rgba(184,134,11,0.06);border-radius:8px;margin-bottom:8px;cursor:pointer" onclick="switchTab('pendientes')"><span style="font-weight:600;color:var(--color-warning)">⏳ ${inactiveCount} demandas inactivas</span> — más de 30 días sin visita</div>`;
+
+    // Asesores with >3 overdue
+    const { data: overdueData } = await sb.from('acciones_pendientes').select('asesor_id').eq('estado', 'pendiente').lt('fecha_limite', new Date().toISOString());
+    const overdueByAsesor = {};
+    (overdueData || []).forEach(a => { overdueByAsesor[a.asesor_id] = (overdueByAsesor[a.asesor_id] || 0) + 1; });
+    const badAsesores = Object.entries(overdueByAsesor).filter(([, c]) => c > 3);
+    if (badAsesores.length) alertsHtml += `<div style="padding:12px;background:rgba(230,126,34,0.06);border-radius:8px;margin-bottom:8px;cursor:pointer" onclick="switchTab('rendimiento')"><span style="font-weight:600;color:#E67E22">👤 ${badAsesores.length} asesores con 3+ acciones vencidas</span></div>`;
+
+    pane.innerHTML = `
+      <div class="tab-toolbar"><div><h2>Dashboard</h2><p>Resumen ejecutivo — ${new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</p></div></div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px">
+        ${kpi(visitasMes, 'Visitas este mes', kpiDelta(visitasMes, visitasPrev), 'var(--gold)')}
+        ${kpi(opsActivas, 'Operaciones activas', '', '#10B981')}
+        ${kpi(eur(comisionTotal), 'Comisión estimada', '', 'var(--gold)')}
+        ${kpi(demandasAct, 'Demandas activas', '', '#3B82F6')}
+        ${kpi(accionesPend, 'Acciones pendientes', escaladas > 0 ? '<span style="font-size:12px;color:var(--danger);font-weight:600">' + escaladas + ' escaladas</span>' : '', escaladas > 0 ? 'var(--danger)' : '')}
+      </div>
+      ${alertsHtml ? `<div style="margin-bottom:24px"><div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:10px">Alertas</div>${alertsHtml}</div>` : ''}
+      <div style="display:grid;grid-template-columns:1fr;gap:16px">
+        <div class="data-card" style="padding:20px"><div style="font-size:14px;font-weight:700;margin-bottom:14px">Actividad Reciente</div>${timelineHtml}</div>
+      </div>`;
+  } catch(e) { tabError(pane, e); }
+};
+
+// ════════════════════════════════════════════════════════════════
+// TAB: AGENDA (Calendar)
+// ════════════════════════════════════════════════════════════════
+TAB_LOADERS['dir-agenda'] = async function() {
+  const pane = document.getElementById('tab-dir-agenda');
+  if (!pane) return;
+  tabLoad(pane);
+  await loadAsesorColors();
+
+  try {
+    const { data: visitas } = await sb.from('visitas').select('id,fecha_hora,hora_visita,estado,cliente_nombre,colaborador_id,piso_id,asesor_id,feedback_asesor_completado,estado_feedback')
+      .order('fecha_hora', { ascending: true });
+    const items = visitas || [];
+
+    // Piso names
+    const pisoIds = [...new Set(items.map(v => v.piso_id).filter(Boolean))];
+    const pisosMap = {};
+    if (pisoIds.length) {
+      const { data: pd } = await sb.from('pisos').select('id,direccion,nombre,barrio').in('id', pisoIds);
+      (pd || []).forEach(p => { pisosMap[p.id] = p; });
+    }
+
+    // Current week state
+    if (!window._agendaWeekOffset) window._agendaWeekOffset = 0;
+    if (!window._agendaView) window._agendaView = 'semana';
+    const offset = window._agendaWeekOffset;
+
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay() + 1 + (offset * 7)); // Monday
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+
+    const weekVisitas = items.filter(v => {
+      if (!v.fecha_hora) return false;
+      const d = new Date(v.fecha_hora);
+      return d >= weekStart && d <= new Date(weekEnd.getTime() + 86400000);
+    });
+
+    // Stats
+    const programadas = weekVisitas.filter(v => v.estado === 'confirmada' || v.estado === 'solicitada').length;
+    const completadas = weekVisitas.filter(v => v.estado === 'realizada').length;
+    const pendFb = weekVisitas.filter(v => v.estado === 'realizada' && !v.feedback_asesor_completado).length;
+
+    // Build week grid
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      days.push(d);
+    }
+    const hours = [];
+    for (let h = 8; h <= 20; h++) hours.push(h);
+
+    const dayNames = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    const monthNames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+    function formatWeekRange() {
+      return days[0].getDate() + ' ' + monthNames[days[0].getMonth()] + ' — ' + days[6].getDate() + ' ' + monthNames[days[6].getMonth()] + ' ' + days[6].getFullYear();
+    }
+
+    // Position visits in grid
+    let visitBlocks = '';
+    weekVisitas.forEach(v => {
+      const dt = new Date(v.fecha_hora);
+      const dayIdx = (dt.getDay() + 6) % 7; // Mon=0
+      const hour = dt.getHours();
+      if (hour < 8 || hour > 20) return;
+      const col = dayIdx + 2; // col 1 is hours
+      const row = hour - 8 + 2; // row 1 is header
+      const pisoDir = pisosMap[v.piso_id] ? (pisosMap[v.piso_id].direccion || pisosMap[v.piso_id].nombre || '').substring(0, 25) : '—';
+      const color = asesorColor(v.asesor_id);
+      const isDone = v.estado === 'realizada';
+      visitBlocks += `<div class="cal-block" style="grid-column:${col};grid-row:${row};background:${color}20;border-left:3px solid ${color};${isDone ? 'opacity:0.6;' : ''}" onclick="openCalVisitDetail('${v.id}')" title="${pisoDir} — ${v.cliente_nombre||''}">
+        <div style="font-size:11px;font-weight:600;color:${color}">${String(hour).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}</div>
+        <div style="font-size:10px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pisoDir}</div>
+        <div style="font-size:9px;color:var(--text-muted)">${asesorName(v.asesor_id)}</div>
+      </div>`;
+    });
+
+    pane.innerHTML = `
+      <div class="tab-toolbar" style="flex-wrap:wrap;gap:10px">
+        <div><h2>Agenda</h2><p>Esta semana: ${programadas} programadas · ${completadas} completadas · ${pendFb} pendientes feedback</p></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="btn btn-secondary btn-sm" onclick="window._agendaWeekOffset--;loadedTabs.delete('dir-agenda');TAB_LOADERS['dir-agenda']()">←</button>
+          <button class="btn btn-secondary btn-sm" onclick="window._agendaWeekOffset=0;loadedTabs.delete('dir-agenda');TAB_LOADERS['dir-agenda']()">Hoy</button>
+          <button class="btn btn-secondary btn-sm" onclick="window._agendaWeekOffset++;loadedTabs.delete('dir-agenda');TAB_LOADERS['dir-agenda']()">→</button>
+        </div>
+      </div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:12px;text-align:center">${formatWeekRange()}</div>
+      <div style="overflow-x:auto">
+        <div class="cal-grid">
+          <div class="cal-header-cell"></div>
+          ${days.map((d, i) => {
+            const isToday = d.toDateString() === today.toDateString();
+            return `<div class="cal-header-cell" style="${isToday ? 'background:var(--color-gold-bg);border-radius:8px' : ''}">${dayNames[i]}<br><span style="font-size:16px;font-weight:700">${d.getDate()}</span></div>`;
+          }).join('')}
+          ${hours.map(h => `<div class="cal-hour-cell">${String(h).padStart(2,'0')}:00</div>${days.map(() => `<div class="cal-cell"></div>`).join('')}`).join('')}
+          ${visitBlocks}
+        </div>
+      </div>`;
+  } catch(e) { tabError(pane, e); }
+};
+
+function openCalVisitDetail(visitaId) {
+  // Simple detail popup
+  sb.from('visitas').select('*').eq('id', visitaId).limit(1).then(({ data }) => {
+    const v = data && data[0] ? data[0] : {};
+    openModal('Detalle de visita', `
+      <div style="font-size:14px;line-height:1.8">
+        <div><strong>Cliente:</strong> ${v.cliente_nombre || '—'}</div>
+        <div><strong>Asesor:</strong> ${asesorName(v.asesor_id)}</div>
+        <div><strong>Fecha:</strong> ${v.fecha_hora ? new Date(v.fecha_hora).toLocaleString('es-ES') : '—'}</div>
+        <div><strong>Estado:</strong> ${v.estado || '—'}</div>
+        <div><strong>Feedback:</strong> ${v.feedback_asesor_completado ? '✅ Completado' : '❌ Pendiente'} ${v.estado_feedback ? '(' + v.estado_feedback + ')' : ''}</div>
+      </div>
+    `, 'sm');
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// TAB: PIPELINE
+// ════════════════════════════════════════════════════════════════
+TAB_LOADERS['dir-pipeline'] = async function() {
+  const pane = document.getElementById('tab-dir-pipeline');
+  if (!pane) return;
+  tabLoad(pane);
+  await loadAsesorColors();
+
+  try {
+    const { data: ops } = await sb.from('operaciones').select('*');
+    const items = ops || [];
+
+    // KPIs
+    const activas = items.filter(o => o.estado !== 'cerrada' && o.estado !== 'caida');
+    const valorPipeline = activas.reduce((s, o) => s + (o.precio_venta || 0), 0);
+    const comisionONOMA = activas.reduce((s, o) => s + (o.honorarios_onoma || 0), 0);
+    const cerradas = items.filter(o => o.estado === 'cerrada').length;
+    const tasaConv = items.length ? Math.round((cerradas / items.length) * 100) : 0;
+
+    // Pipeline columns
+    const cols = [
+      { id: 'lead', label: 'Lead', color: '#3B82F6' },
+      { id: 'oferta_enviada', label: 'Oferta', color: '#F59E0B' },
+      { id: 'negociacion', label: 'Negociación', color: '#E67E22' },
+      { id: 'reserva', label: 'Reserva', color: '#10B981' },
+      { id: 'arras_firmadas', label: 'Arras', color: '#059669' },
+      { id: 'escritura_pendiente', label: 'Escritura', color: '#8B5CF6' },
+      { id: 'cerrada', label: 'Cerrada', color: '#2C5F2E' },
+      { id: 'caida', label: 'Caída', color: '#8B2020' },
+    ];
+
+    function opCard(o) {
+      const esc = o.escenario_comision || o.escenario || '—';
+      const isUF = esc === 'urban_flip' || (o.tipo_operacion && o.tipo_operacion.toLowerCase().includes('urban'));
+      const diasEnFase = o.fecha_estado ? Math.floor((Date.now() - new Date(o.fecha_estado).getTime()) / 86400000) : '—';
+      return `<div class="data-card" style="padding:12px;margin-bottom:8px;font-size:12px">
+        <div style="font-weight:600;font-size:13px;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.nombre || '—'}</div>
+        <div style="color:var(--text-muted)">${o.precio_venta ? eur(o.precio_venta) : '—'}</div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+          ${isUF ? '<span class="pill pill-gold">Urban Flip</span>' : `<span class="pill pill-blue">${esc}</span>`}
+          <span style="color:${asesorColor(o.asesor_id)};font-weight:600">${asesorName(o.asesor_id)}</span>
+        </div>
+        ${o.honorarios_onoma ? `<div style="font-size:16px;font-weight:700;color:var(--color-success);margin-top:6px">${eur(o.honorarios_onoma)}</div>` : ''}
+        <div style="font-size:10px;color:var(--text-tertiary);margin-top:4px">${diasEnFase} días en fase</div>
+      </div>`;
+    }
+
+    pane.innerHTML = `
+      <div class="tab-toolbar"><div><h2>Pipeline</h2><p>${activas.length} operaciones activas</p></div></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
+        <div class="data-card" style="padding:16px;text-align:center"><div style="font-size:24px;font-weight:700">${activas.length}</div><div style="font-size:11px;color:var(--text-muted)">Operaciones activas</div></div>
+        <div class="data-card" style="padding:16px;text-align:center"><div style="font-size:24px;font-weight:700">${eur(valorPipeline)}</div><div style="font-size:11px;color:var(--text-muted)">Valor pipeline</div></div>
+        <div class="data-card" style="padding:16px;text-align:center;border-top:3px solid var(--color-success)"><div style="font-size:24px;font-weight:700;color:var(--color-success)">${eur(comisionONOMA)}</div><div style="font-size:11px;color:var(--text-muted)">Comisión ONOMA</div></div>
+        <div class="data-card" style="padding:16px;text-align:center"><div style="font-size:24px;font-weight:700">${tasaConv}%</div><div style="font-size:11px;color:var(--text-muted)">Tasa conversión</div></div>
+      </div>
+      <div style="overflow-x:auto">
+        <div style="display:grid;grid-template-columns:repeat(${cols.length},minmax(160px,1fr));gap:8px;min-width:${cols.length * 170}px">
+          ${cols.map(c => {
+            const colOps = items.filter(o => (o.estado || 'lead') === c.id);
+            return `<div>
+              <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:8px 12px;background:${c.color}15;color:${c.color};border-radius:8px 8px 0 0;border-bottom:2px solid ${c.color}">${c.label} <span style="background:${c.color};color:#fff;padding:1px 6px;border-radius:100px;font-size:10px;margin-left:4px">${colOps.length}</span></div>
+              <div style="min-height:100px;padding:8px 0">${colOps.map(o => opCard(o)).join('') || '<div style="text-align:center;color:var(--text-tertiary);font-size:11px;padding:20px">—</div>'}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  } catch(e) { tabError(pane, e); }
+};
+
+// ════════════════════════════════════════════════════════════════
+// TAB: RENDIMIENTO
+// ════════════════════════════════════════════════════════════════
+TAB_LOADERS['dir-rendimiento'] = async function() {
+  const pane = document.getElementById('tab-dir-rendimiento');
+  if (!pane) return;
+  tabLoad(pane);
+  await loadAsesorColors();
+
+  try {
+    const periodoVal = window._rendPeriodo || 30;
+    const since = new Date(Date.now() - periodoVal * 86400000).toISOString();
+
+    const { data: asesores } = await sb.from('asesores').select('id,nombre,color,email').eq('activo', true).eq('rol', 'asesor').order('nombre');
+    const asesorList = asesores || [];
+
+    // Fetch data for all metrics
+    const [rVisitas, rFeedbacks, rEnvios, rAcciones, rOps] = await Promise.all([
+      sb.from('visitas').select('id,asesor_id,estado,fecha_hora,feedback_asesor_completado').gte('fecha_hora', since),
+      sb.from('feedbacks').select('id,autor_id,tipo,valoracion_general,fecha_creacion').eq('tipo', 'asesor').gte('fecha_creacion', since),
+      sb.from('envios_matching').select('id,asesor_id,fecha_envio').gte('fecha_envio', since),
+      sb.from('acciones_pendientes').select('id,asesor_id,estado,estado_escalado,fecha_creacion,fecha_completada').eq('estado', 'pendiente'),
+      sb.from('operaciones').select('id,asesor_id,estado,honorarios_onoma').neq('estado', 'cerrada').neq('estado', 'caida'),
+    ]);
+
+    const visitas = rVisitas.data || [];
+    const feedbacks = rFeedbacks.data || [];
+    const envios = rEnvios.data || [];
+    const acciones = rAcciones.data || [];
+    const ops = rOps.data || [];
+
+    // Build table rows
+    const rows = asesorList.map(a => {
+      const aVisitas = visitas.filter(v => v.asesor_id === a.id && v.estado === 'realizada').length;
+      const aFeedbacks = feedbacks.filter(f => f.autor_id === a.id).length;
+      const aEnvios = envios.filter(e => e.asesor_id === a.id).length;
+      const aPendientes = acciones.filter(ac => ac.asesor_id === a.id).length;
+      const aEscaladas = acciones.filter(ac => ac.asesor_id === a.id && ac.estado_escalado && ac.estado_escalado !== 'pendiente').length;
+      const aOps = ops.filter(o => o.asesor_id === a.id).length;
+      const aComision = ops.filter(o => o.asesor_id === a.id).reduce((s, o) => s + (o.honorarios_onoma || 0), 0);
+      const aInteres = feedbacks.filter(f => f.autor_id === a.id && f.valoracion_general).reduce((s, f) => ({ sum: s.sum + f.valoracion_general, count: s.count + 1 }), { sum: 0, count: 0 });
+      const interesAvg = aInteres.count ? (aInteres.sum / aInteres.count).toFixed(1) : '—';
+
+      return { ...a, aVisitas, aFeedbacks, aEnvios, aPendientes, aEscaladas, aOps, aComision, interesAvg };
+    });
+
+    // Chart data
+    const chartLabels = rows.map(r => r.nombre);
+    const chartVisitas = rows.map(r => r.aVisitas);
+    const chartColors = rows.map(r => r.color || '#999');
+
+    const periodoLabel = periodoVal === 7 ? 'Últimos 7 días' : periodoVal === 30 ? 'Últimos 30 días' : periodoVal === 90 ? 'Trimestre' : 'Todo';
+
+    pane.innerHTML = `
+      <div class="tab-toolbar" style="flex-wrap:wrap;gap:10px">
+        <div><h2>Rendimiento del Equipo</h2><p>${periodoLabel}</p></div>
+        <div style="display:flex;gap:6px">
+          <select onchange="window._rendPeriodo=parseInt(this.value);loadedTabs.delete('dir-rendimiento');TAB_LOADERS['dir-rendimiento']()" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font-ui)">
+            <option value="7" ${periodoVal===7?'selected':''}>Últimos 7 días</option>
+            <option value="30" ${periodoVal===30?'selected':''}>Últimos 30 días</option>
+            <option value="90" ${periodoVal===90?'selected':''}>Trimestre</option>
+            <option value="365" ${periodoVal===365?'selected':''}>Todo</option>
+          </select>
+        </div>
+      </div>
+      <div class="data-table" style="margin-bottom:24px"><table>
+        <thead><tr><th>Asesor</th><th>Visitas</th><th>Feedbacks</th><th>Envíos</th><th>Pendientes</th><th>Escaladas</th><th>Ops</th><th>Comisión</th><th>Interés medio</th></tr></thead>
+        <tbody>${rows.map(r => `<tr style="${r.aEscaladas > 0 ? 'background:rgba(139,32,32,0.04)' : ''}">
+          <td><div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:${r.color}"></div><span style="font-weight:600">${r.nombre}</span></div></td>
+          <td style="font-weight:600">${r.aVisitas}</td>
+          <td>${r.aFeedbacks}</td>
+          <td>${r.aEnvios}</td>
+          <td>${r.aPendientes}</td>
+          <td style="${r.aEscaladas>0?'color:var(--danger);font-weight:700':''}">${r.aEscaladas}</td>
+          <td>${r.aOps}</td>
+          <td style="font-weight:600;color:var(--color-success)">${r.aComision ? eur(r.aComision) : '—'}</td>
+          <td>${r.interesAvg}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+      <div style="display:grid;grid-template-columns:1fr;gap:16px">
+        <div class="data-card" style="padding:20px"><div style="font-size:14px;font-weight:700;margin-bottom:14px">Visitas por asesor</div><canvas id="chart-visitas" height="200"></canvas></div>
+      </div>`;
+
+    // Render chart
+    if (typeof Chart !== 'undefined') {
+      const ctx = document.getElementById('chart-visitas');
+      if (ctx) new Chart(ctx, {
+        type: 'bar',
+        data: { labels: chartLabels, datasets: [{ label: 'Visitas', data: chartVisitas, backgroundColor: chartColors, borderRadius: 6 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+      });
+    }
+  } catch(e) { tabError(pane, e); }
+};
+
+// ════════════════════════════════════════════════════════════════
+// TAB: INFORMES
+// ════════════════════════════════════════════════════════════════
+TAB_LOADERS['dir-informes'] = async function() {
+  const pane = document.getElementById('tab-dir-informes');
+  if (!pane) return;
+  tabLoad(pane);
+
+  pane.innerHTML = `
+    <div class="tab-toolbar"><div><h2>Informes</h2><p>Genera y descarga informes en PDF</p></div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+      <div class="data-card" style="padding:24px">
+        <div style="font-size:18px;margin-bottom:8px">📊</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">Resumen Semanal</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">KPIs de la semana, visitas, feedbacks, acciones escaladas y nuevas operaciones.</div>
+        <button class="btn btn-primary btn-sm" onclick="generateReport('semanal')">Generar PDF</button>
+      </div>
+      <div class="data-card" style="padding:24px">
+        <div style="font-size:18px;margin-bottom:8px">💰</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">Pipeline de Operaciones</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">Estado de todas las operaciones activas, comisiones por escenario y resumen financiero.</div>
+        <button class="btn btn-primary btn-sm" onclick="generateReport('pipeline')">Generar PDF</button>
+      </div>
+      <div class="data-card" style="padding:24px">
+        <div style="font-size:18px;margin-bottom:8px">👥</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">Rendimiento del Equipo</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">Tabla comparativa de asesores con todas las métricas, ranking y gráficos.</div>
+        <button class="btn btn-primary btn-sm" onclick="generateReport('rendimiento')">Generar PDF</button>
+      </div>
+    </div>`;
+};
+
+async function generateReport(tipo) {
+  if (typeof jspdf === 'undefined') { toast('Cargando librería PDF...'); return; }
+  toast('Generando informe...');
+
+  const { jsPDF } = jspdf;
+  const doc = new jsPDF();
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  // Header
+  doc.setFontSize(20);
+  doc.setFont(undefined, 'bold');
+  doc.text('ONOMA', 15, 20);
+  doc.setFontSize(10);
+  doc.setFont(undefined, 'normal');
+  doc.setTextColor(120);
+  doc.text('REAL ESTATE', 52, 20);
+  doc.setTextColor(0);
+
+  doc.setFontSize(14);
+  doc.setFont(undefined, 'bold');
+  const titles = { semanal: 'Resumen Semanal', pipeline: 'Pipeline de Operaciones', rendimiento: 'Rendimiento del Equipo' };
+  doc.text(titles[tipo] || 'Informe', 15, 32);
+  doc.setFontSize(10);
+  doc.setFont(undefined, 'normal');
+  doc.setTextColor(120);
+  doc.text('Generado: ' + dateStr, 15, 39);
+  doc.setTextColor(0);
+
+  let y = 50;
+
+  if (tipo === 'semanal') {
+    const since = new Date(Date.now() - 7 * 86400000).toISOString();
+    const [rV, rF, rA] = await Promise.all([
+      sb.from('visitas').select('id,estado', { count: 'exact' }).gte('fecha_hora', since),
+      sb.from('feedbacks').select('id', { count: 'exact' }).eq('tipo', 'asesor').gte('fecha_creacion', since),
+      sb.from('acciones_pendientes').select('id', { count: 'exact' }).eq('estado', 'pendiente'),
+    ]);
+    doc.setFontSize(12); doc.setFont(undefined, 'bold');
+    doc.text('KPIs Últimos 7 Días', 15, y); y += 10;
+    doc.setFontSize(10); doc.setFont(undefined, 'normal');
+    doc.text('Visitas: ' + (rV.count || 0), 15, y); y += 7;
+    doc.text('Feedbacks completados: ' + (rF.count || 0), 15, y); y += 7;
+    doc.text('Acciones pendientes: ' + (rA.count || 0), 15, y); y += 14;
+  } else if (tipo === 'pipeline') {
+    const { data: ops } = await sb.from('operaciones').select('*').neq('estado', 'caida');
+    doc.setFontSize(12); doc.setFont(undefined, 'bold');
+    doc.text('Operaciones en Pipeline', 15, y); y += 10;
+    doc.setFontSize(9); doc.setFont(undefined, 'normal');
+    (ops || []).forEach(o => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.text(`${o.nombre || '—'} | ${o.estado || '—'} | ${o.precio_venta ? o.precio_venta.toLocaleString('es-ES') + '€' : '—'} | ONOMA: ${o.honorarios_onoma ? o.honorarios_onoma.toLocaleString('es-ES') + '€' : '—'}`, 15, y);
+      y += 6;
+    });
+  } else if (tipo === 'rendimiento') {
+    await loadAsesorColors();
+    doc.setFontSize(12); doc.setFont(undefined, 'bold');
+    doc.text('Rendimiento del Equipo', 15, y); y += 10;
+    doc.setFontSize(9); doc.setFont(undefined, 'normal');
+    Object.values(_asesorColorMap).forEach(a => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.text(a.nombre || '—', 15, y); y += 6;
+    });
+  }
+
+  // Footer
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8); doc.setTextColor(150);
+    doc.text('ONOMA Real Estate SL — Confidencial', 15, 287);
+    doc.text('Página ' + i + '/' + pageCount, 180, 287);
+  }
+
+  doc.save('ONOMA_' + tipo + '_' + now.toISOString().split('T')[0] + '.pdf');
+  toast('Informe descargado');
+}
+
 
 // ─── SUPABASE REALTIME — Fase 7 ─────────────────
 function setupRealtime() {
