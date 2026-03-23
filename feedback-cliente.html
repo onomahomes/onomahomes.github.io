@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu opinión sobre el piso — ONOMA Homes</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --gold: #C9A84C; --gold-dark: #B8962E; --gold-bg: rgba(201,168,76,0.10); --gold-border: rgba(201,168,76,0.35);
+  --bg: #F5F4F1; --card: #FFFFFF; --text: #1C1C1C; --text-muted: #7A6E66; --text-tertiary: #A09890;
+  --border: #D7D6D4; --success: #2C5F2E; --success-bg: rgba(44,95,46,0.08);
+  --danger: #8B2020; --danger-bg: rgba(139,32,32,0.06); --warning: #B8860B; --warning-bg: rgba(184,134,11,0.08);
+  --font-ui: 'Jost', sans-serif; --font-body: 'Barlow', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+.header { text-align: center; padding: 20px 24px; background: var(--card); border-bottom: 1px solid var(--border); }
+.logo { font-family: var(--font-ui); font-size: 22px; font-weight: 700; letter-spacing: 0.15em; }
+.colab-logo { height: 28px; border-radius: 6px; margin-left: 12px; vertical-align: middle; }
+.container { max-width: 500px; margin: 0 auto; padding: 24px 16px 40px; }
+
+/* Piso card */
+.piso-hero { border-radius: 14px; overflow: hidden; background: var(--card); border: 1px solid var(--border); margin-bottom: 24px; }
+.piso-photo { width: 100%; height: 220px; object-fit: cover; display: block; }
+.piso-body { padding: 20px; }
+.piso-body h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.piso-body .precio { font-family: var(--font-ui); font-size: 20px; font-weight: 700; color: var(--gold-dark); margin-bottom: 10px; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.pill { padding: 4px 12px; border-radius: 100px; font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; background: var(--gold-bg); color: var(--gold-dark); border: 1px solid var(--gold-border); }
+.pregunta { font-size: 16px; font-weight: 600; text-align: center; margin-bottom: 24px; color: var(--text); line-height: 1.5; }
+
+/* Decision buttons */
+.decision-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.decision-btn { display: flex; align-items: center; gap: 14px; padding: 20px; border-radius: 14px; border: 2px solid var(--border); background: var(--card); cursor: pointer; transition: all 0.2s; min-height: 64px; }
+.decision-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.decision-btn:active { transform: translateY(0); }
+.decision-icon { font-size: 28px; flex-shrink: 0; }
+.decision-text h3 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.decision-text p { font-size: 12px; color: var(--text-muted); }
+.btn-descartar { border-color: rgba(139,32,32,0.2); }
+.btn-descartar:hover { border-color: var(--danger); background: var(--danger-bg); }
+.btn-guardar { border-color: rgba(184,134,11,0.2); }
+.btn-guardar:hover { border-color: var(--warning); background: var(--warning-bg); }
+.btn-reservar { border-color: rgba(44,95,46,0.2); }
+.btn-reservar:hover { border-color: var(--success); background: var(--success-bg); }
+
+/* Sub-screens */
+.sub-screen { display: none; animation: fadeIn 0.3s; }
+.sub-screen.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.form-col { margin-bottom: 16px; }
+.form-col label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.form-col textarea, .form-col select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-family: var(--font-body); color: var(--text); background: var(--card); }
+.form-col textarea:focus, .form-col select:focus { outline: none; border-color: var(--gold); }
+
+.btn-action { display: block; width: 100%; padding: 16px; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; font-family: var(--font-ui); cursor: pointer; letter-spacing: 0.05em; text-transform: uppercase; transition: opacity 0.15s; margin-top: 12px; }
+.btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-action:hover { opacity: 0.9; }
+.btn-red { background: var(--danger); color: #fff; }
+.btn-amber { background: var(--warning); color: #fff; }
+.btn-green { background: var(--success); color: #fff; }
+.btn-back { display: block; text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-muted); cursor: pointer; padding: 8px; border: none; background: none; font-family: var(--font-body); }
+.btn-back:hover { color: var(--text); }
+
+.confirm-box { background: var(--success-bg); border: 1.5px solid rgba(44,95,46,0.25); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 16px; }
+.confirm-box p { font-size: 14px; color: var(--text); line-height: 1.6; }
+.confirm-box strong { color: var(--success); }
+
+/* Success / Error */
+.result-screen { text-align: center; padding: 48px 20px; }
+.result-icon { font-size: 56px; margin-bottom: 14px; }
+.result-title { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
+.result-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; max-width: 360px; margin: 0 auto; }
+
+/* Comment box (optional, post-action) */
+.optional-comment { margin-top: 24px; padding: 20px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
+.optional-comment summary { font-size: 14px; font-weight: 600; cursor: pointer; color: var(--gold-dark); }
+
+.loading-screen { text-align: center; padding: 80px 20px; color: var(--text-muted); }
+.spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.footer { text-align: center; font-size: 11px; color: var(--text-tertiary); padding: 32px 0 16px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="logo">ONOMA</span>
+  <span id="colab-logo-area"></span>
+</div>
+
+<div class="container">
+  <!-- Loading -->
+  <div id="screen-loading" class="loading-screen">
+    <div class="spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <!-- Error -->
+  <div id="screen-error" style="display:none">
+    <div class="result-screen">
+      <div class="result-icon">⚠️</div>
+      <div class="result-title" id="error-title" style="color:var(--danger)">Enlace no válido</div>
+      <div class="result-text" id="error-text">Este enlace no es válido o ha expirado.</div>
+    </div>
+  </div>
+
+  <!-- Main screen: Piso card + Decision -->
+  <div id="screen-main" style="display:none">
+
+    <div class="piso-hero">
+      <img class="piso-photo" id="piso-foto" src="" alt="Piso">
+      <div class="piso-body">
+        <h2 id="piso-dir">—</h2>
+        <div class="precio" id="piso-precio">—</div>
+        <div class="pills" id="piso-pills"></div>
+      </div>
+    </div>
+
+    <div class="pregunta" id="pregunta-text">¿Qué te pareció la visita?</div>
+
+    <!-- Decision buttons -->
+    <div class="decision-grid" id="decision-grid">
+      <div class="decision-btn btn-descartar" onclick="showAction('descartar')">
+        <span class="decision-icon">✕</span>
+        <div class="decision-text"><h3>Descartar</h3><p>No me interesa este piso</p></div>
+      </div>
+      <div class="decision-btn btn-guardar" onclick="showAction('guardar')">
+        <span class="decision-icon">♡</span>
+        <div class="decision-text"><h3>Guardar</h3><p>Me interesa, seguir en contacto</p></div>
+      </div>
+      <div class="decision-btn btn-reservar" onclick="showAction('reservar')">
+        <span class="decision-icon">★</span>
+        <div class="decision-text"><h3>Reservar</h3><p>Quiero avanzar con este piso</p></div>
+      </div>
+    </div>
+
+    <!-- Sub-screen: Descartar -->
+    <div class="sub-screen" id="sub-descartar">
+      <div class="form-col">
+        <label>¿Por qué descartas este piso?</label>
+        <select id="motivo-descarte">
+          <option value="">Selecciona un motivo...</option>
+          <option value="precio_alto">Precio demasiado alto</option>
+          <option value="no_gusto_zona">No me gustó la zona</option>
+          <option value="mucha_reforma">El piso necesita mucha reforma</option>
+          <option value="no_coincide_fotos">No coincide con las fotos</option>
+          <option value="pequeno_grande">Demasiado pequeño / grande</option>
+          <option value="mala_distribucion">Mala distribución</option>
+          <option value="problemas_edificio">Problemas con el edificio/comunidad</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="form-col">
+        <label>Comentario (opcional)</label>
+        <textarea id="comentario-descarte" rows="2" placeholder="Cuéntanos más..."></textarea>
+      </div>
+      <button class="btn-action btn-red" onclick="submitDecision('descartar')">Confirmar descarte</button>
+      <button class="btn-back" onclick="backToDecision()">← Volver</button>
+    </div>
+
+    <!-- Sub-screen: Guardar -->
+    <div class="sub-screen" id="sub-guardar">
+      <div class="form-col">
+        <label>¿Algo que quieras comentar? (opcional)</label>
+        <textarea id="comentario-guardar" rows="2" placeholder="Ej: Me gustó pero quiero comparar..."></textarea>
+      </div>
+      <button class="btn-action btn-amber" onclick="submitDecision('guardar')">Guardar este piso</button>
+      <button class="btn-back" onclick="backToDecision()">← Volver</button>
+    </div>
+
+    <!-- Sub-screen: Reservar -->
+    <div class="sub-screen" id="sub-reservar">
+      <div class="confirm-box">
+        <p><strong>¿Estás seguro?</strong><br>Al confirmar, un asesor de ONOMA te contactará en las próximas horas para coordinar los siguientes pasos.</p>
+      </div>
+      <button class="btn-action btn-green" onclick="submitDecision('reservar')">Confirmar reserva</button>
+      <button class="btn-back" onclick="backToDecision()">← Volver</button>
+    </div>
+  </div>
+
+  <!-- Success screen -->
+  <div id="screen-success" style="display:none">
+    <div class="result-screen">
+      <div class="result-icon" id="success-icon">✅</div>
+      <div class="result-title" id="success-title">Gracias</div>
+      <div class="result-text" id="success-text">—</div>
+    </div>
+    <!-- Optional post-action comment -->
+    <details class="optional-comment" id="optional-comment" style="display:none">
+      <summary>¿Quieres añadir un comentario para tu asesor?</summary>
+      <div style="margin-top:12px">
+        <textarea id="extra-comment" rows="3" placeholder="Escribe aquí..." style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--font-body)"></textarea>
+        <button class="btn-action" style="background:var(--gold);color:var(--text);margin-top:8px" onclick="submitExtraComment()">Enviar comentario</button>
+      </div>
+    </details>
+  </div>
+
+  <div class="footer">ONOMA Real Estate SL — CIF B19368547</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://wwaytwudfbwxttyyojjx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_JuEWwJe_kuMRKckfQJ0LSw_J3SIDf_b';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let envioData = null, pisoData = null, feedbackId = null;
+
+function eur(n) { return n ? new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n) : '—'; }
+
+function showAction(action) {
+  document.getElementById('decision-grid').style.display = 'none';
+  document.querySelectorAll('.sub-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('sub-' + action).classList.add('active');
+}
+
+function backToDecision() {
+  document.querySelectorAll('.sub-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('decision-grid').style.display = 'flex';
+}
+
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const hash = params.get('id') || params.get('h');
+  if (!hash) { showError('Enlace no válido', 'Falta el identificador.'); return; }
+
+  try {
+    const { data: envios } = await sb.from('envios_matching').select('*').eq('link_hash', hash).limit(1);
+    if (!envios || !envios[0]) { showError('Enlace no válido', 'Este enlace no existe o ha expirado.'); return; }
+    envioData = envios[0];
+
+    if (envioData.usado) { showError('Feedback ya enviado', 'Ya has enviado tu opinión para esta visita.'); return; }
+    if (envioData.fecha_expiracion && new Date(envioData.fecha_expiracion) < new Date()) {
+      showError('Enlace expirado', 'Este enlace ha caducado.'); return;
+    }
+
+    // Load piso data
+    const { data: fbs } = await sb.from('feedbacks').select('piso_id,visita_id')
+      .eq('demanda_id', envioData.demanda_id).eq('tipo', 'asesor').order('fecha_creacion', {ascending:false}).limit(1);
+    let pisoId = null, visitaId = null;
+    if (fbs && fbs[0]) { pisoId = fbs[0].piso_id; visitaId = fbs[0].visita_id; }
+
+    if (pisoId) {
+      const { data: pd } = await sb.from('pisos').select('id,nombre,direccion,barrio,precio,fotos,habitaciones,metros,banos,terraza,garaje,ascensor').eq('id', pisoId).limit(1);
+      if (pd && pd[0]) pisoData = pd[0];
+    }
+
+    // Collaborator logo
+    if (envioData.colaborador_id) {
+      const { data: cd } = await sb.from('colaboradores').select('logo').eq('id', envioData.colaborador_id).limit(1);
+      if (cd && cd[0] && cd[0].logo) {
+        document.getElementById('colab-logo-area').innerHTML = `<img class="colab-logo" src="${cd[0].logo}" alt="">`;
+      }
+    }
+
+    renderMain(visitaId);
+  } catch(e) {
+    console.error(e);
+    showError('Error', 'No se pudieron cargar los datos.');
+  }
+}
+
+function showError(title, text) {
+  document.getElementById('screen-loading').style.display = 'none';
+  document.getElementById('error-title').textContent = title;
+  document.getElementById('error-text').textContent = text;
+  document.getElementById('screen-error').style.display = 'block';
+}
+
+function renderMain(visitaId) {
+  document.getElementById('screen-loading').style.display = 'none';
+  document.getElementById('screen-main').style.display = 'block';
+
+  if (pisoData) {
+    document.getElementById('piso-dir').textContent = pisoData.direccion || pisoData.nombre || '—';
+    document.getElementById('piso-precio').textContent = eur(pisoData.precio);
+
+    // Photo
+    let photoUrl = '';
+    try {
+      const fotosArr = typeof pisoData.fotos === 'string' ? JSON.parse(pisoData.fotos) : pisoData.fotos;
+      if (fotosArr && fotosArr[0]) photoUrl = fotosArr[0].thumbnails ? fotosArr[0].thumbnails.large : fotosArr[0].url;
+    } catch(e) {}
+    if (photoUrl) document.getElementById('piso-foto').src = photoUrl;
+    else document.querySelector('.piso-photo').style.display = 'none';
+
+    // Pills
+    const pills = [];
+    if (pisoData.habitaciones) pills.push(pisoData.habitaciones + ' hab.');
+    if (pisoData.metros) pills.push(pisoData.metros + ' m²');
+    if (pisoData.banos) pills.push(pisoData.banos + ' baños');
+    if (pisoData.terraza) pills.push('Terraza');
+    if (pisoData.garaje) pills.push('Garaje');
+    if (pisoData.ascensor) pills.push('Ascensor');
+    document.getElementById('piso-pills').innerHTML = pills.map(p => `<span class="pill">${p}</span>`).join('');
+  }
+
+  const nombre = envioData.cliente_nombre || '';
+  if (nombre) {
+    document.getElementById('pregunta-text').textContent = `${nombre}, ¿qué te pareció la visita?`;
+  }
+}
+
+async function submitDecision(action) {
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'Enviando...';
+
+  try {
+    const datos = { accion: action };
+
+    if (action === 'descartar') {
+      datos.motivo = document.getElementById('motivo-descarte').value || null;
+      datos.comentario = document.getElementById('comentario-descarte').value.trim() || null;
+    } else if (action === 'guardar') {
+      datos.comentario = document.getElementById('comentario-guardar').value.trim() || null;
+    }
+
+    // 1. Insert feedback
+    const { data: inserted } = await sb.from('feedbacks').insert({
+      visita_id: null, // Will be linked via demanda_id
+      demanda_id: envioData.demanda_id,
+      piso_id: pisoData ? pisoData.id : null,
+      autor_tipo: 'cliente',
+      autor_id: envioData.cliente_nombre || 'cliente',
+      tipo: 'cliente',
+      datos: datos,
+      estado_cadena: 'cliente_completado',
+      decision_cliente: action,
+    }).select('id');
+
+    if (inserted && inserted[0]) feedbackId = inserted[0].id;
+
+    // 2. Mark envio as used
+    await sb.from('envios_matching').update({ usado: true, fecha_uso: new Date().toISOString() }).eq('id', envioData.id);
+
+    // 3. Create action for asesor
+    const prioridad = action === 'reservar' ? 'urgente' : 'normal';
+    const tipoAccion = action === 'reservar' ? 'llamar_reserva' : (action === 'descartar' ? 'informar_descarte_cliente' : 'seguimiento_post_visita');
+    const titulo = action === 'reservar' ? 'URGENTE: Cliente quiere reservar'
+                 : action === 'descartar' ? 'Cliente descartó el piso'
+                 : 'Cliente guardó el piso — seguimiento';
+
+    await sb.from('acciones_pendientes').insert({
+      asesor_id: envioData.asesor_id,
+      tipo: tipoAccion,
+      referencia_id: envioData.demanda_id,
+      piso_id: pisoData ? pisoData.id : null,
+      titulo: titulo,
+      descripcion: (envioData.cliente_nombre || 'Cliente') + ' — ' + (pisoData ? pisoData.direccion || pisoData.nombre : '—') + (datos.motivo ? ' · Motivo: ' + datos.motivo : ''),
+      estado: 'pendiente',
+      prioridad: prioridad,
+    });
+
+    // Show success
+    showSuccess(action);
+
+  } catch(e) {
+    console.error(e);
+    alert('Error: ' + e.message);
+    btn.disabled = false; btn.textContent = action === 'descartar' ? 'Confirmar descarte' : action === 'guardar' ? 'Guardar este piso' : 'Confirmar reserva';
+  }
+}
+
+function showSuccess(action) {
+  document.getElementById('screen-main').style.display = 'none';
+
+  const config = {
+    descartar: { icon: '👋', title: 'Gracias por tu feedback', text: 'Seguiremos buscando opciones para ti. Tu asesor te mantendrá informado de nuevos pisos que puedan interesarte.', color: 'var(--text-muted)' },
+    guardar:   { icon: '💛', title: 'Piso guardado', text: 'Hemos guardado este piso en tus favoritos. Te mantendremos informado de cualquier novedad sobre este inmueble.', color: 'var(--warning)' },
+    reservar:  { icon: '🎉', title: 'Excelente decisión', text: 'Un asesor de ONOMA te contactará en las próximas horas para coordinar los siguientes pasos. ¡Enhorabuena!', color: 'var(--success)' },
+  };
+
+  const c = config[action] || config.guardar;
+  document.getElementById('success-icon').textContent = c.icon;
+  document.getElementById('success-title').textContent = c.title;
+  document.getElementById('success-title').style.color = c.color;
+  document.getElementById('success-text').textContent = c.text;
+  document.getElementById('optional-comment').style.display = 'block';
+  document.getElementById('screen-success').style.display = 'block';
+}
+
+async function submitExtraComment() {
+  const comment = document.getElementById('extra-comment').value.trim();
+  if (!comment) return;
+  try {
+    if (feedbackId) {
+      // Update the feedback with additional comment
+      const { data: fb } = await sb.from('feedbacks').select('datos').eq('id', feedbackId).limit(1);
+      if (fb && fb[0]) {
+        const datos = fb[0].datos || {};
+        datos.comentario_adicional = comment;
+        await sb.from('feedbacks').update({ datos: datos }).eq('id', feedbackId);
+      }
+    }
+    document.getElementById('optional-comment').innerHTML = '<p style="text-align:center;color:var(--success);font-size:14px;padding:16px">✅ Comentario enviado. ¡Gracias!</p>';
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
