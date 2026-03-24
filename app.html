@@ -2112,6 +2112,10 @@ async function openPisoDetail(id, returnToDemandaId) {
         ${p.caracteristicas_libres ? `<p style="font-size:13px;line-height:1.6;color:var(--text);margin-bottom:8px">${p.caracteristicas_libres}</p>` : ''}
         ${p.descripcion_ia ? `<div class="form-section-title" style="margin-bottom:4px;color:var(--accent)">Recomendación IA</div><p style="font-size:13px;line-height:1.6;color:var(--text)">${p.descripcion_ia}</p>` : ''}
       </div>` : ''}
+      ${_pisoDetailReturnTo ? `<div id="dossier-ia-${id}" style="margin-bottom:14px;background:linear-gradient(135deg,#fdf8f0,#f5f0e8);border-radius:8px;padding:12px 14px;border-left:3px solid var(--gold)">
+        <div class="form-section-title" style="margin-bottom:6px;color:var(--gold)">🤖 Análisis IA personalizado</div>
+        <p style="font-size:13px;line-height:1.6;color:var(--text-muted);font-style:italic">Generando análisis cruzado...</p>
+      </div>` : ''}
       <div style="margin-bottom:14px">
         <div class="form-section-title">Documentos</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${docChips}</div>
@@ -2126,6 +2130,24 @@ async function openPisoDetail(id, returnToDemandaId) {
   `, 'lg', _pisoDetailReturnTo
     ? `<button class="btn btn-secondary" onclick="openMatchReview('${_pisoDetailReturnTo}')">← Volver a matchings</button>`
     : '');
+
+  // Mejora #10: Async load full IA description for dossier
+  if (_pisoDetailReturnTo) {
+    setTimeout(() => {
+      const el = document.getElementById('dossier-ia-' + id);
+      if (!el) return;
+      fetch('https://onomahomes.app.n8n.cloud/webhook/matching-description', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ piso_id: id, demanda_id: _pisoDetailReturnTo, mode: 'long' })
+      }).then(r => r.ok ? r.json() : null).then(j => {
+        if (j && j.descripcion && el) {
+          el.querySelector('p').innerHTML = j.descripcion.replace(/\n/g, '<br>');
+          el.querySelector('p').style.fontStyle = 'normal';
+          el.querySelector('p').style.color = 'var(--text)';
+        } else if (el) { el.querySelector('p').textContent = 'Análisis no disponible en este momento.'; }
+      }).catch(() => { if (el) el.querySelector('p').textContent = 'Análisis no disponible.'; });
+    }, 200);
+  }
 }
 
 function cardCarNav(el, dir) {
@@ -2317,10 +2339,52 @@ function openMatchReview(demandaId) {
   const totalDisponibles = pending.length + approved.length;
   const slotsForPending = Math.max(0, 5 - approved.length);
   const dMatches = [...approved, ...pending.slice(0, slotsForPending)];
-  // Descartar siempre habilitado — aviso cuando quedan pocos
   const canDiscard = true;
 
-  // Counter HTML — total = all non-discarded in queue (≥70%)
+  // Mejora #8: Cabecera con info del cliente/colaborador
+  const hasColab = d.colaborador && d.colaborador.length > 0;
+  const colabId = hasColab ? String(d.colaborador[0]).replace(/[{}]/g,'') : null;
+  const clienteId = d.cliente && d.cliente.length > 0 ? String(d.cliente[0]).replace(/[{}]/g,'') : null;
+  let clienteHeaderHtml = `<div id="match-client-header-${demandaId}" style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:8px">${d.nombre || 'Demanda'}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--text-muted)">
+      ${d.zona_preferida ? `<span class="pill pill-blue" style="font-size:10px">📍 ${d.zona_preferida}</span>` : ''}
+      ${d.presupuesto_max ? `<span class="pill pill-green" style="font-size:10px">💰 ${eur(d.presupuesto_max)}</span>` : ''}
+      ${d.habitaciones_min ? `<span class="pill pill-gray" style="font-size:10px">🛏️ ${d.habitaciones_min}+ hab</span>` : ''}
+      ${d.metros_min ? `<span class="pill pill-gray" style="font-size:10px">📐 ${d.metros_min}+ m²</span>` : ''}
+      ${hasColab ? '<span class="pill pill-gold" style="font-size:10px">👥 Vía colaborador</span>' : '<span class="pill pill-gray" style="font-size:10px">👤 Directo</span>'}
+    </div>
+    <div id="match-client-detail-${demandaId}" style="margin-top:8px;font-size:12px;color:var(--text-muted)">Cargando datos...</div>
+  </div>`;
+
+  // Async load client/colab details
+  setTimeout(async () => {
+    const el = document.getElementById('match-client-detail-' + demandaId);
+    if (!el) return;
+    let html = '';
+    try {
+      if (hasColab && colabId) {
+        const { data: cData } = await sb.from('colaboradores').select('nombre,apellido,empresa,email,telefono,logo_empresa,brand_color').eq('id', colabId).limit(1);
+        const c = cData && cData[0] ? cData[0] : {};
+        html += `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:6px">
+          <div style="width:32px;height:32px;border-radius:8px;background:${c.brand_color||'var(--gold)'};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">${(c.nombre||'?')[0]}</div>
+          <div><div style="font-weight:600;font-size:13px">${c.nombre||''} ${c.apellido||''} ${c.empresa?'· '+c.empresa:''}</div>
+          <div style="font-size:11px">${c.email?'✉️ '+c.email+' ':''} ${c.telefono?'📞 '+c.telefono:''}</div></div>
+        </div>`;
+      }
+      if (clienteId) {
+        const { data: clData } = await sb.from('clientes').select('nombre,email,telefono').eq('id', clienteId).limit(1);
+        const cl = clData && clData[0] ? clData[0] : {};
+        if (cl.nombre || cl.email || cl.telefono) {
+          html += `<div style="font-size:12px">👤 <strong>${cl.nombre||'—'}</strong> ${cl.email?'· ✉️ '+cl.email:''} ${cl.telefono?'· 📞 '+cl.telefono:''}</div>`;
+        }
+      }
+      if (!html) html = '<div style="font-size:11px;color:var(--text-tertiary)">Sin datos de contacto del cliente</div>';
+    } catch(e) { html = ''; }
+    el.innerHTML = html;
+  }, 100);
+
+  // Counter HTML
   let counterColor = 'var(--text-muted)';
   let counterMsg = '';
   if (totalDisponibles <= 5 && pending.length > 0) { counterColor = 'var(--color-warning)'; counterMsg = ' — ⚠️ Al descartar, el colaborador recibirá menos de 5 opciones'; }
@@ -2378,7 +2442,7 @@ function openMatchReview(demandaId) {
             ${p.terraza?`<span class="pill pill-blue" style="font-size:10px;padding:2px 6px">Terraza</span>`:''}
             ${p.garaje?`<span class="pill pill-blue" style="font-size:10px;padding:2px 6px">Garaje</span>`:''}
           </div>
-          ${m.texto_recomendacion ? `<div style="font-size:12px;color:var(--text);margin-top:6px;line-height:1.5;background:#f9f8f6;padding:8px 10px;border-radius:6px;border-left:3px solid var(--accent)">${m.texto_recomendacion}</div>` : ''}
+          <div id="ia-desc-${m.id}" style="font-size:12px;color:var(--text);margin-top:6px;line-height:1.5;background:#f9f8f6;padding:8px 10px;border-radius:6px;border-left:3px solid var(--accent)">${m.texto_recomendacion || '<span style="color:var(--text-tertiary);font-style:italic">Generando recomendación...</span>'}</div>
           ${!isApproved && !isDiscarded ? `<div style="display:flex;gap:6px;margin-top:8px">
             <button class="btn btn-primary btn-sm" onclick="approveMatch('${m.id}',this)">✅ Aprobar</button>
             <button class="btn btn-secondary btn-sm" onclick="showDiscardPopup('${m.id}','${(p.direccion||'').replace(/'/g,"\\'")}')" style="color:var(--danger)" ${canDiscard?'':'disabled title="No puedes descartar — el colaborador recibiría menos de 5 opciones"'}>❌ Descartar</button>
@@ -2394,15 +2458,36 @@ function openMatchReview(demandaId) {
   const canGenerate = approvedIds.length > 0 || approved.length > 0;
 
   openModal(`Revisar matchings: ${d.nombre||'—'}`, `
-    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:13px;color:var(--text-muted)">${d.zona_preferida||''} · ${eur(d.presupuesto_max)} · ${d.habitaciones_min||'—'} hab · Tipo: ${d.tipo_origen||'—'}</div>
-    </div>
+    ${clienteHeaderHtml}
     ${counterHtml}
     <div style="display:flex;flex-direction:column;gap:12px" id="match-review-cards">${cards}</div>
   `, 'lg', `
     <button class="btn btn-secondary" onclick="closeModal();renderMatchingsList()">← Volver</button>
     <button class="btn btn-primary" id="btn-gen-envio" ${canGenerate?'':'disabled'} onclick="generateEnvio('${d.id}')">📧 Generar envío (${approved.length} aprobados)</button>
   `);
+
+  // Mejora #9: Async load IA descriptions for cards without texto_recomendacion
+  setTimeout(() => {
+    dMatches.forEach(m => {
+      if (m.texto_recomendacion) return; // Already has text
+      const el = document.getElementById('ia-desc-' + m.id);
+      if (!el) return;
+      const pid = Array.isArray(m.piso) ? m.piso[0] : m.piso;
+      const pisoId = pid ? String(pid).replace(/[{}]/g,'') : '';
+      const score = m.score_matching ? Math.round(m.score_matching) : 0;
+      fetch('https://onomahomes.app.n8n.cloud/webhook/matching-description', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ piso_id: pisoId, demanda_id: demandaId, score, mode: 'short' })
+      }).then(r => r.ok ? r.json() : null).then(j => {
+        if (j && j.descripcion && el) {
+          el.innerHTML = '💡 <strong>¿Por qué este piso?</strong><br>' + j.descripcion;
+          // Cache in matching for next time
+          sb.from('matchings').update({ texto_recomendacion: j.descripcion }).eq('id', m.id).then(() => {});
+          m.texto_recomendacion = j.descripcion;
+        } else if (el) { el.innerHTML = '<span style="color:var(--text-tertiary)">Sin descripción disponible</span>'; }
+      }).catch(() => { if (el) el.innerHTML = '<span style="color:var(--text-tertiary)">Sin descripción disponible</span>'; });
+    });
+  }, 300);
 }
 
 async function approveMatch(matchId, btn) {
