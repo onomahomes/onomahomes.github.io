@@ -1835,63 +1835,132 @@ async function openDemandaDetail(demandaId) {
     if (data && data[0]) d = data[0];
   } catch(e) { toast('No se pudieron cargar los datos de la demanda.','error'); return; }
 
-  // Fetch stats in parallel
-  let visitasCount = 0, pisosEnviados = 0, pisosDescartados = 0, pisosVisitados = 0, ofertas = 0;
+  // Fetch stats + visitas + feedbacks in parallel
+  let matchings = [], visitas = [], fbEnviados = 0, fbCompletados = 0, colabData = null, clienteData = null;
   try {
-    const [mRes, vRes] = await Promise.all([
-      sb.from('matchings').select('id,estado,envio_id,accion_cliente').or(`demanda.cs.{"${demandaId}"}`),
-      sb.from('visitas').select('id,estado,decision_cliente').or(`demanda.cs.{"${demandaId}"},demanda_2.cs.{"${demandaId}"}`)
-    ]);
-    const matchings = mRes.data || [];
-    const visitas = vRes.data || [];
-    visitasCount = visitas.length;
-    pisosVisitados = visitas.filter(v => v.estado === 'realizada').length;
-    pisosEnviados = matchings.filter(m => m.envio_id).length;
-    pisosDescartados = matchings.filter(m => m.estado === 'descartado_asesor' || m.accion_cliente === 'descartado').length;
-    ofertas = visitas.filter(v => v.decision_cliente === 'reservar' || v.decision_cliente === 'ofertar').length;
+    const queries = [
+      sb.from('matchings').select('id,estado,envio_id,accion_cliente,piso,score_matching').or(`demanda.cs.{"${demandaId}"}`),
+      sb.from('visitas').select('id,estado,decision_cliente,fecha_hora,piso_id,cliente_nombre,feedback_asesor_completado,estado_feedback').or(`demanda.cs.{"${demandaId}"},demanda_2.cs.{"${demandaId}"}`),
+      sb.from('envios_matching').select('id', { count: 'exact', head: true }).eq('demanda_id', demandaId).in('tipo', ['feedback_cliente', 'feedback_colaborador']),
+      sb.from('feedbacks').select('id', { count: 'exact', head: true }).eq('demanda_id', demandaId),
+    ];
+    // Fetch collaborator or client data
+    if (d.colaborador && d.colaborador.length > 0) {
+      const cid = String(d.colaborador[0]).replace(/[{}]/g,'');
+      queries.push(sb.from('colaboradores').select('nombre,apellido,empresa,email,telefono,brand_color').eq('id', cid).limit(1));
+    }
+    if (d.cliente_id || (d.cliente && d.cliente.length > 0)) {
+      const clid = d.cliente_id || String(d.cliente[0]).replace(/[{}]/g,'');
+      queries.push(sb.from('clientes').select('nombre,email,telefono').eq('id', clid).limit(1));
+    }
+    const results = await Promise.all(queries);
+    matchings = results[0].data || [];
+    visitas = results[1].data || [];
+    fbEnviados = results[2].count || 0;
+    fbCompletados = results[3].count || 0;
+    if (d.colaborador && d.colaborador.length > 0 && results[4]?.data?.[0]) colabData = results[4].data[0];
+    const clIdx = d.colaborador && d.colaborador.length > 0 ? 5 : 4;
+    if (results[clIdx]?.data?.[0]) clienteData = results[clIdx].data[0];
   } catch(e) {}
 
-  const createdDate = d.created_time ? new Date(d.created_time) : null;
-  const diasActiva = createdDate ? Math.round((Date.now() - createdDate) / (1000*60*60*24)) : '—';
+  const norm = s => (s||'').trim().toLowerCase();
+  const visitasCount = visitas.length;
+  const pisosVisitados = visitas.filter(v => norm(v.estado) === 'realizada').length;
+  const pisosEnviados = matchings.filter(m => m.envio_id).length;
+  const pisosDescartados = matchings.filter(m => m.estado === 'descartado_asesor' || m.accion_cliente === 'descartado').length;
+  const ofertas = visitas.filter(v => v.decision_cliente === 'reservar' || v.decision_cliente === 'ofertar').length;
+  const diasActiva = d.created_time ? Math.round((Date.now() - new Date(d.created_time)) / 86400000) : '—';
+  const fbPendientes = Math.max(0, fbEnviados - fbCompletados);
 
   function stat(icon, label, val, color) {
-    return `<div style="text-align:center;padding:12px"><div style="font-size:20px;font-weight:700;color:var(--${color||'accent'});font-family:var(--font-ui)">${val}</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">${icon} ${label}</div></div>`;
+    return `<div style="text-align:center;padding:10px;background:var(--card)"><div style="font-size:18px;font-weight:700;color:var(--${color||'accent'})">${val}</div><div style="font-size:10px;color:var(--text-muted);margin-top:2px">${icon} ${label}</div></div>`;
+  }
+  function pesoBar(label, val) {
+    const v = parseInt(val) || 0;
+    const color = v >= 70 ? 'var(--accent)' : v >= 40 ? 'var(--gold)' : 'var(--text-muted)';
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:11px;color:var(--text-muted);width:90px">${label}</span><div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;width:${v}%;background:${color};border-radius:3px"></div></div><span style="font-size:11px;font-weight:600;width:30px;text-align:right">${v}%</span></div>`;
   }
 
+  // Contacto section
+  let contactoHtml = '';
+  if (colabData) {
+    contactoHtml = `<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-bottom:8px">
+      <div style="width:32px;height:32px;border-radius:8px;background:${colabData.brand_color||'var(--gold)'};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">${(colabData.nombre||'?')[0]}</div>
+      <div><div style="font-weight:600;font-size:13px">${colabData.nombre||''} ${colabData.apellido||''} ${colabData.empresa ? '· '+colabData.empresa : ''}</div>
+      <div style="font-size:11px;color:var(--text-muted)">${colabData.email?'✉️ '+colabData.email+' ':''} ${colabData.telefono?'📞 '+colabData.telefono:''}</div></div>
+    </div>`;
+  }
+  if (clienteData) {
+    contactoHtml += `<div style="font-size:13px;padding:6px 0">👤 <strong>${clienteData.nombre||'—'}</strong> ${clienteData.email?'· ✉️ '+clienteData.email:''} ${clienteData.telefono?'· 📞 '+clienteData.telefono:''}</div>`;
+  }
+
+  // Visitas history
+  let historialHtml = '';
+  if (visitas.length) {
+    historialHtml = visitas.sort((a,b) => new Date(b.fecha_hora||0) - new Date(a.fecha_hora||0)).map(v => {
+      const stColor = norm(v.estado)==='realizada' ? 'var(--accent)' : norm(v.estado)==='cancelada' ? 'var(--danger)' : 'var(--gold)';
+      const fbIcon = v.feedback_asesor_completado ? '✅' : (norm(v.estado)==='realizada' ? '⏳' : '');
+      return `<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <div style="width:6px;height:6px;border-radius:50%;background:${stColor};flex-shrink:0"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:500">${v.cliente_nombre||'—'}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${v.fecha_hora ? fdate(v.fecha_hora) : '—'} · ${v.estado||'—'} ${fbIcon} ${v.estado_feedback && v.estado_feedback !== 'pendiente' ? '('+v.estado_feedback+')' : ''}</div>
+        </div>
+        ${v.piso_id ? `<button class="btn btn-secondary btn-sm" style="font-size:10px;padding:2px 6px" onclick="openPisoDetail('${v.piso_id}')">Ver piso</button>` : ''}
+      </div>`;
+    }).join('');
+  } else {
+    historialHtml = '<p style="font-size:13px;color:var(--text-muted)">Este comprador aún no ha visitado ningún piso.</p>';
+  }
+
+  // Feedback counters
+  const fbHtml = `<div style="font-size:13px;padding:8px 12px;background:${fbPendientes > 0 ? 'rgba(245,158,11,0.08)' : 'var(--bg)'};border:1px solid ${fbPendientes > 0 ? 'rgba(245,158,11,0.3)' : 'var(--border)'};border-radius:8px;margin-bottom:14px">
+    📊 Feedbacks: <strong>${fbEnviados}</strong> enviados · <strong>${fbCompletados}</strong> completados${fbPendientes > 0 ? ` · <span style="color:var(--warning);font-weight:600">${fbPendientes} pendientes</span>` : ''}
+  </div>`;
+
   openModal('📋 Ficha: ' + (d.nombre || '—'), `
-    <!-- Stats grid -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px">
-      ${stat('📍','Visitas realizadas', pisosVisitados, 'accent')}
-      ${stat('📧','Pisos enviados', pisosEnviados, 'gold')}
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px">
+      ${stat('📍','Visitas', pisosVisitados, 'accent')}
+      ${stat('📧','Enviados', pisosEnviados, 'gold')}
       ${stat('❌','Descartados', pisosDescartados, 'text-muted')}
-      ${stat('🏠','Pisos visitados', visitasCount, 'accent')}
+      ${stat('🏠','Programadas', visitasCount, 'accent')}
       ${stat('✅','Ofertas', ofertas, ofertas>0?'color-success':'text-muted')}
       ${stat('📅','Días activa', diasActiva, 'text-muted')}
     </div>
-
-    <!-- Datos de la demanda -->
+    ${fbHtml}
+    ${contactoHtml ? '<div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle(\'open\');this.nextElementSibling.classList.toggle(\'open\')"><span>Contacto</span><span class="caret">▾</span></div><div class="collapsible-body open">' + contactoHtml + '</div></div>' : ''}
     <div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>Datos de búsqueda</span><span class="caret">▾</span></div><div class="collapsible-body open">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;margin-bottom:12px">
         <div><span style="color:var(--text-muted)">Zona:</span> <strong>${d.zona_preferida||'—'}</strong></div>
         <div><span style="color:var(--text-muted)">Presupuesto:</span> <strong>${eur(d.presupuesto_max)}</strong></div>
         <div><span style="color:var(--text-muted)">Habitaciones mín:</span> <strong>${d.habitaciones_min||'—'}</strong></div>
         <div><span style="color:var(--text-muted)">Metros mín:</span> <strong>${d.metros_min||'—'}</strong></div>
-        <div><span style="color:var(--text-muted)">Origen:</span> <strong>${d.tipo_origen==='colaborador'?'Colaborador':'Comprador directo'}</strong></div>
+        <div><span style="color:var(--text-muted)">Origen:</span> <strong>${d.tipo_origen==='colaborador'?'🤝 Colaborador':'👤 Directo'}</strong></div>
         <div><span style="color:var(--text-muted)">Estado:</span> <strong>${d.estado_matching||d.estado||'activa'}</strong></div>
+        ${d.urgencia ? `<div><span style="color:var(--text-muted)">Urgencia:</span> <strong>${d.urgencia}</strong></div>` : ''}
+        ${d.financiacion ? `<div><span style="color:var(--text-muted)">Financiación:</span> <strong>${d.financiacion}</strong></div>` : ''}
         <div><span style="color:var(--text-muted)">Creada:</span> <strong>${d.created_time?fdate(d.created_time):'—'}</strong></div>
       </div>
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:8px">Pesos de importancia (matching)</div>
+      ${pesoBar('Zona', d.peso_zona)}
+      ${pesoBar('Presupuesto', d.peso_precio||90)}
+      ${pesoBar('Habitaciones', d.peso_habitaciones)}
+      ${pesoBar('Metros', d.peso_metros)}
+      ${pesoBar('Estado piso', d.peso_estado)}
+      ${pesoBar('Ascensor', d.peso_ascensor)}
+      ${pesoBar('Terraza', d.peso_terraza)}
+      ${pesoBar('Parking', d.peso_parking)}
       ${d.perfil_quien||d.perfil_valoran||d.perfil_no_quieren ? `<div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
-        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Perfil del comprador</div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Perfil IA</div>
         ${d.perfil_quien ? '<p style="font-size:13px;margin-bottom:4px"><strong>Quién:</strong> '+d.perfil_quien+'</p>' : ''}
         ${d.perfil_valoran ? '<p style="font-size:13px;margin-bottom:4px"><strong>Valora:</strong> '+d.perfil_valoran+'</p>' : ''}
         ${d.perfil_no_quieren ? '<p style="font-size:13px;margin-bottom:4px"><strong>No quiere:</strong> '+d.perfil_no_quieren+'</p>' : ''}
         ${d.perfil_actividades ? '<p style="font-size:13px"><strong>Actividades:</strong> '+d.perfil_actividades+'</p>' : ''}
       </div>` : ''}
     </div></div>
-
-    <!-- Notas del asesor -->
+    <div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>Historial de visitas (${visitas.length})</span><span class="caret">▾</span></div><div class="collapsible-body open">${historialHtml}</div></div>
     <div class="collapsible"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><span>Notas del asesor</span><span class="caret">▾</span></div><div class="collapsible-body open">
-      <textarea id="demanda-notas" rows="4" style="width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px solid var(--border);border-radius:8px;resize:vertical" placeholder="Ej: llamé al cliente, busca piso para junio, el colaborador dice que amplió presupuesto...">${d.notas_asesor||''}</textarea>
+      <textarea id="demanda-notas" rows="3" style="width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px solid var(--border);border-radius:8px;resize:vertical" placeholder="Notas internas...">${d.notas_asesor||''}</textarea>
       <button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="saveDemandaNotas('${demandaId}')">💾 Guardar notas</button>
     </div></div>
   `, 'lg', `
@@ -4244,6 +4313,26 @@ function openDemandaForm(tipo, colaboradorId) {
       <div class="form-col"><label>Baños mín.</label><input type="number" name="banos_min" min="1" max="5" placeholder="1"></div>
     </div>`;
 
+  // Section 2b — Pesos de importancia (CRÍTICO para MOD04 matching)
+  function pesoSlider(name, label, defaultVal) {
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="font-size:12px;color:var(--text-muted);width:110px;flex-shrink:0">${label}</span>
+      <input type="range" name="${name}" min="0" max="100" step="5" value="${defaultVal}" style="flex:1;accent-color:var(--gold)" oninput="this.nextElementSibling.textContent=this.value+'%'">
+      <span style="font-size:12px;font-weight:600;color:var(--accent);width:36px;text-align:right">${defaultVal}%</span>
+    </div>`;
+  }
+  const s2b = `
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Ajusta cuánto le importa cada criterio al comprador. Esto determina qué pisos le mostrará el sistema de matching.</p>
+    ${pesoSlider('peso_zona', 'Zona/Ubicación', 80)}
+    ${pesoSlider('peso_precio', 'Presupuesto', 90)}
+    ${pesoSlider('peso_habitaciones', 'Habitaciones', 70)}
+    ${pesoSlider('peso_metros', 'Metros cuadrados', 60)}
+    ${pesoSlider('peso_estado', 'Estado del piso', 50)}
+    ${pesoSlider('peso_ascensor', 'Ascensor', 40)}
+    ${pesoSlider('peso_terraza', 'Terraza/Exterior', 30)}
+    ${pesoSlider('peso_parking', 'Garaje/Parking', 30)}
+  `;
+
   // Section 3 — Características deseadas
   const s3 = `
     <div class="checkbox-group" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -4285,6 +4374,7 @@ function openDemandaForm(tipo, colaboradorId) {
   openModal('Nueva Demanda — Formulario', `<form id="demanda-form">
     ${collapsible('s1', '1. Datos del comprador', s1)}
     ${collapsible('s2', '2. Lo que busca', s2)}
+    ${collapsible('s2b', '⚖️ Importancia de cada criterio', s2b)}
     ${collapsible('s3', '3. Características deseadas', s3, false)}
     ${collapsible('s4', '4. Perfil del comprador (IA)', s4, false)}
     ${collapsible('s5', '5. Términos y estado', s5, false)}
@@ -4334,7 +4424,7 @@ async function submitDemanda() {
       tipo_origen: tipoOrigen, asesor_id: currentUser.id,
       cliente_id: clienteId, colaborador: colaboradorId ? [colaboradorId] : null,
       estado: 'activa', estado_matching: 'pendiente', fecha_alta: new Date().toISOString(),
-      peso_zona: parseInt(fd.get('peso_zona'))||80,
+      peso_zona: parseInt(fd.get('peso_zona'))||80, peso_precio: parseInt(fd.get('peso_precio'))||90,
       peso_habitaciones: parseInt(fd.get('peso_habitaciones'))||70,
       peso_metros: parseInt(fd.get('peso_metros'))||60,
       peso_ascensor: parseInt(fd.get('peso_ascensor'))||40,
