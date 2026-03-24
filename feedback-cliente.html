@@ -355,6 +355,9 @@ async function submitDecision(action) {
       prioridad: prioridad,
     });
 
+    // Mejora #37: Flag piso for description regeneration (nullify to trigger auto-regen next time asesor opens ficha)
+    if (pisoData && pisoData.id) { sb.from('pisos').update({ descripcion_ia: null }).eq('id', pisoData.id).then(() => {}).catch(() => {}); }
+
     // Show success
     showSuccess(action);
 
