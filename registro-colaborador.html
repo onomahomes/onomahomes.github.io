@@ -222,8 +222,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-hei
       </div>
 
       <div class="form-group">
-        <label>Zonas de trabajo</label>
+        <label>Zonas de trabajo <span class="req">*</span></label>
         <div class="chips-wrap" id="zonasChips">
+          <div class="chip chip-special" data-value="todo_madrid" style="background:var(--dark);color:var(--gold);border-color:var(--dark)">Todo Madrid</div>
           <div class="chip" data-value="salamanca">Salamanca</div>
           <div class="chip" data-value="chamberi">Chamberí</div>
           <div class="chip" data-value="retiro">Retiro</div>
@@ -242,7 +243,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-hei
           <div class="chip" data-value="pozuelo">Pozuelo</div>
           <div class="chip" data-value="majadahonda">Majadahonda</div>
           <div class="chip" data-value="las_rozas">Las Rozas</div>
+          <div class="chip chip-special" data-value="otro" style="border-style:dashed">+ Otro</div>
         </div>
+        <input type="text" id="zonaOtroInput" placeholder="Escribe la zona y pulsa Enter" style="display:none;margin-top:8px" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomZona()}">
       </div>
     </div>
 
@@ -281,30 +284,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-hei
         <span class="field-error" id="err-tipoColab">Selecciona una opción</span>
       </div>
 
-      <div class="form-row two">
-        <div class="form-group">
-          <label>Experiencia en el sector <span class="req">*</span></label>
-          <select id="experiencia" required>
-            <option value="">Selecciona...</option>
-            <option value="menos_1">Menos de 1 año</option>
-            <option value="1_3">1 - 3 años</option>
-            <option value="3_5">3 - 5 años</option>
-            <option value="5_10">5 - 10 años</option>
-            <option value="mas_10">Más de 10 años</option>
-          </select>
-          <span class="field-error" id="err-experiencia">Selecciona tu experiencia</span>
-        </div>
-        <div class="form-group">
-          <label>Volumen anual de operaciones <span class="req">*</span></label>
-          <select id="volumen" required>
-            <option value="">Selecciona...</option>
-            <option value="1_5">1 - 5 operaciones</option>
-            <option value="6_15">6 - 15 operaciones</option>
-            <option value="16_30">16 - 30 operaciones</option>
-            <option value="mas_30">Más de 30 operaciones</option>
-          </select>
-          <span class="field-error" id="err-volumen">Selecciona un volumen</span>
-        </div>
+      <div class="form-group">
+        <label>Experiencia en el sector</label>
+        <select id="experiencia">
+          <option value="">Selecciona (opcional)...</option>
+          <option value="menos_1">Menos de 1 año</option>
+          <option value="1_3">1 - 3 años</option>
+          <option value="3_5">3 - 5 años</option>
+          <option value="5_10">5 - 10 años</option>
+          <option value="mas_10">Más de 10 años</option>
+        </select>
       </div>
 
       <div class="form-group">
@@ -313,10 +302,45 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-hei
       </div>
     </div>
 
-    <!-- SECCIÓN 4: LEGAL -->
+    <!-- SECCIÓN 4: TIPO DE ACUERDO -->
     <div class="section-card">
       <div class="section-header">
         <div class="section-num">4</div>
+        <div class="section-title">Tipo de Acuerdo</div>
+      </div>
+      <div class="form-group">
+        <label>¿Qué tipo de acuerdo prefieres? <span class="req">*</span></label>
+        <div class="radio-group" id="tipoAcuerdo">
+          <label class="radio-option" onclick="selectRadioAcuerdo(this,'escenario_2')">
+            <input type="radio" name="tipo_acuerdo" value="escenario_2">
+            <div>
+              <div class="radio-label">Broker cobra vendedor + ONOMA cobra comprador</div>
+              <div class="radio-sub">El broker cobra comisión al vendedor, ONOMA cobra al comprador. Reparto del total combinado.</div>
+            </div>
+          </label>
+          <label class="radio-option" onclick="selectRadioAcuerdo(this,'urban_flip')">
+            <input type="radio" name="tipo_acuerdo" value="urban_flip">
+            <div>
+              <div class="radio-label">Urban Flip 2% + IVA</div>
+              <div class="radio-sub">Comisión vendedor 2% + IVA íntegra a ONOMA. Si hay comprador del colaborador, se aplica escenario 2 sobre la parte compradora.</div>
+            </div>
+          </label>
+          <label class="radio-option" onclick="selectRadioAcuerdo(this,'escenario_1')">
+            <input type="radio" name="tipo_acuerdo" value="escenario_1">
+            <div>
+              <div class="radio-label">Tripartita</div>
+              <div class="radio-sub">Broker vendedor + Broker comprador. Solo cobra el vendedor. Reparto: ONOMA 25% / cada broker 37.5%.</div>
+            </div>
+          </label>
+        </div>
+        <span class="field-error" id="err-tipoAcuerdo">Selecciona un tipo de acuerdo</span>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 5: LEGAL -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">5</div>
         <div class="section-title">Consentimiento y Legal</div>
       </div>
 
@@ -388,26 +412,79 @@ document.getElementById('brandColor').addEventListener('input', function() {
   document.getElementById('colorHex').textContent = this.value.toUpperCase();
 });
 
-// Chips
+// URL params: tipo (empresa/independiente) and email prefill
+const urlParams = new URLSearchParams(window.location.search);
+const tipoParam = urlParams.get('tipo');
+const emailParam = urlParams.get('email');
+if (tipoParam === 'independiente') {
+  const sec2 = document.querySelectorAll('.section-card')[1];
+  if (sec2) sec2.style.display = 'none';
+}
+if (emailParam) {
+  const emailInput = document.getElementById('email');
+  if (emailInput) { emailInput.value = emailParam; emailInput.readOnly = true; emailInput.style.background = '#f5f4f1'; }
+}
+
+// Chips with Todo Madrid + Otro
+const allZonaChips = document.querySelectorAll('#zonasChips .chip:not(.chip-special)');
+const todoMadridChip = document.querySelector('#zonasChips .chip[data-value="todo_madrid"]');
+const otroChip = document.querySelector('#zonasChips .chip[data-value="otro"]');
+const otroInput = document.getElementById('zonaOtroInput');
+
 document.querySelectorAll('#zonasChips .chip').forEach(chip => {
   chip.addEventListener('click', () => {
-    chip.classList.toggle('active');
     const val = chip.dataset.value;
-    if (chip.classList.contains('active')) {
-      if (!selectedZonas.includes(val)) selectedZonas.push(val);
+    if (val === 'todo_madrid') {
+      const isActive = chip.classList.toggle('active');
+      allZonaChips.forEach(c => { if (isActive) c.classList.add('active'); else c.classList.remove('active'); });
+      if (isActive) {
+        selectedZonas = [...new Set([...Array.from(allZonaChips).map(c=>c.dataset.value), 'todo_madrid'])];
+      } else { selectedZonas = []; }
+    } else if (val === 'otro') {
+      chip.classList.toggle('active');
+      otroInput.style.display = chip.classList.contains('active') ? '' : 'none';
+      if (!chip.classList.contains('active')) selectedZonas = selectedZonas.filter(z => !z.startsWith('custom:'));
     } else {
-      selectedZonas = selectedZonas.filter(z => z !== val);
+      chip.classList.toggle('active');
+      if (chip.classList.contains('active')) { if (!selectedZonas.includes(val)) selectedZonas.push(val); }
+      else { selectedZonas = selectedZonas.filter(z => z !== val); if (todoMadridChip) todoMadridChip.classList.remove('active'); }
     }
   });
 });
 
-// Radio
+function addCustomZona() {
+  const v = otroInput.value.trim();
+  if (!v) return;
+  const key = 'custom:' + v.toLowerCase();
+  if (!selectedZonas.includes(key)) {
+    selectedZonas.push(key);
+    const newChip = document.createElement('div');
+    newChip.className = 'chip active';
+    newChip.textContent = v + ' ✕';
+    newChip.style.cursor = 'pointer';
+    newChip.addEventListener('click', () => { selectedZonas = selectedZonas.filter(z => z !== key); newChip.remove(); });
+    otroInput.parentElement.querySelector('.chips-wrap').insertBefore(newChip, otroChip);
+  }
+  otroInput.value = '';
+}
+
+// Radio colaboración
 function selectRadioColab(el, val) {
   document.querySelectorAll('#tipoColab .radio-option').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
   selectedTipoColab = val;
   el.querySelector('input[type=radio]').checked = true;
   hideError('tipoColab');
+}
+
+// Radio acuerdo
+let selectedTipoAcuerdo = null;
+function selectRadioAcuerdo(el, val) {
+  document.querySelectorAll('#tipoAcuerdo .radio-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedTipoAcuerdo = val;
+  el.querySelector('input[type=radio]').checked = true;
+  hideError('tipoAcuerdo');
 }
 
 // Logo upload
@@ -549,20 +626,18 @@ document.getElementById('colaboradorForm').addEventListener('submit', async func
   const empresa = document.getElementById('empresa').value.trim();
   const web = document.getElementById('web').value.trim();
   const experiencia = document.getElementById('experiencia').value;
-  const volumen = document.getElementById('volumen').value;
   const notas = document.getElementById('notas').value.trim();
   const brandColor = document.getElementById('brandColor').value;
 
   hideError('nombre'); hideError('email'); hideError('telefono'); hideError('nif');
-  hideError('tipoColab'); hideError('experiencia'); hideError('volumen'); hideError('legal');
+  hideError('tipoColab'); hideError('tipoAcuerdo'); hideError('legal');
 
   if (!nombre) { showError('nombre', 'Campo requerido'); valid = false; }
   if (!email || !validateEmail(email)) { showError('email', 'Email no válido'); valid = false; }
   if (!telefono || !validatePhone(telefono)) { showError('telefono', 'Teléfono no válido'); valid = false; }
   if (!nif || !validateNIF(nif)) { showError('nif', 'Formato incorrecto'); valid = false; }
   if (!selectedTipoColab) { showError('tipoColab', 'Selecciona una opción'); valid = false; }
-  if (!experiencia) { showError('experiencia', 'Selecciona tu experiencia'); valid = false; }
-  if (!volumen) { showError('volumen', 'Selecciona un volumen'); valid = false; }
+  if (!selectedTipoAcuerdo) { showError('tipoAcuerdo', 'Selecciona un tipo de acuerdo'); valid = false; }
   if (selectedZonas.length === 0) { showBanner('Selecciona al menos una zona de trabajo'); valid = false; }
   if (!document.getElementById('chkPrivacidad').checked || !document.getElementById('chkDatos').checked) {
     showError('legal', 'Debes aceptar los términos obligatorios'); valid = false;
@@ -602,9 +677,12 @@ document.getElementById('colaboradorForm').addEventListener('submit', async func
       logo: logoUrl || null,
       brand_color: brandColor,
       zonas_operacion: selectedZonas.length ? selectedZonas : null,
-      experiencia,
-      volumen_mensual: volumen,
+      experiencia: experiencia || null,
       notas_registro: notas || null,
+      acepta_broker_broker: selectedTipoAcuerdo === 'escenario_2' || selectedTipoAcuerdo === 'escenario_1',
+      acepta_urban_flip: selectedTipoAcuerdo === 'urban_flip',
+      acepta_tripartita: selectedTipoAcuerdo === 'escenario_1',
+      es_independiente: tipoParam === 'independiente',
       acepta_comunicaciones: document.getElementById('chkComunicaciones').checked,
       estado: 'pendiente_aprobacion',
       origen: 'formulario_web',
