@@ -3976,11 +3976,63 @@ async function sendContractEmail(colabId, email, nombre) {
 }
 
 function openColabLink() {
-  const link = `${GH_PAGES}/registro-colaborador.html?asesor=${currentUser.id}`;
-  openModal('Link de registro', `<p style="color:var(--text-muted);margin-bottom:8px">Comparte este link con el colaborador para que se registre directamente.</p>
-    <div class="link-box"><span class="link-text">${link}</span><button class="btn btn-secondary btn-sm" onclick="copyLink('${link}')">Copiar</button></div>
-    <button class="btn btn-secondary btn-sm" style="margin-top:10px" onclick="window.open('mailto:?subject=Registro ONOMA&body=${encodeURIComponent('Regístrate como colaborador: '+link)}')">📧 Enviar por email</button>
-    <div class="alert alert-info" style="margin-top:14px">ℹ️ La página <strong>registro-colaborador.html</strong> se desplegará en Fase 9.</div>`, 'md');
+  window._colabLinkTipo = 'empresa';
+  function updateColabLink() {
+    const tipo = window._colabLinkTipo;
+    const link = `${GH_PAGES}/registro-colaborador.html?asesor=${currentUser.id}&tipo=${tipo}`;
+    const linkEl = document.getElementById('colab-link-url');
+    if (linkEl) linkEl.textContent = link;
+    const copyBtn = document.getElementById('colab-link-copy');
+    if (copyBtn) copyBtn.onclick = () => copyLink(link);
+    window._colabRegistroLink = link;
+  }
+  const baseLink = `${GH_PAGES}/registro-colaborador.html?asesor=${currentUser.id}&tipo=empresa`;
+  openModal('Link de registro', `
+    <p style="color:var(--text-muted);margin-bottom:12px">Elige el tipo de colaborador y comparte el link o envía una invitación por email.</p>
+    <div class="toggle-group" style="margin-bottom:16px;max-width:360px">
+      <button class="active" onclick="window._colabLinkTipo='empresa';this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active');document.getElementById('colab-link-url').textContent='${GH_PAGES}/registro-colaborador.html?asesor=${currentUser.id}&tipo=empresa';window._colabRegistroLink=document.getElementById('colab-link-url').textContent">🏢 Empresa</button>
+      <button onclick="window._colabLinkTipo='independiente';this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active');document.getElementById('colab-link-url').textContent='${GH_PAGES}/registro-colaborador.html?asesor=${currentUser.id}&tipo=independiente';window._colabRegistroLink=document.getElementById('colab-link-url').textContent">👤 Independiente</button>
+    </div>
+    <div class="link-box" style="margin-bottom:14px"><span class="link-text" id="colab-link-url" style="word-break:break-all">${baseLink}</span><button class="btn btn-secondary btn-sm" id="colab-link-copy" onclick="copyLink('${baseLink}')">Copiar</button></div>
+    <div class="form-section-title" style="margin-bottom:8px">Enviar invitación por email</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="email" id="colab-invite-email" placeholder="email@colaborador.com" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px">
+      <button class="btn btn-primary" id="colab-invite-btn" onclick="sendColabInvite()">📧 Enviar</button>
+    </div>
+    <div id="colab-invite-status" style="margin-top:8px"></div>
+  `, 'md');
+  window._colabRegistroLink = baseLink;
+}
+
+async function sendColabInvite() {
+  const email = document.getElementById('colab-invite-email')?.value?.trim();
+  if (!email || !email.includes('@')) { toast('Introduce un email válido', 'error'); return; }
+  const btn = document.getElementById('colab-invite-btn');
+  const status = document.getElementById('colab-invite-status');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  const link = (window._colabRegistroLink || '') + '&email=' + encodeURIComponent(email);
+  try {
+    const resp = await fetch('https://onomahomes.app.n8n.cloud/webhook/enviar-email-matching', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        subject: 'ONOMA — Invitación a colaborar',
+        nombre_destinatario: '',
+        link_url: link,
+        mensaje: 'Nos complace invitarte a formar parte de la red de colaboradores de ONOMA.\n\nAccede a nuestro inventario exclusivo de pisos en Madrid y genera comisiones por cada operación cerrada.\n\n✅ Acceso al inventario completo de pisos\n✅ Matching IA que cruza tus compradores con nuestros pisos\n✅ Sistema de comisiones transparente\n\nRegistra tus datos en el enlace de abajo para empezar:'
+      })
+    });
+    if (resp.ok) {
+      status.innerHTML = '<div style="padding:10px;background:#d4edda;border:1px solid #c3e6cb;border-radius:8px;color:#155724;font-size:13px">✅ Invitación enviada a <strong>' + email + '</strong></div>';
+      btn.textContent = '✅ Enviado';
+    } else {
+      status.innerHTML = '<div style="padding:10px;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;color:#856404;font-size:13px">No se pudo enviar. Copia el link y envíalo manualmente.</div>';
+      btn.disabled = false; btn.textContent = '📧 Reintentar';
+    }
+  } catch(e) {
+    status.innerHTML = '<div style="padding:10px;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;color:#856404;font-size:13px">No se pudo enviar. Copia el link.</div>';
+    btn.disabled = false; btn.textContent = '📧 Reintentar';
+  }
 }
 
 // ─── MODAL: DEMANDA ──────────────────────────────────
