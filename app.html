@@ -663,7 +663,7 @@ async function handleLogin(e) {
     sessionStorage.setItem('crm_user', JSON.stringify(currentUser));
     showApp();
   } catch (err) {
-    errEl.textContent = err.message || 'Error de conexión'; errEl.style.display = 'block';
+    errEl.textContent = err.message || 'No se pudo conectar. Verifica tu conexión.'; errEl.style.display = 'block';
     btn.disabled = false; btn.textContent = 'Entrar';
   }
 }
@@ -1444,7 +1444,7 @@ async function confirmarCompletar(accionId) {
     loadPendingCount();
     loadedTabs.delete('pendientes');
     if (activeTab === 'pendientes') TAB_LOADERS.pendientes();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); }
 }
 
 // ── Speech IA modal ──
@@ -1474,7 +1474,7 @@ async function regenerarSpeech(accionId) {
         toast('Guía regenerada');
       }
     }, 5000);
-  } catch(e) { toast('Error regenerando', 'error'); }
+  } catch(e) { toast('No se pudo regenerar. Inténtalo de nuevo.', 'error'); }
 }
 
 
@@ -1564,7 +1564,7 @@ async function submitSeguimiento(demandaId, tipo) {
     toast('✅ Seguimiento registrado');
     closeModal();
     loadedTabs.delete('pendientes');
-  } catch(e) { toast('Error: '+e.message,'error'); }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien.', 'error'); }
 }
 
 async function markActionDone(id, btn) {
@@ -1574,7 +1574,7 @@ async function markActionDone(id, btn) {
     btn.closest('.data-card').style.opacity = '0.4';
     btn.textContent = '✓';
     loadPendingCount();
-  } catch(e) { btn.textContent = 'Error'; btn.disabled = false; }
+  } catch(e) { btn.textContent = 'Reintentar'; btn.disabled = false; }
 }
 
 // COLABORADORES (role-aware)
@@ -1833,7 +1833,7 @@ async function openDemandaDetail(demandaId) {
   try {
     const { data } = await sb.from('demandas').select('*').eq('id', demandaId).limit(1);
     if (data && data[0]) d = data[0];
-  } catch(e) { toast('Error cargando demanda','error'); return; }
+  } catch(e) { toast('No se pudieron cargar los datos de la demanda.','error'); return; }
 
   // Fetch stats in parallel
   let visitasCount = 0, pisosEnviados = 0, pisosDescartados = 0, pisosVisitados = 0, ofertas = 0;
@@ -1905,7 +1905,7 @@ async function saveDemandaNotas(demandaId) {
   try {
     await sb.from('demandas').update({ notas_asesor: notas }).eq('id', demandaId);
     toast('✅ Notas guardadas');
-  } catch(e) { toast('Error: '+e.message,'error'); }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien.', 'error'); }
 }
 
 // PISOS
@@ -2513,7 +2513,7 @@ async function approveMatch(matchId, btn) {
     toast('✅ Piso aprobado');
     const did = m ? (Array.isArray(m.demanda)?m.demanda[0]:m.demanda) : null;
     if (did) { checkMatchingReviewDone(String(did).replace(/[{}]/g,'')); openMatchReview(String(did).replace(/[{}]/g,'')); }
-  } catch(e) { toast('Error: '+e.message,'error'); btn.disabled = false; btn.textContent = '✅ Aprobar'; }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien.', 'error'); btn.disabled = false; btn.textContent = '✅ Aprobar'; }
 }
 
 // Mark matching_revisar action as done when all matchings of a demanda are reviewed
@@ -2680,7 +2680,7 @@ async function discardMatch(matchId) {
     toast('Piso descartado');
     const did = m ? (Array.isArray(m.demanda)?m.demanda[0]:m.demanda) : null;
     if (did) { checkMatchingReviewDone(String(did).replace(/[{}]/g,'')); openMatchReview(String(did).replace(/[{}]/g,'')); }
-  } catch(e) { toast('Error: '+e.message,'error'); }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien.', 'error'); }
 }
 
 async function generateEnvio(demandaId) {
@@ -2847,7 +2847,7 @@ async function doEliminarDemanda(id) {
     await sb.from('demandas').update({ estado_matching: 'eliminada', motivo_eliminacion: reason + (notes ? ': ' + notes : '') }).eq('id', id);
     toast('Demanda eliminada'); closeModal();
     loadedTabs.delete('matchings'); TAB_LOADERS.matchings();
-  } catch(e) { toast('Error: '+e.message,'error'); }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien.', 'error'); }
 }
 
 // EQUIPO (director)
@@ -3136,7 +3136,7 @@ async function confirmarVisita(id) {
     loadPendingCount();
     toast('✅ Visita confirmada');
     loadedTabs.delete('visitas'); TAB_LOADERS.visitas();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); }
 }
 
 async function rechazarVisita(id) {
@@ -3146,7 +3146,7 @@ async function rechazarVisita(id) {
     loadPendingCount();
     toast('Visita rechazada');
     loadedTabs.delete('visitas'); TAB_LOADERS.visitas();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); }
 }
 
 // ─── FEEDBACK MODAL — STEPPER 5 SECCIONES (Fase 6) ─────────────────
@@ -3636,7 +3636,7 @@ async function submitFeedback(visitaId) {
 
   } catch(e) {
     console.error('submitFeedback error:', e);
-    toast('Error: ' + e.message, 'error');
+    toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error');
     if (btn) { btn.disabled = false; btn.textContent = 'Guardar feedback'; }
   }
 }
@@ -3859,7 +3859,7 @@ async function uploadLogo(input) {
     document.getElementById('logo-url').value = r.secure_url;
     preview.innerHTML = `<img src="${r.secure_url}" alt="Logo">`;
     toast('Logo subido');
-  } catch(e) { preview.innerHTML = '❌'; toast('Error: ' + e.message, 'error'); }
+  } catch(e) { preview.innerHTML = '❌'; toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); }
 }
 
 async function submitColaborador() {
@@ -3897,7 +3897,7 @@ async function submitColaborador() {
     toast('✅ Colaborador guardado');
     loadedTabs.delete('colaboradores');
     generateAndShowContrato(record, { inter: !!fd.get('acuerdo_inter'), uf: !!fd.get('acuerdo_uf'), trip: !!fd.get('acuerdo_trip') });
-  } catch(e) { toast('Error: ' + e.message, 'error'); btn.disabled = false; btn.textContent = 'Guardar y Generar Contrato'; }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); btn.disabled = false; btn.textContent = 'Guardar y Generar Contrato'; }
 }
 
 function generateAndShowContrato(colab, clausulas) {
@@ -4259,7 +4259,7 @@ async function uploadMandato(input) {
     const r = await uploadToCloudinary(file, 'onoma/mandatos');
     document.getElementById('mandato-url').value = r.secure_url;
     status.textContent = '✅ ' + file.name; status.style.color = '#22c55e';
-  } catch(e) { status.textContent = '❌ Error'; toast('Error: ' + e.message, 'error'); }
+  } catch(e) { status.textContent = '❌ Error'; toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); }
 }
 
 async function submitDemanda() {
@@ -4303,7 +4303,7 @@ async function submitDemanda() {
     callN8n('embeddings-run', { demanda_id: dId }).catch(() => {});
     toast('✅ Demanda creada. Generando embeddings…'); closeModal();
     loadedTabs.delete('demandas'); TAB_LOADERS.demandas();
-  } catch(e) { toast('Error: ' + e.message, 'error'); btn.disabled = false; btn.textContent = 'Guardar demanda'; }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); btn.disabled = false; btn.textContent = 'Guardar demanda'; }
 }
 
 function openDemandaLink() {
@@ -4532,7 +4532,7 @@ async function uploadDoc(input, key) {
     uploadedDocs[key] = { url: r.secure_url, public_id: r.public_id, nombre: file.name };
     st.textContent = '✅ ' + file.name; st.className = 'doc-status uploaded';
     if (key === 'encargo') triggerValidacionEncargo(r.secure_url);
-  } catch(e) { st.textContent = '❌ Error'; toast('Error: ' + e.message, 'error'); }
+  } catch(e) { st.textContent = '❌ Error'; toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); }
 }
 
 async function triggerValidacionEncargo(url) {
@@ -4629,7 +4629,7 @@ async function submitPiso(urbanFlip) {
     callN8n('embeddings-run', { piso_id: pisoId }).catch(() => {});
     toast(`✅ Piso${urbanFlip?' Urban Flip':''} guardado`); closeModal();
     loadedTabs.delete('pisos'); TAB_LOADERS.pisos();
-  } catch(e) { toast('Error: ' + e.message, 'error'); btn.disabled = false; btn.textContent = urbanFlip ? '⭐ Guardar Urban Flip' : 'Guardar piso'; }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); btn.disabled = false; btn.textContent = urbanFlip ? '⭐ Guardar Urban Flip' : 'Guardar piso'; }
 }
 
 // ─── MODAL: ASESOR (DIRECTOR) ─────────────────────────
@@ -4699,7 +4699,7 @@ async function submitAsesor() {
 
     toast('✅ Asesor creado (modo directo). Credenciales: ' + email + ' / ' + password); closeModal();
     loadedTabs.delete('equipo'); if (TAB_LOADERS.equipo) TAB_LOADERS.equipo();
-  } catch(e) { toast('Error: ' + e.message, 'error'); btn.disabled = false; btn.textContent = 'Crear asesor'; }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); btn.disabled = false; btn.textContent = 'Crear asesor'; }
 }
 
 // ─── HELPERS ─────────────────────────────────────────
@@ -5632,7 +5632,7 @@ async function approveColaborador(colabId, accionId) {
     toast('Colaborador aprobado');
     closeModal(); loadPendingCount();
     loadedTabs.delete('pendientes'); if (activeTab === 'pendientes') TAB_LOADERS.pendientes();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); }
 }
 
 async function rejectColaborador(colabId, accionId) {
@@ -5644,7 +5644,7 @@ async function rejectColaborador(colabId, accionId) {
     try { await fetch(N8N + '/email-colaborador-rechazado', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ colaborador_id: colabId, motivo }) }); } catch(e) {}
     toast('Colaborador rechazado'); closeModal(); loadPendingCount();
     loadedTabs.delete('pendientes'); if (activeTab === 'pendientes') TAB_LOADERS.pendientes();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); }
 }
 
 async function requestInfoColaborador(colabId, accionId) {
@@ -5702,7 +5702,7 @@ async function approvePiso(pisoId, accionId) {
     logActivity('piso_aprobado', 'Piso aprobado y publicado', { piso_id: pisoId });
     toast('Piso aprobado y publicado'); closeModal(); loadPendingCount();
     loadedTabs.delete('pendientes'); if (activeTab === 'pendientes') TAB_LOADERS.pendientes();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); }
 }
 
 async function rejectPiso(pisoId, accionId) {
@@ -5714,7 +5714,7 @@ async function rejectPiso(pisoId, accionId) {
     try { await fetch(N8N + '/email-piso-rechazado', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ piso_id: pisoId, motivo }) }); } catch(e) {}
     toast('Piso rechazado'); closeModal(); loadPendingCount();
     loadedTabs.delete('pendientes'); if (activeTab === 'pendientes') TAB_LOADERS.pendientes();
-  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  } catch(e) { toast(e.message || 'Algo no ha ido bien. Inténtalo de nuevo.', 'error'); }
 }
 
 
