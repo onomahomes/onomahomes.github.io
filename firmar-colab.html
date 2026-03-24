@@ -499,12 +499,24 @@
             </label>
           </div>
 
-          <button class="btn-sign" id="btn-sign" disabled>
-            <div class="btn-spinner"></div>
-            <span class="btn-text">✍️ Firmar contrato</span>
-          </button>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn-sign" id="btn-sign" disabled style="flex:1">
+              <div class="btn-spinner"></div>
+              <span class="btn-text">Firmar contrato</span>
+            </button>
+            <button type="button" id="btn-deny" style="flex-shrink:0;padding:14px 20px;border:1.5px solid #e53e3e;background:white;color:#e53e3e;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer" onclick="openDenyModal()">Denegar</button>
+          </div>
 
-          <p class="form-note">Al firmar, se registrará tu nombre y la fecha/hora actual como firma electrónica.</p>
+          <p class="form-note">Al firmar, se registrar&aacute; tu nombre y la fecha/hora actual como firma electr&oacute;nica.</p>
+
+          <div id="deny-section" style="display:none;margin-top:16px;padding:16px;background:#fff5f5;border:1.5px solid #fed7d7;border-radius:10px">
+            <h3 style="font-size:15px;margin-bottom:8px;color:#e53e3e">No acepto el contrato</h3>
+            <textarea id="deny-reason" rows="3" placeholder="Explica por qu&eacute; no aceptas el contrato (m&iacute;nimo 20 caracteres)..." style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical"></textarea>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button type="button" style="padding:10px 16px;background:#e53e3e;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer" onclick="confirmDeny()">Confirmar denegaci&oacute;n</button>
+              <button type="button" style="padding:10px 16px;background:white;border:1px solid #ddd;border-radius:8px;cursor:pointer" onclick="document.getElementById('deny-section').style.display='none'">Cancelar</button>
+            </div>
+          </div>
 
           <div class="rls-notice" id="rls-notice">
             ℹ️ Firma registrada. Nuestro equipo actualizará el estado en breve. Recibirás confirmación por email.
@@ -805,25 +817,29 @@
       $('rls-notice').style.display = 'block';
     }
 
-    // 2. Send confirmation email
+    // 2. Send confirmation emails via MOD88 (working Gmail credentials)
     try {
-      await fetch(N8N + '/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      // Email to collaborator
+      await fetch(N8N + '/enviar-email-matching', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          to: colab.email,
-          subject: 'Contrato firmado — ONOMA Homes',
-          html: '<div style="font-family:Inter,sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;">' +
-            '<div style="text-align:center;margin-bottom:28px;"><div style="display:inline-block;background:#1a1a2e;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;font-size:18px;letter-spacing:2px;">ONOMA</div><p style="color:#888;font-size:12px;margin-top:6px;letter-spacing:1px;">REAL ESTATE</p></div>' +
-            '<h2 style="color:#1e7e34;font-size:20px;margin-bottom:12px;">Contrato firmado correctamente</h2>' +
-            '<p style="color:#444;font-size:14px;line-height:1.7;margin-bottom:20px;">Hola <strong>' + fullName + '</strong>,<br><br>Tu contrato de colaboración con <strong>ONOMA Real Estate</strong> ha sido firmado correctamente.</p>' +
-            '<table style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">' +
-            '<tr style="background:#f8f9fa;"><td style="padding:10px 14px;color:#888;border-bottom:1px solid #eee;">Firmado por</td><td style="padding:10px 14px;font-weight:500;border-bottom:1px solid #eee;">' + nombre + '</td></tr>' +
-            '<tr><td style="padding:10px 14px;color:#888;border-bottom:1px solid #eee;">Fecha y hora</td><td style="padding:10px 14px;font-weight:500;border-bottom:1px solid #eee;">' + dateFmt + '</td></tr>' +
-            '<tr style="background:#f8f9fa;"><td style="padding:10px 14px;color:#888;">Email</td><td style="padding:10px 14px;font-weight:500;">' + colab.email + '</td></tr>' +
-            '</table>' +
-            '<p style="color:#888;font-size:12px;text-align:center;margin-top:28px;line-height:1.6;">Si no has firmado este contrato, contacta en <a href="mailto:melmadani@urbanflip.io" style="color:#6B7F5E;">melmadani@urbanflip.io</a></p></div>',
-        }),
+          email: colab.email,
+          subject: 'Contrato firmado \u2014 ONOMA Homes',
+          nombre_destinatario: fullName,
+          link_url: '',
+          mensaje: 'Hola ' + fullName + ',\n\nTu contrato de colaboraci\u00f3n con ONOMA Real Estate ha sido firmado correctamente.\n\nFirmado por: ' + nombre + '\nFecha: ' + dateFmt + '\n\nYa formas parte de nuestra red de colaboradores. Un asesor te contactar\u00e1 para los pr\u00f3ximos pasos.'
+        })
+      });
+      // Email to director/asesor
+      await fetch(N8N + '/enviar-email-matching', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'rmichelena@onomahomes.com',
+          subject: 'Contrato firmado: ' + fullName,
+          nombre_destinatario: 'Equipo ONOMA',
+          link_url: '',
+          mensaje: 'El colaborador ' + fullName + ' (' + (colab.email||'') + ') ha firmado su contrato de colaboraci\u00f3n.\n\nFirmado: ' + dateFmt
+        })
       });
     } catch (e) {
       console.warn('Email send failed:', e.message);
@@ -840,6 +856,28 @@
     var hdrSub = document.getElementById('card-header-sub');
     if (hdrSub) hdrSub.style.display = 'none';
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Deny contract
+  function openDenyModal() {
+    document.getElementById('deny-section').style.display = 'block';
+    document.getElementById('deny-reason').focus();
+  }
+
+  async function confirmDeny() {
+    var reason = (document.getElementById('deny-reason').value || '').trim();
+    if (reason.length < 20) { alert('Escribe al menos 20 caracteres explicando el motivo.'); return; }
+    try {
+      await sb.from('colaboradores').update({ estado: 'denegado', contrato_estado: 'denegado' }).eq('id', colab.id);
+      // Notify asesor
+      fetch(N8N + '/enviar-email-matching', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'rmichelena@onomahomes.com', subject: 'Colaborador denegó contrato: ' + [colab.nombre, colab.apellido].filter(Boolean).join(' '),
+          nombre_destinatario: 'Equipo ONOMA', link_url: '', mensaje: 'El colaborador ' + [colab.nombre, colab.apellido].filter(Boolean).join(' ') + ' ha denegado el contrato.\n\nMotivo: ' + reason })
+      }).catch(function(){});
+      // Show confirmation
+      document.getElementById('main-content').innerHTML = '<div style="text-align:center;padding:60px 20px"><svg width="64" height="64" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="30" stroke="#e53e3e" stroke-width="3"/><path d="M22 22l20 20M42 22l-20 20" stroke="#e53e3e" stroke-width="3" stroke-linecap="round"/></svg><h2 style="margin-top:16px;font-size:20px">Hemos registrado tu decisi\u00f3n</h2><p style="color:#666;margin-top:8px">Si cambias de opini\u00f3n, contacta con tu asesor de ONOMA.</p></div>';
+    } catch(e) { alert('No se pudo registrar. Int\u00e9ntalo de nuevo.'); }
   }
 </script>
 </body>
