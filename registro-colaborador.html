@@ -79,7 +79,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-hei
 
 /* COLOR PICKER */
 .color-picker-wrap{display:flex;align-items:center;gap:12px;}
-.color-swatch{width:40px;height:40px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;flex-shrink:0;}
+.color-swatch{width:48px;height:40px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;flex-shrink:0;padding:2px;-webkit-appearance:none;appearance:none;}
+.color-swatch::-webkit-color-swatch-wrapper{padding:0;}
+.color-swatch::-webkit-color-swatch{border:none;border-radius:5px;}
 .color-hex{font-size:13px;font-family:'Courier New',monospace;color:var(--text-muted);}
 
 /* LEGAL CHECKBOXES */
@@ -212,7 +214,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-hei
         <div class="form-group">
           <label>Color de marca</label>
           <div class="color-picker-wrap">
-            <input type="color" id="brandColor" value="#C9A84C" class="color-swatch" style="padding:2px;cursor:pointer;">
+            <input type="color" id="brandColor" value="#C9A84C" class="color-swatch">
             <span class="color-hex" id="colorHex">#C9A84C</span>
           </div>
           <p class="form-hint" style="margin-top:8px;">Color principal de tu marca</p>
@@ -423,14 +425,20 @@ document.getElementById('logoInput').addEventListener('change', e => {
 });
 
 function handleLogoFile(file) {
-  if (!file.type.startsWith('image/')) { alert('Solo se permiten imágenes'); return; }
-  if (file.size > 2 * 1024 * 1024) { alert('El archivo debe ser menor de 2MB'); return; }
+  if (!file.type.startsWith('image/')) { showBanner('Solo se permiten imágenes (JPG, PNG, WEBP)'); return; }
+  if (file.size > 2 * 1024 * 1024) { showBanner('El archivo debe ser menor de 2MB'); return; }
   logoFile = file;
+  // Show preview immediately
   const reader = new FileReader();
-  reader.onload = e => {
-    document.getElementById('logoPreviewImg').src = e.target.result;
-    document.getElementById('logoPreviewName').textContent = file.name;
-    document.getElementById('logoPreview').classList.add('show');
+  reader.onload = function(e) {
+    var img = document.getElementById('logoPreviewImg');
+    var name = document.getElementById('logoPreviewName');
+    var preview = document.getElementById('logoPreview');
+    var zone = document.getElementById('logoUploadZone');
+    if (img) img.src = e.target.result;
+    if (name) name.textContent = file.name + ' (' + Math.round(file.size/1024) + ' KB)';
+    if (preview) preview.classList.add('show');
+    if (zone) zone.style.display = 'none';
   };
   reader.readAsDataURL(file);
 }
@@ -439,6 +447,7 @@ function removeLogo() {
   logoFile = null;
   logoUrl = null;
   document.getElementById('logoPreview').classList.remove('show');
+  document.getElementById('logoUploadZone').style.display = '';
   document.getElementById('logoInput').value = '';
 }
 
@@ -507,9 +516,8 @@ async function checkRateLimit(email) {
   const { data } = await supabase
     .from('form_submissions_log')
     .select('id')
-    .eq('email', email)
-    .eq('form_type', 'registro_colaborador')
-    .gte('created_at', oneHourAgo);
+    .eq('formulario', 'registro_colaborador')
+    .gte('fecha', oneHourAgo);
   return data && data.length >= 3;
 }
 
@@ -555,6 +563,7 @@ document.getElementById('colaboradorForm').addEventListener('submit', async func
   if (!selectedTipoColab) { showError('tipoColab', 'Selecciona una opción'); valid = false; }
   if (!experiencia) { showError('experiencia', 'Selecciona tu experiencia'); valid = false; }
   if (!volumen) { showError('volumen', 'Selecciona un volumen'); valid = false; }
+  if (selectedZonas.length === 0) { showBanner('Selecciona al menos una zona de trabajo'); valid = false; }
   if (!document.getElementById('chkPrivacidad').checked || !document.getElementById('chkDatos').checked) {
     showError('legal', 'Debes aceptar los términos obligatorios'); valid = false;
   }
@@ -581,40 +590,42 @@ document.getElementById('colaboradorForm').addEventListener('submit', async func
     }
 
     // INSERT colaborador
+    const colabId = 'rec' + Math.random().toString(36).substr(2, 14);
     const { data: colab, error: colabError } = await supabase.from('colaboradores').insert({
+      id: colabId,
       nombre,
       email,
       telefono,
       nif_cif: nif.toUpperCase(),
       empresa: empresa || null,
-      web: web || null,
-      logo_url: logoUrl || null,
-      color_marca: brandColor,
-      zonas: selectedZonas.length ? selectedZonas : null,
-      tipo_colaboracion: selectedTipoColab,
+      landing_web: web || null,
+      logo: logoUrl || null,
+      brand_color: brandColor,
+      zonas_operacion: selectedZonas.length ? selectedZonas : null,
       experiencia,
-      volumen_anual: volumen,
-      notas: notas || null,
+      volumen_mensual: volumen,
+      notas_registro: notas || null,
       acepta_comunicaciones: document.getElementById('chkComunicaciones').checked,
       estado: 'pendiente_aprobacion',
+      origen: 'formulario_web',
+      fecha_registro: new Date().toISOString(),
     }).select().single();
 
     if (colabError) throw colabError;
 
     // INSERT form_submissions_log
-    await supabase.from('form_submissions_log').insert({
-      form_type: 'registro_colaborador',
-      email,
-      datos: { nombre, empresa, tipo_colaboracion: selectedTipoColab },
-    });
+    try { await supabase.from('form_submissions_log').insert({
+      formulario: 'registro_colaborador',
+      datos_resumen: { nombre, email, empresa },
+      resultado: 'exito',
+    }); } catch(e) {}
 
     // INSERT actividad_log
-    await supabase.from('actividad_log').insert({
-      tipo: 'nuevo_colaborador',
+    try { await supabase.from('actividad_log').insert({
+      tipo_evento: 'nuevo_colaborador_registro',
       descripcion: `Nueva solicitud de colaborador: ${nombre} (${email})`,
-      entidad_tipo: 'colaboradores',
-      entidad_id: colab.id,
-    });
+      metadata: { colaborador_id: colab?.id || colabId },
+    }); } catch(e) {}
 
     // Webhook
     try {
