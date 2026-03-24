@@ -1140,10 +1140,10 @@ TAB_LOADERS.dashboard = async function() {
       queries.push(sb.from('asesores').select('id,activo').eq('rol','asesor'));
     }
     if (!isDir) {
-      // Asesor: filter own data
+      // Asesor: filter own data — use asesor array (asesor_id often NULL)
       queries[0] = sb.from('pisos').select('id,estado_sistema,urban_flip,precio').filter('asesor_piso', 'cs', `{"${currentUser.id}"}`);
-      queries[1] = sb.from('demandas').select('id,estado').eq('asesor_id', currentUser.id);
-      queries[3] = sb.from('visitas').select('id,fecha_hora,estado,feedback_asesor_completado').eq('asesor_id', currentUser.id).order('fecha_hora', { ascending: false }).limit(50);
+      queries[1] = sb.from('demandas').select('id,estado').filter('asesor', 'cs', `{"${currentUser.id}"}`);
+      queries[3] = sb.from('visitas').select('id,fecha_hora,estado,feedback_asesor_completado').filter('asesor', 'cs', `{"${currentUser.id}"}`).order('fecha_hora', { ascending: false }).limit(100);
     }
 
     const results = await Promise.all(queries);
@@ -1152,12 +1152,18 @@ TAB_LOADERS.dashboard = async function() {
     const matchingsCount = results[2].count || 0;
     const visitas = results[3].data || [];
 
-    const pisosActivos = pisos.filter(p => p.estado_sistema === 'activo' || !p.estado_sistema).length;
+    const norm = s => (s||'').trim().toLowerCase();
+    const pisosActivos = pisos.filter(p => norm(p.estado_sistema) === 'activo' || !p.estado_sistema).length;
     const pisosUF = pisos.filter(p => p.urban_flip).length;
-    const demandasActivas = demandas.filter(d => !d.estado || (d.estado||'').trim().toLowerCase() === 'activa' || (d.estado||'').trim().toLowerCase() === 'pendiente').length;
+    const demandasActivas = demandas.filter(d => !d.estado || norm(d.estado) === 'activa' || norm(d.estado) === 'pendiente').length;
     const visitasHoy = visitas.filter(v => v.fecha_hora && v.fecha_hora.startsWith(hoy)).length;
     const visitasMes = visitas.filter(v => v.fecha_hora && v.fecha_hora >= mesStart).length;
-    const fbPendiente = visitas.filter(v => (v.estado === 'realizada' || v.estado === 'Realizada') && !v.feedback_asesor_completado).length;
+    const fbPendiente = visitas.filter(v => norm(v.estado) === 'realizada' && !v.feedback_asesor_completado).length;
+    // Fresh query for acciones count (not cached pendingCount)
+    let qAcc = sb.from('acciones_pendientes').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente');
+    if (!isDir) qAcc = qAcc.eq('asesor_id', currentUser.id);
+    const freshAcciones = await qAcc;
+    const accionesFresh = freshAcciones.count || 0;
 
     function kpiCard(num, label, color, icon, onclick) {
       return `<div class="data-card" style="text-align:center;padding:20px 14px;cursor:${onclick?'pointer':'default'}" ${onclick?`onclick="${onclick}"`:''}><div style="font-size:28px;font-weight:700;color:var(--${color});margin-bottom:4px">${num}</div><div style="font-size:12px;color:var(--text-muted)">${icon} ${label}</div></div>`;
@@ -1201,7 +1207,7 @@ TAB_LOADERS.dashboard = async function() {
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px">
           ${kpiCard(visitasHoy, 'Visitas agendadas hoy', 'gold', '📅', "switchTab('calendario')")}
           ${kpiCard(fbPendiente, 'Feedbacks pendientes', fbPendiente>0?'danger':'accent', '⚠️', "switchTab('visitas')")}
-          ${kpiCard(pendingCount||0, 'Acciones pendientes', pendingCount>0?'danger':'accent', '🔔', "switchTab('pendientes')")}
+          ${kpiCard(accionesFresh, 'Acciones pendientes', accionesFresh>0?'danger':'accent', '🔔', "switchTab('pendientes')")}
           ${kpiCard(pisosActivos, 'Mis pisos', 'accent', '🏘️', "switchTab('pisos')")}
           ${kpiCard(demandasActivas, 'Mis demandas', 'accent', '📋', "switchTab('demandas')")}
         </div>`;
@@ -1898,6 +1904,18 @@ TAB_LOADERS.pisos = async function() {
     if (error) throw error;
     _pisosData = data || [];
     const isDir = currentUser.rol === 'director';
+    // Count collab pisos for asesor toggle
+    let colabPisosCount = 0;
+    if (!isDir) {
+      try {
+        const { data: myColabs } = await sb.from('colaboradores').select('id').filter('asesor_onoma', 'cs', `{"${currentUser.id}"}`);
+        if (myColabs && myColabs.length) {
+          const { data: allP } = await sb.from('pisos').select('id,colaborador');
+          const colabIds = new Set(myColabs.map(c => c.id));
+          colabPisosCount = (allP||[]).filter(p => { const cid = Array.isArray(p.colaborador)?p.colaborador[0]:p.colaborador; return cid && colabIds.has(String(cid).replace(/[{}]/g,'')); }).length;
+        }
+      } catch(e) {}
+    }
     _pisosFilter = { chip: 'todos', barrio: '', precioMin: null, precioMax: null };
     const barrios = [...new Set((data||[]).map(p => p.barrio).filter(Boolean))].sort();
     const barrioOpts = '<option value="">Todos los barrios</option>' + barrios.map(b => `<option value="${b}">${b}</option>`).join('');
@@ -1918,9 +1936,9 @@ TAB_LOADERS.pisos = async function() {
         <button class="filter-chip" onclick="filterPisosChip(this,'ascensor')">Ascensor</button>
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;margin-left:auto"><input type="checkbox" onchange="_pisosFilter.chip=this.checked?'expirados':'todos';applyPisosFilters()" style="accent-color:var(--gold)"> Mostrar expirados</label>
       </div>` : `
-      <div class="toggle-group" style="margin-bottom:16px;max-width:360px" id="pisos-toggle">
-        <button class="active" onclick="showPisosView('mis',this)">Mis Pisos</button>
-        <button onclick="showPisosView('colabs',this)">Pisos Colaboradores</button>
+      <div class="toggle-group" style="margin-bottom:16px;max-width:420px" id="pisos-toggle">
+        <button class="active" onclick="showPisosView('mis',this)">Mis Pisos (${(data||[]).length})</button>
+        <button onclick="showPisosView('colabs',this)">Pisos Colaboradores (${colabPisosCount})</button>
       </div>`;
     pane.innerHTML = `
       <div class="tab-toolbar">
