@@ -3998,10 +3998,14 @@ async function submitColaborador() {
   const form = document.getElementById('colab-form');
   if (vScrollFirst('colab-form')) return;
   if (!form.checkValidity()) { form.reportValidity(); return; }
+  const fd = new FormData(form);
+  // Validate: at least one agreement type must be selected
+  if (!fd.get('acuerdo_inter') && !fd.get('acuerdo_uf') && !fd.get('acuerdo_trip')) {
+    toast('Selecciona al menos un tipo de acuerdo', 'error'); return;
+  }
   const btn = document.getElementById('btn-save-colab');
   btn.disabled = true; btn.textContent = 'Guardando…';
   try {
-    const fd = new FormData(form);
     const newId = genId();
     const esIndep = fd.get('es_independiente') === 'true';
     const record = {
