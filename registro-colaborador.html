@@ -106,6 +106,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-hei
 .form-error-banner{background:var(--danger-bg);border:1.5px solid rgba(139,32,32,0.25);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--danger);display:none;font-family:var(--font-ui);}
 .form-error-banner.show{display:block;}
 
+/* CONTRACT SECTION (inline signing) */
+.contract-section{display:none;margin-top:24px;}
+.contract-section.show{display:block;}
+.contract-box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;max-height:55vh;overflow-y:auto;font-family:Georgia,serif;font-size:13px;line-height:1.7;color:#222;margin-bottom:16px;}
+.contract-box h1,.contract-box h2,.contract-box h3{color:#333;}
+.scroll-hint-contract{text-align:center;font-size:12px;color:var(--text-muted);padding:8px;background:var(--gold-bg);border-radius:8px;margin-bottom:12px;}
+.sign-area{opacity:0.3;pointer-events:none;transition:all 0.4s;}
+.sign-area.unlocked{opacity:1;pointer-events:auto;}
+.sign-canvas-wrap{border:2px dashed var(--border);border-radius:10px;margin:12px 0;background:#fafaf8;position:relative;}
+.sign-canvas-wrap canvas{display:block;width:100%;height:120px;cursor:crosshair;}
+
 /* SUCCESS SCREEN */
 .success-screen{display:none;text-align:center;padding:60px 20px;}
 .success-screen.show{display:block;}
@@ -362,12 +373,46 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-hei
     </div>
 
     <button type="submit" class="btn-submit" id="submitBtn">
-      <span class="btn-text">Enviar solicitud</span>
+      <span class="btn-text" id="submitBtnText">Enviar solicitud</span>
       <div class="btn-spinner"></div>
     </button>
 
   </form>
 </div>
+</div>
+
+<!-- CONTRACT + SIGN SECTION (only for invited collaborators with ?email=) -->
+<div class="container contract-section" id="contractSection">
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-num">📄</div>
+      <div class="section-title">Contrato de Colaboración</div>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Lee el contrato completo. Al llegar al final podrás firmarlo.</p>
+    <div class="contract-box" id="contractBox"></div>
+    <div class="scroll-hint-contract" id="scrollHintContract">↓ Desplázate hasta el final del contrato para poder firmarlo</div>
+    <div class="sign-area" id="signArea">
+      <div class="form-group">
+        <label>Nombre completo (como aparece en el contrato) <span class="req">*</span></label>
+        <input type="text" id="signName" placeholder="Tu nombre completo">
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label>Firma digital</label>
+        <div class="sign-canvas-wrap">
+          <canvas id="signCanvas"></canvas>
+          <button type="button" onclick="clearSignCanvas()" style="position:absolute;top:4px;right:4px;background:none;border:none;cursor:pointer;font-size:14px;color:var(--text-muted)">🗑️ Limpiar</button>
+        </div>
+      </div>
+      <label class="checkbox-item" style="margin:12px 0;cursor:pointer">
+        <input type="checkbox" id="signAccept">
+        <span class="checkbox-text">He leído y acepto el contrato de colaboración <span class="req">*</span></span>
+      </label>
+      <button type="button" class="btn-submit" id="btnSign" disabled onclick="handleContractSign()">
+        <span class="btn-text">Firmar contrato</span>
+        <div class="btn-spinner"></div>
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- SUCCESS SCREEN -->
@@ -420,9 +465,14 @@ if (tipoParam === 'independiente') {
   const sec2 = document.querySelectorAll('.section-card')[1];
   if (sec2) sec2.style.display = 'none';
 }
+const isInvited = !!emailParam;
 if (emailParam) {
   const emailInput = document.getElementById('email');
   if (emailInput) { emailInput.value = emailParam; emailInput.readOnly = true; emailInput.style.background = '#f5f4f1'; }
+}
+if (isInvited) {
+  const btnText = document.getElementById('submitBtnText');
+  if (btnText) btnText.textContent = 'Revisar y firmar contrato';
 }
 
 // Chips with Todo Madrid + Otro
@@ -714,9 +764,15 @@ document.getElementById('colaboradorForm').addEventListener('submit', async func
       });
     } catch (_) {}
 
-    // Show success
-    document.getElementById('mainForm').style.display = 'none';
-    document.getElementById('successScreen').classList.add('show');
+    if (isInvited) {
+      // Show contract for inline signing
+      window._savedColabData = { id: colab?.id || colabId, nombre, email, nif: nif.toUpperCase(), empresa: empresa || null, es_independiente: tipoParam === 'independiente', tipo_acuerdo: selectedTipoAcuerdo };
+      showContractSection(window._savedColabData);
+    } else {
+      // Show success (non-invited flow)
+      document.getElementById('mainForm').style.display = 'none';
+      document.getElementById('successScreen').classList.add('show');
+    }
     window.scrollTo(0, 0);
 
   } catch (err) {
@@ -735,6 +791,172 @@ function showBanner(msg) {
 }
 function hideBanner() {
   document.getElementById('formErrorBanner').classList.remove('show');
+}
+
+// ═══ CONTRACT + SIGNING LOGIC (Fase 12) ═══
+function showContractSection(data) {
+  document.getElementById('mainForm').style.display = 'none';
+  const section = document.getElementById('contractSection');
+  section.classList.add('show');
+
+  // Generate contract HTML
+  const fecha = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+  const colabNombre = data.empresa && !data.es_independiente ? data.empresa : (data.nombre || '—');
+  const colabPersona = data.nombre || '—';
+  const nifLabel = data.es_independiente ? 'NIF' : 'CIF';
+  const nifVal = data.nif || '—';
+
+  let clausulas = '';
+  if (data.tipo_acuerdo === 'escenario_1') clausulas = '<h3>Escenario: Tripartita</h3><p>Broker vendedor + Broker comprador. Solo cobra el vendedor. Reparto: ONOMA 25% / cada broker 37,5%.</p>';
+  else if (data.tipo_acuerdo === 'escenario_2') clausulas = '<h3>Escenario: Broker cobra vendedor + ONOMA cobra comprador</h3><p>El total combinado se distribuye: colaborador percibe el 54,2% y ONOMA Real Estate percibe el 45,8%.</p>';
+  else if (data.tipo_acuerdo === 'urban_flip') clausulas = '<h3>Escenario: Urban Flip 2% + IVA</h3><p>Comisión vendedor 2% + IVA íntegra a ONOMA. Si hay comprador del colaborador, se aplica escenario 2 sobre la parte compradora.</p>';
+
+  document.getElementById('contractBox').innerHTML = `
+    <div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #222">
+      <div style="font-size:18px;font-weight:700;letter-spacing:3px">ONOMA REAL ESTATE</div>
+      <div style="font-size:11px;color:#888;margin-top:4px;letter-spacing:2px">CONTRATO DE COLABORACIÓN INMOBILIARIA</div>
+      <div style="font-size:12px;color:#aaa;margin-top:6px">Madrid, ${fecha}</div>
+    </div>
+    <h2 style="font-size:13px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #ddd;padding-bottom:6px;margin-bottom:12px">Reunidos</h2>
+    <p><strong>De una parte:</strong> ONOMA REAL ESTATE SL, CIF B19368547, C/ Velázquez 31 – 6 Der, 28001 Madrid, representada por D. Mohamed El Madani, NIE X3126507W.</p>
+    <p style="margin-top:10px"><strong>De otra parte:</strong> ${colabPersona}, ${nifLabel}: ${nifVal}${data.empresa && !data.es_independiente ? ', en representación de '+data.empresa : ''}, email: ${data.email || '—'}.</p>
+    <h2 style="font-size:13px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #ddd;padding-bottom:6px;margin:18px 0 12px">Régimen Económico</h2>
+    ${clausulas}
+    <h2 style="font-size:13px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #ddd;padding-bottom:6px;margin:18px 0 12px">Disposiciones Generales</h2>
+    <p><strong>Objeto:</strong> Colaboración para captación, comercialización y cierre de operaciones inmobiliarias.</p>
+    <p style="margin-top:8px"><strong>Confidencialidad:</strong> Ambas partes mantendrán estricta confidencialidad sobre clientes, inmuebles y operaciones.</p>
+    <p style="margin-top:8px"><strong>No circunvención:</strong> Durante la operación y 12 meses después, ninguna parte eludirá a la otra respecto del activo o cliente introducido.</p>
+    <p style="margin-top:8px"><strong>Facturación:</strong> Cada parte emitirá factura. Pago dentro de 72 horas del cobro efectivo.</p>
+    <p style="margin-top:8px"><strong>Duración:</strong> Indefinida desde la firma. Resoluble con 30 días de preaviso.</p>
+    <p style="margin-top:8px"><strong>Jurisdicción:</strong> Legislación española. Juzgados de Madrid.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:32px;text-align:center">
+      <div><div style="border-top:1px solid #333;padding-top:8px;margin-top:36px"><p style="font-size:12px">Por ONOMA Real Estate<br><strong>Mohamed El Madani</strong></p></div></div>
+      <div><div style="border-top:1px dashed #999;padding-top:8px;margin-top:36px"><p style="font-size:12px">El Colaborador<br><strong>${colabPersona}</strong><br><em style="color:#999;font-size:11px">Pendiente de firma</em></p></div></div>
+    </div>`;
+
+  // Scroll tracking
+  const box = document.getElementById('contractBox');
+  const hint = document.getElementById('scrollHintContract');
+  const signArea = document.getElementById('signArea');
+  box.addEventListener('scroll', function() {
+    const pct = box.scrollTop / (box.scrollHeight - box.clientHeight);
+    if (pct >= 0.95) {
+      hint.style.display = 'none';
+      signArea.classList.add('unlocked');
+    }
+  });
+
+  // Sign name + accept → enable button
+  const nameInput = document.getElementById('signName');
+  const acceptCheck = document.getElementById('signAccept');
+  const signBtn = document.getElementById('btnSign');
+  nameInput.value = data.nombre || '';
+  function updateSignBtn() { signBtn.disabled = !(nameInput.value.trim() && acceptCheck.checked); }
+  nameInput.addEventListener('input', updateSignBtn);
+  acceptCheck.addEventListener('change', updateSignBtn);
+
+  // Canvas signature
+  setupSignCanvas();
+}
+
+// Signature canvas
+let signCtx, isDrawing = false;
+function setupSignCanvas() {
+  const canvas = document.getElementById('signCanvas');
+  if (!canvas) return;
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 120;
+  signCtx = canvas.getContext('2d');
+  signCtx.lineWidth = 2;
+  signCtx.lineCap = 'round';
+  signCtx.strokeStyle = '#1C1C1C';
+
+  canvas.addEventListener('mousedown', e => { isDrawing = true; signCtx.beginPath(); signCtx.moveTo(e.offsetX, e.offsetY); });
+  canvas.addEventListener('mousemove', e => { if (isDrawing) { signCtx.lineTo(e.offsetX, e.offsetY); signCtx.stroke(); } });
+  canvas.addEventListener('mouseup', () => isDrawing = false);
+  canvas.addEventListener('mouseleave', () => isDrawing = false);
+  // Touch
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); isDrawing = true; const r = canvas.getBoundingClientRect(); signCtx.beginPath(); signCtx.moveTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); }, {passive:false});
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); if (isDrawing) { const r = canvas.getBoundingClientRect(); signCtx.lineTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); signCtx.stroke(); } }, {passive:false});
+  canvas.addEventListener('touchend', () => isDrawing = false);
+}
+function clearSignCanvas() {
+  const canvas = document.getElementById('signCanvas');
+  if (canvas && signCtx) signCtx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// Handle contract signing
+async function handleContractSign() {
+  const data = window._savedColabData;
+  if (!data) return;
+  const btn = document.getElementById('btnSign');
+  btn.disabled = true;
+  btn.querySelector('.btn-text').textContent = 'Firmando...';
+  btn.classList.add('loading');
+
+  const now = new Date().toISOString();
+  const signName = document.getElementById('signName').value.trim();
+
+  try {
+    // Upload signature canvas as image to Cloudinary
+    let firmaUrl = null;
+    try {
+      const canvas = document.getElementById('signCanvas');
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+      if (blob && blob.size > 500) {
+        const fd = new FormData();
+        fd.append('file', blob, 'firma.png');
+        fd.append('upload_preset', CLOUDINARY_PRESET);
+        fd.append('folder', 'onoma/firmas');
+        const resp = await fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/image/upload', { method: 'POST', body: fd });
+        if (resp.ok) { const j = await resp.json(); firmaUrl = j.secure_url; }
+      }
+    } catch(e) {}
+
+    // Update collaborator: aprobado + firmado
+    await supabase.from('colaboradores').update({
+      estado: 'aprobado',
+      aprobado: true,
+      fecha_aprobacion: now,
+      contrato_estado: 'firmado',
+      firma_nombre: signName,
+      firma_fecha: now,
+    }).eq('id', data.id);
+
+    // Log
+    try { await supabase.from('actividad_log').insert({
+      tipo_evento: 'colaborador_firmado',
+      descripcion: 'Colaborador firmó contrato: ' + signName + ' (' + data.email + ')',
+      metadata: { colaborador_id: data.id, firma_url: firmaUrl },
+    }); } catch(e) {}
+
+    // Send confirmation email
+    try { await fetch(N8N_BASE + '/enviar-email-matching', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: data.email,
+        subject: 'Contrato firmado — ONOMA Homes',
+        nombre_destinatario: signName,
+        link_url: '',
+        mensaje: '¡Tu contrato de colaboración con ONOMA Real Estate ha sido firmado correctamente!\n\nFirmado por: ' + signName + '\nFecha: ' + new Date().toLocaleString('es-ES') + '\n\nYa puedes empezar a colaborar con nosotros. Un asesor de ONOMA te contactará para explicarte los próximos pasos.'
+      })
+    }); } catch(e) {}
+
+    // Show success
+    document.getElementById('contractSection').style.display = 'none';
+    const ss = document.getElementById('successScreen');
+    ss.querySelector('.success-icon').textContent = '🎉';
+    ss.querySelector('.success-title').textContent = '¡Bienvenido a ONOMA!';
+    ss.querySelector('.success-text').textContent = 'Tu contrato ha sido firmado correctamente. Ya puedes empezar a colaborar con nosotros. Recibirás un email de confirmación en breve.';
+    ss.classList.add('show');
+    window.scrollTo(0, 0);
+
+  } catch(e) {
+    btn.disabled = false;
+    btn.querySelector('.btn-text').textContent = 'Firmar contrato';
+    btn.classList.remove('loading');
+    showBanner('No se pudo completar la firma. Inténtalo de nuevo.');
+  }
 }
 </script>
 </body>
