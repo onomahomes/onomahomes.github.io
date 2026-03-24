@@ -689,29 +689,39 @@ let _discardMatchId = null, _discardReason = '';
 function openDiscardModal(matchId) {
   _discardMatchId = matchId;
   _discardReason = '';
-  const reasons = ['Precio alto', 'Zona no me convence', 'Tama\u00F1o insuficiente', 'Estado del piso', 'Otro'];
   document.getElementById('discard-modal-content').innerHTML = `
-    <h3>\uD83D\uDDD1\uFE0F \u00BFPor qu\u00E9 descartas este piso?</h3>
-    <div id="discard-reasons">${reasons.map(r => `<div class="reason-opt" onclick="selectDiscardReason(this,'${r}')">${r}</div>`).join('')}</div>
-    <textarea id="discard-notes" rows="2" placeholder="Notas adicionales (opcional)..." style="margin-top:8px"></textarea>
-    <div class="modal-actions">
+    <h3 style="margin-bottom:12px">\u00BFPor qu\u00E9 descartas este piso?</h3>
+    <textarea id="discard-notes" rows="4" placeholder="Describe qu\u00E9 hace que descartes este piso..." style="width:100%;font-size:14px;padding:12px;border:1.5px solid #ddd;border-radius:8px;resize:vertical;font-family:inherit"></textarea>
+    <div id="discard-min-hint" style="font-size:12px;color:#999;margin-top:4px">M\u00ednimo 10 caracteres</div>
+    <div class="modal-actions" style="margin-top:12px">
       <button class="btn btn-secondary" onclick="closeModal('discard-modal')">Cancelar</button>
       <button class="btn btn-danger" id="btn-confirm-discard" onclick="confirmDiscard()" disabled>Confirmar descarte</button>
     </div>
   `;
   document.getElementById('discard-modal').classList.add('open');
-}
-
-function selectDiscardReason(el, reason) {
-  document.querySelectorAll('#discard-reasons .reason-opt').forEach(e => e.classList.remove('selected'));
-  el.classList.add('selected');
-  _discardReason = reason;
-  document.getElementById('btn-confirm-discard').disabled = false;
+  // Enable button when 10+ chars
+  document.getElementById('discard-notes').addEventListener('input', function() {
+    const ok = this.value.trim().length >= 10;
+    document.getElementById('btn-confirm-discard').disabled = !ok;
+    document.getElementById('discard-min-hint').style.color = ok ? '#22c55e' : '#999';
+    document.getElementById('discard-min-hint').textContent = ok ? '\u2713 Listo' : 'M\u00ednimo 10 caracteres';
+  });
 }
 
 async function confirmDiscard() {
-  const notes = document.getElementById('discard-notes').value.trim();
-  const fullReason = _discardReason + (notes ? ': ' + notes : '');
+  const rawText = (document.getElementById('discard-notes')?.value || '').trim();
+  if (rawText.length < 10) return;
+  // Spelling correction via MOD86 (non-blocking, 5s timeout)
+  let fullReason = rawText;
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 5000);
+    const resp = await fetch('https://onomahomes.app.n8n.cloud/webhook/corregir-texto', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto: rawText }), signal: ctrl.signal
+    });
+    if (resp.ok) { const j = await resp.json(); if (j.texto_corregido) fullReason = j.texto_corregido; }
+  } catch(e) { /* use original */ }
   const m = _pisos.find(p => p.id === _discardMatchId);
   if (!m) return;
 
@@ -771,15 +781,20 @@ async function finalize() {
     }).eq('link_hash', _envio.link_hash);
   } catch(e) { console.warn('Finalize:', e); }
 
-  showState('\uD83C\uDF89', '\u00A1Gracias por tu valoraci\u00F3n!', 'Tu asesor se pondr\u00E1 en contacto contigo pronto para organizar las visitas y los pr\u00F3ximos pasos.');
+  showState('', 'Gracias por tu valoraci\u00F3n', 'Tu asesor se pondr\u00E1 en contacto contigo en breve.');
 }
 
 // ─── UTILS ───
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function showState(icon, title, msg) {
+  const checkSvg = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="30" stroke="#22c55e" stroke-width="3"/><path d="M20 32l8 8 16-16" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   document.getElementById('main-content').innerHTML = `
-    <div class="state-msg"><div class="state-icon">${icon}</div><h2>${title}</h2><p>${msg}</p></div>
-    <div class="footer-brand">ONOMA Homes \u00B7 onoma.es</div>`;
+    <div style="text-align:center;padding:60px 20px;max-width:480px;margin:0 auto">
+      <div style="margin-bottom:20px">${icon || checkSvg}</div>
+      <h2 style="font-size:24px;font-weight:700;margin-bottom:12px;color:#1C1C1C">${title}</h2>
+      <p style="font-size:16px;color:#666;line-height:1.6">${msg}</p>
+    </div>
+    <div style="text-align:center;font-size:12px;color:#bbb;margin-top:40px;padding:16px">ONOMA Homes \u00B7 onoma.es</div>`;
 }
 
 // Costs toggle + recalc
