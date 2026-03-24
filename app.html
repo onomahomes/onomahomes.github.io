@@ -3662,6 +3662,8 @@ async function submitFeedback(visitaId) {
     _fbDirty = false;
     toast('Feedback guardado correctamente');
     logActivity('feedback_completado', asesorName(currentUser.id) + ' completó feedback: ' + (_fbPiso.direccion||''), { visita_id: visitaId, piso_id: pisoId });
+    // Mejora #37: Regenerar descripción IA del piso con feedback (fire-and-forget)
+    if (pisoId) regeneratePisoDesc(pisoId).catch(() => {});
     closeModal();
 
     // 7. Show link modal if applicable
