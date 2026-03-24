@@ -420,6 +420,10 @@ async function submitColabFeedback() {
       });
     }
 
+    // Mejora #37: Flag piso for description regeneration (next time an asesor opens the ficha, it auto-regenerates)
+    const _pisoId = feedbackAsesor ? feedbackAsesor.piso_id : null;
+    if (_pisoId) { sb.from('pisos').update({ descripcion_ia: null }).eq('id', _pisoId).then(() => {}).catch(() => {}); }
+
     // Show success
     document.getElementById('screen-form').style.display = 'none';
     document.getElementById('bottom-bar').style.display = 'none';
