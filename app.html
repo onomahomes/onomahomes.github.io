@@ -1278,46 +1278,26 @@ function accionTimeBar(a) {
 
 function accionCard(a) {
   const pri = a.prioridad || 'normal';
+  const priColor = PRIORIDAD_COLORS[pri] || PRIORIDAD_COLORS.normal;
   const catIcon = CATEGORIA_ICONS[a.categoria] || '📋';
   const isOverdue = a.fecha_limite && new Date(a.fecha_limite) < new Date();
   const isEscalated = a.estado_escalado && a.estado_escalado !== 'pendiente';
   const isCritical = pri === 'critica';
-  const borderColor = isCritical ? 'var(--danger)' : pri === 'urgente' || pri === 'alta' ? 'var(--color-warning)' : isOverdue ? '#E67E22' : 'var(--border)';
+  const borderLeft = isCritical ? 'border-left:4px solid var(--danger)' : isOverdue ? 'border-left:4px solid var(--color-warning)' : '';
 
-  // #77: Badge = Colaborador/Directo (from enriched data)
-  const isColab = a._isColab;
-  const badgeHtml = isColab
-    ? `<span class="pill pill-blue" style="font-size:10px">🤝 ${a._colabName || 'Colaborador'}</span>`
-    : `<span class="pill pill-gray" style="font-size:10px">👤 Directo</span>`;
-
-  // #73: Context info
-  let contextHtml = '';
-  if (a._clientName) contextHtml += `<div style="font-size:12px;margin-bottom:2px"><strong>${a._clientName}</strong></div>`;
-  if (a._busca) contextHtml += `<div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">${a._busca}</div>`;
-  if (a._pisoDir) contextHtml += `<div style="font-size:11px;color:var(--text-muted)">🏠 ${a._pisoDir}</div>`;
-  const contactHtml = [
-    a._tel ? `<a href="tel:${a._tel}" style="font-size:11px;color:var(--accent);text-decoration:none" onclick="event.stopPropagation()">📞 ${a._tel}</a>` : '',
-    a._email ? `<a href="mailto:${a._email}" style="font-size:11px;color:var(--accent);text-decoration:none" onclick="event.stopPropagation()">✉️</a>` : ''
-  ].filter(Boolean).join(' ');
-
-  // #76: Clickable title for matching actions
-  const refId = a.referencia_id || '';
-  const isMatchAction = a.tipo === 'matching_revisar';
-  const titleClick = isMatchAction ? ` style="cursor:pointer;color:var(--accent)" onclick="event.stopPropagation();closeModal();switchTab('matchings');setTimeout(()=>{try{openMatchReview('${refId}')}catch(e){}},500)"` : '';
-
-  return `<div class="data-card ap-card ${isCritical ? 'ap-pulse' : ''}" data-accion-id="${a.id}" style="padding:14px;margin-bottom:8px;border-left:4px solid ${borderColor}">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-      <span style="font-size:14px">${catIcon}</span>
-      <span${titleClick} style="font-size:13px;font-weight:600;flex:1${isMatchAction?';color:var(--accent);cursor:pointer':''}">${a.titulo || TIPO_LABELS[a.tipo] || a.tipo}</span>
-      ${badgeHtml}
+  return `<div class="data-card ap-card ${isCritical ? 'ap-pulse' : ''}" data-accion-id="${a.id}" style="padding:16px;margin-bottom:10px;${borderLeft};transition:border-color 0.15s" onmouseenter="this.style.borderColor='var(--gold)'" onmouseleave="this.style.borderColor=''">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <span style="font-size:16px">${catIcon}</span>
+      <span style="font-size:14px;font-weight:600;flex:1">${a.titulo || TIPO_LABELS[a.tipo] || a.tipo}</span>
+      <span style="background:${priColor.bg};color:${priColor.text};font-family:var(--font-ui);font-weight:700;font-size:10px;padding:2px 8px;border-radius:100px;letter-spacing:0.05em;text-transform:uppercase">${pri}</span>
     </div>
-    ${contextHtml}
-    ${contactHtml ? `<div style="margin:4px 0">${contactHtml}</div>` : ''}
+    ${a.descripcion ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">${a.descripcion}</div>` : ''}
     ${accionTimeBar(a)}
-    ${isEscalated ? `<div style="margin-top:4px;padding:4px 8px;background:var(--color-error-bg);border-radius:6px;font-size:11px;font-weight:600;color:var(--danger)">⚠ ESCALADA</div>` : ''}
-    ${a.speech_ia_generado ? `<button class="btn btn-secondary btn-sm" style="margin-top:6px;font-size:11px" onclick="event.stopPropagation();showSpeechModal('${a.id}')">📞 Guía llamada</button>` : ''}
-    <div style="margin-top:8px">
-      <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();atenderAccion('${a.id}','${a.tipo}','${refId}')">Atender</button>
+    ${isEscalated ? `<div style="margin-top:6px;padding:6px 10px;background:var(--color-error-bg);border-radius:6px;font-size:11px;font-weight:600;color:var(--danger)">⚠ ESCALADA — ${a.estado_escalado.replace(/_/g,' ')}</div>` : ''}
+    ${a.speech_ia_generado ? `<button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="event.stopPropagation();showSpeechModal('${a.id}')">📞 Ver guía de llamada</button>` : ''}
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();atenderAccion('${a.id}','${a.tipo}','${a.referencia_id||''}')">Atender</button>
+      <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();completarAccion('${a.id}')">Completar</button>
     </div>
   </div>`;
 }
@@ -1333,89 +1313,51 @@ TAB_LOADERS.pendientes = async function() {
     const items = data || [];
     pendingCount = items.length; updateBadge();
 
-    // #73: Enrich items with context data (demanda, colaborador, piso)
-    const refIds = [...new Set(items.map(a => a.referencia_id).filter(Boolean))];
-    const pisoIds = [...new Set(items.map(a => a.piso_id).filter(Boolean))];
-    const demMap = {}, pisoMap = {}, colabMap = {};
-    if (refIds.length) {
-      try {
-        const { data: dems } = await sb.from('demandas').select('id,nombre,zona_preferida,presupuesto_max,habitaciones_min,colaborador,cliente').in('id', refIds);
-        (dems||[]).forEach(d => demMap[d.id] = d);
-      } catch(e) {}
-    }
-    if (pisoIds.length) {
-      try {
-        const { data: pisos } = await sb.from('pisos').select('id,direccion,barrio,precio').in('id', pisoIds);
-        (pisos||[]).forEach(p => pisoMap[p.id] = p);
-      } catch(e) {}
-    }
-    // Collect collaborator IDs
-    const colabIds = new Set();
-    Object.values(demMap).forEach(d => { if (d.colaborador && d.colaborador[0]) colabIds.add(String(d.colaborador[0]).replace(/[{}]/g,'')); });
-    if (colabIds.size) {
-      try {
-        const { data: colabs } = await sb.from('colaboradores').select('id,nombre,apellido,empresa,email,telefono').in('id', [...colabIds]);
-        (colabs||[]).forEach(c => colabMap[c.id] = c);
-      } catch(e) {}
-    }
-    // Collect client IDs
-    const clientIds = new Set();
-    Object.values(demMap).forEach(d => { if (d.cliente && d.cliente[0]) clientIds.add(String(d.cliente[0]).replace(/[{}]/g,'')); });
-    let clientMap = {};
-    if (clientIds.size) {
-      try {
-        const { data: cls } = await sb.from('clientes').select('id,nombre,email,telefono').in('id', [...clientIds]);
-        (cls||[]).forEach(c => clientMap[c.id] = c);
-      } catch(e) {}
-    }
+    // Group into 3 blocks
+    const vencidas = items.filter(a => a.fecha_limite && new Date(a.fecha_limite) < new Date());
+    const criticas = items.filter(a => !vencidas.includes(a) && (a.prioridad === 'critica' || a.prioridad === 'urgente'));
+    const resto = items.filter(a => !vencidas.includes(a) && !criticas.includes(a));
 
-    // Enrich each item
-    items.forEach(a => {
-      const dem = demMap[a.referencia_id] || {};
-      const piso = pisoMap[a.piso_id] || {};
-      const colabId = dem.colaborador && dem.colaborador[0] ? String(dem.colaborador[0]).replace(/[{}]/g,'') : null;
-      const colab = colabId ? colabMap[colabId] : null;
-      const clienteId = dem.cliente && dem.cliente[0] ? String(dem.cliente[0]).replace(/[{}]/g,'') : null;
-      const cliente = clienteId ? clientMap[clienteId] : null;
-      a._isColab = !!colab;
-      a._colabName = colab ? (colab.empresa || [colab.nombre,colab.apellido].filter(Boolean).join(' ')) : '';
-      a._clientName = dem.nombre || (cliente ? cliente.nombre : '') || '';
-      a._busca = dem.zona_preferida ? (dem.zona_preferida + (dem.presupuesto_max ? ' · ' + eur(dem.presupuesto_max) : '') + (dem.habitaciones_min ? ' · ' + dem.habitaciones_min + ' hab' : '')) : '';
-      a._pisoDir = piso.direccion || '';
-      a._tel = colab ? colab.telefono : (cliente ? cliente.telefono : '');
-      a._email = colab ? colab.email : (cliente ? cliente.email : '');
-    });
+    // Sort each by priority then fecha_limite
+    const sortFn = (a,b) => (PRIORIDAD_ORDER[a.prioridad]||3) - (PRIORIDAD_ORDER[b.prioridad]||3) || new Date(a.fecha_limite||0) - new Date(b.fecha_limite||0);
+    vencidas.sort(sortFn); criticas.sort(sortFn); resto.sort(sortFn);
 
-    // Badge color
+    // Count max priority for badge color
     const hasCritical = items.some(a => a.prioridad === 'critica' || (a.estado_escalado && a.estado_escalado !== 'pendiente'));
     const hasUrgent = items.some(a => a.prioridad === 'urgente');
     updateBadgeColor(hasCritical ? 'danger' : hasUrgent ? 'warning' : 'normal');
 
-    // #72: Group by category in collapsibles
-    const cats = { comunicacion: { icon: '💬', label: 'Comunicación' }, visitas: { icon: '📅', label: 'Visitas' }, operaciones: { icon: '💼', label: 'Operaciones' }, admin: { icon: '⚙️', label: 'Admin' } };
-    const byCat = {};
-    items.forEach(a => { const c = a.categoria || 'comunicacion'; if (!byCat[c]) byCat[c] = []; byCat[c].push(a); });
-    // Sort within each category
-    const sortFn = (a,b) => (PRIORIDAD_ORDER[a.prioridad]||3) - (PRIORIDAD_ORDER[b.prioridad]||3) || new Date(a.fecha_limite||0) - new Date(b.fecha_limite||0);
-    Object.values(byCat).forEach(list => list.sort(sortFn));
+    // Active filter state
+    const activeFilter = window._apFilter || 'todas';
+    const filterItems = (list) => activeFilter === 'todas' ? list : list.filter(a => a.categoria === activeFilter);
 
-    let sectionsHtml = '';
-    for (const [cat, info] of Object.entries(cats)) {
-      const list = byCat[cat] || [];
-      if (!list.length) continue;
-      const vencCount = list.filter(a => a.fecha_limite && new Date(a.fecha_limite) < new Date()).length;
-      sectionsHtml += `<div class="collapsible" style="margin-bottom:12px"><div class="collapsible-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-        <span>${info.icon} ${info.label} (${list.length})${vencCount ? ' · <span style="color:var(--danger)">' + vencCount + ' vencidas</span>' : ''}</span><span class="caret">▾</span>
-      </div><div class="collapsible-body open">${list.map(a => accionCard(a)).join('')}</div></div>`;
+    function renderSection(title, list, bgStyle) {
+      const filtered = filterItems(list);
+      if (!filtered.length) return '';
+      return `<div style="margin-bottom:20px;${bgStyle}padding:16px;border-radius:12px">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:10px;font-family:var(--font-ui)">${title} (${filtered.length})</div>
+        ${filtered.map(a => accionCard(a)).join('')}
+      </div>`;
     }
 
-    const vencidas = items.filter(a => a.fecha_limite && new Date(a.fecha_limite) < new Date());
+    const chipClass = (val) => `filter-chip ${activeFilter === val ? 'active' : ''}`;
 
     pane.innerHTML = `
       <div class="tab-toolbar" style="flex-wrap:wrap;gap:12px">
         <div><h2>Acciones Pendientes ${hasCritical ? '<span class="ap-pulse-dot"></span>' : ''}</h2><p>${items.length} acciones pendientes${vencidas.length ? ` · <span style="color:var(--danger);font-weight:600">${vencidas.length} vencidas</span>` : ''}</p></div>
       </div>
-      ${!items.length ? '<div class="empty-state"><span class="empty-icon">✅</span><p>No tienes acciones pendientes. ¡Todo al día!</p></div>' : sectionsHtml}`;
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">
+        <span class="${chipClass('todas')}" onclick="window._apFilter='todas';loadedTabs.delete('pendientes');TAB_LOADERS.pendientes()">Todas</span>
+        <span class="${chipClass('comunicacion')}" onclick="window._apFilter='comunicacion';loadedTabs.delete('pendientes');TAB_LOADERS.pendientes()">💬 Comunicación</span>
+        <span class="${chipClass('visitas')}" onclick="window._apFilter='visitas';loadedTabs.delete('pendientes');TAB_LOADERS.pendientes()">📅 Visitas</span>
+        <span class="${chipClass('operaciones')}" onclick="window._apFilter='operaciones';loadedTabs.delete('pendientes');TAB_LOADERS.pendientes()">💼 Operaciones</span>
+        <span class="${chipClass('admin')}" onclick="window._apFilter='admin';loadedTabs.delete('pendientes');TAB_LOADERS.pendientes()">⚙️ Admin</span>
+      </div>
+      ${!items.length ? '<div class="empty-state"><span class="empty-icon">✅</span><p>No tienes acciones pendientes. ¡Todo al día!</p></div>' : `
+        ${renderSection('Vencidas y escaladas', vencidas, 'background:rgba(139,32,32,0.04);')}
+        ${renderSection('Críticas y urgentes', criticas, 'background:rgba(230,126,34,0.04);')}
+        ${renderSection('Pendientes', resto, '')}
+      `}`;
   } catch(e) { tabError(pane, e); }
 };
 
@@ -1427,24 +1369,6 @@ function updateBadgeColor(level) {
     else if (level === 'warning') { badge.style.background = '#E67E22'; badge.classList.remove('ap-pulse'); }
     else { badge.style.background = 'var(--gold)'; badge.classList.remove('ap-pulse'); }
   });
-}
-
-// ── Handle action click (Bug #74 — was missing) ──
-function handleAccionClick(tipo, refId) {
-  if (!refId) { toast('Sin referencia para esta acción'); return; }
-  if (tipo === 'feedback_visita') {
-    // Open feedback modal for this visita
-    switchTab('visitas');
-    setTimeout(() => { try { openFeedbackModal(refId); } catch(e) { toast('Abre la visita desde el tab Visitas'); } }, 500);
-  } else if (tipo === 'visita_confirmar') {
-    switchTab('calendario');
-  } else if (tipo === 'matching_revisar') {
-    switchTab('matchings');
-    setTimeout(() => { try { openMatchReview(refId); } catch(e) {} }, 500);
-  } else if (tipo === 'llamada_sin_visita' || tipo === 'llamada_sin_actividad') {
-    // Open demanda detail for context
-    openDemandaDetail(refId);
-  }
 }
 
 // ── Atender acción ──
@@ -2502,15 +2426,21 @@ function renderMatchingsList() {
     const statusColor = pendCount > 0 ? 'gold' : 'green';
     const statusText = pendCount > 0 ? `${Math.min(pendCount, 5)} por revisar` : `${approvedCount} aprobados`;
 
-    return `<div style="background:white;border:1.5px solid var(--color-gris);border-radius:12px;margin-bottom:16px;overflow:hidden">
-      <div style="padding:16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="openMatchReview('${d.id}')">
-        <div>
-          <div style="font-weight:600;font-size:15px">${d.nombre||'Sin nombre'}</div>
-          <div style="font-size:12px;color:var(--text-muted)">${d.zona_preferida||''} · ${eur(d.presupuesto_max)} · ${d.habitaciones_min||'—'} hab</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="pill pill-${statusColor}" style="font-size:11px">${statusText}</span>
-          <button class="btn btn-secondary btn-sm" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();eliminarDemanda('${d.id}','${(d.nombre||'').replace(/'/g,"\\'")}')" title="Eliminar demanda">🗑️</button>
+    const hasColab = d.colaborador && d.colaborador.length > 0;
+    const specs = [d.zona_preferida, d.presupuesto_max ? eur(d.presupuesto_max) : null, d.habitaciones_min ? d.habitaciones_min+' hab' : null, d.metros_min ? d.metros_min+' m²' : null].filter(Boolean).join(' · ');
+
+    return `<div style="background:white;border:1.5px solid var(--color-gris);border-radius:12px;margin-bottom:16px;overflow:hidden;cursor:pointer" onclick="openMatchReview('${d.id}')">
+      <div style="padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px">
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+              ${hasColab ? '<span class="pill pill-blue" style="font-size:10px">🤝 Colaborador</span>' : '<span class="pill pill-gray" style="font-size:10px">👤 Directo</span>'}
+              <span class="pill pill-${statusColor}" style="font-size:10px">${statusText}</span>
+            </div>
+            <div style="font-weight:600;font-size:15px">${d.nombre||'Sin nombre'}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${specs || '—'}</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" style="font-size:11px;padding:4px 8px;flex-shrink:0" onclick="event.stopPropagation();eliminarDemanda('${d.id}','${(d.nombre||'').replace(/'/g,"\\'")}')" title="Eliminar demanda">🗑️</button>
         </div>
       </div>
     </div>`;
@@ -2666,7 +2596,7 @@ function openMatchReview(demandaId) {
     <div style="display:flex;flex-direction:column;gap:12px" id="match-review-cards">${cards}</div>
   `, 'lg', `
     <button class="btn btn-secondary" onclick="closeModal();renderMatchingsList()">← Volver</button>
-    <button class="btn btn-primary" id="btn-gen-envio" ${canGenerate?'':'disabled'} onclick="generateEnvio('${d.id}')">📧 Generar envío (${approved.length} aprobados)</button>
+    <button class="btn btn-primary" id="btn-gen-envio" ${approved.length>=5?'':'disabled style="opacity:0.5;cursor:not-allowed"'} onclick="generateEnvio('${d.id}')">${approved.length >= 5 ? '📧 Generar envío ✓' : '📧 ' + approved.length + ' de 5 seleccionados'}</button>
   `);
 
   // Mejora #9: Async load IA descriptions for cards without texto_recomendacion
@@ -2966,21 +2896,32 @@ async function generateEnvio(demandaId) {
     <button class="btn btn-primary" onclick="toast('✅ Envío registrado');closeModal();loadedTabs.delete('matchings');TAB_LOADERS.matchings()">✅ Listo</button>
   `);
 
-  // Async: generate IA message
+  // Async: generate IA descriptions per piso, then combine into message
   setTimeout(async () => {
     const spinner = document.getElementById('envio-spinner');
     const textarea = document.getElementById('envio-msg');
     try {
-      const pisosCtx = pisosDetails.map((p,i) => (i+1)+'. '+p.dir+' ('+p.barrio+') — '+p.precio+'€, '+p.hab+' hab, '+p.m2+' m²').join('; ');
-      const resp = await fetch('https://onomahomes.app.n8n.cloud/webhook/matching-description', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ piso_id: '', demanda_id: demandaId, score: 0, mode: 'long',
-          custom_prompt: 'Genera un mensaje para enviar por WhatsApp/email a ' + nombreDest + '. Incluye saludo con su nombre. Por cada uno de estos ' + approved.length + ' pisos, escribe la dirección y 2 líneas de por qué se lo recomiendas: ' + pisosCtx + '. Al final añade: "En el enlace encontrarás los pisos. Por cada uno podrás: agendar visita, guardarlo como favorito, o descartarlo. Tu asesor te confirmará las visitas." Firma: El equipo de ONOMA Homes. Texto limpio sin HTML.' })
+      // Generate short description for each piso in parallel
+      const promises = approved.map(m => {
+        const pid = Array.isArray(m.piso) ? m.piso[0] : m.piso;
+        const pisoId = pid ? String(pid).replace(/[{}]/g,'') : '';
+        return fetch('https://onomahomes.app.n8n.cloud/webhook/matching-description', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ piso_id: pisoId, demanda_id: demandaId, score: Math.round(m.score_matching||0), mode: 'short' })
+        }).then(r => r.ok ? r.json() : { descripcion: '' }).catch(() => ({ descripcion: '' }));
       });
-      if (resp.ok) {
-        const j = await resp.json();
-        if (j.descripcion) textarea.value = j.descripcion;
-      }
+      const results = await Promise.all(promises);
+
+      // Build message with IA descriptions
+      let msg = 'Hola ' + nombreDest + ',\n\nDesde ONOMA Homes hemos seleccionado ' + approved.length + ' pisos que encajan con lo que buscas:\n\n';
+      pisosDetails.forEach((p, i) => {
+        msg += (i+1) + '. ' + p.dir + ' — ' + eur(p.precio) + ' · ' + p.hab + ' hab · ' + p.m2 + ' m² (' + p.barrio + ')\n';
+        const iaDesc = results[i] && results[i].descripcion ? results[i].descripcion : '';
+        if (iaDesc) msg += iaDesc + '\n';
+        msg += '\n';
+      });
+      msg += 'En el enlace encontrarás los pisos seleccionados. Por cada uno podrás:\n• Agendar una visita directamente\n• Guardarlo como favorito\n• Descartarlo indicando el motivo\n\nTu asesor recibirá tu respuesta y te confirmará las visitas en breve.\n\nUn saludo,\nEl equipo de ONOMA Homes';
+      textarea.value = msg;
     } catch(e) {}
     if (spinner) spinner.style.display = 'none';
     if (textarea) textarea.style.display = '';
@@ -3851,7 +3792,7 @@ TAB_LOADERS.visitas = async function() {
   try {
     const { data, error } = await sb.from('visitas')
       .select('id,fecha_hora,estado,cliente_nombre,colaborador_id,piso_id,feedback_asesor_completado,valoracion_asesor,decision_cliente')
-      .eq('asesor_id', currentUser.id)
+      .filter('asesor', 'cs', `{"${currentUser.id}"}`)
       .order('fecha_hora', { ascending: true });
     if (error) throw error;
 
@@ -5453,10 +5394,13 @@ TAB_LOADERS.calendario = async function() {
     pane.innerHTML = `
       <div class="tab-toolbar" style="flex-wrap:wrap;gap:10px">
         <div><h2>Calendario</h2><p>${totalWeek} visitas · ${progCount} programadas · ${doneCount} completadas${pendFb ? ' · <span style="color:var(--danger);font-weight:600">'+pendFb+' pend. feedback</span>' : ''}</p></div>
-        <div style="display:flex;gap:6px;align-items:center">
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="window._calWeekOffset-=4;${nav}" title="Mes anterior">← Mes</button>
           <button class="btn btn-secondary btn-sm" onclick="window._calWeekOffset--;${nav}">←</button>
           <button class="btn btn-secondary btn-sm" onclick="window._calWeekOffset=0;${nav}">Hoy</button>
           <button class="btn btn-secondary btn-sm" onclick="window._calWeekOffset++;${nav}">→</button>
+          <button class="btn btn-secondary btn-sm" onclick="window._calWeekOffset+=4;${nav}" title="Mes siguiente">Mes →</button>
+          <input type="date" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font-ui)" onchange="if(this.value){const d=new Date(this.value);const today=new Date();const diff=Math.round((d-today)/604800000);window._calWeekOffset=diff;${nav}}">
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
