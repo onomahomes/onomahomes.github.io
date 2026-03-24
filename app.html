@@ -3770,7 +3770,7 @@ TAB_LOADERS.visitas = async function() {
       </div>`;
     }
 
-    function renderSection(title, items, tipo, color, icon) {
+    function renderVisitasSection(title, items, tipo, color, icon) {
       return `<div class="visitas-section" data-section="${tipo}">
         <div class="visitas-section-header" style="color:${color}">${icon} ${title} <span style="font-weight:400;font-size:13px;color:var(--text-muted)">(${items.length})</span></div>
         ${items.length === 0 ? `<p style="color:var(--text-muted);font-size:13px;padding:4px 0">Sin visitas en este estado.</p>`
@@ -3790,10 +3790,10 @@ TAB_LOADERS.visitas = async function() {
         <button class="filter-chip" onclick="filterVisitasSection(this,'completada')">Completadas (${sections.completada.length})</button>
       </div>
       ${!(data&&data.length) ? `<div class="empty-state"><span class="empty-icon">📍</span><p>Aún no hay visitas registradas.</p></div>` : `
-      ${renderSection('Por confirmar', sections.solicitada, 'solicitada', '#f59e0b', '🕐')}
-      ${renderSection('Confirmadas / Próximas', sections.confirmada, 'confirmada', '#22c55e', '✅')}
-      ${renderSection('Pendientes de feedback', sections.pendiente_feedback, 'pendiente_feedback', 'var(--danger)', '⚠️')}
-      ${renderSection('Completadas', sections.completada, 'completada', 'var(--text-muted)', '✓')}`}`;
+      ${renderVisitasSection('Por confirmar', sections.solicitada, 'solicitada', '#f59e0b', '🕐')}
+      ${renderVisitasSection('Confirmadas / Próximas', sections.confirmada, 'confirmada', '#22c55e', '✅')}
+      ${renderVisitasSection('Pendientes de feedback', sections.pendiente_feedback, 'pendiente_feedback', 'var(--danger)', '⚠️')}
+      ${renderVisitasSection('Completadas', sections.completada, 'completada', 'var(--text-muted)', '✓')}`}`;
   } catch(e) { tabError(pane, e); }
 };
 
