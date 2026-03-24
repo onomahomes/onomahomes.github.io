@@ -2285,7 +2285,6 @@ function renderMatchingsList() {
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span class="pill pill-${statusColor}" style="font-size:11px">${statusText}</span>
-          <span class="badge">${Math.min(pendCount + approvedCount, 5)}</span>
           <button class="btn btn-secondary btn-sm" style="font-size:11px;padding:4px 8px" onclick="event.stopPropagation();eliminarDemanda('${d.id}','${(d.nombre||'').replace(/'/g,"\\'")}')" title="Eliminar demanda">🗑️</button>
         </div>
       </div>
@@ -2340,8 +2339,14 @@ function openMatchReview(demandaId) {
     const p = pisosMap[pisoId] || {};
     let _fotosArr = p.fotos || [];
     if (typeof _fotosArr === 'string') { try { _fotosArr = JSON.parse(_fotosArr); } catch(e) { _fotosArr = []; } }
+    if (_fotosArr && typeof _fotosArr === 'object' && !Array.isArray(_fotosArr)) _fotosArr = Object.values(_fotosArr);
     if (!Array.isArray(_fotosArr)) _fotosArr = [];
-    const _rawFoto = _fotosArr.length > 0 ? (typeof _fotosArr[0]==='object' ? (_fotosArr[0].url || _fotosArr[0].thumbnails?.large?.url || '') : String(_fotosArr[0]||'')) : '';
+    let _rawFoto = '';
+    if (_fotosArr.length > 0) {
+      const first = _fotosArr[0];
+      if (typeof first === 'string') _rawFoto = first;
+      else if (first && typeof first === 'object') _rawFoto = first.url || first.secure_url || (first.thumbnails && first.thumbnails.large ? first.thumbnails.large.url : '') || '';
+    }
     const foto = (_rawFoto && _rawFoto.startsWith('http')) ? _rawFoto : null;
     const score = m.score_matching ? Math.round(m.score_matching) : 0;
     const isUF = p.urban_flip;
@@ -2354,7 +2359,7 @@ function openMatchReview(demandaId) {
     return `<div style="background:var(--bg);border:${isUF?'2px solid var(--gold)':'1px solid var(--border)'};border-radius:12px;overflow:hidden;${isDiscarded?'opacity:0.5':''}">
       <div style="display:flex;gap:14px;padding:14px">
         <div style="flex-shrink:0">
-          ${foto ? `<img src="${foto}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="openPisoDetail('${pisoId}','${demandaId}')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:100px;height:80px;display:none;align-items:center;justify-content:center;background:#f3f2ef;border-radius:8px;font-size:32px">🏠</div>` : `<div style="width:100px;height:80px;display:flex;align-items:center;justify-content:center;background:#f3f2ef;border-radius:8px;font-size:32px">🏠</div>`}
+          ${foto ? `<img src="${foto}" style="width:100px;height:80px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="openPisoDetail('${pisoId}','${demandaId}')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:100px;height:80px;display:none;align-items:center;justify-content:center;background:#eae8e3;border-radius:8px;flex-direction:column;gap:2px"><span style="font-size:22px;opacity:0.4">📷</span><span style="font-size:9px;color:#999">Sin foto</span></div>` : `<div style="width:100px;height:80px;display:flex;align-items:center;justify-content:center;background:#eae8e3;border-radius:8px;flex-direction:column;gap:2px"><span style="font-size:22px;opacity:0.4">📷</span><span style="font-size:9px;color:#999">Sin foto</span></div>`}
           <div style="text-align:center;margin-top:6px">${scoreRing(score)}</div>
         </div>
         <div style="flex:1;min-width:0">
@@ -2546,12 +2551,7 @@ async function checkDemandaAlarmas() {
 function showDiscardPopup(matchId, pisoDir) {
   openModal('Descartar piso', `
     <p style="margin-bottom:12px">¿Por qué descartas <strong>${pisoDir}</strong> para este cliente?</p>
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px" id="discard-reasons">
-      ${['Fuera de presupuesto','Zona no deseada','No cumple requisitos','Ya visitado','Otro'].map(r =>
-        `<label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px"><input type="radio" name="discard-reason" value="${r}"> ${r}</label>`
-      ).join('')}
-    </div>
-    <textarea id="discard-notes" rows="3" placeholder="Notas adicionales (opcional)..." style="width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px solid var(--border);border-radius:8px;resize:vertical"></textarea>
+    <textarea id="discard-notes" rows="4" placeholder="Escribe el motivo del descarte..." style="width:100%;font-family:inherit;font-size:13px;padding:10px;border:1.5px solid var(--border);border-radius:8px;resize:vertical"></textarea>
   `, 'sm', `
     <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
     <button class="btn btn-primary" style="background:var(--danger)" onclick="discardMatch('${matchId}')">Confirmar descarte</button>
@@ -2559,10 +2559,19 @@ function showDiscardPopup(matchId, pisoDir) {
 }
 
 async function discardMatch(matchId) {
-  const reason = document.querySelector('input[name="discard-reason"]:checked')?.value || '';
-  const notes = document.getElementById('discard-notes')?.value || '';
-  if (!reason) { toast('Selecciona un motivo', 'error'); return; }
-  const feedback = reason + (notes ? ': ' + notes : '');
+  const rawText = (document.getElementById('discard-notes')?.value || '').trim();
+  if (!rawText) { toast('Escribe un motivo', 'error'); return; }
+  // Try spelling correction via MOD86 (non-blocking)
+  let feedback = rawText;
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 5000);
+    const resp = await fetch('https://onomahomes.app.n8n.cloud/webhook/corregir-texto', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto: rawText }), signal: ctrl.signal
+    });
+    if (resp.ok) { const j = await resp.json(); if (j.texto_corregido) feedback = j.texto_corregido; }
+  } catch(e) { /* use original text */ }
   try {
     await sb.from('matchings').update({ estado: 'descartado_asesor', feedback_descarte_asesor: feedback }).eq('id', matchId);
     const m = _matchReviewData.matchings.find(x => x.id === matchId);
