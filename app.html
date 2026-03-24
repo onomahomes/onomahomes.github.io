@@ -346,6 +346,9 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px;
 .cal-cell { background: var(--card); min-height: 48px; }
 .cal-block { padding: 4px 6px; border-radius: 4px; cursor: pointer; transition: opacity 0.15s; overflow: hidden; z-index: 1; }
 .cal-block:hover { opacity: 0.8; }
+.cal-mobile { display: none; }
+@media (max-width: 600px) { .cal-desktop { display: none !important; } .cal-mobile { display: block; } }
+@media (min-width: 601px) { .cal-mobile { display: none; } }
 @media (max-width: 768px) { .cal-grid { grid-template-columns: 40px repeat(7, 1fr); } .cal-header-cell { font-size: 10px; } }
 
 /* TOAST */
@@ -597,7 +600,7 @@ const TAB_PLACEHOLDERS = {
   dashboard:      { icon: '🏠', title: 'Dashboard', desc: 'Resumen del día: actividad, próximas visitas, alertas y métricas personales.' },
   pendientes:     { icon: '🔔', title: 'Acciones Pendientes', desc: 'Lista de tareas pendientes: seguimientos, feedbacks, matchings por revisar.' },
   matchings:      { icon: '🤝', title: 'Matchings', desc: 'Gestión de matchings: demandas activas → top pisos → envío al cliente.' },
-  calendario:     { icon: '📅', title: 'Calendario de visitas', desc: 'Vista de calendario con todas tus visitas confirmadas y pendientes. Se implementa en Fase 6.' },
+  calendario:     { icon: '📅', title: 'Calendario de visitas', desc: 'Vista semanal con todas tus visitas.' },
   kpis:           { icon: '📊', title: 'Mis KPIs', desc: 'Tu rendimiento personal: ventas, visitas, conversión, comisiones generadas. Se implementa en Fase 8.' },
   notificaciones: { icon: '🔔', title: 'Notificaciones', desc: 'Alertas de escalado 72h, pisos sin actividad, operaciones bloqueadas.' },
   pipeline:       { icon: '📊', title: 'Pipeline', desc: 'Operaciones en curso: fases, fechas clave, comisiones.' },
@@ -4838,6 +4841,206 @@ function openCalVisitDetail(visitaId) {
         <div><strong>Feedback:</strong> ${v.feedback_asesor_completado ? '✅ Completado' : '❌ Pendiente'} ${v.estado_feedback ? '(' + v.estado_feedback + ')' : ''}</div>
       </div>
     `, 'sm');
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// TAB: CALENDARIO (Asesor)
+// ════════════════════════════════════════════════════════════════
+TAB_LOADERS.calendario = async function() {
+  const pane = document.getElementById('tab-calendario');
+  if (!pane) return;
+  tabLoad(pane);
+
+  try {
+    // Fetch asesor's visitas using array field
+    const { data: visitas } = await sb.from('visitas')
+      .select('id,fecha_hora,hora_visita,estado,cliente_nombre,colaborador_id,piso_id,feedback_asesor_completado,estado_feedback')
+      .filter('asesor', 'cs', `{"${currentUser.id}"}`)
+      .order('fecha_hora', { ascending: true });
+    const items = visitas || [];
+
+    // Piso data for display
+    const pisoIds = [...new Set(items.map(v => v.piso_id).filter(Boolean))];
+    const pisosMap = {};
+    if (pisoIds.length) {
+      const { data: pd } = await sb.from('pisos').select('id,direccion,nombre,barrio,precio,fotos');
+      (pd || []).forEach(p => { pisosMap[p.id] = p; });
+    }
+
+    // Demanda data for comprador info
+    const demandaMap = {};
+    try {
+      const { data: dems } = await sb.from('demandas').select('id,nombre').filter('asesor', 'cs', `{"${currentUser.id}"}`);
+      (dems || []).forEach(d => { demandaMap[d.id] = d; });
+    } catch(e) {}
+
+    // Week offset state
+    if (window._calWeekOffset === undefined) window._calWeekOffset = 0;
+    if (!window._calFilter) window._calFilter = 'todas';
+    const offset = window._calWeekOffset;
+    const filter = window._calFilter;
+
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay() + 1 + (offset * 7));
+    weekStart.setHours(0,0,0,0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    weekEnd.setHours(23,59,59,999);
+
+    const norm = s => (s||'').trim().toLowerCase();
+
+    let weekVisitas = items.filter(v => {
+      if (!v.fecha_hora) return false;
+      const d = new Date(v.fecha_hora);
+      return d >= weekStart && d <= weekEnd;
+    });
+
+    // Apply status filter
+    if (filter !== 'todas') {
+      weekVisitas = weekVisitas.filter(v => {
+        const st = norm(v.estado);
+        if (filter === 'programadas') return st === 'programada' || st === 'confirmada' || st === 'solicitada';
+        if (filter === 'completadas') return st === 'realizada';
+        if (filter === 'canceladas') return st === 'cancelada';
+        return true;
+      });
+    }
+
+    // Stats
+    const totalWeek = weekVisitas.length;
+    const progCount = weekVisitas.filter(v => { const s=norm(v.estado); return s==='programada'||s==='confirmada'||s==='solicitada'; }).length;
+    const doneCount = weekVisitas.filter(v => norm(v.estado)==='realizada').length;
+    const pendFb = weekVisitas.filter(v => norm(v.estado)==='realizada' && !v.feedback_asesor_completado).length;
+
+    // Build week grid
+    const days = [];
+    for (let i = 0; i < 7; i++) { const d = new Date(weekStart); d.setDate(weekStart.getDate() + i); days.push(d); }
+    const hours = [];
+    for (let h = 8; h <= 20; h++) hours.push(h);
+    const dayNames = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+    const monthNames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+    function fmtRange() { return days[0].getDate()+' '+monthNames[days[0].getMonth()]+' — '+days[6].getDate()+' '+monthNames[days[6].getMonth()]+' '+days[6].getFullYear(); }
+
+    // Status colors
+    function statusColor(estado) {
+      const s = norm(estado);
+      if (s === 'programada' || s === 'solicitada') return '#10B981'; // green
+      if (s === 'confirmada') return '#3B82F6'; // blue
+      if (s === 'realizada') return '#9CA3AF'; // gray
+      if (s === 'cancelada') return '#EF4444'; // red
+      return '#C9A84C'; // gold default
+    }
+
+    // Desktop: grid blocks
+    let visitBlocks = '';
+    weekVisitas.forEach(v => {
+      const dt = new Date(v.fecha_hora);
+      const dayIdx = (dt.getDay() + 6) % 7;
+      const hour = dt.getHours();
+      if (hour < 8 || hour > 20) return;
+      const col = dayIdx + 2;
+      const row = hour - 8 + 2;
+      const piso = pisosMap[v.piso_id];
+      const pisoDir = piso ? (piso.direccion || piso.nombre || '').substring(0, 22) : '—';
+      const color = statusColor(v.estado);
+      const isDone = norm(v.estado) === 'realizada';
+      visitBlocks += `<div class="cal-block" style="grid-column:${col};grid-row:${row};background:${color}20;border-left:3px solid ${color};${isDone?'opacity:0.6;':''}" onclick="openCalAsesorDetail('${v.id}')" title="${pisoDir} — ${v.cliente_nombre||''}">
+        <div style="font-size:11px;font-weight:600;color:${color}">${String(hour).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}</div>
+        <div style="font-size:10px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pisoDir}</div>
+        <div style="font-size:9px;color:var(--text-muted)">${v.cliente_nombre||'—'}</div>
+      </div>`;
+    });
+
+    // Mobile: list view
+    let mobileList = '';
+    const sorted = [...weekVisitas].sort((a,b) => new Date(a.fecha_hora) - new Date(b.fecha_hora));
+    let lastDay = '';
+    sorted.forEach(v => {
+      const dt = new Date(v.fecha_hora);
+      const dayStr = dayNames[(dt.getDay()+6)%7] + ' ' + dt.getDate() + ' ' + monthNames[dt.getMonth()];
+      if (dayStr !== lastDay) { mobileList += `<div style="font-weight:700;font-size:13px;margin-top:16px;margin-bottom:6px;color:var(--text-muted)">${dayStr}</div>`; lastDay = dayStr; }
+      const piso = pisosMap[v.piso_id];
+      const pisoDir = piso ? (piso.direccion||piso.nombre||'').substring(0,30) : '—';
+      const color = statusColor(v.estado);
+      mobileList += `<div class="data-card" style="padding:12px;margin-bottom:6px;border-left:3px solid ${color};cursor:pointer" onclick="openCalAsesorDetail('${v.id}')">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-weight:600;font-size:13px;color:${color}">${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}</span>
+          <span style="font-size:11px;color:var(--text-muted)">${norm(v.estado)}</span>
+        </div>
+        <div style="font-size:13px;margin-top:4px">${pisoDir}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${v.cliente_nombre||'—'}</div>
+      </div>`;
+    });
+    if (!sorted.length) mobileList = '<div class="empty-state"><span class="empty-icon">📅</span><p>No hay visitas esta semana.</p></div>';
+
+    const chipClass = f => `filter-chip${filter===f?' active':''}`;
+    const nav = `loadedTabs.delete('calendario');TAB_LOADERS.calendario()`;
+
+    pane.innerHTML = `
+      <div class="tab-toolbar" style="flex-wrap:wrap;gap:10px">
+        <div><h2>Calendario</h2><p>${totalWeek} visitas · ${progCount} programadas · ${doneCount} completadas${pendFb ? ' · <span style="color:var(--danger);font-weight:600">'+pendFb+' pend. feedback</span>' : ''}</p></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="btn btn-secondary btn-sm" onclick="window._calWeekOffset--;${nav}">←</button>
+          <button class="btn btn-secondary btn-sm" onclick="window._calWeekOffset=0;${nav}">Hoy</button>
+          <button class="btn btn-secondary btn-sm" onclick="window._calWeekOffset++;${nav}">→</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <span class="${chipClass('todas')}" onclick="window._calFilter='todas';${nav}">Todas</span>
+        <span class="${chipClass('programadas')}" onclick="window._calFilter='programadas';${nav}">Programadas</span>
+        <span class="${chipClass('completadas')}" onclick="window._calFilter='completadas';${nav}">Completadas</span>
+        <span class="${chipClass('canceladas')}" onclick="window._calFilter='canceladas';${nav}">Canceladas</span>
+      </div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:12px;text-align:center">${fmtRange()}</div>
+      <div class="cal-desktop" style="overflow-x:auto">
+        <div class="cal-grid">
+          <div class="cal-header-cell"></div>
+          ${days.map((d, i) => {
+            const isToday = d.toDateString() === today.toDateString();
+            return `<div class="cal-header-cell" style="${isToday?'background:var(--color-gold-bg);border-radius:8px':''}">${dayNames[i]}<br><span style="font-size:16px;font-weight:700">${d.getDate()}</span></div>`;
+          }).join('')}
+          ${hours.map(h => `<div class="cal-hour-cell">${String(h).padStart(2,'0')}:00</div>${days.map(()=>'<div class="cal-cell"></div>').join('')}`).join('')}
+          ${visitBlocks}
+        </div>
+      </div>
+      <div class="cal-mobile">${mobileList}</div>`;
+  } catch(e) { tabError(pane, e); }
+};
+
+// Detail popup for asesor calendar visit
+function openCalAsesorDetail(visitaId) {
+  sb.from('visitas').select('*').eq('id', visitaId).limit(1).then(async ({ data }) => {
+    const v = data && data[0] ? data[0] : {};
+    let pisoHtml = '';
+    if (v.piso_id) {
+      const { data: pd } = await sb.from('pisos').select('id,direccion,nombre,precio,barrio,fotos').eq('id', v.piso_id).limit(1);
+      const p = pd && pd[0] ? pd[0] : {};
+      let foto = '';
+      if (p.fotos) { try { const f = typeof p.fotos === 'string' ? JSON.parse(p.fotos) : p.fotos; if (f && f[0]) foto = typeof f[0] === 'string' ? f[0] : (f[0].url || ''); } catch(e) {} }
+      pisoHtml = `<div style="background:var(--glass);border-radius:10px;padding:14px;margin-bottom:14px;display:flex;gap:12px;align-items:center">
+        ${foto ? `<img src="${foto}" style="width:80px;height:60px;object-fit:cover;border-radius:8px">` : ''}
+        <div>
+          <div style="font-weight:600">${p.direccion||p.nombre||'—'}</div>
+          <div style="font-size:12px;color:var(--text-muted)">${p.barrio||''} · ${p.precio ? new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(p.precio) : ''}</div>
+        </div>
+      </div>`;
+    }
+    const norm = s => (s||'').trim().toLowerCase();
+    const fbStatus = v.feedback_asesor_completado ? '<span style="color:var(--accent)">✅ Completado</span>' : '<span style="color:var(--danger)">❌ Pendiente</span>';
+    openModal('Detalle de visita', `
+      ${pisoHtml}
+      <div style="font-size:14px;line-height:2">
+        <div><strong>Comprador:</strong> ${v.cliente_nombre || '—'}</div>
+        <div><strong>Fecha:</strong> ${v.fecha_hora ? new Date(v.fecha_hora).toLocaleString('es-ES',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}) : '—'}</div>
+        <div><strong>Estado:</strong> ${v.estado || '—'}</div>
+        <div><strong>Feedback:</strong> ${fbStatus}</div>
+        ${v.colaborador_id ? '<div><strong>Colaborador:</strong> Sí (vinculado)</div>' : ''}
+      </div>
+      ${norm(v.estado)==='realizada' && !v.feedback_asesor_completado ? `<div style="margin-top:14px"><button class="btn btn-primary" onclick="closeModal();openFeedbackModal('${v.id}')">📝 Dar feedback</button></div>` : ''}
+    `, 'md');
   });
 }
 
