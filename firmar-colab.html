@@ -436,9 +436,9 @@
 <!-- MAIN PAGE -->
 <div class="page">
   <div class="card">
-    <div class="card-header">
+    <div class="card-header" id="card-header">
       <h1>Contrato de Colaboración</h1>
-      <p>Lee el contrato completo antes de firmar</p>
+      <p id="card-header-sub">Lee el contrato completo antes de firmar</p>
     </div>
     <div class="card-body" id="card-body">
 
@@ -837,6 +837,8 @@
     $('s-email').textContent  = colab.email || '—';
 
     showState('state-success');
+    var hdrSub = document.getElementById('card-header-sub');
+    if (hdrSub) hdrSub.style.display = 'none';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
