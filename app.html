@@ -2105,27 +2105,28 @@ async function openPisoDetail(id, returnToDemandaId) {
     if (items.length) horariosHtml = `<div style="margin-top:14px"><div class="form-section-title">Horarios preferentes de visita</div><p style="font-size:13px;color:var(--text-muted)">${items.join(' · ')}</p></div>`;
   }
 
-  openModal(p.direccion || 'Detalle del piso', `
+  openModal('Detalle del piso', `
     ${carouselHtml}
     ${fotos.length > 0 ? `<p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:4px;margin-bottom:8px">Clic en la foto para abrir galería completa</p>` : ''}
     <div style="margin-top:4px">
+      <div style="font-size:20px;font-weight:700;margin-bottom:4px">${p.direccion || '—'}</div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
         ${p.urban_flip ? '<div class="uf-badge">⭐ URBAN FLIP</div>' : ''}
         <span class="pill pill-${procedencia.startsWith('Colaborador') ? 'blue' : 'green'}" style="font-size:11px">${procedencia}</span>
+        <span style="font-size:13px;color:var(--text-muted)">${p.barrio||''}</span>
+        ${p.referencia_catastral ? `<span style="font-size:11px;color:var(--text-muted);font-family:monospace">Ref: ${p.referencia_catastral}</span>` : ''}
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-        <div>
-          <div style="font-size:13px;color:var(--text-muted)">${p.barrio||''}</div>
-          ${p.referencia_catastral ? `<div style="font-size:11px;color:var(--text-muted);font-family:monospace">Ref: ${p.referencia_catastral}</div>` : ''}
-        </div>
-        <div style="font-size:22px;font-weight:700;color:var(--accent)">${eur(p.precio)}</div>
-      </div>
+      <div style="font-size:24px;font-weight:700;color:var(--accent);margin-bottom:10px">${eur(p.precio)}</div>
       <div class="card-tags" style="margin-bottom:12px">${pills}</div>
-      ${(p.descripcion_ia || p.caracteristicas_libres) ? `<div style="margin-bottom:14px;background:#f9f8f6;border-radius:8px;padding:12px 14px;border-left:3px solid var(--accent)">
-        <div class="form-section-title" style="margin-bottom:6px">Descripción del piso</div>
-        ${p.caracteristicas_libres ? `<p style="font-size:13px;line-height:1.6;color:var(--text);margin-bottom:8px">${p.caracteristicas_libres}</p>` : ''}
-        ${p.descripcion_ia ? `<div class="form-section-title" style="margin-bottom:4px;color:var(--accent)">Recomendación IA</div><p style="font-size:13px;line-height:1.6;color:var(--text)">${p.descripcion_ia}</p>` : ''}
-      </div>` : ''}
+      <div style="margin-bottom:14px;background:#f9f8f6;border-radius:8px;padding:14px;border-left:3px solid var(--accent)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div class="form-section-title" style="margin:0">Descripción del piso</div>
+          <button class="btn btn-secondary btn-sm" style="font-size:11px;padding:2px 8px" onclick="regeneratePisoDesc('${id}')">🔄 Regenerar</button>
+        </div>
+        <div id="piso-desc-${id}">
+          ${p.descripcion_ia ? `<p style="font-size:13px;line-height:1.7;color:var(--text)">${p.descripcion_ia}</p>` : `<p style="font-size:13px;color:var(--text-muted);font-style:italic">Generando descripción...</p>`}
+        </div>
+      </div>
       ${_pisoDetailReturnTo ? `<div id="dossier-ia-${id}" style="margin-bottom:14px;background:linear-gradient(135deg,#fdf8f0,#f5f0e8);border-radius:8px;padding:12px 14px;border-left:3px solid var(--gold)">
         <div class="form-section-title" style="margin-bottom:6px;color:var(--gold)">🤖 Análisis IA personalizado</div>
         <p style="font-size:13px;line-height:1.6;color:var(--text-muted);font-style:italic">Generando análisis cruzado...</p>
@@ -2145,6 +2146,29 @@ async function openPisoDetail(id, returnToDemandaId) {
     ? `<button class="btn btn-secondary" onclick="openMatchReview('${_pisoDetailReturnTo}')">← Volver a matchings</button>`
     : '');
 
+  // Mejora #36: Auto-generate piso description if missing
+  if (!p.descripcion_ia) {
+    setTimeout(async () => {
+      const el = document.getElementById('piso-desc-' + id);
+      if (!el) return;
+      try {
+        const extras = [p.ascensor?'ascensor':'',p.terraza?'terraza':'',p.garaje?'garaje':'',p.trastero?'trastero':''].filter(Boolean).join(', ');
+        const resp = await fetch('https://onomahomes.app.n8n.cloud/webhook/matching-description', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ piso_id: id, demanda_id: '', mode: 'long',
+            custom_prompt: 'Genera una descripción profesional de 7-9 líneas para este piso, como las de Idealista o Fotocasa. Incluye todas sus características, ventajas de la zona, y atractivo para un comprador. Sin saludos. Texto directo y comercial.' })
+        });
+        if (resp.ok) {
+          const j = await resp.json();
+          if (j.descripcion) {
+            el.innerHTML = '<p style="font-size:13px;line-height:1.7;color:var(--text)">' + j.descripcion.replace(/\n/g, '<br>') + '</p>';
+            sb.from('pisos').update({ descripcion_ia: j.descripcion }).eq('id', id).then(() => {});
+          } else { el.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Descripción no disponible</p>'; }
+        }
+      } catch(e) { /* silent */ }
+    }, 200);
+  }
+
   // Mejora #10: Async load full IA description for dossier
   if (_pisoDetailReturnTo) {
     setTimeout(() => {
@@ -2162,6 +2186,26 @@ async function openPisoDetail(id, returnToDemandaId) {
       }).catch(() => { if (el) el.querySelector('p').textContent = 'Análisis no disponible.'; });
     }, 200);
   }
+}
+
+async function regeneratePisoDesc(pisoId) {
+  const el = document.getElementById('piso-desc-' + pisoId);
+  if (!el) return;
+  el.innerHTML = '<p style="font-size:13px;color:var(--text-muted);font-style:italic"><span class="spinner" style="display:inline-block;width:14px;height:14px;border-width:2px;vertical-align:middle;margin-right:6px"></span>Regenerando descripción...</p>';
+  try {
+    const resp = await fetch('https://onomahomes.app.n8n.cloud/webhook/matching-description', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ piso_id: pisoId, demanda_id: '', mode: 'long' })
+    });
+    if (resp.ok) {
+      const j = await resp.json();
+      if (j.descripcion) {
+        el.innerHTML = '<p style="font-size:13px;line-height:1.7;color:var(--text)">' + j.descripcion.replace(/\n/g, '<br>') + '</p>';
+        await sb.from('pisos').update({ descripcion_ia: j.descripcion }).eq('id', pisoId);
+        toast('Descripción actualizada');
+      }
+    }
+  } catch(e) { el.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">No se pudo generar. Inténtalo de nuevo.</p>'; }
 }
 
 function cardCarNav(el, dir) {
