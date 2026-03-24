@@ -3945,7 +3945,13 @@ function generateAndShowContrato(colab, clausulas) {
 
   openModal('📄 Contrato generado', `
     <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Revisa el contrato. El colaborador lo firmará digitalmente desde el enlace.</p>
-    <div class="contrato-preview">${contratoHtml}</div>
+    <div class="contrato-preview" id="contrato-preview-box">${contratoHtml}</div>
+    <div style="margin-top:14px;background:#f9f8f6;border-radius:8px;padding:14px;border:1px solid var(--border)">
+      <div class="form-section-title" style="margin-bottom:8px">¿Hay algún error en el contrato?</div>
+      <textarea id="contrato-correction" rows="2" placeholder="Describe el error: nombre incorrecto, NIF mal, dato erróneo..." style="width:100%;font-family:inherit;font-size:13px;padding:10px;border:1px solid var(--border);border-radius:8px;resize:vertical;margin-bottom:8px"></textarea>
+      <button class="btn btn-secondary btn-sm" id="btn-regen-contract" onclick="regenerateContrato('${colab.id}')">🔄 Regenerar contrato</button>
+      <span id="regen-status" style="font-size:12px;color:var(--text-muted);margin-left:8px"></span>
+    </div>
     <div class="alert alert-info" style="margin-top:14px;font-size:13px">
       🔗 Enlace de firma:<br><a href="${signingUrl}" target="_blank" style="color:var(--accent);word-break:break-all">${signingUrl}</a>
     </div>
@@ -3962,17 +3968,65 @@ async function sendContractEmail(colabId, email, nombre) {
   if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
   try {
     const signingUrl = `${GH_PAGES}/firmar-colab.html?id=${colabId}`;
-    await callN8n('send-email', {
-      to: email, subject: 'Contrato de colaboración — ONOMA Homes',
-      html: `<p>Hola ${nombre},</p><p>Tu contrato de colaboración con ONOMA Real Estate está listo para firma digital.</p><p style="text-align:center;margin:24px 0"><a href="${signingUrl}" style="display:inline-block;background:#A6896E;color:white;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">✍️ Firmar contrato</a></p><p style="font-size:13px;color:#666">Si tienes dudas, escríbenos a melmadani@urbanflip.io</p><p>Un saludo,<br><strong>ONOMA Real Estate</strong></p>`,
+    await fetch('https://onomahomes.app.n8n.cloud/webhook/enviar-email-matching', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email, subject: 'Contrato de colaboración — ONOMA Homes',
+        nombre_destinatario: nombre,
+        link_url: signingUrl,
+        mensaje: 'Hola ' + nombre + ',\n\nTu contrato de colaboración con ONOMA Real Estate está listo para firma digital.\n\nRevisa las cláusulas y firma electrónicamente en el enlace de abajo.'
+      })
     });
     await sb.from('colaboradores').update({ contrato_estado: 'enviado' }).eq('id', colabId);
-    toast('✅ Contrato enviado por email');
-    if (btn) { btn.textContent = '✅ Enviado'; }
+    toast('✅ Contrato enviado a ' + email);
+    if (btn) { btn.textContent = '✅ Enviado a ' + email; setTimeout(() => { btn.disabled = false; btn.textContent = '📧 Enviar por email'; }, 5000); }
   } catch(e) {
-    toast('Error: ' + e.message, 'error');
-    if (btn) { btn.disabled = false; btn.textContent = '📧 Enviar al colaborador'; }
+    toast('No se pudo enviar el contrato', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = '📧 Enviar por email'; }
   }
+}
+
+async function regenerateContrato(colabId) {
+  const desc = document.getElementById('contrato-correction')?.value?.trim();
+  if (!desc) { toast('Describe el error que ves', 'error'); return; }
+  const btn = document.getElementById('btn-regen-contract');
+  const status = document.getElementById('regen-status');
+  btn.disabled = true; btn.textContent = '🔄 Corrigiendo...';
+  status.textContent = '';
+  try {
+    // Ask IA to identify what field to fix
+    const resp = await fetch('https://onomahomes.app.n8n.cloud/webhook/corregir-texto', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto: 'El asesor reporta este error en el contrato del colaborador ID ' + colabId + ': "' + desc + '". Identifica qué campo de Supabase (nombre, apellido, nif_cif, cif_empresa, empresa, email, direccion_fiscal) hay que corregir y devuelve SOLO un JSON: {"campo":"nombre_campo","valor":"valor_correcto"}. Si no puedes identificar, devuelve {"error":"no_identificado"}.' })
+    });
+    if (resp.ok) {
+      const j = await resp.json();
+      const corrected = j.texto_corregido || '';
+      try {
+        const fix = JSON.parse(corrected);
+        if (fix.error) {
+          status.textContent = 'No se pudo identificar el error. Edita los datos desde la ficha del colaborador.';
+        } else if (fix.campo && fix.valor) {
+          // Update the field
+          const updateObj = {}; updateObj[fix.campo] = fix.valor;
+          await sb.from('colaboradores').update(updateObj).eq('id', colabId);
+          // Re-fetch and regenerate
+          const { data } = await sb.from('colaboradores').select('*').eq('id', colabId).limit(1);
+          if (data && data[0]) {
+            const c = data[0];
+            const clausulas = { inter: c.acepta_broker_broker, uf: c.acepta_urban_flip, trip: c.acepta_tripartita };
+            generateAndShowContrato(c, clausulas);
+            toast('✅ Contrato actualizado: ' + fix.campo + ' → ' + fix.valor);
+          }
+        }
+      } catch(e) {
+        status.textContent = 'No se pudo procesar la corrección. Edita los datos manualmente.';
+      }
+    }
+  } catch(e) {
+    status.textContent = 'No se pudo conectar con el servicio de corrección.';
+  }
+  btn.disabled = false; btn.textContent = '🔄 Regenerar contrato';
 }
 
 function openColabLink() {
